@@ -3540,7 +3540,7 @@ function showWindow(buttonClass) {
         if (u.vip) {
             var ngw = win.find(".gameCreate");
             if (!ngw.find("button").is(".usergame")) {
-                ngw.append('<button class="usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-игра</button>');
+                ngw.append('<button class="button usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-игра</button>');
             }
         }
         break;
@@ -4111,20 +4111,22 @@ function showPlayerInfoBlock(cu) {
             showWindow("giftshop");
         }).appendTo(giftInfo);
     }
-    var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
-    $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
-        if (u.money2 >= needVipSum) {
-            modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
-                sendToSocket({
-                    type: "donat",
-                    action: "vip",
-                    other: cu._id
+    if (u.stat && u.stat.pay) {
+        var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
+        $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
+            if (u.money2 >= needVipSum) {
+                modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
+                    sendToSocket({
+                        type: "donat",
+                        action: "vip",
+                        other: cu._id
+                    });
                 });
-            });
-        } else {
-            showMessage('Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету.");
-        }
-    }).appendTo(giftInfo);
+            } else {
+                showMessage('Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету.");
+            }
+        }).appendTo(giftInfo);
+    }
     showWindow("playerInfoBlock");
 }
 shop.find("[data-item]").click(function() {
@@ -8465,6 +8467,10 @@ game.start = function(data) {
     game.item2limit = (u.item2 && u.item2 > 2) ? 3 : 2;
     itemPanel.removeClass();
     itemPanel.find("div").removeClass("itemoff");
+    var caption = "";
+    if (data.caption) {
+        caption = data.caption;
+    }
     if (data.gameinfo) {
         room = data.gameinfo._id;
         closedgame = (data.gameinfo.style == 2);
@@ -8534,7 +8540,7 @@ game.start = function(data) {
     if (game.man) {
         showNewDiv('<div class="lastwords">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>");
     }
-    if (gamecaption.substring(0, 2).toLowerCase() == "пб" || game.botwall) {
+    if (caption.substring(0, 2).toLowerCase() == "пб" || game.botwall) {
         showNewDiv('<div class="lastwords">Внимание! Это партия против ботов!</div>');
     }
     if (!isMaffia) {
@@ -8864,9 +8870,14 @@ snowball.setRound = function(data) {
     }
     snowball.playerList(snowball.sides.we, snowPlayList1);
     snowball.playerList(snowball.sides.they, snowPlayList2);
+    var nicksArray = [];
     snowSelect.html("");
     snowball.sides.they.forEach(function(el) {
-        snowSelect.append('<option value="' + el + '">' + playersInfoArray[el].login + "</option>");
+        nicksArray.push([playersInfoArray[el].login, el]);
+    });
+    nicksArray.sort(plSort);
+    nicksArray.forEach(function(el) {
+        snowSelect.append('<option value="' + el[1] + '">' + el[0] + "</option>");
     });
     showNewDiv('<br/><div class="important">' + snowball.roundName[data.round] + "</div>");
     if (data.sides[1].indexOf(u._id) == -1 && data.sides[2].indexOf(u._id) == -1) {

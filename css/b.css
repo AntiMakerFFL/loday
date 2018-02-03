@@ -449,7 +449,7 @@ article>h2,.hidden {
     background-color: rgba(0,0,0,0.5)
 }
 
-.color6 footer,.color6 .clear-adresat {
+.color6 footer,.color6 .clear-adresat,.maffia .color1 footer {
     color: #fff!important
 }
 
@@ -1307,7 +1307,7 @@ article li span {
     cursor: pointer;
     color: #2300aa;
     letter-spacing: 0;
-    font-family: Ubuntu,'PT Sans',SegoeUi,sans-serif
+    font-family: Lora,serif,'PT Sans',SegoeUi,sans-serif
 }
 
 .messages img {
@@ -2306,7 +2306,8 @@ footer>div:before {
 }
 
 .panel-bottom:before {
-    content: 'Текст'
+    content: 'Текст';
+    bottom: 4px
 }
 
 #sendMsg {
@@ -2846,7 +2847,7 @@ footer>div:before {
 
 .button,#playersButton {
     padding: 0 15px;
-    font: 700 20px/36px Ubuntu,Arial,sans-serif;
+    font: 400 20px/36px Ubuntu,Arial,sans-serif;
     background: #93c47d;
     background: linear-gradient(#93c47d,#274e13 50%,#93c47d);
     border: 1px solid #fff;
@@ -3651,14 +3652,14 @@ button:active,.button:active {
 }
 
 .gameCreate>button {
-    position: absolute
+    position: absolute;
+    left: 10%;
+    bottom: 75px
 }
 
 .gameCreate>button,.userGame>button {
     display: block;
-    left: 10%;
     width: 80%;
-    bottom: 75px;
     margin: 0 auto;
     height: 50px;
     box-sizing: border-box;
@@ -4110,10 +4111,6 @@ button.usergame {
     content: '? '
 }
 
-#showDonat:after {
-    content: ' ?'
-}
-
 .shop>div {
     display: inline-block;
     width: 33%;
@@ -4249,8 +4246,7 @@ button.usergame {
     position: absolute;
     width: 90%;
     background: 0;
-    text-align: center;
-    font-size: 1.2em
+    text-align: center
 }
 
 .shop>div>div:nth-of-type(3)>span:before {
@@ -4288,6 +4284,7 @@ button.usergame {
     left: 5%;
     border: 0;
     padding: 0;
+    font-size: 1.1em;
     outline: 0
 }
 
@@ -4401,7 +4398,7 @@ button.usergame {
     width: 80%;
     max-width: 400px;
     margin: 0 auto;
-    line-height: 40px;
+    line-height: 30px;
     box-sizing: border-box;
     padding: 3px 6px;
     text-align: center;
@@ -8805,7 +8802,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1;
-    background: url(/images/locked.png) center/contain #363 no-repeat
+    background: url(/images/locked.png) center/contain #396 no-repeat
 }
 
 #left-panel>div.locked:after {
@@ -9461,12 +9458,13 @@ section.bonus-ring:before {
     filter: invert(1)
 }
 
-.noeffect * {
+.noeffect *,.noeffect *:before,.noeffect *:after {
     -webkit-filter: none!important;
     filter: none!important;
     -webkit-animation: none!important;
     animation: none!important;
-    transition-property: none!important
+    -webkit-transition: none!important;
+    transition: none!important
 }
 
 #main>ul,.window,.newgame,.rightPanel,.charEdit,.quiz {
@@ -9950,7 +9948,8 @@ section.bonus-ring:before {
     background: url(/images/maffia/button.png) no-repeat;
     background-size: 100% 100%;
     color: #000;
-    border: 0
+    border: 0;
+    box-shadow: none
 }
 
 .maffia #warningWindow p,.maffia #modalWindow p,.maffia #optionsWindow p {
@@ -10002,20 +10001,40 @@ section.bonus-ring:before {
     box-shadow: none
 }
 
-.maffia #pay-button,.maffia .stat>button {
-    background: url(/images/maffia/button-ext.png) repeat-x;
-    background-size: auto 100%;
-    color: #000;
-    text-shadow: 1px 1px #fff,-1px -1px #fff,-1px 1px #fff,1px -1px #fff;
-    box-shadow: none
+button {
+    position: relative
 }
 
 .maffia button,.maffia .shop>div>div:nth-of-type(3)>button {
-    background: url(/images/maffia/button2.png) no-repeat;
-    background-size: 100% 100%;
-    color: #222;
-    box-shadow: inset 2px 2px 5px #220,inset -2px 2px 5px #220,inset 2px -2px 5px #220,inset -2px -2px 5px #220;
-    border-radius: 0
+    outline: 0;
+    overflow: hidden;
+    border: 1px solid #fe6637;
+    border-radius: 8px;
+    background: #2eb57d;
+    box-shadow: 0 8px 20px rgba(46,229,157,.4);
+    color: #fff;
+    transition: .2s ease-in-out
+}
+
+.maffia button:after {
+    content: '';
+    background: linear-gradient(90deg,rgba(255,255,255,.1),rgba(255,255,255,.5));
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    top: -8px;
+    left: -75px;
+    -webkit-transform: skewX(-45deg);
+    transform: skewX(-45deg)
+}
+
+.maffia button:not(.button):hover {
+    background: #fe6637
+}
+
+.maffia button:hover:after {
+    left: 100%;
+    transition: .5s ease-in-out
 }
 
 .maffia .button-findgame {
@@ -10023,7 +10042,8 @@ section.bonus-ring:before {
 }
 
 .maffia .button-donatoptions {
-    background-image: url(/images/maffia/button3.png)!important
+    background-image: url(/images/maffia/button3.png)!important;
+    background-size: 100% 100%!important
 }
 
 .maffia .info>div:before,.maffia section.bonus-ring:before {
