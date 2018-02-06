@@ -24,7 +24,7 @@ var domain = "loday.ru"
   , tp = $("#tooltip")
   , ptp = $("#playerInfo")
   , gameptp = $("#playerGameInfo")
-  , wW = $("#warningWindow")
+  , wW = $(".warningWindow")
   , mW = $("#modalWindow")
   , w = $("#infomessage")
   , oW = $("#optionsWindow")
@@ -57,18 +57,18 @@ var domain = "loday.ru"
   , colNum = 1
   , sortType = 1
   , gameStyle = {
-    0: "Простая игра",
-    1: "Игра без ботов",
-    2: "Закрытая игра",
-    3: "Игра против ботов",
-    4: "Битва полов"
+    0: "РџСЂРѕСЃС‚Р°СЏ РёРіСЂР°",
+    1: "РРіСЂР° Р±РµР· Р±РѕС‚РѕРІ",
+    2: "Р—Р°РєСЂС‹С‚Р°СЏ РёРіСЂР°",
+    3: "РРіСЂР° РїСЂРѕС‚РёРІ Р±РѕС‚РѕРІ",
+    4: "Р‘РёС‚РІР° РїРѕР»РѕРІ"
 }
   , gameTypes = {
-    1: "Сокращенная партия",
-    2: "Обычная партия",
-    3: "Расширенная партия",
-    4: "Сокращенная партия (с маньяком)",
-    13: "VIP-игра"
+    1: "РЎРѕРєСЂР°С‰РµРЅРЅР°СЏ РїР°СЂС‚РёСЏ",
+    2: "РћР±С‹С‡РЅР°СЏ РїР°СЂС‚РёСЏ",
+    3: "Р Р°СЃС€РёСЂРµРЅРЅР°СЏ РїР°СЂС‚РёСЏ",
+    4: "РЎРѕРєСЂР°С‰РµРЅРЅР°СЏ РїР°СЂС‚РёСЏ (СЃ РјР°РЅСЊСЏРєРѕРј)",
+    13: "VIP-РёРіСЂР°"
 }
   , roleSmiles = ["", "stud", "poh", "glava", "dej", "pom", "rev", "lun", "cat", "adv"]
   , mafroleSmiles = ["", "gr", "maf", "boss", "kom", "ped", "man", "doc", "cat", "adv"]
@@ -1316,7 +1316,7 @@ function sendToSocket(obj) {
         ws.send(JSON.stringify(obj));
     } catch (e) {
         showNewMessage({
-            message: "Ошибка: сбой инициализации сокета. Попробуйте обновить страницу.",
+            message: "РћС€РёР±РєР°: СЃР±РѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё СЃРѕРєРµС‚Р°. РџРѕРїСЂРѕР±СѓР№С‚Рµ РѕР±РЅРѕРІРёС‚СЊ СЃС‚СЂР°РЅРёС†Сѓ.",
             color: "#ff0000"
         });
     }
@@ -1371,7 +1371,7 @@ function showDate(date, time) {
     return out;
 }
 function rusDate(str, text, withpoints) {
-    var monthNames = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], weekdays = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"], d, dateArr;
+    var monthNames = ["СЏРЅРІР°СЂСЏ", "С„РµРІСЂР°Р»СЏ", "РјР°СЂС‚Р°", "Р°РїСЂРµР»СЏ", "РјР°СЏ", "РёСЋРЅСЏ", "РёСЋР»СЏ", "Р°РІРіСѓСЃС‚Р°", "СЃРµРЅС‚СЏР±СЂСЏ", "РѕРєС‚СЏР±СЂСЏ", "РЅРѕСЏР±СЂСЏ", "РґРµРєР°Р±СЂСЏ"], weekdays = ["РІРѕСЃРєСЂРµСЃРµРЅСЊРµ", "РїРѕРЅРµРґРµР»СЊРЅРёРє", "РІС‚РѕСЂРЅРёРє", "СЃСЂРµРґР°", "С‡РµС‚РІРµСЂРі", "РїСЏС‚РЅРёС†Р°", "СЃСѓР±Р±РѕС‚Р°"], d, dateArr;
     if (text) {
         if (withpoints === true) {
             dateArr = str.toString().split(".");
@@ -1384,7 +1384,7 @@ function rusDate(str, text, withpoints) {
         d = new Date(parseInt(str));
     }
     if (d == "Invalid Date") {
-        return "Неверная дата";
+        return "РќРµРІРµСЂРЅР°СЏ РґР°С‚Р°";
     }
     return d.getDate() + " " + monthNames[d.getMonth()] + (withpoints == "short" ? "" : " " + d.getFullYear() + " (" + weekdays[d.getDay()] + ")");
 }
@@ -1404,16 +1404,16 @@ function curDate() {
 }
 function roleReplace(message) {
     if (message) {
-        message = message.replace(/(^|\s)(рев|ревнивый студент|ман|маньяк)(\s|$)/gi, ' <span class="jeal"></span> ');
-        message = message.replace(/(^|\s)(студ|студент|гр|гражданин)(\s|$)/gi, ' <span class="stud"></span> ');
-        message = message.replace(/(^|\s)(лун|лунатик|док|доктор)(\s|$)/gi, ' <span class="sleep"></span> ');
-        message = message.replace(/(^|\s)(деж|дежурный|коп|комиссар)(\s|$)/gi, ' <span class="duty"></span> ');
-        message = message.replace(/(^|\s)(пом|помощник дежурного|серж|сержант)(\s|$)/gi, ' <span class="assis"></span> ');
-        message = message.replace(/(^|\s)(пох|похититель|маф|мафиози)(\s|$)/gi, ' <span class="robb"></span> ');
-        message = message.replace(/(^|\s)(глава похитителей|босс мафии|босс)(\s|$)/gi, ' <span class="hrobb"></span> ');
-        message = message.replace(/(^|\s)котик(\s|$)/gi, ' <span class="cat catm"></span> ');
-        message = message.replace(/(^|\s)кот(\s|$)/gi, ' <span class="cat"></span> ');
-        message = message.replace(/(^|\s)(вахтер|адвокат)(\s|$)/gi, ' <span class="adv"></span> ');
+        message = message.replace(/(^|\s)(СЂРµРІ|СЂРµРІРЅРёРІС‹Р№ СЃС‚СѓРґРµРЅС‚|РјР°РЅ|РјР°РЅСЊСЏРє)(\s|$)/gi, ' <span class="jeal"></span> ');
+        message = message.replace(/(^|\s)(СЃС‚СѓРґ|СЃС‚СѓРґРµРЅС‚|РіСЂ|РіСЂР°Р¶РґР°РЅРёРЅ)(\s|$)/gi, ' <span class="stud"></span> ');
+        message = message.replace(/(^|\s)(Р»СѓРЅ|Р»СѓРЅР°С‚РёРє|РґРѕРє|РґРѕРєС‚РѕСЂ)(\s|$)/gi, ' <span class="sleep"></span> ');
+        message = message.replace(/(^|\s)(РґРµР¶|РґРµР¶СѓСЂРЅС‹Р№|РєРѕРї|РєРѕРјРёСЃСЃР°СЂ)(\s|$)/gi, ' <span class="duty"></span> ');
+        message = message.replace(/(^|\s)(РїРѕРј|РїРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ|СЃРµСЂР¶|СЃРµСЂР¶Р°РЅС‚)(\s|$)/gi, ' <span class="assis"></span> ');
+        message = message.replace(/(^|\s)(РїРѕС…|РїРѕС…РёС‚РёС‚РµР»СЊ|РјР°С„|РјР°С„РёРѕР·Рё)(\s|$)/gi, ' <span class="robb"></span> ');
+        message = message.replace(/(^|\s)(РіР»Р°РІР° РїРѕС…РёС‚РёС‚РµР»РµР№|Р±РѕСЃСЃ РјР°С„РёРё|Р±РѕСЃСЃ)(\s|$)/gi, ' <span class="hrobb"></span> ');
+        message = message.replace(/(^|\s)РєРѕС‚РёРє(\s|$)/gi, ' <span class="cat catm"></span> ');
+        message = message.replace(/(^|\s)РєРѕС‚(\s|$)/gi, ' <span class="cat"></span> ');
+        message = message.replace(/(^|\s)(РІР°С…С‚РµСЂ|Р°РґРІРѕРєР°С‚)(\s|$)/gi, ' <span class="adv"></span> ');
         message = message.replace(/\[(stud|gr)\]/gi, ' <span class="rolesmile role1"></span> ');
         message = message.replace(/\[(poh|maf)\]/gi, ' <span class="rolesmile role2"></span> ');
         message = message.replace(/\[(glava|boss)\]/gi, ' <span class="rolesmile role3"></span> ');
@@ -1435,13 +1435,13 @@ function roleReplace(message) {
     return message;
 }
 function matFilter(message) {
-    var mat = " [ой] ";
-    message = message.replace(/(^|\s)(хуй|хуя|бля)/gi, mat);
-    message = message.replace(/пизд|нахуй|похуй|уеб|хуй|хуе|хyй|хyе|xуй|xуе|аеб|(^|\s)еба|е6|((^|\s)манда(\s|$))|пидор/gi, mat);
+    var mat = " [РѕР№] ";
+    message = message.replace(/(^|\s)(С…СѓР№|С…СѓСЏ|Р±Р»СЏ)/gi, mat);
+    message = message.replace(/РїРёР·Рґ|РЅР°С…СѓР№|РїРѕС…СѓР№|СѓРµР±|С…СѓР№|С…СѓРµ|С…yР№|С…yРµ|xСѓР№|xСѓРµ|Р°РµР±|(^|\s)РµР±Р°|Рµ6|((^|\s)РјР°РЅРґР°(\s|$))|РїРёРґРѕСЂ/gi, mat);
     return message;
 }
 function searchImg(message) {
-    message = message.replace(/(^|\s)http(\S)*(.jpg|.jpeg|.png|.gif)(\s|$)/gi, ' <span class="imageLoader" data-title="Посмотреть изображение" onclick="showWall(\'$&\',true,true)"></span> ');
+    message = message.replace(/(^|\s)http(\S)*(.jpg|.jpeg|.png|.gif)(\s|$)/gi, ' <span class="imageLoader" data-title="РџРѕСЃРјРѕС‚СЂРµС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ" onclick="showWall(\'$&\',true,true)"></span> ');
     message = message.replace(/\{([a-z]{2})\}/gi, ' <span class="flag"><span style="background-image:url(/images/flags/$1.png)"></span></span> ');
     return message;
 }
@@ -1486,43 +1486,47 @@ function escapeHtml(text) {
     });
 }
 function warningWindow(text, callback, buttext, win, specialclass) {
-    wW.find(".modal").removeAttr("style");
-    wW.find("span").html(text);
-    wW.show();
-    var wb = wW.find("button");
+    var newWW = wW.clone();
+    newWW.appendTo(container);
+    newWW.find("span").html(text);
+    newWW.show();
+    var wb = newWW.find("button");
     if (buttext) {
         wb.css({
             width: "auto",
             padding: "0 10px"
         }).html(buttext);
     } else {
-        wb.removeAttr("style").html("ОК");
+        wb.html("РћРљ");
     }
     wb.unbind("click").one("click", function() {
-        wW.hide();
+        newWW.fadeOut(300);
         if (callback) {
             callback();
         }
     });
-    wW.removeClass();
     if (win != undefined && game.style && game.style.style == 4 && container.hasClass("current")) {
         var whowin = (win) ? (u.sex == 1 ? "women" : "men") : (u.sex == 1 ? "men" : "women");
-        wW.addClass(whowin + "win");
+        newWW.addClass(whowin + "win");
     } else {
         if (win && $(window).height() > 430) {
-            wW.addClass("win");
+            newWW.addClass("win");
         }
     }
+    newWW.hide = function() {
+        $(this).removeClass("showWindow");
+    }
+    ;
     if (specialclass) {
-        wW.addClass(specialclass);
+        newWW.addClass(specialclass);
         setTimeout(function() {
-            wW.addClass("showWindow");
-        }, 500);
+            newWW.addClass("showWindow");
+        }, 500, newWW);
     } else {
-        wW.addClass("showWindow");
+        newWW.addClass("showWindow");
     }
 }
-wW.hide = mW.hide = oW.hide = function() {
+mW.hide = oW.hide = function() {
     $(this).removeClass("showWindow");
 }
 ;
@@ -1598,7 +1602,7 @@ function updateInterface(udata) {
         }
         $("#shop" + i).find("div:nth-of-type(2)").html(v);
         if (i == 6 && diff > 0) {
-            $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
+            $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "С‡Р°СЃ", "С‡Р°СЃР°", "С‡Р°СЃРѕРІ"));
         }
     }
     if (win.find(".inventory").is(":visible")) {
@@ -1625,9 +1629,9 @@ function showPlayersList(players, roomid) {
         }
     }
 }
-function showGameInfo(info) {
-    closedgame = (info.style == 2);
-    var addIcon = "";
+function gameTypeInfo(info) {
+    var addIcon = ""
+      , styleObj = info.hasOwnProperty("style") ? (info.style.hasOwnProperty("style") ? info.style.style : info.style) : 0;
     if (info.selecting) {
         addIcon += '<b class="selrolgame"></b>';
     }
@@ -1640,7 +1644,11 @@ function showGameInfo(info) {
     if (info.man) {
         addIcon += '<b class="manmode"></b>';
     }
-    gametitle.html("<span>" + addIcon + " " + gameStyle[info.style] + " на " + info.count + ' игроков</span> <span id="addedToGame">' + info.add + '</span> <span id="remainForGame">' + (info.count - info.add) + "</span> <span>Cтавка " + info.sum + "</span>");
+    return addIcon + " " + gameStyle[styleObj] + " РЅР° " + info.count + " РёРіСЂРѕРєРѕРІ";
+}
+function showGameInfo(info) {
+    closedgame = (info.style == 2);
+    gametitle.html("<span>" + gameTypeInfo(info) + '</span> <span id="addedToGame">' + info.add + '</span> <span id="remainForGame">' + (info.count - info.add) + "</span> <span>CС‚Р°РІРєР° " + info.sum + "</span>");
     $("article").find(".blocktitle").find(".gamemakerinfo").html(info.creator + ": &laquo;" + info.caption + "&raquo;").attr("data-title", info.caption);
     header.find(".gamestyle").find("span").each(function(index) {
         $(this).removeClass();
@@ -1652,21 +1660,21 @@ function showGameInfo(info) {
     sb.className = "";
     if (closedgame && info.creator == u.login) {
         sb.className = "my";
-        sb.innerHTML = "Принять";
+        sb.innerHTML = "РџСЂРёРЅСЏС‚СЊ";
     }
     game.sum = info.sum;
     gamemoney.html(over1000(u.money - info.sum));
     var firstText = roleText.all.zayavka;
     if (info.style == 3) {
-        firstText = "Это необычная игра, а битва против ботов, где Вам вместе с другими игроками предстоит противостоять команде ботов!<br/> Дождитесь союзников, соперники прибудут позже.";
+        firstText = "Р­С‚Рѕ РЅРµРѕР±С‹С‡РЅР°СЏ РёРіСЂР°, Р° Р±РёС‚РІР° РїСЂРѕС‚РёРІ Р±РѕС‚РѕРІ, РіРґРµ Р’Р°Рј РІРјРµСЃС‚Рµ СЃ РґСЂСѓРіРёРјРё РёРіСЂРѕРєР°РјРё РїСЂРµРґСЃС‚РѕРёС‚ РїСЂРѕС‚РёРІРѕСЃС‚РѕСЏС‚СЊ РєРѕРјР°РЅРґРµ Р±РѕС‚РѕРІ!<br/> Р”РѕР¶РґРёС‚РµСЃСЊ СЃРѕСЋР·РЅРёРєРѕРІ, СЃРѕРїРµСЂРЅРёРєРё РїСЂРёР±СѓРґСѓС‚ РїРѕР·Р¶Рµ.";
     } else {
         if (info.married) {
-            firstText = "Добро пожаловать на свадебную церемонию!<br/> Подождите, когда все гости соберутся...";
+            firstText = "Р”РѕР±СЂРѕ РїРѕР¶Р°Р»РѕРІР°С‚СЊ РЅР° СЃРІР°РґРµР±РЅСѓСЋ С†РµСЂРµРјРѕРЅРёСЋ!<br/> РџРѕРґРѕР¶РґРёС‚Рµ, РєРѕРіРґР° РІСЃРµ РіРѕСЃС‚Рё СЃРѕР±РµСЂСѓС‚СЃСЏ...";
         }
     }
     showNewDiv(firstText);
     if (info.specialRoles) {
-        var allRoles = "Создатель партии выбрал следующие роли: ";
+        var allRoles = "РЎРѕР·РґР°С‚РµР»СЊ РїР°СЂС‚РёРё РІС‹Р±СЂР°Р» СЃР»РµРґСѓСЋС‰РёРµ СЂРѕР»Рё: ";
         info.specialRoles.forEach(function(el) {
             allRoles += '<span class="rolesmile role' + el + '"></span>';
         });
@@ -1675,17 +1683,17 @@ function showGameInfo(info) {
     if (info.params) {
         var gParams = [];
         if (info.params.noitem4) {
-            gParams.push('<span class="for-ffl">без печенья</span><span class="for-maffia">без жуков</span>');
+            gParams.push('<span class="for-ffl">Р±РµР· РїРµС‡РµРЅСЊСЏ</span><span class="for-maffia">Р±РµР· Р¶СѓРєРѕРІ</span>');
         }
         if (info.params.nobonus) {
-            gParams.push("без игровых бонусов");
+            gParams.push("Р±РµР· РёРіСЂРѕРІС‹С… Р±РѕРЅСѓСЃРѕРІ");
         }
         if (info.params.hasOwnProperty("item2")) {
-            gParams.push('Лимит <span class="for-ffl">замков</span><span class="for-maffia">маскировок</span> - ' + info.params.item2);
+            gParams.push('Р›РёРјРёС‚ <span class="for-ffl">Р·Р°РјРєРѕРІ</span><span class="for-maffia">РјР°СЃРєРёСЂРѕРІРѕРє</span> - ' + info.params.item2);
         }
-        showNewDiv("<div>В этой партии создателем установлены следующие ограничения:<ul><li>" + gParams.join("</li><li>") + "</li></ul></div>");
+        showNewDiv("<div>Р’ СЌС‚РѕР№ РїР°СЂС‚РёРё СЃРѕР·РґР°С‚РµР»РµРј СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹ СЃР»РµРґСѓСЋС‰РёРµ РѕРіСЂР°РЅРёС‡РµРЅРёСЏ:<ul><li>" + gParams.join("</li><li>") + "</li></ul></div>");
     }
-    showNewDiv('<div class="blue">Скучно играть одному ?? ' + (isAppVK ? "Пригласи друзей и знакомых" : 'Скинь друзьям ссылку<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " и играй вместе с ними O!</div>");
+    showNewDiv('<div class="blue">РЎРєСѓС‡РЅРѕ РёРіСЂР°С‚СЊ РѕРґРЅРѕРјСѓ ?? ' + (isAppVK ? "РџСЂРёРіР»Р°СЃРё РґСЂСѓР·РµР№ Рё Р·РЅР°РєРѕРјС‹С…" : 'РЎРєРёРЅСЊ РґСЂСѓР·СЊСЏРј СЃСЃС‹Р»РєСѓ<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " Рё РёРіСЂР°Р№ РІРјРµСЃС‚Рµ СЃ РЅРёРјРё O!</div>");
     helper.hint("wait-players");
     if (closedgame) {
         container.addClass("closedgame");
@@ -1723,7 +1731,7 @@ function showNewMessage(event) {
       , udata = event.from;
     root.className = "message";
     name.className = "writer";
-    if (!udata && event.message == "Игра начинается") {
+    if (!udata && event.message == "РРіСЂР° РЅР°С‡РёРЅР°РµС‚СЃСЏ") {
         udata = "[server]";
         $("h3.leave").css({
             visibility: "hidden"
@@ -1780,12 +1788,16 @@ function showNewMessage(event) {
             if (event.to == u._id) {
                 if (!container.hasClass("ingame") && pluhTime < datenow() - 10000) {
                     switch (event.message) {
-                    case "плюх":
+                    case "РїР»СЋС…":
                         showWall("//loday.ru/images/snowball/shot.gif", true);
                         pluhTime = datenow();
                         break;
-                    case "целую":
+                    case "С†РµР»СѓСЋ":
                         showWall("other/bearlove.gif");
+                        pluhTime = datenow();
+                        break;
+                    case "РјСЏСѓ":
+                        showWall("other/cats.gif");
                         pluhTime = datenow();
                         break;
                     }
@@ -1808,9 +1820,6 @@ function showNewMessage(event) {
     body.innerHTML = specials_in(event);
     root.appendChild(name);
     root.appendChild(body);
-    if (strInt > 0) {
-        root.style.marginTop = strInt + "px";
-    }
     messagesList.append(root);
     if ((udata && udata.id && udata.id == u._id) || (event.to && event.to == u._id)) {
         mymessagesList.append($(root).clone());
@@ -1830,7 +1839,7 @@ function sendMessage() {
     }
     if (msgStr == "." && u._id != "554f490f8771f1d015807b59" && u.login != "Kinder" && !u.vip) {
         showNewMessage({
-            message: 'Не "точкай" :)',
+            message: 'РќРµ "С‚РѕС‡РєР°Р№" :)',
             color: "#ff0000",
             from: "[server]"
         });
@@ -1838,52 +1847,56 @@ function sendMessage() {
     }
     var adresat = $("#adresat-id").val();
     switch (strForSwitch) {
-    case "хочу снега":
+    case "С…РѕС‡Сѓ СЃРЅРµРіР°":
         b.addClass("snow");
         needsend = false;
         break;
-    case "не надо снега":
+    case "РЅРµ РЅР°РґРѕ СЃРЅРµРіР°":
         b.removeClass("snow");
         needsend = false;
         break;
-    case "ёлка+":
-        halltree.show();
-        needsend = false;
+    case "С‘Р»РєР°+":
+        if (halltree) {
+            halltree.show();
+            needsend = false;
+        }
         break;
-    case "ёлка-":
-        halltree.hide();
-        needsend = false;
+    case "С‘Р»РєР°-":
+        if (halltree) {
+            halltree.hide();
+            needsend = false;
+        }
         break;
-    case "очистить чат":
+    case "РѕС‡РёСЃС‚РёС‚СЊ С‡Р°С‚":
         $(".messages:visible").html("");
         needsend = false;
         break;
-    case "давай дружить":
+    case "РґР°РІР°Р№ РґСЂСѓР¶РёС‚СЊ":
         if (adresat.length > 0) {
             friendQuery("friend-question", adresat);
         }
         break;
-    case "я хочу":
+    case "СЏ С…РѕС‡Сѓ":
         showWall("other/fallstar.gif");
         break;
-    case "конверт-":
+    case "РєРѕРЅРІРµСЂС‚-":
         noconvert = true;
-        showNewDiv('<div class="browm">Анимация конвертов отключена</div>');
+        showNewDiv('<div class="browm">РђРЅРёРјР°С†РёСЏ РєРѕРЅРІРµСЂС‚РѕРІ РѕС‚РєР»СЋС‡РµРЅР°</div>');
         needsend = false;
         break;
-    case "конверт+":
+    case "РєРѕРЅРІРµСЂС‚+":
         noconvert = false;
-        showNewDiv('<div class="browm">Анимация конвертов включена</div>');
+        showNewDiv('<div class="browm">РђРЅРёРјР°С†РёСЏ РєРѕРЅРІРµСЂС‚РѕРІ РІРєР»СЋС‡РµРЅР°</div>');
         needsend = false;
         break;
     }
     if (!container.hasClass("ingame")) {
         switch (strForSwitch) {
-        case "хочу стенку":
+        case "С…РѕС‡Сѓ СЃС‚РµРЅРєСѓ":
             setStenka();
             needsend = false;
             break;
-        case "хочу чп":
+        case "С…РѕС‡Сѓ С‡Рї":
             setCHP();
             needsend = false;
             break;
@@ -1891,30 +1904,30 @@ function sendMessage() {
             helper.start();
             needsend = false;
             break;
-        case "викторина-":
+        case "РІРёРєС‚РѕСЂРёРЅР°-":
             quizEnable = false;
-            showNewDiv('<div class="browm">Викторина отключена</div>');
+            showNewDiv('<div class="browm">Р’РёРєС‚РѕСЂРёРЅР° РѕС‚РєР»СЋС‡РµРЅР°</div>');
             needsend = false;
             break;
-        case "викторина+":
+        case "РІРёРєС‚РѕСЂРёРЅР°+":
             quizEnable = true;
-            showNewDiv('<div class="browm">Викторина включена</div>');
+            showNewDiv('<div class="browm">Р’РёРєС‚РѕСЂРёРЅР° РІРєР»СЋС‡РµРЅР°</div>');
             needsend = false;
             break;
-        case "салют-":
+        case "СЃР°Р»СЋС‚-":
             fireworkEnable = false;
-            showNewDiv('<div class="browm">Вы решили не смотреть праздничные фейерверки</div>');
+            showNewDiv('<div class="browm">Р’С‹ СЂРµС€РёР»Рё РЅРµ СЃРјРѕС‚СЂРµС‚СЊ РїСЂР°Р·РґРЅРёС‡РЅС‹Рµ С„РµР№РµСЂРІРµСЂРєРё</div>');
             needsend = false;
             break;
-        case "салют+":
+        case "СЃР°Р»СЋС‚+":
             fireworkEnable = true;
-            showNewDiv('<div class="browm">Теперь Вы тоже не пропустите праздничные фейерверки</div>');
+            showNewDiv('<div class="browm">РўРµРїРµСЂСЊ Р’С‹ С‚РѕР¶Рµ РЅРµ РїСЂРѕРїСѓСЃС‚РёС‚Рµ РїСЂР°Р·РґРЅРёС‡РЅС‹Рµ С„РµР№РµСЂРІРµСЂРєРё</div>');
             needsend = false;
             break;
-        case "киндер-сюрприз":
+        case "РєРёРЅРґРµСЂ-СЃСЋСЂРїСЂРёР·":
             maffiaNEW();
             if (!isAppVK) {
-                showNewDiv('<div class="important">Если Вам не нравятся шоколадные яйца, можно воспользоваться прямой ссылкой <a href="//loday.ru/main-maffia.html">loday.ru/main-maffia.html</a></div>');
+                showNewDiv('<div class="important">Р•СЃР»Рё Р’Р°Рј РЅРµ РЅСЂР°РІСЏС‚СЃСЏ С€РѕРєРѕР»Р°РґРЅС‹Рµ СЏР№С†Р°, РјРѕР¶РЅРѕ РІРѕСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РїСЂСЏРјРѕР№ СЃСЃС‹Р»РєРѕР№ <a href="//loday.ru/main-maffia.html">loday.ru/main-maffia.html</a></div>');
             }
             break;
         }
@@ -1932,7 +1945,7 @@ function sendMessage() {
         lastMsg = msgStr;
         if (room == "testgame") {
             if (game.period && !u.vip && !isPrivate && (game.period == 1 || game.period == 4)) {
-                showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)");
+                showMessage("РњРёСЂРЅС‹Рµ РіСЂР°Р¶РґР°РЅРµ РјРѕРіСѓС‚ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РѕР±С‰РёРј С‡Р°С‚РѕРј С‚РѕР»СЊРєРѕ РґРЅС‘Рј<br/> (РёР»Рё РїСЂРё РЅР°Р»РёС‡РёРё VIP-СЃС‚Р°С‚СѓСЃР°)");
             } else {
                 showNewMessage({
                     message: specials_out(msgStr),
@@ -1962,7 +1975,7 @@ function sendMessage() {
                     toName: adresatName
                 });
                 showNewMessage({
-                    message: specials_out("Привет, " + u.login + "! Я - бот, но мне все равно приятно твое внимание :)"),
+                    message: specials_out("РџСЂРёРІРµС‚, " + u.login + "! РЇ - Р±РѕС‚, РЅРѕ РјРЅРµ РІСЃРµ СЂР°РІРЅРѕ РїСЂРёСЏС‚РЅРѕ С‚РІРѕРµ РІРЅРёРјР°РЅРёРµ :)"),
                     from: playersInfoArray[adresat],
                     msgType: msgType,
                     to: u._id,
@@ -1983,17 +1996,17 @@ function sendMessage() {
 }
 var userGoEvent = function(user, leave) {
     if (container.hasClass("wedding")) {
-        var userText = (user.sex == 1) ? "a гостья" : " гость";
+        var userText = (user.sex == 1) ? "a РіРѕСЃС‚СЊСЏ" : " РіРѕСЃС‚СЊ";
         if (game.married && game.married.indexOf(user._id) > -1) {
-            userText = (user.sex == 1) ? 'a <span class="lastwords">невеста</span>' : ' <span class="lastwords">жених</span>';
+            userText = (user.sex == 1) ? 'a <span class="lastwords">РЅРµРІРµСЃС‚Р°</span>' : ' <span class="lastwords">Р¶РµРЅРёС…</span>';
         }
         if (leave) {
-            game.writeText('<div class="votemsg">Зал для свадебной церемонии покинул' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
+            game.writeText('<div class="votemsg">Р—Р°Р» РґР»СЏ СЃРІР°РґРµР±РЅРѕР№ С†РµСЂРµРјРѕРЅРёРё РїРѕРєРёРЅСѓР»' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
         } else {
-            game.writeText('<div class="votemsg">На свадьбу прибыл' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
+            game.writeText('<div class="votemsg">РќР° СЃРІР°РґСЊР±Сѓ РїСЂРёР±С‹Р»' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
         }
     } else {
-        game.writeText('<div class="votemsg">' + ((user.sex == 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex == 1 ? " +" : " >") + "</div>", user);
+        game.writeText('<div class="votemsg">' + ((user.sex == 1) ? (leave ? "РћС‚СЃРѕРµРґРёРЅРёР»Р°СЃСЊ" : "РџСЂРёСЃРѕРµРґРёРЅРёР»Р°СЃСЊ") : (leave ? "РћС‚СЃРѕРµРґРёРЅРёР»СЃСЏ" : "РџСЂРёСЃРѕРµРґРёРЅРёР»СЃСЏ")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex == 1 ? " +" : " >") + "</div>", user);
     }
 };
 function editPlayerList(user, leave, multi) {
@@ -2107,7 +2120,7 @@ function editGameList(event) {
             newSpan += "></span>";
             thisInfo += newSpan;
         }
-        thisInfo += '</div><div class="gtheader">' + (gameTypes[event.gametype] ? gameTypes[event.gametype] : "Нестандартная партия") + '</div><div class="gtcaption">' + event.caption + '</div><div class="gtplayers">' + (event.players ? event.players.join(", ") : "") + "</div>";
+        thisInfo += '</div><div class="gtheader">' + (gameTypes[event.gametype] ? gameTypes[event.gametype] : "РќРµСЃС‚Р°РЅРґР°СЂС‚РЅР°СЏ РїР°СЂС‚РёСЏ") + '</div><div class="gtcaption">' + event.caption + '</div><div class="gtplayers">' + (event.players ? event.players.join(", ") : "") + "</div>";
         gamesInfoArray[event._id] = thisInfo;
         gamesList.append(newGame);
         if (event.starttime) {
@@ -2188,7 +2201,7 @@ function showTopLists(data) {
                 } catch (e) {}
             });
         } else {
-            $("<p>Станьте первым активным игроком этого месяца!</p>").appendTo(list3Div);
+            $("<p>РЎС‚Р°РЅСЊС‚Рµ РїРµСЂРІС‹Рј Р°РєС‚РёРІРЅС‹Рј РёРіСЂРѕРєРѕРј СЌС‚РѕРіРѕ РјРµСЃСЏС†Р°!</p>").appendTo(list3Div);
         }
     }
     num = 0;
@@ -2212,10 +2225,10 @@ function goToRoom(roomStr) {
         helper.stop();
     }
     if (r == 6 && u.club == 0) {
-        showMessage('Только для членов Клуба <u class="clubname"></u>!');
+        showMessage('РўРѕР»СЊРєРѕ РґР»СЏ С‡Р»РµРЅРѕРІ РљР»СѓР±Р° <u class="clubname"></u>!');
     } else {
         showNewMessage({
-            message: "Переходим..."
+            message: "РџРµСЂРµС…РѕРґРёРј..."
         });
     }
     sendToSocket({
@@ -2231,7 +2244,7 @@ function randomGame() {
         select.click();
     } else {
         showNewMessage({
-            message: "Игра не найдена. Нужно создать свою игру!",
+            message: "РРіСЂР° РЅРµ РЅР°Р№РґРµРЅР°. РќСѓР¶РЅРѕ СЃРѕР·РґР°С‚СЊ СЃРІРѕСЋ РёРіСЂСѓ!",
             color: "#ff0000"
         });
         sendToSocket({
@@ -2241,7 +2254,7 @@ function randomGame() {
             gametype: "2",
             style: 0,
             selectRole: true,
-            about: "Чаще создавайте игры!"
+            about: "Р§Р°С‰Рµ СЃРѕР·РґР°РІР°Р№С‚Рµ РёРіСЂС‹!"
         });
     }
 }
@@ -2261,7 +2274,7 @@ function markPlayer() {
             kick: (selectedPl.hasClass("marked"))
         });
     } else {
-        modalWindow("Вы уверены, что хотите принять в игру всех желающих?", markAll);
+        modalWindow("Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїСЂРёРЅСЏС‚СЊ РІ РёРіСЂСѓ РІСЃРµС… Р¶РµР»Р°СЋС‰РёС…?", markAll);
     }
 }
 function markAll() {
@@ -2282,11 +2295,11 @@ function suggestedPlayer(data) {
     var uid = data._id, selPl = $("#" + uid), eventText;
     if (selPl) {
         if (data.kick) {
-            eventText = "Игрок " + selPl.html() + " исключен создателем.";
+            eventText = "РРіСЂРѕРє " + selPl.html() + " РёСЃРєР»СЋС‡РµРЅ СЃРѕР·РґР°С‚РµР»РµРј.";
             selPl.removeClass("marked");
             playersInfoArray[uid].marked = 0;
         } else {
-            eventText = "Игрок " + selPl.html() + " одобрен создателем.";
+            eventText = "РРіСЂРѕРє " + selPl.html() + " РѕРґРѕР±СЂРµРЅ СЃРѕР·РґР°С‚РµР»РµРј.";
             selPl.addClass("marked");
             playersInfoArray[uid].marked = 1;
         }
@@ -2310,12 +2323,10 @@ function showWall(pic, external, nohide) {
         }, 2000);
     }
 }
-var chatData = {
-    online: []
-};
 function createAudio(src) {
     var audioElement = document.createElement("audio");
     audioElement.setAttribute("src", src);
+    audioElement.load();
     return audioElement;
 }
 var sounds = {}
@@ -2348,7 +2359,7 @@ if (!isAppVK) {
     }
     ;
     radio.click(function() {
-        modalWindow("Выключить данную композицию?", function() {
+        modalWindow("Р’С‹РєР»СЋС‡РёС‚СЊ РґР°РЅРЅСѓСЋ РєРѕРјРїРѕР·РёС†РёСЋ?", function() {
             sounds.radio.pause();
             radio.hide();
         });
@@ -2374,15 +2385,13 @@ function sound(type, fm) {
     }
 }
 function music() {
-    if (!musicValue) {
-        try {
-            sounds.music.pause();
-        } catch (e) {}
-        return;
-    }
     try {
-        sounds.music.currentTime = 0;
-        sounds.music.play();
+        if (!musicValue) {
+            sounds.music.pause();
+        } else {
+            sounds.music.currentTime = 0;
+            sounds.music.play();
+        }
     } catch (e) {
         console.log("music.error: " + e);
     }
@@ -2402,7 +2411,7 @@ function errorText(text) {
             background: "url(/images/fail.jpg) center no-repeat #fff"
         }).appendTo(b);
     }
-    errorBlock.html("<h1>" + text + '</h1><p>Попробуйте перезагрузить страницу. Если проблема повторяется, <a href="https://vk.com/im?media=&sel=-' + (isMaffia ? "109864615" : "39094155") + '" title="Написать сообщение" target="_blank">сообщите нам</a></p>');
+    errorBlock.html("<h1>" + text + '</h1><p>РџРѕРїСЂРѕР±СѓР№С‚Рµ РїРµСЂРµР·Р°РіСЂСѓР·РёС‚СЊ СЃС‚СЂР°РЅРёС†Сѓ. Р•СЃР»Рё РїСЂРѕР±Р»РµРјР° РїРѕРІС‚РѕСЂСЏРµС‚СЃСЏ, <a href="https://vk.com/im?media=&sel=-' + (isMaffia ? "109864615" : "39094155") + '" title="РќР°РїРёСЃР°С‚СЊ СЃРѕРѕР±С‰РµРЅРёРµ" target="_blank">СЃРѕРѕР±С‰РёС‚Рµ РЅР°Рј</a></p>');
     errorBlock.show();
 }
 function socketEvent(message) {
@@ -2415,13 +2424,13 @@ function socketEvent(message) {
         ws.onclose = function() {}
         ;
         if (isAppVK) {
-            errorText("Ошибка авторизации: " + event.text + ". Обновите страницу");
+            errorText("РћС€РёР±РєР° Р°РІС‚РѕСЂРёР·Р°С†РёРё: " + event.text + ". РћР±РЅРѕРІРёС‚Рµ СЃС‚СЂР°РЅРёС†Сѓ");
         } else {
             if (typeof (authDiv) !== "undefined") {
                 $("#authDiv").fadeIn(500);
             } else {
                 if (mobile) {
-                    showMessage("Пожалуйста, пройдите авторизацию повторно.");
+                    showMessage("РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РїСЂРѕР№РґРёС‚Рµ Р°РІС‚РѕСЂРёР·Р°С†РёСЋ РїРѕРІС‚РѕСЂРЅРѕ.");
                 } else {
                     $(window).off("beforeunload", Unloader.unload);
                     window.location.href = isMaffia ? "http://maffia-online.ru/" : "/";
@@ -2450,7 +2459,7 @@ function socketEvent(message) {
                 game.finished();
                 var win = (event.win);
                 var msgText = event.message || finalMsg(event, true);
-                warningWindow(msgText, goToRoom, "Выйти из игры", win);
+                warningWindow(msgText, goToRoom, "Р’С‹Р№С‚Рё РёР· РёРіСЂС‹", win);
             }
             if (event.banks) {
                 game.recalculateBanks(event.banks);
@@ -2465,15 +2474,15 @@ function socketEvent(message) {
               , bs = bmin % 60
               , btext = "";
             if (bh > 0) {
-                btext += someThing(bh, "час", "часа", "часов") + " ";
+                btext += someThing(bh, "С‡Р°СЃ", "С‡Р°СЃР°", "С‡Р°СЃРѕРІ") + " ";
             }
             if (bm > 0) {
-                btext += someThing(bm, "минуту", "минуты", "минут") + " ";
+                btext += someThing(bm, "РјРёРЅСѓС‚Сѓ", "РјРёРЅСѓС‚С‹", "РјРёРЅСѓС‚") + " ";
             }
             if (bs > 0) {
-                btext += someThing(bs, "секунду", "секунды", "секунд");
+                btext += someThing(bs, "СЃРµРєСѓРЅРґСѓ", "СЃРµРєСѓРЅРґС‹", "СЃРµРєСѓРЅРґ");
             }
-            showNewDiv('<div class="ban">Вы не можете пользоваться чатом еще ' + btext + "</div>");
+            showNewDiv('<div class="ban">Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ С‡Р°С‚РѕРј РµС‰Рµ ' + btext + "</div>");
             inputField.blur();
         }
         break;
@@ -2506,11 +2515,11 @@ function socketEvent(message) {
             showTopLists(event);
             if (event.stip && event.stip != "no") {
                 showConvert(function() {
-                    var stipText = "Вам начислена " + (isMaffia ? "зарплата" : "стипендия") + ' в размере <span class="gamemoney">' + over1000(event.stip) + "</span>";
+                    var stipText = "Р’Р°Рј РЅР°С‡РёСЃР»РµРЅР° " + (isMaffia ? "Р·Р°СЂРїР»Р°С‚Р°" : "СЃС‚РёРїРµРЅРґРёСЏ") + ' РІ СЂР°Р·РјРµСЂРµ <span class="gamemoney">' + over1000(event.stip) + "</span>";
                     if (u.vip) {
                         var vipDays = Math.ceil((u.vip - datenow()) / 86400000);
                         if (vipDays > 0) {
-                            stipText += '<br/><b class="red">Ещё ' + someThing(vipDays, "день", "дня", "дней") + " VIP-статуса</b>";
+                            stipText += '<br/><b class="red">Р•С‰С‘ ' + someThing(vipDays, "РґРµРЅСЊ", "РґРЅСЏ", "РґРЅРµР№") + " VIP-СЃС‚Р°С‚СѓСЃР°</b>";
                         }
                     }
                     showCash(stipText);
@@ -2519,14 +2528,14 @@ function socketEvent(message) {
             setStatus();
             var mybirthday = false;
             if (event.birthdays) {
-                var bdStr = '<div class="birthdays"> Сегодня отмечают свой день рождения следующие игроки: <ul> ';
+                var bdStr = '<div class="birthdays"> РЎРµРіРѕРґРЅСЏ РѕС‚РјРµС‡Р°СЋС‚ СЃРІРѕР№ РґРµРЅСЊ СЂРѕР¶РґРµРЅРёСЏ СЃР»РµРґСѓСЋС‰РёРµ РёРіСЂРѕРєРё: <ul> ';
                 event.birthdays.forEach(function(el) {
                     bdStr += '<li><strong data-id="' + el._id + '">' + el.login + "</strong></li>";
                     if (el._id == u._id) {
                         mybirthday = true;
                     }
                 });
-                bdStr += " </ul> <blockquote>Не забудьте поздравить!</blockquote></div>";
+                bdStr += " </ul> <blockquote>РќРµ Р·Р°Р±СѓРґСЊС‚Рµ РїРѕР·РґСЂР°РІРёС‚СЊ!</blockquote></div>";
                 showNewDiv(bdStr);
             }
             if (event.onlineCount) {
@@ -2551,7 +2560,7 @@ function socketEvent(message) {
                 });
             }
             if (event.regplayers && event.regplayers.length > 0) {
-                var regList = '<div class="news">Последние 10 новичков: '
+                var regList = '<div class="news">РџРѕСЃР»РµРґРЅРёРµ 10 РЅРѕРІРёС‡РєРѕРІ: '
                   , lastPl = ""
                   , dnum = 0
                   , dcur = 0;
@@ -2569,7 +2578,7 @@ function socketEvent(message) {
                 showNewDiv(regList);
             }
             if (event.was) {
-                var wasText = '<div class="wastoday">Сегодня были в игре (' + event.was.length + '):<input type="checkbox" id="showwasingame"/><label for="showwasingame"></label><div>';
+                var wasText = '<div class="wastoday">РЎРµРіРѕРґРЅСЏ Р±С‹Р»Рё РІ РёРіСЂРµ (' + event.was.length + '):<input type="checkbox" id="showwasingame"/><label for="showwasingame"></label><div>';
                 event.was.forEach(function(el) {
                     wasText += '<strong data-id="' + el._id + '">' + el.login + "</strong>, ";
                 });
@@ -2577,7 +2586,7 @@ function socketEvent(message) {
             }
             if (mybirthday) {
                 showNewMessage({
-                    message: "Администрация игры поздравляет Вас с днём рождения и желает, чтобы в жизни было как можно больше приятных минут! <blockquote> http://loday.ru/images/walls/card.gif </blockquote>",
+                    message: "РђРґРјРёРЅРёСЃС‚СЂР°С†РёСЏ РёРіСЂС‹ РїРѕР·РґСЂР°РІР»СЏРµС‚ Р’Р°СЃ СЃ РґРЅС‘Рј СЂРѕР¶РґРµРЅРёСЏ Рё Р¶РµР»Р°РµС‚, С‡С‚РѕР±С‹ РІ Р¶РёР·РЅРё Р±С‹Р»Рѕ РєР°Рє РјРѕР¶РЅРѕ Р±РѕР»СЊС€Рµ РїСЂРёСЏС‚РЅС‹С… РјРёРЅСѓС‚! <blockquote> http://loday.ru/images/walls/card.gif </blockquote>",
                     msgStyle: "birthdays mybirthday"
                 });
             }
@@ -2598,7 +2607,7 @@ function socketEvent(message) {
             if (!lStorage.getItem("width") && !lStorage.getItem("recomwidth") && b.outerWidth() > 1200) {
                 var recomWidth = Math.round(1200 / b.outerWidth() * 100);
                 if (recomWidth < 95) {
-                    modalWindow("Рекомендуемая ширина игрового окна при данном разрешении - " + recomWidth + "%. Установить предполагаемые размеры?<br/> Изменить ширину  игры Вы всегда сможете в настройках игры.", function() {
+                    modalWindow("Р РµРєРѕРјРµРЅРґСѓРµРјР°СЏ С€РёСЂРёРЅР° РёРіСЂРѕРІРѕРіРѕ РѕРєРЅР° РїСЂРё РґР°РЅРЅРѕРј СЂР°Р·СЂРµС€РµРЅРёРё - " + recomWidth + "%. РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РїСЂРµРґРїРѕР»Р°РіР°РµРјС‹Рµ СЂР°Р·РјРµСЂС‹?<br/> РР·РјРµРЅРёС‚СЊ С€РёСЂРёРЅСѓ  РёРіСЂС‹ Р’С‹ РІСЃРµРіРґР° СЃРјРѕР¶РµС‚Рµ РІ РЅР°СЃС‚СЂРѕР№РєР°С… РёРіСЂС‹.", function() {
                         lStorage.setItem("recomwidth", true);
                         lStorage.setItem("width", recomWidth);
                         setWidth(recomWidth);
@@ -2620,7 +2629,7 @@ function socketEvent(message) {
             }
             if (u.login == "Kinder") {
                 showQuiz({
-                    text: "Что исполняет сразу 3 желания – сюрприз, игрушка, шоколад?",
+                    text: "Р§С‚Рѕ РёСЃРїРѕР»РЅСЏРµС‚ СЃСЂР°Р·Сѓ 3 Р¶РµР»Р°РЅРёСЏ вЂ“ СЃСЋСЂРїСЂРёР·, РёРіСЂСѓС€РєР°, С€РѕРєРѕР»Р°Рґ?",
                     wordlen: 14,
                     open: {
                         6: "-"
@@ -2638,12 +2647,12 @@ function socketEvent(message) {
     case "reconnect":
         if (event.error) {
             $("#errorBlock").hide();
-            warningWindow("Не удалось восстановить соединение", function() {
+            warningWindow("РќРµ СѓРґР°Р»РѕСЃСЊ РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ", function() {
                 window.location.reload();
-            }, "Обновить страницу");
+            }, "РћР±РЅРѕРІРёС‚СЊ СЃС‚СЂР°РЅРёС†Сѓ");
         } else {
             showNewMessage({
-                message: "Соединенис с сервером было восстановлено!",
+                message: "РЎРѕРµРґРёРЅРµРЅРёСЃ СЃ СЃРµСЂРІРµСЂРѕРј Р±С‹Р»Рѕ РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРѕ!",
                 color: "#ff0000"
             });
             $("#errorBlock").hide();
@@ -2655,7 +2664,7 @@ function socketEvent(message) {
     case "register":
         regButton.prop("disabled", false);
         if (event.result == "busy") {
-            showMessage("Этот логин уже занят, придумайте другой");
+            showMessage("Р­С‚РѕС‚ Р»РѕРіРёРЅ СѓР¶Рµ Р·Р°РЅСЏС‚, РїСЂРёРґСѓРјР°Р№С‚Рµ РґСЂСѓРіРѕР№");
         } else {
             if (event.result) {
                 setTimeout(function() {
@@ -2664,7 +2673,7 @@ function socketEvent(message) {
                     });
                 }, 500);
             } else {
-                errorText("Не удалось создать персонажа.");
+                errorText("РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РїРµСЂСЃРѕРЅР°Р¶Р°.");
             }
         }
         break;
@@ -2732,7 +2741,7 @@ function socketEvent(message) {
         break;
     case "alarm":
         if (event.action) {
-            event.text += (event.action == "join") ? " входит в игру" : " покидает игру";
+            event.text += (event.action == "join") ? " РІС…РѕРґРёС‚ РІ РёРіСЂСѓ" : " РїРѕРєРёРґР°РµС‚ РёРіСЂСѓ";
             if (event.online) {
                 event.text += " (" + event.online + ")";
                 onlineCounter.html(event.online);
@@ -2754,11 +2763,11 @@ function socketEvent(message) {
             }
             mapAreas[event.area].win[event.winner] += 1;
             var winText = {
-                bots: "Боты одержали победу!",
-                players: "Удача была на стороне игроков!",
-                draw: "Победителя выявить не удалось"
+                bots: "Р‘РѕС‚С‹ РѕРґРµСЂР¶Р°Р»Рё РїРѕР±РµРґСѓ!",
+                players: "РЈРґР°С‡Р° Р±С‹Р»Р° РЅР° СЃС‚РѕСЂРѕРЅРµ РёРіСЂРѕРєРѕРІ!",
+                draw: "РџРѕР±РµРґРёС‚РµР»СЏ РІС‹СЏРІРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ"
             };
-            alarm("Завершена битва за район (" + mapAreas[event.area].title + "). " + winText[event.winner]);
+            alarm("Р—Р°РІРµСЂС€РµРЅР° Р±РёС‚РІР° Р·Р° СЂР°Р№РѕРЅ (" + mapAreas[event.area].title + "). " + winText[event.winner]);
         }
         break;
     case "updateInfo":
@@ -2775,7 +2784,7 @@ function socketEvent(message) {
         var frQ = function(data) {
             if (reds.indexOf(data.fromId) == -1 && !u.server2) {
                 showConvert(function() {
-                    modalWindow(data.from + " хочет добавить вас в друзья. Вы согласны?", function() {
+                    modalWindow(data.from + " С…РѕС‡РµС‚ РґРѕР±Р°РІРёС‚СЊ РІР°СЃ РІ РґСЂСѓР·СЊСЏ. Р’С‹ СЃРѕРіР»Р°СЃРЅС‹?", function() {
                         friendQuery("friend-answer", data.fromId, true);
                     }, function() {
                         friendQuery("friend-answer", data.fromId, false);
@@ -2815,9 +2824,9 @@ function socketEvent(message) {
     case "quiz":
         if (quizEnable) {
             if (event.login) {
-                var quizMsg = '<div class="alarm">Игрок <b>' + event.login + "</b> дал" + (event.sex == 1 ? "а" : "") + " правильный ответ - <em>" + event.answer + "</em>";
+                var quizMsg = '<div class="alarm">РРіСЂРѕРє <b>' + event.login + "</b> РґР°Р»" + (event.sex == 1 ? "Р°" : "") + " РїСЂР°РІРёР»СЊРЅС‹Р№ РѕС‚РІРµС‚ - <em>" + event.answer + "</em>";
                 if (event.rank) {
-                    quizMsg += " и достиг" + (event.sex == 1 ? "ла" : "") + " нового звания - <strong>" + event.rank + "</strong>";
+                    quizMsg += " Рё РґРѕСЃС‚РёРі" + (event.sex == 1 ? "Р»Р°" : "") + " РЅРѕРІРѕРіРѕ Р·РІР°РЅРёСЏ - <strong>" + event.rank + "</strong>";
                 }
                 quizMsg += "</div>";
                 showNewDiv(quizMsg);
@@ -2881,10 +2890,10 @@ function socketEvent(message) {
         break;
     case "gift":
         if (event.data) {
-            var giftInfo = "Вам подарок от ";
-            giftInfo += (event.data.login) ? event.data.login : "неизвестного доброжелателя";
+            var giftInfo = "Р’Р°Рј РїРѕРґР°СЂРѕРє РѕС‚ ";
+            giftInfo += (event.data.login) ? event.data.login : "РЅРµРёР·РІРµСЃС‚РЅРѕРіРѕ РґРѕР±СЂРѕР¶РµР»Р°С‚РµР»СЏ";
             if (event.data.text) {
-                giftInfo += " с пожеланиями:<br/> <em>" + escapeHtml(matFilter(event.data.text)) + "</em>";
+                giftInfo += " СЃ РїРѕР¶РµР»Р°РЅРёСЏРјРё:<br/> <em>" + escapeHtml(matFilter(event.data.text)) + "</em>";
             }
             giftInfo += '<div class="giftdiv ' + getGiftClass(event.data.num) + '"></div>';
             showConvert(function() {
@@ -2930,6 +2939,9 @@ function socketEvent(message) {
                 u.items[18] = 1;
             }
         }
+        if (event.collect) {
+            warningWindow('<div class="reward">Р’С‹ РЅР°С€Р»Рё СЌР»РµРјРµРЅС‚ РєРѕР»Р»РµРєС†РёРё &quot;РЎСѓРїРµСЂСЃРєРѕСЂРѕСЃС‚СЊ&quot;: <span class="collect' + event.collect + " collect-element collect-element" + event.element + '"></span></div>', false, false, false, "newspaper");
+        }
         break;
     case "newtoy":
         drawToy(event.toy);
@@ -2937,7 +2949,7 @@ function socketEvent(message) {
     case "lottery":
         if (event.itemnum) {
             var data = {
-                text: "Ваша удача не прошла мимо",
+                text: "Р’Р°С€Р° СѓРґР°С‡Р° РЅРµ РїСЂРѕС€Р»Р° РјРёРјРѕ",
                 box: {}
             };
             data.box[event.itemnum] = 1;
@@ -2946,7 +2958,7 @@ function socketEvent(message) {
                 items: event.items
             });
         } else {
-            showMessage("В следующий раз Вам обязательно повезет!");
+            showMessage("Р’ СЃР»РµРґСѓСЋС‰РёР№ СЂР°Р· Р’Р°Рј РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РїРѕРІРµР·РµС‚!");
         }
         u.lottery = event.time;
         lotteryTimerStart();
@@ -2963,7 +2975,7 @@ function socketEvent(message) {
         u.roulette = event.roulette;
         rouletteDisable();
         updateInterface();
-        showMessage("Вы сделали ставку на " + event.num + ".<br/> Возможно, завтра Вас ждет приятный сюрприз.");
+        showMessage("Р’С‹ СЃРґРµР»Р°Р»Рё СЃС‚Р°РІРєСѓ РЅР° " + event.num + ".<br/> Р’РѕР·РјРѕР¶РЅРѕ, Р·Р°РІС‚СЂР° Р’Р°СЃ Р¶РґРµС‚ РїСЂРёСЏС‚РЅС‹Р№ СЃСЋСЂРїСЂРёР·.");
         break;
     case "roulette-result":
         rouletteDisable(true);
@@ -2971,10 +2983,10 @@ function socketEvent(message) {
         break;
     case "progress":
         if (event.login) {
-            alarm(event.login + " получает достижение - " + progressRank(event.num, event.value));
+            alarm(event.login + " РїРѕР»СѓС‡Р°РµС‚ РґРѕСЃС‚РёР¶РµРЅРёРµ - " + progressRank(event.num, event.value));
         } else {
             var ownReward = progressReward(quests[event.num].prize[event.value]);
-            warningWindow('<div class="progress">Вы получили новое достижение - <u>' + progressRank(event.num, event.value) + "</u><br/>Ваша награда - " + ownReward + "</div>");
+            warningWindow('<div class="progress">Р’С‹ РїРѕР»СѓС‡РёР»Рё РЅРѕРІРѕРµ РґРѕСЃС‚РёР¶РµРЅРёРµ - <u>' + progressRank(event.num, event.value) + "</u><br/>Р’Р°С€Р° РЅР°РіСЂР°РґР° - " + ownReward + "</div>");
             progressTime = 0;
             var incObj = quests[event.num].prize[event.value];
             for (var ind in incObj) {
@@ -3004,7 +3016,7 @@ function socketEvent(message) {
         }
         break;
     case "firework":
-        game.writeText('<div class="firework-text">' + event.login + " запускает фейерверк в честь праздника!</div>", false, true);
+        game.writeText('<div class="firework-text">' + event.login + " Р·Р°РїСѓСЃРєР°РµС‚ С„РµР№РµСЂРІРµСЂРє РІ С‡РµСЃС‚СЊ РїСЂР°Р·РґРЅРёРєР°!</div>", false, true);
         if (!ticketBlock.is(":visible") && !container.hasClass("ingame") && fireworkEnable) {
             showWall("/firework/" + [1, 2, 3, 4, 5].randomValue() + ".gif", false, true);
         }
@@ -3018,7 +3030,7 @@ function socketEvent(message) {
     case "collect":
         if (event.data) {
             u.collections = event.collections;
-            showMessage('На ёлке совершенно случайно Вы заметили фрагмент Новогодней коллекции <div class="collect' + event.data.collect + " collect-element collect-element" + event.data.element + '"><div>');
+            showMessage('РќР° С‘Р»РєРµ СЃРѕРІРµСЂС€РµРЅРЅРѕ СЃР»СѓС‡Р°Р№РЅРѕ Р’С‹ Р·Р°РјРµС‚РёР»Рё С„СЂР°РіРјРµРЅС‚ РќРѕРІРѕРіРѕРґРЅРµР№ РєРѕР»Р»РµРєС†РёРё <div class="collect' + event.data.collect + " collect-element collect-element" + event.data.element + '"><div>');
         }
         break;
     case "tree":
@@ -3026,7 +3038,7 @@ function socketEvent(message) {
         break;
     case "dedmoroz":
         if (event.hasOwnProperty("count")) {
-            alarm((event.count > 0) ? "Дед Мороз подарил " + someThing(event.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
+            alarm((event.count > 0) ? "Р”РµРґ РњРѕСЂРѕР· РїРѕРґР°СЂРёР» " + someThing(event.count, "РїРѕРґР°СЂРѕРє", "РїРѕРґР°СЂРєР°", "РїРѕРґР°СЂРєРѕРІ") : "РќРёРєС‚Рѕ РЅРµ РїРѕР»СѓС‡РёР» РІРЅРµРѕС‡РµСЂРµРґРЅРѕРіРѕ РїРѕРґР°СЂРєР° РѕС‚ Р”РµРґР° РњРѕСЂРѕР·Р° :(");
         } else {
             var dmNum = randomInt(3)
               , dedmoroz = $('<img id="dm' + dmNum + '" class="dedmoroz" src="/images/2017/dm' + dmNum + '.gif"/>').appendTo(b);
@@ -3071,16 +3083,16 @@ function socketEvent(message) {
         if (event.sex) {
             var weddingText = "";
             if (event.winner) {
-                weddingText = event.sex == 1 ? 'Под восхищенные мужские взгляды <b data-id="' + event.winnerId + '">' + event.winner + "</b> изящно ловит букет, не оставив соперницам ни шанса!" : 'Ловким движением <b data-id="' + event.winnerId + '">' + event.winner + "</b> хватает подвязку своими сильными руками, что не остается без внимания присутствующих на празднике девушек!";
+                weddingText = event.sex == 1 ? 'РџРѕРґ РІРѕСЃС…РёС‰РµРЅРЅС‹Рµ РјСѓР¶СЃРєРёРµ РІР·РіР»СЏРґС‹ <b data-id="' + event.winnerId + '">' + event.winner + "</b> РёР·СЏС‰РЅРѕ Р»РѕРІРёС‚ Р±СѓРєРµС‚, РЅРµ РѕСЃС‚Р°РІРёРІ СЃРѕРїРµСЂРЅРёС†Р°Рј РЅРё С€Р°РЅСЃР°!" : 'Р›РѕРІРєРёРј РґРІРёР¶РµРЅРёРµРј <b data-id="' + event.winnerId + '">' + event.winner + "</b> С…РІР°С‚Р°РµС‚ РїРѕРґРІСЏР·РєСѓ СЃРІРѕРёРјРё СЃРёР»СЊРЅС‹РјРё СЂСѓРєР°РјРё, С‡С‚Рѕ РЅРµ РѕСЃС‚Р°РµС‚СЃСЏ Р±РµР· РІРЅРёРјР°РЅРёСЏ РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёС… РЅР° РїСЂР°Р·РґРЅРёРєРµ РґРµРІСѓС€РµРє!";
             }
             game.writeText('<img src="/images/cups/wed' + (event.sex == 1 ? "wo" : "") + 'menitem.png" alt="" style="float:left"/> ' + weddingText, false, true);
         } else {
-            var drawText = '<div class="draw-result">' + event.moder.login + " провел" + ((event.moder.sex == 1) ? "а" : "") + " жеребьевку. Результаты представлены ниже:<br/> ";
+            var drawText = '<div class="draw-result">' + event.moder.login + " РїСЂРѕРІРµР»" + ((event.moder.sex == 1) ? "Р°" : "") + " Р¶РµСЂРµР±СЊРµРІРєСѓ. Р РµР·СѓР»СЊС‚Р°С‚С‹ РїСЂРµРґСЃС‚Р°РІР»РµРЅС‹ РЅРёР¶Рµ:<br/> ";
             if (event.count > 1) {
                 for (var k = 0, group = 0, len = event.arr.length; k < len; k++) {
                     if (k == group * event.count) {
                         group++;
-                        drawText += "<u>Группа " + group + "</u><br/><ol>";
+                        drawText += "<u>Р“СЂСѓРїРїР° " + group + "</u><br/><ol>";
                     }
                     drawText += "<li>" + event.arr[k] + "</li>";
                     if (k + 1 == group * event.count || k + 1 == len) {
@@ -3136,7 +3148,7 @@ function doScroll() {
         myobjDiv.scrollTop = myobjDiv.scrollHeight;
     }
 }
-var hallTitles = ["", "Страну грёз", "Город любви", "Апельсиновый рай", "Солнечную аллею", "Парк друзей", "Обитель мрака"];
+var hallTitles = ["", "РЎС‚СЂР°РЅСѓ РіСЂС‘Р·", "Р“РѕСЂРѕРґ Р»СЋР±РІРё", "РђРїРµР»СЊСЃРёРЅРѕРІС‹Р№ СЂР°Р№", "РЎРѕР»РЅРµС‡РЅСѓСЋ Р°Р»Р»РµСЋ", "РџР°СЂРє РґСЂСѓР·РµР№", "РћР±РёС‚РµР»СЊ РјСЂР°РєР°"];
 $("nav>h2").click(function() {
     var roomNum = $(this).attr("class").substring(4);
     if (server2) {
@@ -3145,22 +3157,33 @@ $("nav>h2").click(function() {
     goToRoom(roomNum);
 }).bind("mouseenter", function(e) {
     var hallNum = parseInt($(this).attr("class").substring(4));
-    var toolText = (room == hallNum) ? "Вы здесь" : "Перейти в " + hallTitles[hallNum];
+    var toolText = (room == hallNum) ? "Р’С‹ Р·РґРµСЃСЊ" : "РџРµСЂРµР№С‚Рё РІ " + hallTitles[hallNum];
     if (hallNum == 6 && !u.club) {
-        toolText = hallTitles[hallNum] + " только для членов клуба";
+        toolText = hallTitles[hallNum] + " С‚РѕР»СЊРєРѕ РґР»СЏ С‡Р»РµРЅРѕРІ РєР»СѓР±Р°";
     }
     tooltip(e, toolText, true);
 }).bind("mouseleave", function(e) {
     tooltip(e, "", false);
 });
+var defineTargetClick = function(target) {
+    if (target.tagName == "I") {
+        target = $(target).parent().parent()[0];
+    }
+    if (target.tagName !== "DIV") {
+        target = $(target).parent()[0];
+    }
+    return target;
+};
 playersList.bind("dblclick touchmove", function(e) {
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.tagName != "DIV" || target.id == "players") {
-        return;
+    if (target.id != "players") {
+        target = defineTargetClick(target);
+        if (target.tagName == "DIV" && target.id) {
+            $("#adresat-id").val(target.id);
+            $("#adresat").val(target.dataset.nick);
+        }
     }
-    $("#adresat-id").val(target.id);
-    $("#adresat").val(target.dataset.nick);
 }).bind("click", function(e) {
     showPlayerInfo("", false);
     if (!container.hasClass("ingame")) {
@@ -3172,12 +3195,7 @@ playersList.bind("dblclick touchmove", function(e) {
         game.notePlayer(target.parentElement.id);
     } else {
         if (target.id != "players") {
-            if (target.tagName == "I") {
-                target = $(target).parent().parent()[0];
-            }
-            if (target.tagName !== "DIV") {
-                target = $(target).parent()[0];
-            }
+            target = defineTargetClick(target);
             if (target.tagName == "DIV" && target.id) {
                 selectPlayer(target.id);
             }
@@ -3234,7 +3252,7 @@ function clearAdresat() {
     $("#adresat").animate({
         opacity: -0.1
     }, 1000, function() {
-        $("#adresat").val("Всем").css("opacity", "0.9");
+        $("#adresat").val("Р’СЃРµРј").css("opacity", "0.9");
     });
     privateCheck.prop("checked", false);
 }
@@ -3253,15 +3271,13 @@ var graphicCheckbox = $("#graphic")
   , fontOptions = $("#fontOptions").find("span")
   , fontSize = $("#fontSize")
   , fontWeight = $("#fontWeight")
-  , fontSelect = $("#selectFont")
-  , intervalSelect = $("#stringInterval");
+  , fontSelect = $("#selectFont");
 var soundValue = 100
   , musicValue = 100
   , noAlarm = false
   , hintsNeed = false
   , isRadio = true
-  , isMaffia = (window.location.href.indexOf("maffia") > 0)
-  , strInt = 0;
+  , isMaffia = (window.location.href.indexOf("maffia") > 0);
 if (isMaffia) {
     lStorage.setItem("maffia", 1);
 }
@@ -3290,7 +3306,7 @@ $("#shareButton").click(function() {
     if (isAppVK) {
         VK.callMethod("showInviteBox");
     } else {
-        warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
+        warningWindow('<strong>РџСЂРёРіР»Р°С€Р°Р№С‚Рµ РІ РёРіСЂСѓ РЅРѕРІС‹С… РёРіСЂРѕРєРѕРІ Рё<br/> РїРѕР»СѓС‡Р°Р№С‚Рµ 50% РѕС‚ РёС… РїР»Р°С‚РµР¶РµР№ РЅР° СЃРІРѕР№ РёРіСЂРѕРІРѕР№ СЃС‡С‘С‚!</strong><hr/><a target="_blank" title="РџРѕРґРµР»РёС‚СЊСЃСЏ СЃ РґСЂСѓР·СЊСЏРјРё Р’РљРѕРЅС‚Р°РєС‚Рµ" href="' + getGameUrl(true) + '">Р Р°СЃСЃРєР°Р·Р°С‚СЊ РґСЂСѓР·СЊСЏРј Р’РљРѕРЅС‚Р°РєС‚Рµ</a><br/><label>РЎСЃС‹Р»РєР° РґР»СЏ РїСЂРёРіР»Р°С€РµРЅРёСЏ<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
     }
 });
 function setRange(obj) {
@@ -3346,12 +3362,12 @@ if (lStorage.getItem("noeffect") == 1) {
     effectCheckbox.prop("checked", false);
 }
 if (isAppVK) {
-    setGameName(mafApp ? "Мафия" : "День Любви");
+    setGameName(mafApp ? "РњР°С„РёСЏ" : "Р”РµРЅСЊ Р›СЋР±РІРё");
     isMaffia = (mafApp);
 } else {
     if (lStorage.getItem("maffia") == 1) {
         isMaffia = true;
-        setGameName("Мафия");
+        setGameName("РњР°С„РёСЏ");
     }
 }
 if (isMaffia) {
@@ -3393,10 +3409,6 @@ if (lStorage.getItem("font")) {
     fontCheckbox.prop("checked", true);
     fontOptions.find("select,input").prop("disabled", false);
     setFontParams();
-}
-if (lStorage.getItem("strInt")) {
-    strInt = lStorage.getItem("strInt");
-    intervalSelect.val(strInt);
 }
 graphicCheckbox.click(function() {
     var is = graphicCheckbox.prop("checked");
@@ -3465,12 +3477,12 @@ maffiaCheckbox.click(function() {
     if (isMaffia) {
         b.addClass("maffia");
         if (!lStorage.getItem("gamename")) {
-            header.attr("data-name", "Мафия");
+            header.attr("data-name", "РњР°С„РёСЏ");
         }
     } else {
         b.removeClass("maffia");
         if (!lStorage.getItem("gamename")) {
-            header.attr("data-name", "День Любви");
+            header.attr("data-name", "Р”РµРЅСЊ Р›СЋР±РІРё");
         }
     }
     shareMaffia();
@@ -3520,13 +3532,6 @@ function fontsOff(classes) {
     }
     allMessagesList.removeClass(classes);
 }
-intervalSelect.change(function() {
-    var name = $(this).val();
-    if (parseInt(name) >= 0) {
-        strInt = name;
-        lStorage.setItem("strInt", name);
-    }
-});
 function showWindow(buttonClass) {
     win.find(".info>div").hide();
     if (["tournaments", "aboutgame"].indexOf(buttonClass) > -1) {
@@ -3540,7 +3545,7 @@ function showWindow(buttonClass) {
         if (u.vip) {
             var ngw = win.find(".gameCreate");
             if (!ngw.find("button").is(".usergame")) {
-                ngw.append('<button class="button usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-игра</button>');
+                ngw.append('<button class="button usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-РёРіСЂР°</button>');
             }
         }
         break;
@@ -3549,13 +3554,13 @@ function showWindow(buttonClass) {
             var diff = u.vip - Date.now();
             if (diff > 0) {
                 $("#donat-vip").find(".money").html("2000");
-                vipButton.html("Продлить VIP-статус (ост. " + Math.round(diff / 86400000) + " дн.)");
+                vipButton.html("РџСЂРѕРґР»РёС‚СЊ VIP-СЃС‚Р°С‚СѓСЃ (РѕСЃС‚. " + Math.round(diff / 86400000) + " РґРЅ.)");
                 $("#donat-foto").find(".money").hide();
             }
         }
-        var ruporText = (u.items[7]) ? someThing(u.items[7], "рупор", "рупора", "рупоров") : "Рассказать";
+        var ruporText = (u.items[7]) ? someThing(u.items[7], "СЂСѓРїРѕСЂ", "СЂСѓРїРѕСЂР°", "СЂСѓРїРѕСЂРѕРІ") : "Р Р°СЃСЃРєР°Р·Р°С‚СЊ";
         $("#donat-allmessage").find("button").html(ruporText);
-        var biggameText = (u.items[12]) ? someThing(u.items[12], "сертификат", "сертификата", "сертификатов") : "Создать";
+        var biggameText = (u.items[12]) ? someThing(u.items[12], "СЃРµСЂС‚РёС„РёРєР°С‚", "СЃРµСЂС‚РёС„РёРєР°С‚Р°", "СЃРµСЂС‚РёС„РёРєР°С‚РѕРІ") : "РЎРѕР·РґР°С‚СЊ";
         $("#donat-biggame").find("button").html(biggameText);
         break;
     case "collect":
@@ -3582,24 +3587,24 @@ function showWindow(buttonClass) {
                             var curMap = e.data;
                             var dataText = "<h2>" + curMap.title + "</h2>";
                             if (curMap.own) {
-                                dataText += "Контролируют: " + ((curMap.own == "bots") ? "боты" : "игроки");
+                                dataText += "РљРѕРЅС‚СЂРѕР»РёСЂСѓСЋС‚: " + ((curMap.own == "bots") ? "Р±РѕС‚С‹" : "РёРіСЂРѕРєРё");
                                 if (curMap.own == "bots") {
-                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">Захватить</button>';
+                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">Р—Р°С…РІР°С‚РёС‚СЊ</button>';
                                 }
                                 if (curMap.own == "players") {
-                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">Оборонять</button>';
+                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">РћР±РѕСЂРѕРЅСЏС‚СЊ</button>';
                                 }
                             }
                             if (curMap.win) {
-                                dataText += '<table><tr><th colspan="2">Статистика битв</th></tr>';
+                                dataText += '<table><tr><th colspan="2">РЎС‚Р°С‚РёСЃС‚РёРєР° Р±РёС‚РІ</th></tr>';
                                 if (curMap.win.players) {
-                                    dataText += "<tr><td>Победы игроков</td><td>" + curMap.win.players + "</td></tr>";
+                                    dataText += "<tr><td>РџРѕР±РµРґС‹ РёРіСЂРѕРєРѕРІ</td><td>" + curMap.win.players + "</td></tr>";
                                 }
                                 if (curMap.win.bots) {
-                                    dataText += "<tr><td>Победы ботов</td><td>" + curMap.win.bots + "</td></tr>";
+                                    dataText += "<tr><td>РџРѕР±РµРґС‹ Р±РѕС‚РѕРІ</td><td>" + curMap.win.bots + "</td></tr>";
                                 }
                                 if (curMap.win.draw) {
-                                    dataText += "<tr><td>Ничейные партии</td><td>" + curMap.win.draw + "</td></tr>";
+                                    dataText += "<tr><td>РќРёС‡РµР№РЅС‹Рµ РїР°СЂС‚РёРё</td><td>" + curMap.win.draw + "</td></tr>";
                                 }
                                 dataText += "</table>";
                             }
@@ -3650,7 +3655,7 @@ function showWindow(buttonClass) {
                             var offset = $(this).offset();
                             var relativeX = Math.round(e.pageX - offset.left + $(this).scrollLeft());
                             var relativeY = Math.round(e.pageY - offset.top + $(this).scrollTop());
-                            modalWindow('Не забудьте указать ваше личное сообщение к игрушке<br/> <textarea placeholder="Поздравление или пожелание"></textarea><br/> Повесить игрушку?', function() {
+                            modalWindow('РќРµ Р·Р°Р±СѓРґСЊС‚Рµ СѓРєР°Р·Р°С‚СЊ РІР°С€Рµ Р»РёС‡РЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ Рє РёРіСЂСѓС€РєРµ<br/> <textarea placeholder="РџРѕР·РґСЂР°РІР»РµРЅРёРµ РёР»Рё РїРѕР¶РµР»Р°РЅРёРµ"></textarea><br/> РџРѕРІРµСЃРёС‚СЊ РёРіСЂСѓС€РєСѓ?', function() {
                                 var msg = mW.find("textarea").val()
                                   , curid = curtoy.attr("data-id");
                                 sendToSocket({
@@ -3716,13 +3721,13 @@ var payDiv = $(".pay")
 var sumChange = function() {
     var rSum = parseInt(donatInput.val()) / 10;
     if (rSum >= 1) {
-        payDiv.find("#pay-rouble").html(someThing(rSum, "рубль", "рубля", "рублей"));
+        payDiv.find("#pay-rouble").html(someThing(rSum, "СЂСѓР±Р»СЊ", "СЂСѓР±Р»СЏ", "СЂСѓР±Р»РµР№"));
         payDiv.find("#payeer-button").attr("href", serverPort(true) + "/billing/?uid=" + u._id + "&sum=" + rSum.toFixed(2));
         payDiv.find("#pay-button").attr("href", serverPort(true) + "/billing/form?id=" + u._id + "&sum=" + parseInt(rSum));
     } else {
         payDiv.find("#pay-rouble").html("");
-        payDiv.find("#payeer-button").attr("href", 'javascript:showMessage("Минимальная сумма - 1 рубль")');
-        payDiv.find("#pay-button").attr("href", 'javascript:showMessage("Минимальная сумма - 1 рубль")');
+        payDiv.find("#payeer-button").attr("href", 'javascript:showMessage("РњРёРЅРёРјР°Р»СЊРЅР°СЏ СЃСѓРјРјР° - 1 СЂСѓР±Р»СЊ")');
+        payDiv.find("#pay-button").attr("href", 'javascript:showMessage("РњРёРЅРёРјР°Р»СЊРЅР°СЏ СЃСѓРјРјР° - 1 СЂСѓР±Р»СЊ")');
     }
 };
 donatInput.change(sumChange).keyup(sumChange);
@@ -3740,7 +3745,7 @@ $("h3").click(function() {
         break;
     case "leave":
         if (container.hasClass("current") && !game.finish) {
-            modalWindow("Вы действительно хотите покинуть игру?", goToRoom);
+            modalWindow("Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ РїРѕРєРёРЅСѓС‚СЊ РёРіСЂСѓ?", goToRoom);
         } else {
             goToRoom();
         }
@@ -3902,7 +3907,7 @@ function checkMarried(cu, block) {
             if (!cu.cups) {
                 cu.cups = {};
             }
-            cu.cups["wed" + cu.married.replace("-", "") + "-png"] = cu.married == "women-item" ? "Завидная невеста" : "Завидный жених";
+            cu.cups["wed" + cu.married.replace("-", "") + "-png"] = cu.married == "women-item" ? "Р—Р°РІРёРґРЅР°СЏ РЅРµРІРµСЃС‚Р°" : "Р—Р°РІРёРґРЅС‹Р№ Р¶РµРЅРёС…";
         }
     }
 }
@@ -3940,7 +3945,7 @@ function showPlayerInfo(show, uid) {
             ptp.removeClass("vipProfile");
         }
         var cuNick = cu.login || "***";
-        var cuRate = (cu.hide) ? "скрыт" : (cu.rating || "0");
+        var cuRate = (cu.hide) ? "СЃРєСЂС‹С‚" : (cu.rating || "0");
         var gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "?") : playerGamesCount(cu);
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
@@ -3976,7 +3981,7 @@ function showPlayerInfo(show, uid) {
                 divs.eq(0).html("");
             }
             if (game.votes[uid]) {
-                divs.eq(1).html(game.votes[uid].join(", ") + "<hr/> Голосов: " + game.votes[uid].length);
+                divs.eq(1).html(game.votes[uid].join(", ") + "<hr/> Р“РѕР»РѕСЃРѕРІ: " + game.votes[uid].length);
             } else {
                 divs.eq(1).html("");
             }
@@ -4044,21 +4049,21 @@ function showPlayerInfoBlock(cu) {
         }
     }
     wb.find(".playerInfo-cups").html(cups);
-    var dateInfo = (cu.date) ? rusDate(cu.date) : "До 14 июня 2015 года";
+    var dateInfo = (cu.date) ? rusDate(cu.date) : "Р”Рѕ 14 РёСЋРЅСЏ 2015 РіРѕРґР°";
     if (cu.room && cu.room != "0") {
         if (cu.room.length > 2) {
-            dateInfo += '<div class="green">В игре</div>';
+            dateInfo += '<div class="green">Р’ РёРіСЂРµ</div>';
         } else {
             dateInfo += '<div class="hall' + cu.room.substring(0, 1) + '">' + (cu.room.indexOf("s") == 1 ? "*" : "") + "</div>";
         }
     } else {
-        dateInfo += '<div class="red">Вне игры</div>';
+        dateInfo += '<div class="red">Р’РЅРµ РёРіСЂС‹</div>';
     }
     if (cu.last) {
-        dateInfo += '<div class="lastvisit">' + ((isToday(cu.last)) ? "Сегодня" : rusDate(cu.last, true, true)) + "</div>";
+        dateInfo += '<div class="lastvisit">' + ((isToday(cu.last)) ? "РЎРµРіРѕРґРЅСЏ" : rusDate(cu.last, true, true)) + "</div>";
     }
     if (cu.vip && cu.vip > datenow()) {
-        dateInfo += '<div class="vipPlayer">VIP-статус до ' + showDate(cu.vip, true) + "</div>";
+        dateInfo += '<div class="vipPlayer">VIP-СЃС‚Р°С‚СѓСЃ РґРѕ ' + showDate(cu.vip, true) + "</div>";
     }
     $("#regdate").html(dateInfo);
     anketaInfo.html("");
@@ -4075,11 +4080,11 @@ function showPlayerInfoBlock(cu) {
         for (var k in cu.gifts) {
             if (cu.gifts.hasOwnProperty(k)) {
                 var cg = cu.gifts[k]
-                  , curgift = $('<div data-giftid="' + k + '" class="' + getGiftClass(cg.num) + '" data-title="' + (cg.login ? cg.login : "Аноним") + ": " + (cg.text ? matFilter(cg.text) : "без комментариев") + " (" + showDate(k, true) + ')"></div>');
+                  , curgift = $('<div data-giftid="' + k + '" class="' + getGiftClass(cg.num) + '" data-title="' + (cg.login ? cg.login : "РђРЅРѕРЅРёРј") + ": " + (cg.text ? matFilter(cg.text) : "Р±РµР· РєРѕРјРјРµРЅС‚Р°СЂРёРµРІ") + " (" + showDate(k, true) + ')"></div>');
                 if (myprofile) {
                     curgift.on("click touchstart", function() {
                         var thisgift = $(this);
-                        modalWindow('Выбросить подарок?<br/> <div class="playerInfo-gifts singlegift"><div class="' + thisgift.attr("class") + '" data-title="' + thisgift.attr("data-title") + '"></div></div>', function() {
+                        modalWindow('Р’С‹Р±СЂРѕСЃРёС‚СЊ РїРѕРґР°СЂРѕРє?<br/> <div class="playerInfo-gifts singlegift"><div class="' + thisgift.attr("class") + '" data-title="' + thisgift.attr("data-title") + '"></div></div>', function() {
                             sendToSocket({
                                 type: "gift-delete",
                                 gift: thisgift.attr("data-giftid")
@@ -4095,7 +4100,7 @@ function showPlayerInfoBlock(cu) {
     }
     if (myprofile) {
         if (u.vip) {
-            $("<button>" + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").click(function() {
+            $("<button>" + (u.hide ? "РћС‚РєСЂС‹С‚СЊ РїСЂРѕС„РёР»СЊ" : "РЎРєСЂС‹С‚СЊ РїСЂРѕС„РёР»СЊ") + "</button>").click(function() {
                 $(this).hide();
                 sendToSocket({
                     type: "anketa",
@@ -4106,16 +4111,16 @@ function showPlayerInfoBlock(cu) {
             }).appendTo(giftInfo);
         }
     } else {
-        $("<button>Сделать подарок</button>").click(function() {
+        $("<button>РЎРґРµР»Р°С‚СЊ РїРѕРґР°СЂРѕРє</button>").click(function() {
             giftShop.find('input[type="text"]').eq(0).val(cu.login);
             showWindow("giftshop");
         }).appendTo(giftInfo);
     }
     if (u.stat && u.stat.pay) {
         var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
-        $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
+        $('<button class="button-donatoptions money">' + (myprofile ? "РџРѕР»СѓС‡РёС‚СЊ" : "РџРѕРґР°СЂРёС‚СЊ") + " VIP (" + needVipSum + ")</button>").click(function() {
             if (u.money2 >= needVipSum) {
-                modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
+                modalWindow("Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїРѕРґР°СЂРёС‚СЊ РёРіСЂРѕРєСѓ <b>" + cuNick + "</b> VIP-СЃС‚Р°С‚СѓСЃ РЅР° 30 РґРЅРµР№?", function() {
                     sendToSocket({
                         type: "donat",
                         action: "vip",
@@ -4123,7 +4128,7 @@ function showPlayerInfoBlock(cu) {
                     });
                 });
             } else {
-                showMessage('Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету.");
+                showMessage('Р”Р»СЏ С‚Р°РєРѕРіРѕ С‰РµРґСЂРѕРіРѕ РїРѕРґР°СЂРєР° Сѓ Р’Р°СЃ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ <span class="money">' + needVipSum + "</span> РЅР° СЃС‡РµС‚Сѓ.");
             }
         }).appendTo(giftInfo);
     }
@@ -4135,7 +4140,7 @@ shop.find("[data-item]").click(function() {
         var item = parseInt(data[0]);
         var money = parseInt(data[1]);
     } catch (e) {
-        showMessage("Товар не выбран");
+        showMessage("РўРѕРІР°СЂ РЅРµ РІС‹Р±СЂР°РЅ");
     }
     if (item > 0 && item < 7) {
         sendToSocket({
@@ -4144,7 +4149,7 @@ shop.find("[data-item]").click(function() {
             money: money
         });
     } else {
-        showMessage("Товара нет в наличии");
+        showMessage("РўРѕРІР°СЂР° РЅРµС‚ РІ РЅР°Р»РёС‡РёРё");
     }
 });
 function showMessage(text) {
@@ -4319,7 +4324,7 @@ regButton.click(function() {
       , outObj = {};
     if (charDiv.hasClass("addChar")) {
         if (newLogin.length < 4) {
-            showMessage("Минимальная длина НикНейма 4 символа");
+            showMessage("РњРёРЅРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РќРёРєРќРµР№РјР° 4 СЃРёРјРІРѕР»Р°");
             return;
         }
         outObj = {
@@ -4363,7 +4368,7 @@ regButton.click(function() {
             }
             if (!isChanges) {
                 editProfile(false);
-                alarm("Профиль не был изменен.");
+                alarm("РџСЂРѕС„РёР»СЊ РЅРµ Р±С‹Р» РёР·РјРµРЅРµРЅ.");
                 return;
             } else {
                 updateInterface();
@@ -4371,7 +4376,7 @@ regButton.click(function() {
             }
         } else {
             if (newLogin.length < 4) {
-                showMessage("Минимальная длина НикНейма 4 символа");
+                showMessage("РњРёРЅРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РќРёРєРќРµР№РјР° 4 СЃРёРјРІРѕР»Р°");
                 return;
             }
             outObj = {
@@ -4472,15 +4477,15 @@ $("#char-back").click(function() {
 });
 $("#char-create").click(function() {
     if (!u.club && !u.vip) {
-        showMessage("Для создания дополнительных персонажей нужно состоять в клубе или иметь VIP аккаунт");
+        showMessage("Р”Р»СЏ СЃРѕР·РґР°РЅРёСЏ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїРµСЂСЃРѕРЅР°Р¶РµР№ РЅСѓР¶РЅРѕ СЃРѕСЃС‚РѕСЏС‚СЊ РІ РєР»СѓР±Рµ РёР»Рё РёРјРµС‚СЊ VIP Р°РєРєР°СѓРЅС‚");
         return;
     }
     if (!u.vip && u.chars && u.chars.length > 0) {
-        showMessage("Для создания более 1 дополнительного персонажа нужно иметь VIP аккаунт");
+        showMessage("Р”Р»СЏ СЃРѕР·РґР°РЅРёСЏ Р±РѕР»РµРµ 1 РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р° РЅСѓР¶РЅРѕ РёРјРµС‚СЊ VIP Р°РєРєР°СѓРЅС‚");
         return;
     }
     if (u.chars && u.chars.length > 4) {
-        showMessage("Нельзя создать больше 5 дополнительных аккаунтов");
+        showMessage("РќРµР»СЊР·СЏ СЃРѕР·РґР°С‚СЊ Р±РѕР»СЊС€Рµ 5 РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… Р°РєРєР°СѓРЅС‚РѕРІ");
         return;
     }
     editProfile("addChar");
@@ -4488,11 +4493,11 @@ $("#char-create").click(function() {
 $("#char-delete").click(function() {
     var charNum = selectCharDiv.find("input[name=selectedChar]:checked").val();
     if (charNum == "0") {
-        showMessage("Нельзя удалить основной персонаж. Для смены ника воспользуйтесь разделом VIP");
+        showMessage("РќРµР»СЊР·СЏ СѓРґР°Р»РёС‚СЊ РѕСЃРЅРѕРІРЅРѕР№ РїРµСЂСЃРѕРЅР°Р¶. Р”Р»СЏ СЃРјРµРЅС‹ РЅРёРєР° РІРѕСЃРїРѕР»СЊР·СѓР№С‚РµСЃСЊ СЂР°Р·РґРµР»РѕРј VIP");
         return;
     }
     if (charNum && u.chars[charNum - 1]) {
-        modalWindow("Вы действительно хотите удалить персонажа " + u.chars[charNum - 1].login + "?", function() {
+        modalWindow("Р’С‹ РґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ С…РѕС‚РёС‚Рµ СѓРґР°Р»РёС‚СЊ РїРµСЂСЃРѕРЅР°Р¶Р° " + u.chars[charNum - 1].login + "?", function() {
             u.chars.splice(charNum - 1, 1);
             sendToSocket({
                 type: "char",
@@ -4634,7 +4639,7 @@ vipButton.click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
     }
 });
 var donatNick = $("#donat-nick");
@@ -4649,10 +4654,10 @@ donatNick.find("button").click(function() {
             });
             closewindow();
         } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+            showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
         }
     } else {
-        showMessage("Минимальная длина НикНейма 4 символа");
+        showMessage("РњРёРЅРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РќРёРєРќРµР№РјР° 4 СЃРёРјРІРѕР»Р°");
     }
 });
 var donatChange = $("#donat-change")
@@ -4676,14 +4681,14 @@ donatChange.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для обмена');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РѕР±РјРµРЅР°');
     }
 });
 var donatNickColor = $("#donat-nickcolor");
 donatNickColor.find("button").click(function() {
     var selColor = donatNickColor.find("input").val();
     if (u.money2 >= 500) {
-        modalWindow('Уверены, что хотите установить цвет ника таким?<br/><div style="background:#000;padding:10px;"><b style="color:' + selColor + '">' + u.login + '</b> в режиме Мафии</div><div style="background:#fff;padding:10px;color:#000"><b style="color:' + selColor + '">' + u.login + "</b> в режиме День Любви</div>", function() {
+        modalWindow('РЈРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ С†РІРµС‚ РЅРёРєР° С‚Р°РєРёРј?<br/><div style="background:#000;padding:10px;"><b style="color:' + selColor + '">' + u.login + '</b> РІ СЂРµР¶РёРјРµ РњР°С„РёРё</div><div style="background:#fff;padding:10px;color:#000"><b style="color:' + selColor + '">' + u.login + "</b> РІ СЂРµР¶РёРјРµ Р”РµРЅСЊ Р›СЋР±РІРё</div>", function() {
             sendToSocket({
                 type: "donat",
                 action: "nickcolor",
@@ -4692,7 +4697,7 @@ donatNickColor.find("button").click(function() {
             closewindow();
         });
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
     }
 });
 var donatAllMsg = $("#donat-allmessage");
@@ -4715,23 +4720,23 @@ donatAllMsg.find("button").click(function() {
             });
             closewindow();
         } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+            showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
         }
     }
 });
 var donatFoto = $("#donat-foto");
 donatFoto.find("button").click(function() {
     if (!u.vip && u.money2 < 1000) {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
         return;
     }
     if (!donatFoto.find("input")[0].files || !donatFoto.find("input")[0].files[0]) {
-        showMessage("Не выбран файл для загрузки");
+        showMessage("РќРµ РІС‹Р±СЂР°РЅ С„Р°Р№Р» РґР»СЏ Р·Р°РіСЂСѓР·РєРё");
         return;
     }
     var file = donatFoto.find("input")[0].files[0];
     if (file.size > 300 * 1024) {
-        showMessage("Размер файла превышает 300 КБ");
+        showMessage("Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° РїСЂРµРІС‹С€Р°РµС‚ 300 РљР‘");
         return;
     }
     var data = new FormData();
@@ -4748,7 +4753,7 @@ donatFoto.find("button").click(function() {
             if (response.status == "ok") {
                 showMessage(response.text);
             } else {
-                showMessage("Не удалось установить аватар:<br/> " + response.errors);
+                showMessage("РќРµ СѓРґР°Р»РѕСЃСЊ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ Р°РІР°С‚Р°СЂ:<br/> " + response.errors);
             }
         },
         xhrFields: {
@@ -4769,7 +4774,7 @@ donatBotnick.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
     }
 });
 var donatBotwords = $("#donat-botwords");
@@ -4783,7 +4788,7 @@ donatBotwords.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
     }
 });
 var donatBigGame = $("#donat-biggame");
@@ -4806,7 +4811,7 @@ donatBigGame.find("button").click(function() {
             });
             closewindow();
         } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+            showMessage('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">Р±Р°РєСЃРѕРІ</span> РґР»СЏ РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё :(');
         }
     }
 });
@@ -4823,19 +4828,19 @@ function showToteList(dataArr) {
             for (var index in vars) {
                 if (vars.hasOwnProperty(index)) {
                     var cid = "tote" + i + "_" + index;
-                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
+                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? someThing(dataArr[i].bets[index].count, "СЃС‚Р°РІРєР°", "СЃС‚Р°РІРєРё", "СЃС‚Р°РІРѕРє") + " РЅР° РѕР±С‰СѓСЋ СЃСѓРјРјСѓ " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(РІР°С€Р° СЃС‚Р°РІРєР° - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "РќРµС‚ СЃС‚Р°РІРѕРє") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
                 }
             }
             $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
-            $('<br/><label class="gamemoney">Ваша ставка <input type="text" value="10" /> 000 </label>').appendTo(div);
-            $('<button class="button">Сделать ставку</button>').appendTo(div).click({
+            $('<br/><label class="gamemoney">Р’Р°С€Р° СЃС‚Р°РІРєР° <input type="text" value="10" /> 000 </label>').appendTo(div);
+            $('<button class="button">РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ</button>').appendTo(div).click({
                 toteid: curid
             }, doBet);
             $('<div>? = <span class="gamemoney">' + over1000(dataArr[i].sum) + "</span></div>").appendTo(div);
             totalList.append(div);
         }
     } else {
-        totalList.html("<div><h5>В тотализаторе нет ни одного предстоящего события</h5></div>");
+        totalList.html("<div><h5>Р’ С‚РѕС‚Р°Р»РёР·Р°С‚РѕСЂРµ РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ РїСЂРµРґСЃС‚РѕСЏС‰РµРіРѕ СЃРѕР±С‹С‚РёСЏ</h5></div>");
     }
 }
 function doBet(param) {
@@ -4843,21 +4848,21 @@ function doBet(param) {
     var toteDiv = $("#tote" + toteId);
     var betSum = parseInt(toteDiv.find('input[type="text"]').val());
     if (!betSum || betSum < 1) {
-        showMessage('Минимальная ставка <span class="gamemoney">1 000</span>');
+        showMessage('РњРёРЅРёРјР°Р»СЊРЅР°СЏ СЃС‚Р°РІРєР° <span class="gamemoney">1 000</span>');
         return;
     }
     if (betSum * 1000 > u.money) {
-        showMessage("Для такой ставки недостаточно денег на вашем игровом счете");
+        showMessage("Р”Р»СЏ С‚Р°РєРѕР№ СЃС‚Р°РІРєРё РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРµРЅРµРі РЅР° РІР°С€РµРј РёРіСЂРѕРІРѕРј СЃС‡РµС‚Рµ");
         return;
     }
     var title = toteDiv.find("h5").html();
     var selRadio = toteDiv.find('input[type="radio"]:checked');
     if (!selRadio.val()) {
-        showMessage("Не выбран возможный вариант события для ставки");
+        showMessage("РќРµ РІС‹Р±СЂР°РЅ РІРѕР·РјРѕР¶РЅС‹Р№ РІР°СЂРёР°РЅС‚ СЃРѕР±С‹С‚РёСЏ РґР»СЏ СЃС‚Р°РІРєРё");
         return;
     }
     var selText = selRadio.next().html();
-    modalWindow('Уверены, что хотите сделать ставку в размере <span class="gamemoney">' + over1000(betSum * 1000) + "</span> на вариант <b>" + selText + "</b> в событии <em>" + title + "</em>?<br/> Отменить ставку будет невозможно!", function() {
+    modalWindow('РЈРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СЃРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ РІ СЂР°Р·РјРµСЂРµ <span class="gamemoney">' + over1000(betSum * 1000) + "</span> РЅР° РІР°СЂРёР°РЅС‚ <b>" + selText + "</b> РІ СЃРѕР±С‹С‚РёРё <em>" + title + "</em>?<br/> РћС‚РјРµРЅРёС‚СЊ СЃС‚Р°РІРєСѓ Р±СѓРґРµС‚ РЅРµРІРѕР·РјРѕР¶РЅРѕ!", function() {
         sendToSocket({
             type: "tote",
             action: "add",
@@ -4874,14 +4879,14 @@ function showCurGames(dataArr) {
         for (var i = 0, len = dataArr.length; i < len; i++) {
             var curid = dataArr[i]._id
               , div = $('<div id="curgame' + dataArr[i]._id + '"></div>');
-            div.html("<time>" + showDate(dataArr[i].time, true) + "</time> <h5>" + dataArr[i].creator + "</h5><em>" + dataArr[i].caption + '</em><div class="curgame-info">' + (dataArr[i].selecting ? '<b class="selrolgame"></b>' : "") + (dataArr[i].botwall ? '<b class="botwall"></b>' : "") + (dataArr[i].shortnight ? '<b class="shortnight"></b>' : "") + (dataArr[i].man ? '<b class="manmode"></b>' : "") + gameStyle[dataArr[i].style] + ' на <span class="red">' + dataArr[i].count + '</span> игроков со ставкой <span class="brown">' + over1000(dataArr[i].sum) + "</span></div><blockquote>" + dataArr[i].players.join(", ") + "</blockquote> ");
-            $("<button>Посмотреть игру</button>").appendTo(div).click({
+            div.html("<time>" + showDate(dataArr[i].time, true) + "</time> <h5>" + dataArr[i].creator + "</h5><em>" + dataArr[i].caption + '</em><div class="curgame-info">' + (dataArr[i].selecting ? '<b class="selrolgame"></b>' : "") + (dataArr[i].botwall ? '<b class="botwall"></b>' : "") + (dataArr[i].shortnight ? '<b class="shortnight"></b>' : "") + (dataArr[i].man ? '<b class="manmode"></b>' : "") + gameStyle[dataArr[i].style] + ' РЅР° <span class="red">' + dataArr[i].count + '</span> РёРіСЂРѕРєРѕРІ СЃРѕ СЃС‚Р°РІРєРѕР№ <span class="brown">' + over1000(dataArr[i].sum) + "</span></div><blockquote>" + dataArr[i].players.join(", ") + "</blockquote> ");
+            $("<button>РџРѕСЃРјРѕС‚СЂРµС‚СЊ РёРіСЂСѓ</button>").appendTo(div).click({
                 gameid: curid
             }, enterToGame);
             curgamesList.append(div);
         }
     } else {
-        curgamesList.html("<div><h5>В данный момент не проходит ни одной игры :(</h5></div>");
+        curgamesList.html("<div><h5>Р’ РґР°РЅРЅС‹Р№ РјРѕРјРµРЅС‚ РЅРµ РїСЂРѕС…РѕРґРёС‚ РЅРё РѕРґРЅРѕР№ РёРіСЂС‹ :(</h5></div>");
     }
 }
 function enterToGame(param) {
@@ -4899,26 +4904,26 @@ function showAuctionList(dataArr) {
     var auctionList = win.find(".auction");
     auctionList.html("");
     if (dataArr.length > 0) {
-        auctionList.append('<div class="specialnews">Каждая ставка продлевает время аукциона на 3 суток. Победителем становится игрок, чья ставка продержится 72 часа. Ставки, перебитые другими участниками, возвращаются их владельцам</div>');
+        auctionList.append('<div class="specialnews">РљР°Р¶РґР°СЏ СЃС‚Р°РІРєР° РїСЂРѕРґР»РµРІР°РµС‚ РІСЂРµРјСЏ Р°СѓРєС†РёРѕРЅР° РЅР° 3 СЃСѓС‚РѕРє. РџРѕР±РµРґРёС‚РµР»РµРј СЃС‚Р°РЅРѕРІРёС‚СЃСЏ РёРіСЂРѕРє, С‡СЊСЏ СЃС‚Р°РІРєР° РїСЂРѕРґРµСЂР¶РёС‚СЃСЏ 72 С‡Р°СЃР°. РЎС‚Р°РІРєРё, РїРµСЂРµР±РёС‚С‹Рµ РґСЂСѓРіРёРјРё СѓС‡Р°СЃС‚РЅРёРєР°РјРё, РІРѕР·РІСЂР°С‰Р°СЋС‚СЃСЏ РёС… РІР»Р°РґРµР»СЊС†Р°Рј</div>');
         for (var i = 0, len = dataArr.length; i < len; i++) {
             var curid = dataArr[i]._id;
             var div = $('<div id="auction' + dataArr[i]._id + '"></div>');
-            $('<img src="/images/lots/' + dataArr[i].img + '" alt="Изображение лота"/>').appendTo(div);
+            $('<img src="/images/lots/' + dataArr[i].img + '" alt="РР·РѕР±СЂР°Р¶РµРЅРёРµ Р»РѕС‚Р°"/>').appendTo(div);
             $('<h5 class="money">' + dataArr[i].bet + "</h5>").appendTo(div);
             $("<p>" + dataArr[i].lot + "</p>").appendTo(div);
             $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
-            $('<br/><label class="money">Ваша ставка <input type="text" value="10" /></label>').appendTo(div);
-            $("<button>Сделать ставку</button>").appendTo(div).click({
+            $('<br/><label class="money">Р’Р°С€Р° СЃС‚Р°РІРєР° <input type="text" value="10" /></label>').appendTo(div);
+            $("<button>РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ</button>").appendTo(div).click({
                 aucid: curid,
                 min: dataArr[i].bet
             }, doAuctionBet);
             if (dataArr[i].login) {
-                $("<div>Последняя ставка: " + dataArr[i].login + "</div>").appendTo(div);
+                $("<div>РџРѕСЃР»РµРґРЅСЏСЏ СЃС‚Р°РІРєР°: " + dataArr[i].login + "</div>").appendTo(div);
             }
             auctionList.append(div);
         }
     } else {
-        auctionList.html('<div><h5 class="nobefore">Нет доступных лотов</h5></div>');
+        auctionList.html('<div><h5 class="nobefore">РќРµС‚ РґРѕСЃС‚СѓРїРЅС‹С… Р»РѕС‚РѕРІ</h5></div>');
     }
 }
 function doAuctionBet(param) {
@@ -4927,14 +4932,14 @@ function doAuctionBet(param) {
     var toteDiv = $("#auction" + aucId);
     var betSum = parseInt(toteDiv.find('input[type="text"]').val());
     if (!betSum || betSum < min) {
-        showMessage('Минимальная ставка <span class="money">' + min + "</span>");
+        showMessage('РњРёРЅРёРјР°Р»СЊРЅР°СЏ СЃС‚Р°РІРєР° <span class="money">' + min + "</span>");
         return;
     }
     if (betSum > u.money2) {
-        showMessage('Для такой ставки недостаточно <span class="money">денег</span> на вашем игровом счете');
+        showMessage('Р”Р»СЏ С‚Р°РєРѕР№ СЃС‚Р°РІРєРё РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ <span class="money">РґРµРЅРµРі</span> РЅР° РІР°С€РµРј РёРіСЂРѕРІРѕРј СЃС‡РµС‚Рµ');
         return;
     }
-    modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + over1000(betSum) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
+    modalWindow('РЈРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СЃРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ РІ СЂР°Р·РјРµСЂРµ <span class="money">' + over1000(betSum) + "</span> РЅР° СЌС‚РѕС‚ Р»РѕС‚?<br/> Р•СЃР»Рё РІР°С€Сѓ СЃС‚Р°РІРєСѓ РїРµСЂРµР±СЊСЋС‚ РґСЂСѓРіРёРµ СѓС‡Р°СЃС‚РЅРёРєРё, РІСЃСЏ СЃСѓРјРјР° Р±СѓРґРµС‚ РІРѕР·РІСЂР°С‰РµРЅР° РЅР° РІР°С€ СЃС‡РµС‚!", function() {
         sendToSocket({
             type: "auction",
             lot: aucId,
@@ -4977,13 +4982,16 @@ var giftShop = $(".giftshop")
     }
     return "gift-group" + groupNum + " gift" + giftnum;
 }
+  , addGiftOnList = function(i) {
+    if (i == 142 || (i > 252 && i < 273)) {
+        return;
+    }
+    var gmg = (gifts[i].t == 1);
+    if ((isShowGiftType1 && gmg) || (isShowGiftType2 && !gmg)) {
+        $('<input type="radio" id="gift' + i + '" name="gift" value="' + i + '"/><label for="gift' + i + '" class="' + getGiftClass(i) + '" data-title="' + (gmg ? "РЅР° 30 РґРЅРµР№" : "РЅР° РїР°РјСЏС‚СЊ") + '"><b class="' + (gmg ? "game" : "") + 'money">' + over1000(gifts[i].p) + "</b></label>").appendTo(giftList);
+    }
+}
   , showGiftList = function() {
-    var addGiftOnList = function(i) {
-        var gmg = (gifts[i].t == 1);
-        if ((isShowGiftType1 && gmg) || (isShowGiftType2 && !gmg)) {
-            $('<input type="radio" id="gift' + i + '" name="gift" value="' + i + '"/><label for="gift' + i + '" class="' + getGiftClass(i) + '" data-title="' + (gmg ? "на 30 дней" : "на память") + '"><b class="' + (gmg ? "game" : "") + 'money">' + over1000(gifts[i].p) + "</b></label>").appendTo(giftList);
-        }
-    };
     giftList.html("");
     if (giftSortOrder) {
         if (giftSortOrder == 1) {
@@ -4991,22 +4999,21 @@ var giftShop = $(".giftshop")
                 addGiftOnList(sortGifts[i]);
             }
         } else {
-            for (var i = sortGifts.length - 1; i >= 0; i--) {
-                addGiftOnList(sortGifts[i]);
+            for (var k = sortGifts.length - 1; k >= 0; k--) {
+                addGiftOnList(sortGifts[k]);
             }
         }
     } else {
-        for (var i in gifts) {
-            if (gifts.hasOwnProperty(i)) {
-                addGiftOnList(i);
+        for (var ind in gifts) {
+            if (gifts.hasOwnProperty(ind)) {
+                addGiftOnList(ind);
             }
         }
     }
 };
 for (var i in gifts) {
     if (gifts.hasOwnProperty(i)) {
-        var gmg = (gifts[i].t == 1);
-        $('<input type="radio" id="gift' + i + '" name="gift" value="' + i + '"/><label for="gift' + i + '" class="' + getGiftClass(i) + '" data-title="' + (gmg ? "на 30 дней" : "на память") + '"><b class="' + (gmg ? "game" : "") + 'money">' + over1000(gifts[i].p) + "</b></label>").appendTo(giftList);
+        addGiftOnList(i);
     }
 }
 $("#giftSortInc").click(function() {
@@ -5043,15 +5050,15 @@ giftShop.find("button").click(function() {
       , giftText = giftShop.find('input[type="text"]').eq(1).val().trim().substring(0, 200)
       , selGift = $("input[name=gift]:checked", "#giftList").val();
     if (!selGift || !gifts[selGift]) {
-        showMessage("Вы забыли выбрать подарок для своего друга");
+        showMessage("Р’С‹ Р·Р°Р±С‹Р»Рё РІС‹Р±СЂР°С‚СЊ РїРѕРґР°СЂРѕРє РґР»СЏ СЃРІРѕРµРіРѕ РґСЂСѓРіР°");
         return;
     }
     if (!giftWhom) {
-        showMessage("Вы забыли уточнить, кому хотите подарить подарок!");
+        showMessage("Р’С‹ Р·Р°Р±С‹Р»Рё СѓС‚РѕС‡РЅРёС‚СЊ, РєРѕРјСѓ С…РѕС‚РёС‚Рµ РїРѕРґР°СЂРёС‚СЊ РїРѕРґР°СЂРѕРє!");
         return;
     }
     if (u.login == giftWhom) {
-        showMessage("Вы не можете подарить подарок себе, это будет не по-товарищески.");
+        showMessage("Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РїРѕРґР°СЂРёС‚СЊ РїРѕРґР°СЂРѕРє СЃРµР±Рµ, СЌС‚Рѕ Р±СѓРґРµС‚ РЅРµ РїРѕ-С‚РѕРІР°СЂРёС‰РµСЃРєРё.");
         return;
     }
     if (((gifts[selGift].t == 2) ? u.money2 : u.money) >= gifts[selGift].p) {
@@ -5063,7 +5070,7 @@ giftShop.find("button").click(function() {
             anonim: giftAnonim
         });
     } else {
-        showMessage("Недостаточно денег для такого шикарного подарка :(");
+        showMessage("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРµРЅРµРі РґР»СЏ С‚Р°РєРѕРіРѕ С€РёРєР°СЂРЅРѕРіРѕ РїРѕРґР°СЂРєР° :(");
     }
 });
 var rolling = false
@@ -5073,56 +5080,56 @@ var rolling = false
 var roll_items = function(itemId) {
     var rollItems = {
         ffl: {
-            1: 'Активная роль + 2 часа <div class="shop-item3"></div>',
-            2: 'Академический отпуск <div class="shop-item5"></div>',
-            3: 'Навесной замок 3шт <div class="shop-item2"></div>',
-            4: 'Клуб ФФЛ +3 дня <div class="shop-item6"></div>',
-            5: 'Печенье 1шт <div class="shop-item4"></div>',
-            6: "Сертификат на 1 объявление",
-            7: 'Активная роль + 1 час <div class="shop-item3"></div>',
-            8: 'Академический отпуск 3шт <div class="shop-item5"></div>',
-            9: 'Навесной замок 2шт <div class="shop-item2"></div>',
-            10: 'Клуб ФФЛ +1 день <div class="shop-item6"></div>',
-            11: 'Печенье 2шт <div class="shop-item4"></div>',
-            12: "Элемент коллекции <em>Активист</em>",
+            1: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 2 С‡Р°СЃР° <div class="shop-item3"></div>',
+            2: 'РђРєР°РґРµРјРёС‡РµСЃРєРёР№ РѕС‚РїСѓСЃРє <div class="shop-item5"></div>',
+            3: 'РќР°РІРµСЃРЅРѕР№ Р·Р°РјРѕРє 3С€С‚ <div class="shop-item2"></div>',
+            4: 'РљР»СѓР± Р¤Р¤Р› +3 РґРЅСЏ <div class="shop-item6"></div>',
+            5: 'РџРµС‡РµРЅСЊРµ 1С€С‚ <div class="shop-item4"></div>',
+            6: "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° 1 РѕР±СЉСЏРІР»РµРЅРёРµ",
+            7: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 1 С‡Р°СЃ <div class="shop-item3"></div>',
+            8: 'РђРєР°РґРµРјРёС‡РµСЃРєРёР№ РѕС‚РїСѓСЃРє 3С€С‚ <div class="shop-item5"></div>',
+            9: 'РќР°РІРµСЃРЅРѕР№ Р·Р°РјРѕРє 2С€С‚ <div class="shop-item2"></div>',
+            10: 'РљР»СѓР± Р¤Р¤Р› +1 РґРµРЅСЊ <div class="shop-item6"></div>',
+            11: 'РџРµС‡РµРЅСЊРµ 2С€С‚ <div class="shop-item4"></div>',
+            12: "Р­Р»РµРјРµРЅС‚ РєРѕР»Р»РµРєС†РёРё <em>РђРєС‚РёРІРёСЃС‚</em>",
             13: '<span class="gamemoney">- 10 000</span>',
             14: '<span class="gamemoney">+ 10 000</span>',
             15: '<span class="money">+ 10</span>',
-            16: 'Активная роль + 3 часа <div class="shop-item3"></div>',
-            17: 'Академический отпуск 2шт <div class="shop-item5"></div>',
-            18: 'Навесной замок 1шт <div class="shop-item2"></div>',
-            19: 'Клуб ФФЛ +2 дня <div class="shop-item6"></div>',
-            20: 'Печенье 3шт <div class="shop-item4"></div>',
-            21: "Элемент коллекции <em>Клубная</em>",
+            16: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 3 С‡Р°СЃР° <div class="shop-item3"></div>',
+            17: 'РђРєР°РґРµРјРёС‡РµСЃРєРёР№ РѕС‚РїСѓСЃРє 2С€С‚ <div class="shop-item5"></div>',
+            18: 'РќР°РІРµСЃРЅРѕР№ Р·Р°РјРѕРє 1С€С‚ <div class="shop-item2"></div>',
+            19: 'РљР»СѓР± Р¤Р¤Р› +2 РґРЅСЏ <div class="shop-item6"></div>',
+            20: 'РџРµС‡РµРЅСЊРµ 3С€С‚ <div class="shop-item4"></div>',
+            21: "Р­Р»РµРјРµРЅС‚ РєРѕР»Р»РµРєС†РёРё <em>РљР»СѓР±РЅР°СЏ</em>",
             22: '<span class="gamemoney">- 5 000</span>',
             23: '<span class="gamemoney">+ 5 000</span>',
-            24: 'Веб-камера <div class="shop-item1"></div>'
+            24: 'Р’РµР±-РєР°РјРµСЂР° <div class="shop-item1"></div>'
         },
         maffia: {
-            1: 'Активная роль + 2 часа <div class="shop-item3"></div>',
-            2: 'Автомобиль <div class="shop-item5"></div>',
-            3: 'Маскировочный комплект 3шт <div class="shop-item2"></div>',
-            4: 'Клуб Мафии +3 дня <div class="shop-item6"></div>',
-            5: 'Жучок 1шт <div class="shop-item4"></div>',
-            6: "Сертификат на 1 объявление",
-            7: 'Активная роль + 1 час <div class="shop-item3"></div>',
-            8: 'Автомобиль 3шт <div class="shop-item5"></div>',
-            9: 'Маскировочный комплект 2шт <div class="shop-item2"></div>',
-            10: 'Клуб Мафии +1 день <div class="shop-item6"></div>',
-            11: 'Жучок 2шт <div class="shop-item4"></div>',
-            12: "Элемент коллекции <em>Активист</em>",
+            1: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 2 С‡Р°СЃР° <div class="shop-item3"></div>',
+            2: 'РђРІС‚РѕРјРѕР±РёР»СЊ <div class="shop-item5"></div>',
+            3: 'РњР°СЃРєРёСЂРѕРІРѕС‡РЅС‹Р№ РєРѕРјРїР»РµРєС‚ 3С€С‚ <div class="shop-item2"></div>',
+            4: 'РљР»СѓР± РњР°С„РёРё +3 РґРЅСЏ <div class="shop-item6"></div>',
+            5: 'Р–СѓС‡РѕРє 1С€С‚ <div class="shop-item4"></div>',
+            6: "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° 1 РѕР±СЉСЏРІР»РµРЅРёРµ",
+            7: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 1 С‡Р°СЃ <div class="shop-item3"></div>',
+            8: 'РђРІС‚РѕРјРѕР±РёР»СЊ 3С€С‚ <div class="shop-item5"></div>',
+            9: 'РњР°СЃРєРёСЂРѕРІРѕС‡РЅС‹Р№ РєРѕРјРїР»РµРєС‚ 2С€С‚ <div class="shop-item2"></div>',
+            10: 'РљР»СѓР± РњР°С„РёРё +1 РґРµРЅСЊ <div class="shop-item6"></div>',
+            11: 'Р–СѓС‡РѕРє 2С€С‚ <div class="shop-item4"></div>',
+            12: "Р­Р»РµРјРµРЅС‚ РєРѕР»Р»РµРєС†РёРё <em>РђРєС‚РёРІРёСЃС‚</em>",
             13: '<span class="gamemoney">- 10 000</span>',
             14: '<span class="gamemoney">+ 10 000</span>',
             15: '<span class="money">+ 10</span>',
-            16: 'Активная роль + 3 часа <div class="shop-item3"></div>',
-            17: 'Автомобиль 2шт <div class="shop-item5"></div>',
-            18: 'Маскировочный комплект 1шт <div class="shop-item2"></div>',
-            19: 'Клуб Мафии +2 дня <div class="shop-item6"></div>',
-            20: 'Жучок 3шт <div class="shop-item4"></div>',
-            21: "Элемент коллекции <em>Клубная</em>",
+            16: 'РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ + 3 С‡Р°СЃР° <div class="shop-item3"></div>',
+            17: 'РђРІС‚РѕРјРѕР±РёР»СЊ 2С€С‚ <div class="shop-item5"></div>',
+            18: 'РњР°СЃРєРёСЂРѕРІРѕС‡РЅС‹Р№ РєРѕРјРїР»РµРєС‚ 1С€С‚ <div class="shop-item2"></div>',
+            19: 'РљР»СѓР± РњР°С„РёРё +2 РґРЅСЏ <div class="shop-item6"></div>',
+            20: 'Р–СѓС‡РѕРє 3С€С‚ <div class="shop-item4"></div>',
+            21: "Р­Р»РµРјРµРЅС‚ РєРѕР»Р»РµРєС†РёРё <em>РљР»СѓР±РЅР°СЏ</em>",
             22: '<span class="gamemoney">- 5 000</span>',
             23: '<span class="gamemoney">+ 5 000</span>',
-            24: 'Рация <div class="shop-item1"></div>'
+            24: 'Р Р°С†РёСЏ <div class="shop-item1"></div>'
         }
     };
     return rollItems[gameMode()][itemId];
@@ -5133,7 +5140,7 @@ $(".roll>div").click(function() {
     }
     if (u.rolldate && isToday(u.rolldate)) {
         if (u.items[13]) {
-            modalWindow("Использовать билет на бесплатную попытку?", function() {
+            modalWindow("РСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Р±РёР»РµС‚ РЅР° Р±РµСЃРїР»Р°С‚РЅСѓСЋ РїРѕРїС‹С‚РєСѓ?", function() {
                 u.items[13] -= 1;
                 rolling = true;
                 sendToSocket({
@@ -5142,10 +5149,10 @@ $(".roll>div").click(function() {
             });
         } else {
             if (u.money2 < rollPrice) {
-                showMessage("Недостаточно денег для еще одной попытки");
+                showMessage("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ РґРµРЅРµРі РґР»СЏ РµС‰Рµ РѕРґРЅРѕР№ РїРѕРїС‹С‚РєРё");
                 return false;
             }
-            modalWindow('Вы хотите испытать удачу еще раз? Стоимость последующих попыток <span class="money">50</span>', function() {
+            modalWindow('Р’С‹ С…РѕС‚РёС‚Рµ РёСЃРїС‹С‚Р°С‚СЊ СѓРґР°С‡Сѓ РµС‰Рµ СЂР°Р·? РЎС‚РѕРёРјРѕСЃС‚СЊ РїРѕСЃР»РµРґСѓСЋС‰РёС… РїРѕРїС‹С‚РѕРє <span class="money">50</span>', function() {
                 rolling = true;
                 sendToSocket({
                     type: "rolling"
@@ -5221,16 +5228,16 @@ function showQuiz(data) {
         return false;
     });
     $("<div/>").html("x").bind("click", function() {
-        modalWindow("Хотите отключить викторину до конца текущего сеанса?", function() {
+        modalWindow("РҐРѕС‚РёС‚Рµ РѕС‚РєР»СЋС‡РёС‚СЊ РІРёРєС‚РѕСЂРёРЅСѓ РґРѕ РєРѕРЅС†Р° С‚РµРєСѓС‰РµРіРѕ СЃРµР°РЅСЃР°?", function() {
             quizEnable = false;
             $(".quiz").remove();
-            showMessage("Чтобы вновь включить викторину, напишите в чате команду &quot;викторина+&quot; без кавычек и пробелов.");
+            showMessage("Р§С‚РѕР±С‹ РІРЅРѕРІСЊ РІРєР»СЋС‡РёС‚СЊ РІРёРєС‚РѕСЂРёРЅСѓ, РЅР°РїРёС€РёС‚Рµ РІ С‡Р°С‚Рµ РєРѕРјР°РЅРґСѓ &quot;РІРёРєС‚РѕСЂРёРЅР°+&quot; Р±РµР· РєР°РІС‹С‡РµРє Рё РїСЂРѕР±РµР»РѕРІ.");
         });
     }).appendTo(qDiv);
     $("<div/>", {
         "class": "quizabout"
     }).html("?").bind("click", function() {
-        showMessage("Чтобы дать ответ в викторине необходимо написать слово (или слова) целиком в общий чат (или личным, но не приватным сообщением).");
+        showMessage("Р§С‚РѕР±С‹ РґР°С‚СЊ РѕС‚РІРµС‚ РІ РІРёРєС‚РѕСЂРёРЅРµ РЅРµРѕР±С…РѕРґРёРјРѕ РЅР°РїРёСЃР°С‚СЊ СЃР»РѕРІРѕ (РёР»Рё СЃР»РѕРІР°) С†РµР»РёРєРѕРј РІ РѕР±С‰РёР№ С‡Р°С‚ (РёР»Рё Р»РёС‡РЅС‹Рј, РЅРѕ РЅРµ РїСЂРёРІР°С‚РЅС‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј).");
     }).appendTo(qDiv);
     qDiv.appendTo(messagesList);
     qDiv.clone().appendTo(mymessagesList);
@@ -5247,22 +5254,22 @@ function showProfile() {
     }
 }
 var quizRanks = {
-    10: "Новичок",
-    50: "Ученик",
-    100: "Знаток",
-    300: "Профи",
-    500: "Мастер",
-    1000: "Гуру",
-    3000: "Мыслитель",
-    5000: "Мудрец",
-    10000: "Просветленный",
-    15000: "Оракул",
-    30000: "Гений",
-    50000: "Искусственный Интеллект",
-    100000: "Высший разум"
+    10: "РќРѕРІРёС‡РѕРє",
+    50: "РЈС‡РµРЅРёРє",
+    100: "Р—РЅР°С‚РѕРє",
+    300: "РџСЂРѕС„Рё",
+    500: "РњР°СЃС‚РµСЂ",
+    1000: "Р“СѓСЂСѓ",
+    3000: "РњС‹СЃР»РёС‚РµР»СЊ",
+    5000: "РњСѓРґСЂРµС†",
+    10000: "РџСЂРѕСЃРІРµС‚Р»РµРЅРЅС‹Р№",
+    15000: "РћСЂР°РєСѓР»",
+    30000: "Р“РµРЅРёР№",
+    50000: "РСЃРєСѓСЃСЃС‚РІРµРЅРЅС‹Р№ РРЅС‚РµР»Р»РµРєС‚",
+    100000: "Р’С‹СЃС€РёР№ СЂР°Р·СѓРј"
 };
 function showQuizList(plArr) {
-    var qdata = '<table><tr class="quizHeader"><td></td><th>Игроки</th><td>Очки</td><td>Звания</td></tr>'
+    var qdata = '<table><tr class="quizHeader"><td></td><th>РРіСЂРѕРєРё</th><td>РћС‡РєРё</td><td>Р—РІР°РЅРёСЏ</td></tr>'
       , k = 0;
     plArr.forEach(function(el) {
         var rank = "-";
@@ -5294,7 +5301,7 @@ var halltree, nytree, treeProportion = 0.6536, dmAnimates = {
 };
 function enableTree(data) {
     var halltreeWidth = parseInt(mainDiv.height() * treeProportion);
-    halltree = $('<div class="halltree"><img src="/images/tree.png" data-title="Оставь свои пожелания на Новогодней ёлке" alt="Новогодняя ёлка"/></div>');
+    halltree = $('<div class="halltree"><img src="/images/tree.png" data-title="РћСЃС‚Р°РІСЊ СЃРІРѕРё РїРѕР¶РµР»Р°РЅРёСЏ РЅР° РќРѕРІРѕРіРѕРґРЅРµР№ С‘Р»РєРµ" alt="РќРѕРІРѕРіРѕРґРЅСЏСЏ С‘Р»РєР°"/></div>');
     halltree.click(function() {
         showWindow("tree");
     }).appendTo("#main");
@@ -5310,7 +5317,7 @@ function enableTree(data) {
         });
     }
     if (u.isGift != "2018") {
-        $('<img src="/images/nygift.png" data-title="Подарок от Деда Мороза" alt=""/>').css({
+        $('<img src="/images/nygift.png" data-title="РџРѕРґР°СЂРѕРє РѕС‚ Р”РµРґР° РњРѕСЂРѕР·Р°" alt=""/>').css({
             position: "absolute",
             width: "100px",
             height: "100px",
@@ -5326,7 +5333,7 @@ function enableTree(data) {
     }
     b.addClass("snow").addClass("newyear");
     sounds.dedMoroz = createAudio("/media/ded-moroz.mp3");
-    inputField.val("не надо снега");
+    inputField.val("РЅРµ РЅР°РґРѕ СЃРЅРµРіР°");
 }
 function drawToy(el) {
     var cssToy = {
@@ -5365,12 +5372,12 @@ function showStatistics(data) {
             zastavka = data.params.banner;
         }
         if (data.params.bestplayer && !server2) {
-            showNewDiv('<div class="alarm">Лучший игрок месяца - <strong data-id="' + data.params.bestplayer._id + '">' + data.params.bestplayer.login + "</strong></div>");
+            showNewDiv('<div class="alarm">Р›СѓС‡С€РёР№ РёРіСЂРѕРє РјРµСЃСЏС†Р° - <strong data-id="' + data.params.bestplayer._id + '">' + data.params.bestplayer.login + "</strong></div>");
         }
         if (data.params.support) {
             $("<div/>", {
                 "class": "supportButton"
-            }).html("Конкурс к Новому году").click(function() {
+            }).html("РљРѕРЅРєСѓСЂСЃ Рє РќРѕРІРѕРјСѓ РіРѕРґСѓ").click(function() {
                 showWindow("support");
             }).insertBefore("#lottery");
             var supportWin = $(".support");
@@ -5386,11 +5393,11 @@ function showStatistics(data) {
         if (data.params.gifts) {
             var buyGiftsWin = $("<div/>", {
                 "class": "buyGifts"
-            }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="Малый подарок"/><figcaption data-type="1">7 снежинок</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="Средний подарок"/><figcaption data-type="2">18 снежинок</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Большой подарок"/><figcaption data-type="3">33 снежинки</figcaption></figure></div>');
+            }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="РњР°Р»С‹Р№ РїРѕРґР°СЂРѕРє"/><figcaption data-type="1">7 СЃРЅРµР¶РёРЅРѕРє</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="РЎСЂРµРґРЅРёР№ РїРѕРґР°СЂРѕРє"/><figcaption data-type="2">18 СЃРЅРµР¶РёРЅРѕРє</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Р‘РѕР»СЊС€РѕР№ РїРѕРґР°СЂРѕРє"/><figcaption data-type="3">33 СЃРЅРµР¶РёРЅРєРё</figcaption></figure></div>');
             win.find(".info").append(buyGiftsWin);
             $("<div/>", {
                 "class": "buyGiftsButton"
-            }).html("Новогодняя Распродажа").click(function() {
+            }).html("РќРѕРІРѕРіРѕРґРЅСЏСЏ Р Р°СЃРїСЂРѕРґР°Р¶Р°").click(function() {
                 showWindow("buyGifts");
             }).insertBefore("#lottery");
             buyGiftsWin.find("figcaption").click(function() {
@@ -5415,9 +5422,9 @@ function showStatistics(data) {
     };
     var st1 = data["game-bot"]
       , st2 = data["game-all"];
-    $("<h3>Cтатистика игровых партий: " + over1000(st2.count) + "</h3>").appendTo(statDiv);
-    div100p(st1.pl, st1.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv);
-    div100p(st2.win.stud, st2.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv);
+    $("<h3>CС‚Р°С‚РёСЃС‚РёРєР° РёРіСЂРѕРІС‹С… РїР°СЂС‚РёР№: " + over1000(st2.count) + "</h3>").appendTo(statDiv);
+    div100p(st1.pl, st1.bot, "РџРѕР±РµРґС‹ РІ РџСЂРѕС‚РёРІРѕСЃС‚РѕСЏРЅРёРё: РРіСЂРѕРєРё - Р‘РѕС‚С‹").appendTo(statDiv);
+    div100p(st2.win.stud, st2.win.poh, "РџРѕР±РµРґС‹ РёРіСЂРѕРІС‹С… СЃС‚РѕСЂРѕРЅ: " + (isMaffia ? "РњРёСЂРЅС‹Рµ РіСЂР°Р¶РґР°РЅРµ - РњР°С„РёСЏ" : "РЎС‚СѓРґРµРЅС‚С‹ - РџРѕС…РёС‚РёС‚РµР»Рё")).appendTo(statDiv);
     if (data.map) {
         mapAreas = data.map.areas;
     }
@@ -5431,27 +5438,28 @@ function showStatistics(data) {
     }
 }
 var itemsArray = {
-    "7": "Сертификат на бесплатное объявление",
-    "8": "Элемент Коллекции Активист",
-    "9": "Элемент Клубной Коллекции",
-    "10": "Новогодняя игрушка",
-    "11": "VIP-абонемент на 1 день",
-    "12": "Сертификат на бесплатную суперигру",
-    "13": "Билет на Барабан чудес",
-    "14": "Кошелек с монетами (16 000)",
-    "15": "Купон на заказ праздничного салюта (не чаще 1 раза в 20 секунд)",
-    "17": "Элемент Новогодней Коллекции 2017",
-    "18": "Снежинка",
-    "19": "Сертификат на создание СуперМикса",
-    "20": "Скидочная карта -50% на покупки в игровой партии",
-    "21": "Шубка деда мороза (+20% к бессмертию)",
+    "7": "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° Р±РµСЃРїР»Р°С‚РЅРѕРµ РѕР±СЉСЏРІР»РµРЅРёРµ",
+    "8": "Р­Р»РµРјРµРЅС‚ РљРѕР»Р»РµРєС†РёРё РђРєС‚РёРІРёСЃС‚",
+    "9": "Р­Р»РµРјРµРЅС‚ РљР»СѓР±РЅРѕР№ РљРѕР»Р»РµРєС†РёРё",
+    "10": "РќРѕРІРѕРіРѕРґРЅСЏСЏ РёРіСЂСѓС€РєР°",
+    "11": "VIP-Р°Р±РѕРЅРµРјРµРЅС‚ РЅР° 1 РґРµРЅСЊ",
+    "12": "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° Р±РµСЃРїР»Р°С‚РЅСѓСЋ СЃСѓРїРµСЂРёРіСЂСѓ",
+    "13": "Р‘РёР»РµС‚ РЅР° Р‘Р°СЂР°Р±Р°РЅ С‡СѓРґРµСЃ",
+    "14": "РљРѕС€РµР»РµРє СЃ РјРѕРЅРµС‚Р°РјРё (16 000)",
+    "15": "РљСѓРїРѕРЅ РЅР° Р·Р°РєР°Р· РїСЂР°Р·РґРЅРёС‡РЅРѕРіРѕ СЃР°Р»СЋС‚Р° (РЅРµ С‡Р°С‰Рµ 1 СЂР°Р·Р° РІ 20 СЃРµРєСѓРЅРґ)",
+    "16": "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° Р±С‹СЃС‚СЂСѓСЋ СЃСѓРїРµСЂРёРіСЂСѓ",
+    "17": "Р­Р»РµРјРµРЅС‚ РќРѕРІРѕРіРѕРґРЅРµР№ РљРѕР»Р»РµРєС†РёРё 2017",
+    "18": "РЎРЅРµР¶РёРЅРєР°",
+    "19": "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° СЃРѕР·РґР°РЅРёРµ РЎСѓРїРµСЂРњРёРєСЃР°",
+    "20": "РЎРєРёРґРѕС‡РЅР°СЏ РєР°СЂС‚Р° -50% РЅР° РїРѕРєСѓРїРєРё РІ РёРіСЂРѕРІРѕР№ РїР°СЂС‚РёРё",
+    "21": "РЁСѓР±РєР° РґРµРґР° РјРѕСЂРѕР·Р° (+20% Рє Р±РµСЃСЃРјРµСЂС‚РёСЋ)",
     "22": {
-        ffl: "Морковка снеговика (+25% к шансу стать ревнивым студентом)",
-        maffia: "Морковка снеговика (+25% к шансу стать маньяком)"
+        ffl: "РњРѕСЂРєРѕРІРєР° СЃРЅРµРіРѕРІРёРєР° (+25% Рє С€Р°РЅСЃСѓ СЃС‚Р°С‚СЊ СЂРµРІРЅРёРІС‹Рј СЃС‚СѓРґРµРЅС‚РѕРј)",
+        maffia: "РњРѕСЂРєРѕРІРєР° СЃРЅРµРіРѕРІРёРєР° (+25% Рє С€Р°РЅСЃСѓ СЃС‚Р°С‚СЊ РјР°РЅСЊСЏРєРѕРј)"
     },
-    "23": "Шапка снегурочки (+40% к интуиции)",
+    "23": "РЁР°РїРєР° СЃРЅРµРіСѓСЂРѕС‡РєРё (+40% Рє РёРЅС‚СѓРёС†РёРё)",
     "24": "*",
-    "2018": "Элемент Новогодней Коллекции 2018"
+    "2018": "Р­Р»РµРјРµРЅС‚ РќРѕРІРѕРіРѕРґРЅРµР№ РљРѕР»Р»РµРєС†РёРё 2018"
 };
 var getItemsArray = function(i) {
     return (typeof itemsArray[i] === "object") ? (isMaffia ? itemsArray[i].maffia : itemsArray[i].ffl) : itemsArray[i];
@@ -5472,7 +5480,7 @@ function showBox(data) {
     warningWindow(data.text + ":<br/>" + text);
 }
 function itemAction(e) {
-    modalWindow("Активировать предмет?", function() {
+    modalWindow("РђРєС‚РёРІРёСЂРѕРІР°С‚СЊ РїСЂРµРґРјРµС‚?", function() {
         sendToSocket({
             type: "items",
             action: e.data.item
@@ -5496,7 +5504,7 @@ function showInventory() {
                             curItem.css({
                                 cursor: "auto"
                             }).click(function() {
-                                showMessage("Этот предмет пригодится Вам в соответствующей локации");
+                                showMessage("Р­С‚РѕС‚ РїСЂРµРґРјРµС‚ РїСЂРёРіРѕРґРёС‚СЃСЏ Р’Р°Рј РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РµР№ Р»РѕРєР°С†РёРё");
                             });
                         } else {
                             curItem.click({
@@ -5526,7 +5534,7 @@ function showInventory() {
                     if (u.tempbonus.all1) {
                         $("<div/>", {
                             "class": "items-17",
-                            "data-title": "Новогодняя коллекция 2017 (до " + showDate(u.tempbonus.all1) + ")"
+                            "data-title": "РќРѕРІРѕРіРѕРґРЅСЏСЏ РєРѕР»Р»РµРєС†РёСЏ 2017 (РґРѕ " + showDate(u.tempbonus.all1) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>+1%</span>").appendTo(bonusBox);
@@ -5534,7 +5542,7 @@ function showInventory() {
                     if (u.tempbonus.anticat) {
                         $("<div/>", {
                             "class": "items-2018",
-                            "data-title": "Новогодняя коллекция 2018 (до " + showDate(u.tempbonus.anticat) + ")"
+                            "data-title": "РќРѕРІРѕРіРѕРґРЅСЏСЏ РєРѕР»Р»РµРєС†РёСЏ 2018 (РґРѕ " + showDate(u.tempbonus.anticat) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>+10%</span>").appendTo(bonusBox);
@@ -5542,7 +5550,7 @@ function showInventory() {
                     if (u.tempbonus.discount) {
                         $("<div/>", {
                             "class": "items-20",
-                            "data-title": getItemsArray(20) + " (до " + showDate(u.tempbonus.discount, true) + ")"
+                            "data-title": getItemsArray(20) + " (РґРѕ " + showDate(u.tempbonus.discount, true) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>-50%</span>").appendTo(bonusBox);
@@ -5550,7 +5558,7 @@ function showInventory() {
                     if (u.tempbonus.nokill20) {
                         $("<div/>", {
                             "class": "items-21",
-                            "data-title": getItemsArray(21) + " (до " + showDate(u.tempbonus.nokill20, true) + ")"
+                            "data-title": getItemsArray(21) + " (РґРѕ " + showDate(u.tempbonus.nokill20, true) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>+20%</span>").appendTo(bonusBox);
@@ -5558,7 +5566,7 @@ function showInventory() {
                     if (u.tempbonus.rev25) {
                         $("<div/>", {
                             "class": "items-22",
-                            "data-title": getItemsArray(22) + " (до " + showDate(u.tempbonus.rev25, true) + ")"
+                            "data-title": getItemsArray(22) + " (РґРѕ " + showDate(u.tempbonus.rev25, true) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>+25%</span>").appendTo(bonusBox);
@@ -5566,7 +5574,7 @@ function showInventory() {
                     if (u.tempbonus.intuit40) {
                         $("<div/>", {
                             "class": "items-23",
-                            "data-title": getItemsArray(23) + " (до " + showDate(u.tempbonus.intuit40, true) + ")"
+                            "data-title": getItemsArray(23) + " (РґРѕ " + showDate(u.tempbonus.intuit40, true) + ")"
                         }).css({
                             cursor: "auto"
                         }).html("<span>+40%</span>").appendTo(bonusBox);
@@ -5575,7 +5583,7 @@ function showInventory() {
                 bonusBox.appendTo(inventar);
             }
         } else {
-            inventar.append("<h5>У Вас пока нет ни одного полезного предмета.</h5>");
+            inventar.append("<h5>РЈ Р’Р°СЃ РїРѕРєР° РЅРµС‚ РЅРё РѕРґРЅРѕРіРѕ РїРѕР»РµР·РЅРѕРіРѕ РїСЂРµРґРјРµС‚Р°.</h5>");
         }
     }
 }
@@ -5587,14 +5595,14 @@ function areaAttack(areaNum) {
         });
         closewindow();
     } else {
-        showMessage("Недостаточно средств для начала битвы.");
+        showMessage("РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ РґР»СЏ РЅР°С‡Р°Р»Р° Р±РёС‚РІС‹.");
     }
 }
 var progressTime = 0
   , maxProgressRank = 7
   , quests = {
     1: {
-        title: "Заходить в игру несколько дней",
+        title: "Р—Р°С…РѕРґРёС‚СЊ РІ РёРіСЂСѓ РЅРµСЃРєРѕР»СЊРєРѕ РґРЅРµР№",
         values: [3, 10, 20, 50, 100, 200, 500],
         prize: [{
             money: 5
@@ -5611,10 +5619,10 @@ var progressTime = 0
         }, {
             money2: 10000
         }],
-        ranks: ["Случайный прохожий", "Посетитель", "Бывалый клиент", "Постоянный клиент", "Завсегдатай", "Частый гость", "Хозяин"]
+        ranks: ["РЎР»СѓС‡Р°Р№РЅС‹Р№ РїСЂРѕС…РѕР¶РёР№", "РџРѕСЃРµС‚РёС‚РµР»СЊ", "Р‘С‹РІР°Р»С‹Р№ РєР»РёРµРЅС‚", "РџРѕСЃС‚РѕСЏРЅРЅС‹Р№ РєР»РёРµРЅС‚", "Р—Р°РІСЃРµРіРґР°С‚Р°Р№", "Р§Р°СЃС‚С‹Р№ РіРѕСЃС‚СЊ", "РҐРѕР·СЏРёРЅ"]
     },
     2: {
-        title: "Создавать игровые заявки",
+        title: "РЎРѕР·РґР°РІР°С‚СЊ РёРіСЂРѕРІС‹Рµ Р·Р°СЏРІРєРё",
         values: [10, 50, 100, 500, 1000, 2000, 5000],
         prize: [{
             money: 3
@@ -5631,10 +5639,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Экспериментатор", "Энтузиаст", "Созидатель", "Креативный игрок", "Автор", "Творец", "Великий создатель"]
+        ranks: ["Р­РєСЃРїРµСЂРёРјРµРЅС‚Р°С‚РѕСЂ", "Р­РЅС‚СѓР·РёР°СЃС‚", "РЎРѕР·РёРґР°С‚РµР»СЊ", "РљСЂРµР°С‚РёРІРЅС‹Р№ РёРіСЂРѕРє", "РђРІС‚РѕСЂ", "РўРІРѕСЂРµС†", "Р’РµР»РёРєРёР№ СЃРѕР·РґР°С‚РµР»СЊ"]
     },
     3: {
-        title: "Купить услугу Активная роль",
+        title: "РљСѓРїРёС‚СЊ СѓСЃР»СѓРіСѓ РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ",
         values: [1, 5, 10, 30, 70, 100, 300],
         prize: [{
             money: 5
@@ -5651,10 +5659,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Ленивец", "Инициатор", "Деловой человек", "Энергичный игрок", "Неудержимый", "Деятель", "Главный активист"]
+        ranks: ["Р›РµРЅРёРІРµС†", "РРЅРёС†РёР°С‚РѕСЂ", "Р”РµР»РѕРІРѕР№ С‡РµР»РѕРІРµРє", "Р­РЅРµСЂРіРёС‡РЅС‹Р№ РёРіСЂРѕРє", "РќРµСѓРґРµСЂР¶РёРјС‹Р№", "Р”РµСЏС‚РµР»СЊ", "Р“Р»Р°РІРЅС‹Р№ Р°РєС‚РёРІРёСЃС‚"]
     },
     4: {
-        title: "Приобрести Клуб",
+        title: "РџСЂРёРѕР±СЂРµСЃС‚Рё РљР»СѓР±",
         values: [1, 2, 5, 10, 20, 30, 50],
         prize: [{
             money: 10
@@ -5671,10 +5679,10 @@ var progressTime = 0
         }, {
             money2: 2000
         }],
-        ranks: ["Лишний на празднике", "Случайный гость", "Визитер", "Член клуба", "Почетный участник", "Клубный заводила", "Элитный член"]
+        ranks: ["Р›РёС€РЅРёР№ РЅР° РїСЂР°Р·РґРЅРёРєРµ", "РЎР»СѓС‡Р°Р№РЅС‹Р№ РіРѕСЃС‚СЊ", "Р’РёР·РёС‚РµСЂ", "Р§Р»РµРЅ РєР»СѓР±Р°", "РџРѕС‡РµС‚РЅС‹Р№ СѓС‡Р°СЃС‚РЅРёРє", "РљР»СѓР±РЅС‹Р№ Р·Р°РІРѕРґРёР»Р°", "Р­Р»РёС‚РЅС‹Р№ С‡Р»РµРЅ"]
     },
     5: {
-        title: 'Потратить в магазине <span class="gamemoney">деньги</span>',
+        title: 'РџРѕС‚СЂР°С‚РёС‚СЊ РІ РјР°РіР°Р·РёРЅРµ <span class="gamemoney">РґРµРЅСЊРіРё</span>',
         values: [3000, 10000, 50000, 100000, 500000, 1000000, 30000000],
         prize: [{
             item2: 1
@@ -5691,10 +5699,10 @@ var progressTime = 0
         }, {
             money2: 2000
         }],
-        ranks: ["Жмот", "Скряга", "Экономист", "Покупатель", "Оптовик", "Транжира", "Платиновый клиент"]
+        ranks: ["Р–РјРѕС‚", "РЎРєСЂСЏРіР°", "Р­РєРѕРЅРѕРјРёСЃС‚", "РџРѕРєСѓРїР°С‚РµР»СЊ", "РћРїС‚РѕРІРёРє", "РўСЂР°РЅР¶РёСЂР°", "РџР»Р°С‚РёРЅРѕРІС‹Р№ РєР»РёРµРЅС‚"]
     },
     6: {
-        title: 'Потратить в магазине <span class="money">валюту</span>',
+        title: 'РџРѕС‚СЂР°С‚РёС‚СЊ РІ РјР°РіР°Р·РёРЅРµ <span class="money">РІР°Р»СЋС‚Сѓ</span>',
         values: [5, 20, 50, 100, 1000, 10000, 30000],
         prize: [{
             item2: 10
@@ -5711,10 +5719,10 @@ var progressTime = 0
         }, {
             money: 1000
         }],
-        ranks: ["Инвестор", "Богач", "Толстосум", "Буржуй", "Воротила", "Олигарх", "Мультимиллиардер"]
+        ranks: ["РРЅРІРµСЃС‚РѕСЂ", "Р‘РѕРіР°С‡", "РўРѕР»СЃС‚РѕСЃСѓРј", "Р‘СѓСЂР¶СѓР№", "Р’РѕСЂРѕС‚РёР»Р°", "РћР»РёРіР°СЂС…", "РњСѓР»СЊС‚РёРјРёР»Р»РёР°СЂРґРµСЂ"]
     },
     7: {
-        title: 'Приобрести в магазине <span class="for-ffl">Веб-камеру</span> <span class="for-maffia">Рацию</span>',
+        title: 'РџСЂРёРѕР±СЂРµСЃС‚Рё РІ РјР°РіР°Р·РёРЅРµ <span class="for-ffl">Р’РµР±-РєР°РјРµСЂСѓ</span> <span class="for-maffia">Р Р°С†РёСЋ</span>',
         values: [1, 5, 10, 50, 100, 500, 1000],
         prize: [{
             money: 1
@@ -5731,10 +5739,10 @@ var progressTime = 0
         }, {
             money: 500
         }],
-        ranks: ["Радиолюбитель", "Радист", "Инженер связи", "Сыщик", "Агент", "Разведчик", "Тайный агент"]
+        ranks: ["Р Р°РґРёРѕР»СЋР±РёС‚РµР»СЊ", "Р Р°РґРёСЃС‚", "РРЅР¶РµРЅРµСЂ СЃРІСЏР·Рё", "РЎС‹С‰РёРє", "РђРіРµРЅС‚", "Р Р°Р·РІРµРґС‡РёРє", "РўР°Р№РЅС‹Р№ Р°РіРµРЅС‚"]
     },
     8: {
-        title: "Сыграть в игровой партии",
+        title: "РЎС‹РіСЂР°С‚СЊ РІ РёРіСЂРѕРІРѕР№ РїР°СЂС‚РёРё",
         values: [10, 50, 100, 500, 1000, 5000, 10000],
         prize: [{
             money: 2
@@ -5751,10 +5759,10 @@ var progressTime = 0
         }, {
             money: 300
         }],
-        ranks: ["Нуб", "Новичок", "Начинающий игрок", "Опытный игрок", "Геймер", "Задрот", "Вся жизнь - игра!"]
+        ranks: ["РќСѓР±", "РќРѕРІРёС‡РѕРє", "РќР°С‡РёРЅР°СЋС‰РёР№ РёРіСЂРѕРє", "РћРїС‹С‚РЅС‹Р№ РёРіСЂРѕРє", "Р“РµР№РјРµСЂ", "Р—Р°РґСЂРѕС‚", "Р’СЃСЏ Р¶РёР·РЅСЊ - РёРіСЂР°!"]
     },
     9: {
-        title: "Выиграть игровую партию",
+        title: "Р’С‹РёРіСЂР°С‚СЊ РёРіСЂРѕРІСѓСЋ РїР°СЂС‚РёСЋ",
         values: [5, 30, 50, 100, 500, 1000, 5000],
         prize: [{
             money: 5
@@ -5771,10 +5779,10 @@ var progressTime = 0
         }, {
             money2: 300
         }],
-        ranks: ["Везунчик", "Победитель", "Триумфатор", "Герой", "Чемпион", "Непобедимый", "Легендарный игрок"]
+        ranks: ["Р’РµР·СѓРЅС‡РёРє", "РџРѕР±РµРґРёС‚РµР»СЊ", "РўСЂРёСѓРјС„Р°С‚РѕСЂ", "Р“РµСЂРѕР№", "Р§РµРјРїРёРѕРЅ", "РќРµРїРѕР±РµРґРёРјС‹Р№", "Р›РµРіРµРЅРґР°СЂРЅС‹Р№ РёРіСЂРѕРє"]
     },
     10: {
-        title: "Набрать рейтинг",
+        title: "РќР°Р±СЂР°С‚СЊ СЂРµР№С‚РёРЅРі",
         values: [50, 100, 500, 1000, 5000, 10000, 50000],
         prize: [{
             money: 50
@@ -5791,10 +5799,10 @@ var progressTime = 0
         }, {
             money2: 5000
         }],
-        ranks: ["Рядовой", "Сержант", "Лейтенант", "Капитан", "Майор", "Полковник", "Генерал"]
+        ranks: ["Р СЏРґРѕРІРѕР№", "РЎРµСЂР¶Р°РЅС‚", "Р›РµР№С‚РµРЅР°РЅС‚", "РљР°РїРёС‚Р°РЅ", "РњР°Р№РѕСЂ", "РџРѕР»РєРѕРІРЅРёРє", "Р“РµРЅРµСЂР°Р»"]
     },
     11: {
-        title: "Сделать ставки в тотализаторе",
+        title: "РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєРё РІ С‚РѕС‚Р°Р»РёР·Р°С‚РѕСЂРµ",
         values: [1, 3, 5, 10, 50, 100, 200],
         prize: [{
             money: 1
@@ -5811,10 +5819,10 @@ var progressTime = 0
         }, {
             money2: 100
         }],
-        ranks: ["Удачливый", "Азартный", "Рисковый", "Отчаянный", "Бесшабашный", "Безрассудный", "Экстрасенс"]
+        ranks: ["РЈРґР°С‡Р»РёРІС‹Р№", "РђР·Р°СЂС‚РЅС‹Р№", "Р РёСЃРєРѕРІС‹Р№", "РћС‚С‡Р°СЏРЅРЅС‹Р№", "Р‘РµСЃС€Р°Р±Р°С€РЅС‹Р№", "Р‘РµР·СЂР°СЃСЃСѓРґРЅС‹Р№", "Р­РєСЃС‚СЂР°СЃРµРЅСЃ"]
     },
     12: {
-        title: "Дать правильный ответ в викторине",
+        title: "Р”Р°С‚СЊ РїСЂР°РІРёР»СЊРЅС‹Р№ РѕС‚РІРµС‚ РІ РІРёРєС‚РѕСЂРёРЅРµ",
         values: [5, 12, 30, 60, 120, 300, 500],
         prize: [{
             money: 5
@@ -5831,10 +5839,10 @@ var progressTime = 0
         }, {
             money: 500
         }],
-        ranks: ["Вундеркинд", "Умник", "Знаток", "Интеллектуал", "Профессор", "Мудрец", "Пушкин"]
+        ranks: ["Р’СѓРЅРґРµСЂРєРёРЅРґ", "РЈРјРЅРёРє", "Р—РЅР°С‚РѕРє", "РРЅС‚РµР»Р»РµРєС‚СѓР°Р»", "РџСЂРѕС„РµСЃСЃРѕСЂ", "РњСѓРґСЂРµС†", "РџСѓС€РєРёРЅ"]
     },
     13: {
-        title: "Подарить подарки",
+        title: "РџРѕРґР°СЂРёС‚СЊ РїРѕРґР°СЂРєРё",
         values: [1, 3, 5, 10, 30, 80, 200],
         prize: [{
             money2: 1
@@ -5851,10 +5859,10 @@ var progressTime = 0
         }, {
             money2: 200
         }],
-        ranks: ["Даритель", "Широкая душа", "Образец великодушия", "Щедрая душа", "Благотворитель", "Меценат", "Лучший друг"]
+        ranks: ["Р”Р°СЂРёС‚РµР»СЊ", "РЁРёСЂРѕРєР°СЏ РґСѓС€Р°", "РћР±СЂР°Р·РµС† РІРµР»РёРєРѕРґСѓС€РёСЏ", "Р©РµРґСЂР°СЏ РґСѓС€Р°", "Р‘Р»Р°РіРѕС‚РІРѕСЂРёС‚РµР»СЊ", "РњРµС†РµРЅР°С‚", "Р›СѓС‡С€РёР№ РґСЂСѓРі"]
     },
     14: {
-        title: "Вращать барабан",
+        title: "Р’СЂР°С‰Р°С‚СЊ Р±Р°СЂР°Р±Р°РЅ",
         values: [2, 6, 15, 40, 80, 150, 300],
         prize: [{
             money: 5
@@ -5871,10 +5879,10 @@ var progressTime = 0
         }, {
             money: 100
         }],
-        ranks: ["Редкое вращение", "Я твой барабан вертел", "Частое кручение", "Циркуляция призов", "Кружок удачи", "Пируэт надежды", "Якубович"]
+        ranks: ["Р РµРґРєРѕРµ РІСЂР°С‰РµРЅРёРµ", "РЇ С‚РІРѕР№ Р±Р°СЂР°Р±Р°РЅ РІРµСЂС‚РµР»", "Р§Р°СЃС‚РѕРµ РєСЂСѓС‡РµРЅРёРµ", "Р¦РёСЂРєСѓР»СЏС†РёСЏ РїСЂРёР·РѕРІ", "РљСЂСѓР¶РѕРє СѓРґР°С‡Рё", "РџРёСЂСѓСЌС‚ РЅР°РґРµР¶РґС‹", "РЇРєСѓР±РѕРІРёС‡"]
     },
     15: {
-        title: 'Сыграть за роль <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
+        title: 'РЎС‹РіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РіСЂР°Р¶РґР°РЅРёРЅР°</span>',
         values: [10, 50, 100, 500, 1000, 5000, 10000],
         prize: [{
             money: 1
@@ -5894,7 +5902,7 @@ var progressTime = 0
         role: 1
     },
     16: {
-        title: 'Сыграть за роль <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
+        title: 'РЎС‹РіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">РїРѕС…РёС‚РёС‚РµР»СЏ</span> <span class="for-maffia">РјР°С„РёРѕР·Рё</span>',
         values: [5, 25, 50, 300, 500, 2000, 5000],
         prize: [{
             money: 1
@@ -5914,7 +5922,7 @@ var progressTime = 0
         role: 2
     },
     17: {
-        title: 'Сыграть за роль <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
+        title: 'РЎС‹РіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">РґРµР¶СѓСЂРЅРѕРіРѕ</span> <span class="for-maffia">РєРѕРјРёСЃСЃР°СЂР°</span>',
         values: [3, 10, 30, 100, 300, 1000, 3000],
         prize: [{
             money: 1
@@ -5934,7 +5942,7 @@ var progressTime = 0
         role: 4
     },
     18: {
-        title: 'Сыграть за роль <span class="for-ffl">ревнивого студента</span> <span class="for-maffia">маньяка</span>',
+        title: 'РЎС‹РіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">СЂРµРІРЅРёРІРѕРіРѕ СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РјР°РЅСЊСЏРєР°</span>',
         values: [3, 10, 20, 100, 300, 1000, 2000],
         prize: [{
             money: 1
@@ -5954,7 +5962,7 @@ var progressTime = 0
         role: 6
     },
     19: {
-        title: 'Сыграть за роль <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
+        title: 'РЎС‹РіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">Р»СѓРЅР°С‚РёРєР°</span> <span class="for-maffia">РґРѕРєС‚РѕСЂР°</span>',
         values: [3, 10, 20, 100, 300, 1000, 2000],
         prize: [{
             money: 1
@@ -5974,7 +5982,7 @@ var progressTime = 0
         role: 7
     },
     20: {
-        title: 'Выиграть за роль <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
+        title: 'Р’С‹РёРіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РіСЂР°Р¶РґР°РЅРёРЅР°</span>',
         values: [7, 40, 80, 400, 900, 4000, 8000],
         prize: [{
             money: 2
@@ -5991,10 +5999,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Абитуриент|Приезжий", "Первокурсник|Гастарбайтер", "Второкурсник|Турист", "Третьекурсник|Переселенец", "Четверокурсник|Коренной", "Пятикурсник|Уважаемый человек", "Аспирант|Почетный гражданин"]
+        ranks: ["РђР±РёС‚СѓСЂРёРµРЅС‚|РџСЂРёРµР·Р¶РёР№", "РџРµСЂРІРѕРєСѓСЂСЃРЅРёРє|Р“Р°СЃС‚Р°СЂР±Р°Р№С‚РµСЂ", "Р’С‚РѕСЂРѕРєСѓСЂСЃРЅРёРє|РўСѓСЂРёСЃС‚", "РўСЂРµС‚СЊРµРєСѓСЂСЃРЅРёРє|РџРµСЂРµСЃРµР»РµРЅРµС†", "Р§РµС‚РІРµСЂРѕРєСѓСЂСЃРЅРёРє|РљРѕСЂРµРЅРЅРѕР№", "РџСЏС‚РёРєСѓСЂСЃРЅРёРє|РЈРІР°Р¶Р°РµРјС‹Р№ С‡РµР»РѕРІРµРє", "РђСЃРїРёСЂР°РЅС‚|РџРѕС‡РµС‚РЅС‹Р№ РіСЂР°Р¶РґР°РЅРёРЅ"]
     },
     21: {
-        title: 'Выиграть за роль <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
+        title: 'Р’С‹РёРіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">РїРѕС…РёС‚РёС‚РµР»СЏ</span> <span class="for-maffia">РјР°С„РёРѕР·Рё</span>',
         values: [3, 20, 30, 100, 300, 1500, 3000],
         prize: [{
             money: 2
@@ -6011,10 +6019,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Барсеточник|Рэкетир", "Жулик|Бандит", "Мошенник|Гангстер", "Вор|Элитный мафиозо", "Грабитель|Капитан мафии", "Вор в законе|Консильери", "Депутат|Крёстный отец"]
+        ranks: ["Р‘Р°СЂСЃРµС‚РѕС‡РЅРёРє|Р СЌРєРµС‚РёСЂ", "Р–СѓР»РёРє|Р‘Р°РЅРґРёС‚", "РњРѕС€РµРЅРЅРёРє|Р“Р°РЅРіСЃС‚РµСЂ", "Р’РѕСЂ|Р­Р»РёС‚РЅС‹Р№ РјР°С„РёРѕР·Рѕ", "Р“СЂР°Р±РёС‚РµР»СЊ|РљР°РїРёС‚Р°РЅ РјР°С„РёРё", "Р’РѕСЂ РІ Р·Р°РєРѕРЅРµ|РљРѕРЅСЃРёР»СЊРµСЂРё", "Р”РµРїСѓС‚Р°С‚|РљСЂС‘СЃС‚РЅС‹Р№ РѕС‚РµС†"]
     },
     22: {
-        title: 'Выиграть за роль <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
+        title: 'Р’С‹РёРіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">РґРµР¶СѓСЂРЅРѕРіРѕ</span> <span class="for-maffia">РєРѕРјРёСЃСЃР°СЂР°</span>',
         values: [2, 7, 20, 70, 200, 600, 2000],
         prize: [{
             money: 2
@@ -6031,10 +6039,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Наблюдатель|Стажер полиции", "Дотошный зевака|Жандарм", "Помощник дежурного|Сержант", "Дежурный|Комиссар", "Проверяющий|Прокурор", "Комендант|Шеф полиции", "Гроза похитителей|Гроза мафии"]
+        ranks: ["РќР°Р±Р»СЋРґР°С‚РµР»СЊ|РЎС‚Р°Р¶РµСЂ РїРѕР»РёС†РёРё", "Р”РѕС‚РѕС€РЅС‹Р№ Р·РµРІР°РєР°|Р–Р°РЅРґР°СЂРј", "РџРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ|РЎРµСЂР¶Р°РЅС‚", "Р”РµР¶СѓСЂРЅС‹Р№|РљРѕРјРёСЃСЃР°СЂ", "РџСЂРѕРІРµСЂСЏСЋС‰РёР№|РџСЂРѕРєСѓСЂРѕСЂ", "РљРѕРјРµРЅРґР°РЅС‚|РЁРµС„ РїРѕР»РёС†РёРё", "Р“СЂРѕР·Р° РїРѕС…РёС‚РёС‚РµР»РµР№|Р“СЂРѕР·Р° РјР°С„РёРё"]
     },
     23: {
-        title: 'Выиграть за роль <span class="for-ffl">ревнивого студента</span> <span class="for-maffia">маньяка</span>',
+        title: 'Р’С‹РёРіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">СЂРµРІРЅРёРІРѕРіРѕ СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РјР°РЅСЊСЏРєР°</span>',
         values: [3, 8, 16, 70, 150, 600, 1500],
         prize: [{
             money: 2
@@ -6051,10 +6059,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Тихоня|Подозрительный тип", "Флегматик|Странная личность", "Само спокойствие|Безумец", "Излишняя подозрительность|Шизик", "Настороже|Психопат", "Тлеющая искра|Одержимый", "Вулкан страсти|Виртуоз ножа"]
+        ranks: ["РўРёС…РѕРЅСЏ|РџРѕРґРѕР·СЂРёС‚РµР»СЊРЅС‹Р№ С‚РёРї", "Р¤Р»РµРіРјР°С‚РёРє|РЎС‚СЂР°РЅРЅР°СЏ Р»РёС‡РЅРѕСЃС‚СЊ", "РЎР°РјРѕ СЃРїРѕРєРѕР№СЃС‚РІРёРµ|Р‘РµР·СѓРјРµС†", "РР·Р»РёС€РЅСЏСЏ РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅРѕСЃС‚СЊ|РЁРёР·РёРє", "РќР°СЃС‚РѕСЂРѕР¶Рµ|РџСЃРёС…РѕРїР°С‚", "РўР»РµСЋС‰Р°СЏ РёСЃРєСЂР°|РћРґРµСЂР¶РёРјС‹Р№", "Р’СѓР»РєР°РЅ СЃС‚СЂР°СЃС‚Рё|Р’РёСЂС‚СѓРѕР· РЅРѕР¶Р°"]
     },
     24: {
-        title: 'Выиграть за роль <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
+        title: 'Р’С‹РёРіСЂР°С‚СЊ Р·Р° СЂРѕР»СЊ <span class="for-ffl">Р»СѓРЅР°С‚РёРєР°</span> <span class="for-maffia">РґРѕРєС‚РѕСЂР°</span>',
         values: [2, 6, 12, 50, 150, 500, 1000],
         prize: [{
             money: 2
@@ -6071,10 +6079,10 @@ var progressTime = 0
         }, {
             money2: 1000
         }],
-        ranks: ["Засоня|Медик-практикант", "Сонная тетеря|Интерн", "Бодрствующий|Ординатор", "Жертва бессонницы|Врач", "Ночной охотник|Заведующий отделением", "Недремлющее око|Главный врач", "Несущий возмездие во имя Луны|Профессор медицины"]
+        ranks: ["Р—Р°СЃРѕРЅСЏ|РњРµРґРёРє-РїСЂР°РєС‚РёРєР°РЅС‚", "РЎРѕРЅРЅР°СЏ С‚РµС‚РµСЂСЏ|РРЅС‚РµСЂРЅ", "Р‘РѕРґСЂСЃС‚РІСѓСЋС‰РёР№|РћСЂРґРёРЅР°С‚РѕСЂ", "Р–РµСЂС‚РІР° Р±РµСЃСЃРѕРЅРЅРёС†С‹|Р’СЂР°С‡", "РќРѕС‡РЅРѕР№ РѕС…РѕС‚РЅРёРє|Р—Р°РІРµРґСѓСЋС‰РёР№ РѕС‚РґРµР»РµРЅРёРµРј", "РќРµРґСЂРµРјР»СЋС‰РµРµ РѕРєРѕ|Р“Р»Р°РІРЅС‹Р№ РІСЂР°С‡", "РќРµСЃСѓС‰РёР№ РІРѕР·РјРµР·РґРёРµ РІРѕ РёРјСЏ Р›СѓРЅС‹|РџСЂРѕС„РµСЃСЃРѕСЂ РјРµРґРёС†РёРЅС‹"]
     },
     25: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РіСЂР°Р¶РґР°РЅРёРЅР°</span>',
         values: [50, 100, 500, 1000, 5000, 10000, 30000],
         prize: [{
             money: 5
@@ -6094,7 +6102,7 @@ var progressTime = 0
         role: 1
     },
     26: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">РїРѕС…РёС‚РёС‚РµР»СЏ</span> <span class="for-maffia">РјР°С„РёРѕР·Рё</span>',
         values: [20, 50, 200, 800, 2000, 7000, 12000],
         prize: [{
             money: 5
@@ -6114,7 +6122,7 @@ var progressTime = 0
         role: 2
     },
     27: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">главы похитителей</span> <span class="for-maffia">босса мафии</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">РіР»Р°РІС‹ РїРѕС…РёС‚РёС‚РµР»РµР№</span> <span class="for-maffia">Р±РѕСЃСЃР° РјР°С„РёРё</span>',
         values: [1, 5, 10, 50, 100, 500, 1000],
         prize: [{
             money: 5
@@ -6134,7 +6142,7 @@ var progressTime = 0
         role: 3
     },
     28: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">РґРµР¶СѓСЂРЅРѕРіРѕ</span> <span class="for-maffia">РєРѕРјРёСЃСЃР°СЂР°</span>',
         values: [10, 30, 100, 500, 1000, 5000, 10000],
         prize: [{
             money: 5
@@ -6154,7 +6162,7 @@ var progressTime = 0
         role: 4
     },
     29: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">помощника дежурного</span> <span class="for-maffia">сержанта</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">РїРѕРјРѕС‰РЅРёРєР° РґРµР¶СѓСЂРЅРѕРіРѕ</span> <span class="for-maffia">СЃРµСЂР¶Р°РЅС‚Р°</span>',
         values: [10, 30, 90, 400, 900, 4000, 8000],
         prize: [{
             money: 5
@@ -6174,7 +6182,7 @@ var progressTime = 0
         role: 5
     },
     30: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">ревнивого студента</span> <span class="for-maffia">маньяка</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">СЂРµРІРЅРёРІРѕРіРѕ СЃС‚СѓРґРµРЅС‚Р°</span> <span class="for-maffia">РјР°РЅСЊСЏРєР°</span>',
         values: [10, 30, 100, 500, 1000, 5000, 10000],
         prize: [{
             money: 5
@@ -6194,7 +6202,7 @@ var progressTime = 0
         role: 6
     },
     31: {
-        title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
+        title: 'Р’С‹С‚СЏРЅСѓС‚СЊ <span class="for-ffl">Р±РёР»РµС‚</span> <span class="for-maffia">РєР°СЂС‚Сѓ</span> СЃ СЂРѕР»СЊСЋ <span class="for-ffl">Р»СѓРЅР°С‚РёРєР°</span> <span class="for-maffia">РґРѕРєС‚РѕСЂР°</span>',
         values: [10, 30, 90, 400, 900, 4000, 8000],
         prize: [{
             money: 5
@@ -6215,10 +6223,10 @@ var progressTime = 0
     }
 };
 var bonusRings = {
-    intuit: "Амулет &quot;Шестое чувство&quot;<br/> наделяет Вас способностями видеть роли игроков",
-    nokill: "Кристалл вечной жизни<br/> может спасти вашу жизнь в самой безнадежной ситуации",
-    poh: "Тёмное кольцо<br/> пробуждает в своем обладателе силы темной стороны",
-    rev: "Светлое кольцо<br/> пробуждает в своем хозяине чрезмерную эмоциальность, сводит с ума"
+    intuit: "РђРјСѓР»РµС‚ &quot;РЁРµСЃС‚РѕРµ С‡СѓРІСЃС‚РІРѕ&quot;<br/> РЅР°РґРµР»СЏРµС‚ Р’Р°СЃ СЃРїРѕСЃРѕР±РЅРѕСЃС‚СЏРјРё РІРёРґРµС‚СЊ СЂРѕР»Рё РёРіСЂРѕРєРѕРІ",
+    nokill: "РљСЂРёСЃС‚Р°Р»Р» РІРµС‡РЅРѕР№ Р¶РёР·РЅРё<br/> РјРѕР¶РµС‚ СЃРїР°СЃС‚Рё РІР°С€Сѓ Р¶РёР·РЅСЊ РІ СЃР°РјРѕР№ Р±РµР·РЅР°РґРµР¶РЅРѕР№ СЃРёС‚СѓР°С†РёРё",
+    poh: "РўС‘РјРЅРѕРµ РєРѕР»СЊС†Рѕ<br/> РїСЂРѕР±СѓР¶РґР°РµС‚ РІ СЃРІРѕРµРј РѕР±Р»Р°РґР°С‚РµР»Рµ СЃРёР»С‹ С‚РµРјРЅРѕР№ СЃС‚РѕСЂРѕРЅС‹",
+    rev: "РЎРІРµС‚Р»РѕРµ РєРѕР»СЊС†Рѕ<br/> РїСЂРѕР±СѓР¶РґР°РµС‚ РІ СЃРІРѕРµРј С…РѕР·СЏРёРЅРµ С‡СЂРµР·РјРµСЂРЅСѓСЋ СЌРјРѕС†РёР°Р»СЊРЅРѕСЃС‚СЊ, СЃРІРѕРґРёС‚ СЃ СѓРјР°"
 };
 function progressRewardType(type) {
     var out;
@@ -6249,12 +6257,12 @@ function progressPersent(obj, i, curRang) {
     if (persent > 100) {
         persent = 100;
     }
-    return persent + "%" + ((persent == 100 && curRang != 7) ? '" data-title="Чтобы получить достижение, выполните задание еще 1 раз' : "");
+    return persent + "%" + ((persent == 100 && curRang != 7) ? '" data-title="Р§С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ РґРѕСЃС‚РёР¶РµРЅРёРµ, РІС‹РїРѕР»РЅРёС‚Рµ Р·Р°РґР°РЅРёРµ РµС‰Рµ 1 СЂР°Р·' : "");
 }
 function progressRank(i, curRang) {
     var out = ""
-      , ranks = ["Новичок", "Начинающий", "Бывалый", "Опытный", "Матерый", "Искушенный", "Постоянный"]
-      , ticketRanks = ["Скромный", "Начинающий", "Известный", "Знаменитый", "Авторитетный", "Прославленный", "Идеальный"];
+      , ranks = ["РќРѕРІРёС‡РѕРє", "РќР°С‡РёРЅР°СЋС‰РёР№", "Р‘С‹РІР°Р»С‹Р№", "РћРїС‹С‚РЅС‹Р№", "РњР°С‚РµСЂС‹Р№", "РСЃРєСѓС€РµРЅРЅС‹Р№", "РџРѕСЃС‚РѕСЏРЅРЅС‹Р№"]
+      , ticketRanks = ["РЎРєСЂРѕРјРЅС‹Р№", "РќР°С‡РёРЅР°СЋС‰РёР№", "РР·РІРµСЃС‚РЅС‹Р№", "Р—РЅР°РјРµРЅРёС‚С‹Р№", "РђРІС‚РѕСЂРёС‚РµС‚РЅС‹Р№", "РџСЂРѕСЃР»Р°РІР»РµРЅРЅС‹Р№", "РРґРµР°Р»СЊРЅС‹Р№"];
     i = parseInt(i);
     switch (i) {
     case 15:
@@ -6303,7 +6311,7 @@ function showProgressList(obj, pr, already) {
                     contentHtml = "<div></div><div>" + quests[i].title + "</div><div></div><div>" + obj[i] + "/?</div>";
                     $(".progress-content", div).addClass("progress-done");
                 } else {
-                    contentHtml = "<div>" + progressRank(i, curRang) + "</div><div>" + quests[i].title + '</div><div data-title="Награда за выполнение">' + progressReward(quests[i].prize[curRang]) + "</div><div>" + obj[i] + "/" + quests[i].values[curRang] + "</div>";
+                    contentHtml = "<div>" + progressRank(i, curRang) + "</div><div>" + quests[i].title + '</div><div data-title="РќР°РіСЂР°РґР° Р·Р° РІС‹РїРѕР»РЅРµРЅРёРµ">' + progressReward(quests[i].prize[curRang]) + "</div><div>" + obj[i] + "/" + quests[i].values[curRang] + "</div>";
                 }
                 $(".progress-content", div).html(contentHtml);
                 progressList.append(div);
@@ -6313,7 +6321,7 @@ function showProgressList(obj, pr, already) {
                         "class": "button bonus-ring"
                     }).html('<div class="bonus-' + ringObj[i] + '"></div><span></span>');
                     if (already && already.indexOf(blockNum) > -1) {
-                        $("span", bonusButton).html((u.progress["block" + blockNum]) ? "Усилить предмет" : "Забрать бонус");
+                        $("span", bonusButton).html((u.progress["block" + blockNum]) ? "РЈСЃРёР»РёС‚СЊ РїСЂРµРґРјРµС‚" : "Р—Р°Р±СЂР°С‚СЊ Р±РѕРЅСѓСЃ");
                         bonusButton.click(blockNum, function(e) {
                             sendToSocket({
                                 type: "progress-bonus",
@@ -6323,7 +6331,7 @@ function showProgressList(obj, pr, already) {
                         });
                     } else {
                         bonusButton.addClass("progress-button-noactive");
-                        $("span", bonusButton).html("Бонус недоступен");
+                        $("span", bonusButton).html("Р‘РѕРЅСѓСЃ РЅРµРґРѕСЃС‚СѓРїРµРЅ");
                     }
                     bonusButton.appendTo(progressList);
                 }
@@ -6335,7 +6343,7 @@ lotteryDiv.find("button").click(function() {
     showWindow("lottery");
 });
 lotteryDiv.find("p").click(function() {
-    modalWindow("Скрыть обратный отсчёт до следующей лотереи?", function() {
+    modalWindow("РЎРєСЂС‹С‚СЊ РѕР±СЂР°С‚РЅС‹Р№ РѕС‚СЃС‡С‘С‚ РґРѕ СЃР»РµРґСѓСЋС‰РµР№ Р»РѕС‚РµСЂРµРё?", function() {
         clearInterval(lotteryInterval);
         var allLost = u.lottery - datenow();
         if (allLost > 0) {
@@ -6387,13 +6395,13 @@ var rouletteForm = $(".rouletteForm")
     var rRes = $("#rouletteResult").find("p");
     rRes.html("");
     if (data.hasOwnProperty("sum")) {
-        rRes.eq(0).html("Сделано ставок на общую сумму: " + data.sum);
+        rRes.eq(0).html("РЎРґРµР»Р°РЅРѕ СЃС‚Р°РІРѕРє РЅР° РѕР±С‰СѓСЋ СЃСѓРјРјСѓ: " + data.sum);
     }
     if (data.hasOwnProperty("last")) {
-        rRes.eq(1).html("Результат вчерашнего розыгрыша: " + data.last);
+        rRes.eq(1).html("Р РµР·СѓР»СЊС‚Р°С‚ РІС‡РµСЂР°С€РЅРµРіРѕ СЂРѕР·С‹РіСЂС‹С€Р°: " + data.last);
     }
     if (data.winners && data.winners.length > 0) {
-        rRes.eq(2).html("Cчастливчики: " + data.winners.join(", "));
+        rRes.eq(2).html("CС‡Р°СЃС‚Р»РёРІС‡РёРєРё: " + data.winners.join(", "));
     }
 }
   , rouletteTable = function() {
@@ -6410,7 +6418,7 @@ var rouletteForm = $(".rouletteForm")
     rTable.append(row1).append(row2).append(row3);
     rTable.click(function(e) {
         if (rouletteWas()) {
-            showMessage("Можно сделать только одну ставку в день. Приходите завтра.");
+            showMessage("РњРѕР¶РЅРѕ СЃРґРµР»Р°С‚СЊ С‚РѕР»СЊРєРѕ РѕРґРЅСѓ СЃС‚Р°РІРєСѓ РІ РґРµРЅСЊ. РџСЂРёС…РѕРґРёС‚Рµ Р·Р°РІС‚СЂР°.");
             return;
         }
         var event = e || window.event
@@ -6425,10 +6433,10 @@ rouletteTable();
 rouletteForm.find("button").click(function() {
     var betSum = parseInt(rouletteForm.find("input").val());
     if (!betSum) {
-        showMessage('Ставка должна быть больше <span class="gamemoney">1 000</span>');
+        showMessage('РЎС‚Р°РІРєР° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ <span class="gamemoney">1 000</span>');
     } else {
         if (betSum * 1000 > u.money) {
-            showMessage("Ставка превышает сумму ваших сбережений");
+            showMessage("РЎС‚Р°РІРєР° РїСЂРµРІС‹С€Р°РµС‚ СЃСѓРјРјСѓ РІР°С€РёС… СЃР±РµСЂРµР¶РµРЅРёР№");
         } else {
             sendToSocket({
                 type: "roulette",
@@ -6475,7 +6483,7 @@ $(document).ready(function() {
     $(".gamesheader>.row6").click(function() {
         sortTable(6);
     });
-    shop.find("p").addClass("moneyblock").html('Ваш счёт <span class="gamemoney"></span> <span class="money"></span>');
+    shop.find("p").addClass("moneyblock").html('Р’Р°С€ СЃС‡С‘С‚ <span class="gamemoney"></span> <span class="money"></span>');
     for (var i = 1; i < 7; i++) {
         var pr1 = prices["i" + i]
           , pr2 = prices["i" + i] * 0.8
@@ -6500,10 +6508,10 @@ $(document).ready(function() {
             showWindow("roll");
         });
     } else {
-        outside.append('<img src="/images/calendar.png" alt="Спец.партии"/>');
+        outside.append('<img src="/images/calendar.png" alt="Р Р°СЃРїРёСЃР°РЅРёРµ СЃРїРµС†РёР°Р»СЊРЅС‹С… РїР°СЂС‚РёР№"/>');
     }
     if (!islocalStorage) {
-        showNewDiv('<div class="important">В вашем браузере запрещено сохранение данных от веб-сайтов, поэтому некоторые настройки и функции будут недоступны</div>');
+        showNewDiv('<div class="important">Р’ РІР°С€РµРј Р±СЂР°СѓР·РµСЂРµ Р·Р°РїСЂРµС‰РµРЅРѕ СЃРѕС…СЂР°РЅРµРЅРёРµ РґР°РЅРЅС‹С… РѕС‚ РІРµР±-СЃР°Р№С‚РѕРІ, РїРѕСЌС‚РѕРјСѓ РЅРµРєРѕС‚РѕСЂС‹Рµ РЅР°СЃС‚СЂРѕР№РєРё Рё С„СѓРЅРєС†РёРё Р±СѓРґСѓС‚ РЅРµРґРѕСЃС‚СѓРїРЅС‹</div>');
     }
 });
 var kinderMode = false;
@@ -6512,15 +6520,15 @@ function maffiaNEW() {
         return;
     }
     inputField.attr("placeholder", "");
-    $("#statusText").attr("placeholder", "введите описание");
-    $("header>h3.button-findgame").html("Мне повезет!");
+    $("#statusText").attr("placeholder", "РІРІРµРґРёС‚Рµ РѕРїРёСЃР°РЅРёРµ");
+    $("header>h3.button-findgame").html("РњРЅРµ РїРѕРІРµР·РµС‚!");
     $("#selectChar").appendTo(header);
     $("#scrolling+label").prependTo(".panel-top");
     $("#scrolling").prependTo(".panel-top");
     $("#smiles").appendTo(".panel-top");
     $(".tooltip").appendTo(b);
     $("#gameWidth").parent().hide();
-    $("article>h2").html("Набор в игру");
+    $("article>h2").html("РќР°Р±РѕСЂ РІ РёРіСЂСѓ");
     $("<div/>").addClass("nickblock").append($("#nick")).append($("header>.moneyblock")).appendTo(header);
     over1000 = function(num) {
         return num;
@@ -6623,7 +6631,7 @@ function setStavka(step) {
     var newStavka = parseInt(st.html()) + step;
     if (newStavka > mymoney) {
         newStavka = mymoney;
-        $("#about").html("Игра на последние деньги :)");
+        $("#about").html("РРіСЂР° РЅР° РїРѕСЃР»РµРґРЅРёРµ РґРµРЅСЊРіРё :)");
     }
     if (newStavka >= newGame.minStavka && newStavka <= newGame.maxStavka) {
         newGame.stavka = newStavka;
@@ -6748,7 +6756,7 @@ $("#gamePanel").find("label").click(function() {
 });
 $('.gameoptions input[type="checkbox"]').change(function(event) {
     if (!u.club && ["check2", "check3", "check4", "check5", "check6"].indexOf(event.target.id) != -1) {
-        showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!');
+        showMessage('РЎРѕР·РґР°РІР°С‚СЊ Р·Р°РєСЂС‹С‚С‹Рµ РёРіСЂС‹ РјРѕРіСѓС‚ С‚РѕР»СЊРєРѕ С‡Р»РµРЅС‹ РєР»СѓР±Р° <span class="clubname"></span>!');
         event.stopPropagation();
         event.preventDefault();
         $(this).prop("checked", false);
@@ -6787,7 +6795,7 @@ function createGame() {
         selectRole: $("#selectRole").prop("checked"),
         about: about
     };
-    if (about.toLowerCase().indexOf("мур") > -1 || about.toLowerCase().indexOf("мяу") > -1) {
+    if (about.toLowerCase().indexOf("РјСѓСЂ") > -1 || about.toLowerCase().indexOf("РјСЏСѓ") > -1) {
         gameObj.cat = true;
     }
     sendToSocket(gameObj);
@@ -6806,7 +6814,7 @@ function setStenka() {
     ch6.prop("checked", true);
     plC.html("16");
     st.html("8");
-    $("#about").val("0-0 играем?");
+    $("#about").val("0-0 РёРіСЂР°РµРј?");
     showWindow("newgame");
 }
 function setCHP() {
@@ -6819,7 +6827,7 @@ function setCHP() {
     ch6.prop("checked", true);
     plC.html("8");
     st.html("8");
-    $("#about").val("ЧП");
+    $("#about").val("Р§Рџ");
     showWindow("newgame");
 }
 function getRandomInt(min, max) {
@@ -7162,7 +7170,7 @@ function createUserGame() {
         roles[9] = 1;
     }
     if (roles[5] && !roles[4]) {
-        showMessage('Для роли <span class="assis"></span> обязательно наличие в начале партии роли <span class="duty"></span>');
+        showMessage('Р”Р»СЏ СЂРѕР»Рё <span class="assis"></span> РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РЅР°Р»РёС‡РёРµ РІ РЅР°С‡Р°Р»Рµ РїР°СЂС‚РёРё СЂРѕР»Рё <span class="duty"></span>');
         return;
     }
     var activeRoles = 0;
@@ -7194,11 +7202,11 @@ function createUserGame() {
         cgo.ip = true;
     }
     if (!roles[6] && cgo.man) {
-        showMessage('Хотя бы одна роль <span class="jeal"></span> обязательна для режима <span class="jeal"></span>-одиночка');
+        showMessage('РҐРѕС‚СЏ Р±С‹ РѕРґРЅР° СЂРѕР»СЊ <span class="jeal"></span> РѕР±СЏР·Р°С‚РµР»СЊРЅР° РґР»СЏ СЂРµР¶РёРјР° <span class="jeal"></span>-РѕРґРёРЅРѕС‡РєР°');
         return;
     }
     if (activeRoles > count) {
-        modalWindow("Количество активных ролей (" + activeRoles + ") превышает количество игроков (" + count + ") в партии.<br/>Изменить количество игроков на " + activeRoles + "?", function() {
+        modalWindow("РљРѕР»РёС‡РµСЃС‚РІРѕ Р°РєС‚РёРІРЅС‹С… СЂРѕР»РµР№ (" + activeRoles + ") РїСЂРµРІС‹С€Р°РµС‚ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ (" + count + ") РІ РїР°СЂС‚РёРё.<br/>РР·РјРµРЅРёС‚СЊ РєРѕР»РёС‡РµСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ РЅР° " + activeRoles + "?", function() {
             cgo.count = activeRoles;
             dataSending(cgo);
         });
@@ -7210,112 +7218,112 @@ $("#UGcreateGame").click(createUserGame);
 var roles = function(roleId) {
     var fflRoles = {
         none: {
-            name: "[роль недоступна]",
+            name: "[СЂРѕР»СЊ РЅРµРґРѕСЃС‚СѓРїРЅР°]",
             button: []
         },
         0: {
-            name: "Наблюдатель",
+            name: "РќР°Р±Р»СЋРґР°С‚РµР»СЊ",
             button: []
         },
         1: {
-            name: "Студент",
+            name: "РЎС‚СѓРґРµРЅС‚",
             icon: "stud",
             button: []
         },
         2: {
-            name: "Похититель",
+            name: "РџРѕС…РёС‚РёС‚РµР»СЊ",
             icon: "robb",
-            button: ["Похитить"]
+            button: ["РџРѕС…РёС‚РёС‚СЊ"]
         },
         3: {
-            name: "Глава похитителей",
+            name: "Р“Р»Р°РІР° РїРѕС…РёС‚РёС‚РµР»РµР№",
             icon: "hrobb",
-            button: ["Запереть", "Похитить"]
+            button: ["Р—Р°РїРµСЂРµС‚СЊ", "РџРѕС…РёС‚РёС‚СЊ"]
         },
         4: {
-            name: "Дежурный",
+            name: "Р”РµР¶СѓСЂРЅС‹Р№",
             icon: "duty",
-            button: ["Проверить"]
+            button: ["РџСЂРѕРІРµСЂРёС‚СЊ"]
         },
         5: {
-            name: "Помощник дежурного",
+            name: "РџРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ",
             icon: "assis",
             button: []
         },
         6: {
-            name: "Ревнивый студент",
+            name: "Р РµРІРЅРёРІС‹Р№ СЃС‚СѓРґРµРЅС‚",
             icon: "jeal",
-            button: ["Испортить подарок"]
+            button: ["РСЃРїРѕСЂС‚РёС‚СЊ РїРѕРґР°СЂРѕРє"]
         },
         7: {
-            name: "Лунатик",
+            name: "Р›СѓРЅР°С‚РёРє",
             icon: "sleep",
-            button: ["Лунатить"]
+            button: ["Р›СѓРЅР°С‚РёС‚СЊ"]
         },
         8: {
-            name: "Котик",
+            name: "РљРѕС‚РёРє",
             icon: "cat",
-            button: ["Поиграть"]
+            button: ["РџРѕРёРіСЂР°С‚СЊ"]
         },
         9: {
-            name: "Вахтёр",
+            name: "Р’Р°С…С‚С‘СЂ",
             icon: "adv",
-            button: ["Оправдывать"]
+            button: ["РћРїСЂР°РІРґС‹РІР°С‚СЊ"]
         }
     };
     var maffiaRoles = {
         none: {
-            name: "[роль недоступна]",
+            name: "[СЂРѕР»СЊ РЅРµРґРѕСЃС‚СѓРїРЅР°]",
             button: []
         },
         0: {
-            name: "Свидетель",
+            name: "РЎРІРёРґРµС‚РµР»СЊ",
             button: []
         },
         1: {
-            name: "Гражданин",
+            name: "Р“СЂР°Р¶РґР°РЅРёРЅ",
             icon: "stud",
             button: []
         },
         2: {
-            name: "Мафиози",
+            name: "РњР°С„РёРѕР·Рё",
             icon: "robb",
-            button: ["Убить"]
+            button: ["РЈР±РёС‚СЊ"]
         },
         3: {
-            name: "Босс мафии",
+            name: "Р‘РѕСЃСЃ РјР°С„РёРё",
             icon: "hrobb",
-            button: ["Заморозить", "Убить"]
+            button: ["Р—Р°РјРѕСЂРѕР·РёС‚СЊ", "РЈР±РёС‚СЊ"]
         },
         4: {
-            name: "Комиссар",
+            name: "РљРѕРјРёСЃСЃР°СЂ",
             icon: "duty",
-            button: ["Проверить"]
+            button: ["РџСЂРѕРІРµСЂРёС‚СЊ"]
         },
         5: {
-            name: "Сержант",
+            name: "РЎРµСЂР¶Р°РЅС‚",
             icon: "assis",
             button: []
         },
         6: {
-            name: "Маньяк",
+            name: "РњР°РЅСЊСЏРє",
             icon: "jeal",
-            button: ["Зарезать"]
+            button: ["Р—Р°СЂРµР·Р°С‚СЊ"]
         },
         7: {
-            name: "Доктор",
+            name: "Р”РѕРєС‚РѕСЂ",
             icon: "sleep",
-            button: ["Лечить"]
+            button: ["Р›РµС‡РёС‚СЊ"]
         },
         8: {
-            name: "Кот",
+            name: "РљРѕС‚",
             icon: "cat",
-            button: ["Поиграть"]
+            button: ["РџРѕРёРіСЂР°С‚СЊ"]
         },
         9: {
-            name: "Адвокат",
+            name: "РђРґРІРѕРєР°С‚",
             icon: "adv",
-            button: ["Защищать"]
+            button: ["Р—Р°С‰РёС‰Р°С‚СЊ"]
         }
     };
     return (isMaffia) ? maffiaRoles[roleId] : fflRoles[roleId];
@@ -7326,296 +7334,296 @@ var gameMode = function() {
 var roleText = {
     ffl: {
         roleinfo: {
-            "0": "Вы - наблюдатель, поэтому не мешайте играть участникам.",
-            "1": "Вы - студент. Днём голосуйте против похитителей, а ночью старайтесь не привлекать их внимания своим храпом.",
-            "2": "Вы - похититель. Чтобы выиграть, вам нужно сорвать День Любви, оставив студентов без подарков.",
-            "3": "Вы - глава похитителей, выиграйте, оставив студентов без подарков к празднику. У вас есть уникальная возможность совершать 2 действия за 1 ночь.",
-            "4": "Вы - дежурный. Ночью ищите похителей, а днём подвергайте их справедливому изгнанию из общежития.",
-            "5": "Вы - помощник дежурного. Чтобы победить, вам нужно изгнать всех похитителей. Ждите своего часа, а пока... делайте вид, что активно помогаете дежурному.",
-            "6": "Вы - ревнивый студент. Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
-            "7": "Вы - лунатик. Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
-            "8": "Вы - котик. Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
-            "9": "Вы - вахтер. Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "0": "Р’С‹ - РЅР°Р±Р»СЋРґР°С‚РµР»СЊ, РїРѕСЌС‚РѕРјСѓ РЅРµ РјРµС€Р°Р№С‚Рµ РёРіСЂР°С‚СЊ СѓС‡Р°СЃС‚РЅРёРєР°Рј.",
+            "1": "Р’С‹ - СЃС‚СѓРґРµРЅС‚. Р”РЅС‘Рј РіРѕР»РѕСЃСѓР№С‚Рµ РїСЂРѕС‚РёРІ РїРѕС…РёС‚РёС‚РµР»РµР№, Р° РЅРѕС‡СЊСЋ СЃС‚Р°СЂР°Р№С‚РµСЃСЊ РЅРµ РїСЂРёРІР»РµРєР°С‚СЊ РёС… РІРЅРёРјР°РЅРёСЏ СЃРІРѕРёРј С…СЂР°РїРѕРј.",
+            "2": "Р’С‹ - РїРѕС…РёС‚РёС‚РµР»СЊ. Р§С‚РѕР±С‹ РІС‹РёРіСЂР°С‚СЊ, РІР°Рј РЅСѓР¶РЅРѕ СЃРѕСЂРІР°С‚СЊ Р”РµРЅСЊ Р›СЋР±РІРё, РѕСЃС‚Р°РІРёРІ СЃС‚СѓРґРµРЅС‚РѕРІ Р±РµР· РїРѕРґР°СЂРєРѕРІ.",
+            "3": "Р’С‹ - РіР»Р°РІР° РїРѕС…РёС‚РёС‚РµР»РµР№, РІС‹РёРіСЂР°Р№С‚Рµ, РѕСЃС‚Р°РІРёРІ СЃС‚СѓРґРµРЅС‚РѕРІ Р±РµР· РїРѕРґР°СЂРєРѕРІ Рє РїСЂР°Р·РґРЅРёРєСѓ. РЈ РІР°СЃ РµСЃС‚СЊ СѓРЅРёРєР°Р»СЊРЅР°СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ СЃРѕРІРµСЂС€Р°С‚СЊ 2 РґРµР№СЃС‚РІРёСЏ Р·Р° 1 РЅРѕС‡СЊ.",
+            "4": "Р’С‹ - РґРµР¶СѓСЂРЅС‹Р№. РќРѕС‡СЊСЋ РёС‰РёС‚Рµ РїРѕС…РёС‚РµР»РµР№, Р° РґРЅС‘Рј РїРѕРґРІРµСЂРіР°Р№С‚Рµ РёС… СЃРїСЂР°РІРµРґР»РёРІРѕРјСѓ РёР·РіРЅР°РЅРёСЋ РёР· РѕР±С‰РµР¶РёС‚РёСЏ.",
+            "5": "Р’С‹ - РїРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ. Р§С‚РѕР±С‹ РїРѕР±РµРґРёС‚СЊ, РІР°Рј РЅСѓР¶РЅРѕ РёР·РіРЅР°С‚СЊ РІСЃРµС… РїРѕС…РёС‚РёС‚РµР»РµР№. Р–РґРёС‚Рµ СЃРІРѕРµРіРѕ С‡Р°СЃР°, Р° РїРѕРєР°... РґРµР»Р°Р№С‚Рµ РІРёРґ, С‡С‚Рѕ Р°РєС‚РёРІРЅРѕ РїРѕРјРѕРіР°РµС‚Рµ РґРµР¶СѓСЂРЅРѕРјСѓ.",
+            "6": "Р’С‹ - СЂРµРІРЅРёРІС‹Р№ СЃС‚СѓРґРµРЅС‚. Р’Р°С€Р° С†РµР»СЊ - РёР·Р±Р°РІРёС‚СЊСЃСЏ РѕС‚ РїРѕС…РёС‚РёС‚РµР»РµР№. Р”РЅС‘Рј РІС‹РІРѕРґРёС‚Рµ РёС… РЅР° РіРѕР»РѕСЃРѕРІР°РЅРёРµ, Р° РЅРѕС‡СЊСЋ РёР·С‹РјР°Р№С‚Рµ Сѓ РЅРёС… РїРѕРґР°СЂРєРё.",
+            "7": "Р’С‹ - Р»СѓРЅР°С‚РёРє. РќРѕС‡СЊСЋ РІРјРµСЃС‚Рѕ РєСЂРѕРІР°С‚Рё РІС‹Р±РёСЂР°Р№С‚Рµ СЃРµР±Рµ РјРµСЃС‚Рѕ РІРѕР·Р»Рµ С‡СЊРµР№-С‚Рѕ РґРІРµСЂРё. РњРѕР¶РµС‚ СЌС‚Рѕ РїРѕРјРµС€Р°РµС‚ РїРѕС…РёС‚РёС‚РµР»СЏРј СЃРѕРІРµСЂС€РёС‚СЊ РєСЂР°Р¶Сѓ.",
+            "8": "Р’С‹ - РєРѕС‚РёРє. РќРѕС‡СЊСЋ СЃРІРѕРёРјРё РёРіСЂР°РјРё РјРµС€Р°Р№С‚Рµ РёРіСЂРѕРєР°Рј, Р° РґРЅРµРј РІСЃРµ-С‚Р°РєРё РёС‰РёС‚Рµ РїРѕС…РёС‚РёС‚РµР»РµР№.",
+            "9": "Р’С‹ - РІР°С…С‚РµСЂ. РљР°Рє РІР°С…С‚РµСЂСѓ Р’Р°Рј РѕС‡РµРЅСЊ С…РѕС‡РµС‚СЃСЏ РѕС‚РјРµРЅРёС‚СЊ РїСЂРµРґСЃС‚РѕСЏС‰РёР№ РїСЂР°Р·РґРЅРёРє, РїРѕРјРѕРіРёС‚Рµ РїРѕС…РёС‚РёС‚РµР»СЏРј РµРіРѕ СЃРѕСЂРІР°С‚СЊ. Р—Р°С‰РёС‰Р°Р№С‚Рµ РёС… РѕС‚ РіРЅРµРІР° Рё РІРѕР·РјРµРґРёСЏ СЃС‚СѓРґРµРЅС‚РѕРІ СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р—Р°С‰РёС‚РёС‚СЊ</b>.<br/> РџРѕРјРЅРёС‚Рµ, С‡С‚Рѕ Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РѕР±РµСЃРїРµС‡РёС‚СЊ РєРѕРјСѓ-С‚Рѕ Р·Р°С‰РёС‚Сѓ РЅР° СЃСѓС‚РєРё 2 СЂР°Р·Р° РїРѕРґСЂСЏРґ."
         },
         nightActions: {
-            "1": "Студент спокойно спит.",
-            "2": "Похититель выбрал подходящую комнату для ограбления.",
-            "3": "Глава похитителей закрыл кого-то в комнате",
-            "4": "Дежурный решил проверить подозрительную комнату.",
-            "5": "Помощник дежурного спокойно спит.",
-            "6": "Ревнивый студент в порыве ревности ворвался в чью-то комнату.",
-            "7": "Лунатик отправился на ночную прогулку в известном только одному ему направлении.",
-            "8": "Неутомимый котик опять решил с кем-то поиграть.",
-            "9": "Вахтёр решил обеспечить кому-то из студентов алиби.",
+            "1": "РЎС‚СѓРґРµРЅС‚ СЃРїРѕРєРѕР№РЅРѕ СЃРїРёС‚.",
+            "2": "РџРѕС…РёС‚РёС‚РµР»СЊ РІС‹Р±СЂР°Р» РїРѕРґС…РѕРґСЏС‰СѓСЋ РєРѕРјРЅР°С‚Сѓ РґР»СЏ РѕРіСЂР°Р±Р»РµРЅРёСЏ.",
+            "3": "Р“Р»Р°РІР° РїРѕС…РёС‚РёС‚РµР»РµР№ Р·Р°РєСЂС‹Р» РєРѕРіРѕ-С‚Рѕ РІ РєРѕРјРЅР°С‚Рµ",
+            "4": "Р”РµР¶СѓСЂРЅС‹Р№ СЂРµС€РёР» РїСЂРѕРІРµСЂРёС‚СЊ РїРѕРґРѕР·СЂРёС‚РµР»СЊРЅСѓСЋ РєРѕРјРЅР°С‚Сѓ.",
+            "5": "РџРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ СЃРїРѕРєРѕР№РЅРѕ СЃРїРёС‚.",
+            "6": "Р РµРІРЅРёРІС‹Р№ СЃС‚СѓРґРµРЅС‚ РІ РїРѕСЂС‹РІРµ СЂРµРІРЅРѕСЃС‚Рё РІРѕСЂРІР°Р»СЃСЏ РІ С‡СЊСЋ-С‚Рѕ РєРѕРјРЅР°С‚Сѓ.",
+            "7": "Р›СѓРЅР°С‚РёРє РѕС‚РїСЂР°РІРёР»СЃСЏ РЅР° РЅРѕС‡РЅСѓСЋ РїСЂРѕРіСѓР»РєСѓ РІ РёР·РІРµСЃС‚РЅРѕРј С‚РѕР»СЊРєРѕ РѕРґРЅРѕРјСѓ РµРјСѓ РЅР°РїСЂР°РІР»РµРЅРёРё.",
+            "8": "РќРµСѓС‚РѕРјРёРјС‹Р№ РєРѕС‚РёРє РѕРїСЏС‚СЊ СЂРµС€РёР» СЃ РєРµРј-С‚Рѕ РїРѕРёРіСЂР°С‚СЊ.",
+            "9": "Р’Р°С…С‚С‘СЂ СЂРµС€РёР» РѕР±РµСЃРїРµС‡РёС‚СЊ РєРѕРјСѓ-С‚Рѕ РёР· СЃС‚СѓРґРµРЅС‚РѕРІ Р°Р»РёР±Рё.",
             robbers: {
-                msg: "[nick] хочет украсть подарок у студента [target]",
-                self: "Похититель [nick] - альтруист.",
-                his: "Похититель [nick] хочет украсть подарок у своего подельника. Как говорится, грабь награбленное!"
+                msg: "[nick] С…РѕС‡РµС‚ СѓРєСЂР°СЃС‚СЊ РїРѕРґР°СЂРѕРє Сѓ СЃС‚СѓРґРµРЅС‚Р° [target]",
+                self: "РџРѕС…РёС‚РёС‚РµР»СЊ [nick] - Р°Р»СЊС‚СЂСѓРёСЃС‚.",
+                his: "РџРѕС…РёС‚РёС‚РµР»СЊ [nick] С…РѕС‡РµС‚ СѓРєСЂР°СЃС‚СЊ РїРѕРґР°СЂРѕРє Сѓ СЃРІРѕРµРіРѕ РїРѕРґРµР»СЊРЅРёРєР°. РљР°Рє РіРѕРІРѕСЂРёС‚СЃСЏ, РіСЂР°Р±СЊ РЅР°РіСЂР°Р±Р»РµРЅРЅРѕРµ!"
             }
         },
         morningInfo: {
-            "1": "Студент отлично выспался.",
-            "2": "Ночью [nick] - [role] - не сберег подарка.",
-            "3": "Глава похитителей запер на сутки игрока [nick] в своей комнате.",
-            "4": "Ночью дежурный проверил комнату игрока [nick]. Кем же оказался подозреваемый?",
-            "5": "Помощник дежурного всю ночь делал вид, что помогает дежурному.",
-            "6": "[role] [nick] попал под раздачу ревнивого студента.",
-            "7": "Всю ночь лунатик провел возле комнаты студента [nick].",
-            "8": "Из-за милого котика студент [nick] всю ночь не сомкнул глаз.",
-            "4x": "Дежурный спугнул ночного гостя из комнаты студента [nick].",
-            "7x": "Ночью лунатик лунатил не зря, не дав проникнуть злоумышленнику в комнату студента [nick].",
-            "8x": "[role] - [nick], заигравшись с другом, не уберег своего подарка.",
-            "9": "[nick] получает иммунитет на следующие сутки.",
-            "9x": "Студенту [nick] удалось сохранить свой подарок, благодаря полученному иммунитету.",
-            lock: "Замок преградил путь ночному гостю в комнату одного из cтудентов",
-            mylock: '<div class="green">Ваш замок был испорчен таинственным ночным посетителем!</div>'
+            "1": "РЎС‚СѓРґРµРЅС‚ РѕС‚Р»РёС‡РЅРѕ РІС‹СЃРїР°Р»СЃСЏ.",
+            "2": "РќРѕС‡СЊСЋ [nick] - [role] - РЅРµ СЃР±РµСЂРµРі РїРѕРґР°СЂРєР°.",
+            "3": "Р“Р»Р°РІР° РїРѕС…РёС‚РёС‚РµР»РµР№ Р·Р°РїРµСЂ РЅР° СЃСѓС‚РєРё РёРіСЂРѕРєР° [nick] РІ СЃРІРѕРµР№ РєРѕРјРЅР°С‚Рµ.",
+            "4": "РќРѕС‡СЊСЋ РґРµР¶СѓСЂРЅС‹Р№ РїСЂРѕРІРµСЂРёР» РєРѕРјРЅР°С‚Сѓ РёРіСЂРѕРєР° [nick]. РљРµРј Р¶Рµ РѕРєР°Р·Р°Р»СЃСЏ РїРѕРґРѕР·СЂРµРІР°РµРјС‹Р№?",
+            "5": "РџРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ РІСЃСЋ РЅРѕС‡СЊ РґРµР»Р°Р» РІРёРґ, С‡С‚Рѕ РїРѕРјРѕРіР°РµС‚ РґРµР¶СѓСЂРЅРѕРјСѓ.",
+            "6": "[role] [nick] РїРѕРїР°Р» РїРѕРґ СЂР°Р·РґР°С‡Сѓ СЂРµРІРЅРёРІРѕРіРѕ СЃС‚СѓРґРµРЅС‚Р°.",
+            "7": "Р’СЃСЋ РЅРѕС‡СЊ Р»СѓРЅР°С‚РёРє РїСЂРѕРІРµР» РІРѕР·Р»Рµ РєРѕРјРЅР°С‚С‹ СЃС‚СѓРґРµРЅС‚Р° [nick].",
+            "8": "РР·-Р·Р° РјРёР»РѕРіРѕ РєРѕС‚РёРєР° СЃС‚СѓРґРµРЅС‚ [nick] РІСЃСЋ РЅРѕС‡СЊ РЅРµ СЃРѕРјРєРЅСѓР» РіР»Р°Р·.",
+            "4x": "Р”РµР¶СѓСЂРЅС‹Р№ СЃРїСѓРіРЅСѓР» РЅРѕС‡РЅРѕРіРѕ РіРѕСЃС‚СЏ РёР· РєРѕРјРЅР°С‚С‹ СЃС‚СѓРґРµРЅС‚Р° [nick].",
+            "7x": "РќРѕС‡СЊСЋ Р»СѓРЅР°С‚РёРє Р»СѓРЅР°С‚РёР» РЅРµ Р·СЂСЏ, РЅРµ РґР°РІ РїСЂРѕРЅРёРєРЅСѓС‚СЊ Р·Р»РѕСѓРјС‹С€Р»РµРЅРЅРёРєСѓ РІ РєРѕРјРЅР°С‚Сѓ СЃС‚СѓРґРµРЅС‚Р° [nick].",
+            "8x": "[role] - [nick], Р·Р°РёРіСЂР°РІС€РёСЃСЊ СЃ РґСЂСѓРіРѕРј, РЅРµ СѓР±РµСЂРµРі СЃРІРѕРµРіРѕ РїРѕРґР°СЂРєР°.",
+            "9": "[nick] РїРѕР»СѓС‡Р°РµС‚ РёРјРјСѓРЅРёС‚РµС‚ РЅР° СЃР»РµРґСѓСЋС‰РёРµ СЃСѓС‚РєРё.",
+            "9x": "РЎС‚СѓРґРµРЅС‚Сѓ [nick] СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ СЃРІРѕР№ РїРѕРґР°СЂРѕРє, Р±Р»Р°РіРѕРґР°СЂСЏ РїРѕР»СѓС‡РµРЅРЅРѕРјСѓ РёРјРјСѓРЅРёС‚РµС‚Сѓ.",
+            lock: "Р—Р°РјРѕРє РїСЂРµРіСЂР°РґРёР» РїСѓС‚СЊ РЅРѕС‡РЅРѕРјСѓ РіРѕСЃС‚СЋ РІ РєРѕРјРЅР°С‚Сѓ РѕРґРЅРѕРіРѕ РёР· cС‚СѓРґРµРЅС‚РѕРІ",
+            mylock: '<div class="green">Р’Р°С€ Р·Р°РјРѕРє Р±С‹Р» РёСЃРїРѕСЂС‡РµРЅ С‚Р°РёРЅСЃС‚РІРµРЅРЅС‹Рј РЅРѕС‡РЅС‹Рј РїРѕСЃРµС‚РёС‚РµР»РµРј!</div>'
         },
         periodStart: {
-            "1": "Наступила ночь. Студентам пора спать, тем временем похитители замышляют недоброе.",
-            "2": "Наступил день. Для студентов утро добрым не бывает...",
-            "3": "Последнее слово подозреваемому! Что же было на самом деле?",
-            "4": "Наступило время голосования! Пора принимать решение!"
+            "1": "РќР°СЃС‚СѓРїРёР»Р° РЅРѕС‡СЊ. РЎС‚СѓРґРµРЅС‚Р°Рј РїРѕСЂР° СЃРїР°С‚СЊ, С‚РµРј РІСЂРµРјРµРЅРµРј РїРѕС…РёС‚РёС‚РµР»Рё Р·Р°РјС‹С€Р»СЏСЋС‚ РЅРµРґРѕР±СЂРѕРµ.",
+            "2": "РќР°СЃС‚СѓРїРёР» РґРµРЅСЊ. Р”Р»СЏ СЃС‚СѓРґРµРЅС‚РѕРІ СѓС‚СЂРѕ РґРѕР±СЂС‹Рј РЅРµ Р±С‹РІР°РµС‚...",
+            "3": "РџРѕСЃР»РµРґРЅРµРµ СЃР»РѕРІРѕ РїРѕРґРѕР·СЂРµРІР°РµРјРѕРјСѓ! Р§С‚Рѕ Р¶Рµ Р±С‹Р»Рѕ РЅР° СЃР°РјРѕРј РґРµР»Рµ?",
+            "4": "РќР°СЃС‚СѓРїРёР»Рѕ РІСЂРµРјСЏ РіРѕР»РѕСЃРѕРІР°РЅРёСЏ! РџРѕСЂР° РїСЂРёРЅРёРјР°С‚СЊ СЂРµС€РµРЅРёРµ!"
         },
         mainvote: {
-            simpleVote: '<span class="votemsg">[nick] подозревает в чём-то cтудента [target]</span>',
-            no: "Сегодня студенты были очень нерешительны...",
-            eq: "Сегодня студенты так и не определились...",
-            protect: "Вахтёру удалось оправдать студента своими показаниями!",
-            before: "Большинство игроков (из проголосовавших) считает, что [nick] причастен к похищениям подарков.",
-            question: "Вы считаете, что cтудент [nick]<br/> способен на преступление?",
-            "kick-yes": '[nick] считает, что во всем виноват <b class="nickname">[target]</b>',
-            "kick-no": '[nick] думает, что <b class="nickname">[target]</b> не брал чужого',
-            "result-sub": "<b>[YESVOTE]</b> проголосовал[YESs] за изгнание, <b>[NOVOTE]</b> посчитал[NOs], что cтудент обвинен напрасно.",
-            "result-stat": "Результаты голосования: [count1] назвали подозреваемого преступником, [count0] посчитали, что [nick] не виноват.",
-            result1: "[nick] - [role] - был признан виновным. Игра продолжится без него",
-            result0: "[nick] был оправдан. Поздравляем."
+            simpleVote: '<span class="votemsg">[nick] РїРѕРґРѕР·СЂРµРІР°РµС‚ РІ С‡С‘Рј-С‚Рѕ cС‚СѓРґРµРЅС‚Р° [target]</span>',
+            no: "РЎРµРіРѕРґРЅСЏ СЃС‚СѓРґРµРЅС‚С‹ Р±С‹Р»Рё РѕС‡РµРЅСЊ РЅРµСЂРµС€РёС‚РµР»СЊРЅС‹...",
+            eq: "РЎРµРіРѕРґРЅСЏ СЃС‚СѓРґРµРЅС‚С‹ С‚Р°Рє Рё РЅРµ РѕРїСЂРµРґРµР»РёР»РёСЃСЊ...",
+            protect: "Р’Р°С…С‚С‘СЂСѓ СѓРґР°Р»РѕСЃСЊ РѕРїСЂР°РІРґР°С‚СЊ СЃС‚СѓРґРµРЅС‚Р° СЃРІРѕРёРјРё РїРѕРєР°Р·Р°РЅРёСЏРјРё!",
+            before: "Р‘РѕР»СЊС€РёРЅСЃС‚РІРѕ РёРіСЂРѕРєРѕРІ (РёР· РїСЂРѕРіРѕР»РѕСЃРѕРІР°РІС€РёС…) СЃС‡РёС‚Р°РµС‚, С‡С‚Рѕ [nick] РїСЂРёС‡Р°СЃС‚РµРЅ Рє РїРѕС…РёС‰РµРЅРёСЏРј РїРѕРґР°СЂРєРѕРІ.",
+            question: "Р’С‹ СЃС‡РёС‚Р°РµС‚Рµ, С‡С‚Рѕ cС‚СѓРґРµРЅС‚ [nick]<br/> СЃРїРѕСЃРѕР±РµРЅ РЅР° РїСЂРµСЃС‚СѓРїР»РµРЅРёРµ?",
+            "kick-yes": '[nick] СЃС‡РёС‚Р°РµС‚, С‡С‚Рѕ РІРѕ РІСЃРµРј РІРёРЅРѕРІР°С‚ <b class="nickname">[target]</b>',
+            "kick-no": '[nick] РґСѓРјР°РµС‚, С‡С‚Рѕ <b class="nickname">[target]</b> РЅРµ Р±СЂР°Р» С‡СѓР¶РѕРіРѕ',
+            "result-sub": "<b>[YESVOTE]</b> РїСЂРѕРіРѕР»РѕСЃРѕРІР°Р»[YESs] Р·Р° РёР·РіРЅР°РЅРёРµ, <b>[NOVOTE]</b> РїРѕСЃС‡РёС‚Р°Р»[NOs], С‡С‚Рѕ cС‚СѓРґРµРЅС‚ РѕР±РІРёРЅРµРЅ РЅР°РїСЂР°СЃРЅРѕ.",
+            "result-stat": "Р РµР·СѓР»СЊС‚Р°С‚С‹ РіРѕР»РѕСЃРѕРІР°РЅРёСЏ: [count1] РЅР°Р·РІР°Р»Рё РїРѕРґРѕР·СЂРµРІР°РµРјРѕРіРѕ РїСЂРµСЃС‚СѓРїРЅРёРєРѕРј, [count0] РїРѕСЃС‡РёС‚Р°Р»Рё, С‡С‚Рѕ [nick] РЅРµ РІРёРЅРѕРІР°С‚.",
+            result1: "[nick] - [role] - Р±С‹Р» РїСЂРёР·РЅР°РЅ РІРёРЅРѕРІРЅС‹Рј. РРіСЂР° РїСЂРѕРґРѕР»Р¶РёС‚СЃСЏ Р±РµР· РЅРµРіРѕ",
+            result0: "[nick] Р±С‹Р» РѕРїСЂР°РІРґР°РЅ. РџРѕР·РґСЂР°РІР»СЏРµРј."
         },
         itemUse: {
-            5: "[nick] - [role] - не выдержал тяжелых студенческих будней и пустился во все тяжкие. А может просто жадность погубила?<br/>",
+            5: "[nick] - [role] - РЅРµ РІС‹РґРµСЂР¶Р°Р» С‚СЏР¶РµР»С‹С… СЃС‚СѓРґРµРЅС‡РµСЃРєРёС… Р±СѓРґРЅРµР№ Рё РїСѓСЃС‚РёР»СЃСЏ РІРѕ РІСЃРµ С‚СЏР¶РєРёРµ. Рђ РјРѕР¶РµС‚ РїСЂРѕСЃС‚Рѕ Р¶Р°РґРЅРѕСЃС‚СЊ РїРѕРіСѓР±РёР»Р°?<br/>",
             cookieResult: {
                 "true": {
-                    1: " почему-то не спала сегодня ночью. Может она принимала участие в краже?",
-                    2: " почему-то не спал сегодня ночью. Может он принимал участие в краже?"
+                    1: " РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЃРїР°Р»Р° СЃРµРіРѕРґРЅСЏ РЅРѕС‡СЊСЋ. РњРѕР¶РµС‚ РѕРЅР° РїСЂРёРЅРёРјР°Р»Р° СѓС‡Р°СЃС‚РёРµ РІ РєСЂР°Р¶Рµ?",
+                    2: " РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЃРїР°Р» СЃРµРіРѕРґРЅСЏ РЅРѕС‡СЊСЋ. РњРѕР¶РµС‚ РѕРЅ РїСЂРёРЅРёРјР°Р» СѓС‡Р°СЃС‚РёРµ РІ РєСЂР°Р¶Рµ?"
                 },
                 "false": {
-                    1: " сегодня отлично выспалась!",
-                    2: " сегодня отлично выспался!"
+                    1: " СЃРµРіРѕРґРЅСЏ РѕС‚Р»РёС‡РЅРѕ РІС‹СЃРїР°Р»Р°СЃСЊ!",
+                    2: " СЃРµРіРѕРґРЅСЏ РѕС‚Р»РёС‡РЅРѕ РІС‹СЃРїР°Р»СЃСЏ!"
                 },
                 no: {
-                    1: " полакомилась своим печеньем",
-                    2: " полакомился своим печеньем"
+                    1: " РїРѕР»Р°РєРѕРјРёР»Р°СЃСЊ СЃРІРѕРёРј РїРµС‡РµРЅСЊРµРј",
+                    2: " РїРѕР»Р°РєРѕРјРёР»СЃСЏ СЃРІРѕРёРј РїРµС‡РµРЅСЊРµРј"
                 }
             },
             cookie: {
-                text: "Утром вы узнаете, [VERB] ли [nick] вашим угощением",
-                verb1: "полакомилась",
-                verb2: "полакомился"
+                text: "РЈС‚СЂРѕРј РІС‹ СѓР·РЅР°РµС‚Рµ, [VERB] Р»Рё [nick] РІР°С€РёРј СѓРіРѕС‰РµРЅРёРµРј",
+                verb1: "РїРѕР»Р°РєРѕРјРёР»Р°СЃСЊ",
+                verb2: "РїРѕР»Р°РєРѕРјРёР»СЃСЏ"
             },
-            cookieNo: "У Вас не осталось печенья :(",
-            cookieNan: "Выберите игрока из списка, которому хотите подложить печенюшку",
-            cookieDelete: "Ночью кто-то подбросил Вам печенье. К счастью, Вы утолили голод собственными запасами.",
-            tour: "Утром борьба за подарки продолжится без вашего участия.",
-            tourNo: "У Вас нет образца заявления на академический отпуск. Не получится написать его без ошибок :("
+            cookieNo: "РЈ Р’Р°СЃ РЅРµ РѕСЃС‚Р°Р»РѕСЃСЊ РїРµС‡РµРЅСЊСЏ :(",
+            cookieNan: "Р’С‹Р±РµСЂРёС‚Рµ РёРіСЂРѕРєР° РёР· СЃРїРёСЃРєР°, РєРѕС‚РѕСЂРѕРјСѓ С…РѕС‚РёС‚Рµ РїРѕРґР»РѕР¶РёС‚СЊ РїРµС‡РµРЅСЋС€РєСѓ",
+            cookieDelete: "РќРѕС‡СЊСЋ РєС‚Рѕ-С‚Рѕ РїРѕРґР±СЂРѕСЃРёР» Р’Р°Рј РїРµС‡РµРЅСЊРµ. Рљ СЃС‡Р°СЃС‚СЊСЋ, Р’С‹ СѓС‚РѕР»РёР»Рё РіРѕР»РѕРґ СЃРѕР±СЃС‚РІРµРЅРЅС‹РјРё Р·Р°РїР°СЃР°РјРё.",
+            tour: "РЈС‚СЂРѕРј Р±РѕСЂСЊР±Р° Р·Р° РїРѕРґР°СЂРєРё РїСЂРѕРґРѕР»Р¶РёС‚СЃСЏ Р±РµР· РІР°С€РµРіРѕ СѓС‡Р°СЃС‚РёСЏ.",
+            tourNo: "РЈ Р’Р°СЃ РЅРµС‚ РѕР±СЂР°Р·С†Р° Р·Р°СЏРІР»РµРЅРёСЏ РЅР° Р°РєР°РґРµРјРёС‡РµСЃРєРёР№ РѕС‚РїСѓСЃРє. РќРµ РїРѕР»СѓС‡РёС‚СЃСЏ РЅР°РїРёСЃР°С‚СЊ РµРіРѕ Р±РµР· РѕС€РёР±РѕРє :("
         },
-        startText: "Борьба за праздник началась.",
-        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Похитители голосуют против дежурного, его помощника и лунатика, а студенты - против похитителей.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для студентов: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="adv"></span> - 1, <span class="jeal"></span> - 1<br/> для похитителей: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место дежурного занимает его помощник. Новый дежурный уж точно не оставит похитителям никаких шансов!",
-        bossChild: "Место главы похитителей занимает его незаконно рожденный ребенок!",
-        "bossChild-father": ", ваш отец возглавлял группу похитителей подарков. Теперь вы должны отомстить за него и сорвать праздник любви!",
-        "bossChild-mother": ", ваша мать возглавляла группу похитителей подарков. Теперь вы должны отомстить за нее и сорвать праздник любви!",
-        stealGift: "К сожалению, вы остались без подарка.",
-        afterItem5: "С довольной ухмылкой Вы ушли в академический отпуск!",
-        stat: "В игре осталось [students], [mans] и [robbers].",
+        startText: "Р‘РѕСЂСЊР±Р° Р·Р° РїСЂР°Р·РґРЅРёРє РЅР°С‡Р°Р»Р°СЃСЊ.",
+        intuitionStart: 'Р’ СЌС‚РѕР№ РёРіСЂРµ Р·Р°РґР°С‡Р° РєР°Р¶РґРѕРіРѕ СѓС‡Р°СЃС‚РЅРёРєР° - РѕРїСЂРµРґРµР»РёС‚СЊ РёРіСЂРѕРєР° СЃ СЂРѕР»СЊСЋ РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕР№ СЃС‚РѕСЂРѕРЅС‹ Рё РїСЂРѕРіРѕР»РѕСЃРѕРІР°С‚СЊ РїСЂРѕС‚РёРІ РЅРµРіРѕ РґРЅРµРј! РџРѕС…РёС‚РёС‚РµР»Рё РіРѕР»РѕСЃСѓСЋС‚ РїСЂРѕС‚РёРІ РґРµР¶СѓСЂРЅРѕРіРѕ, РµРіРѕ РїРѕРјРѕС‰РЅРёРєР° Рё Р»СѓРЅР°С‚РёРєР°, Р° СЃС‚СѓРґРµРЅС‚С‹ - РїСЂРѕС‚РёРІ РїРѕС…РёС‚РёС‚РµР»РµР№.<br/> Р—Р° РєР°Р¶РґСѓСЋ РїСЂР°РІРёР»СЊРЅРѕ СѓРіР°РґР°РЅРЅСѓСЋ СЂРѕР»СЊ РёРіСЂРѕРєРё Р±СѓРґСѓС‚ РїРѕР»СѓС‡Р°С‚СЊ Р±Р°Р»Р»С‹: <blockquote>РґР»СЏ СЃС‚СѓРґРµРЅС‚РѕРІ: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="adv"></span> - 1, <span class="jeal"></span> - 1<br/> РґР»СЏ РїРѕС…РёС‚РёС‚РµР»РµР№: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
+        newDuty: "РњРµСЃС‚Рѕ РґРµР¶СѓСЂРЅРѕРіРѕ Р·Р°РЅРёРјР°РµС‚ РµРіРѕ РїРѕРјРѕС‰РЅРёРє. РќРѕРІС‹Р№ РґРµР¶СѓСЂРЅС‹Р№ СѓР¶ С‚РѕС‡РЅРѕ РЅРµ РѕСЃС‚Р°РІРёС‚ РїРѕС…РёС‚РёС‚РµР»СЏРј РЅРёРєР°РєРёС… С€Р°РЅСЃРѕРІ!",
+        bossChild: "РњРµСЃС‚Рѕ РіР»Р°РІС‹ РїРѕС…РёС‚РёС‚РµР»РµР№ Р·Р°РЅРёРјР°РµС‚ РµРіРѕ РЅРµР·Р°РєРѕРЅРЅРѕ СЂРѕР¶РґРµРЅРЅС‹Р№ СЂРµР±РµРЅРѕРє!",
+        "bossChild-father": ", РІР°С€ РѕС‚РµС† РІРѕР·РіР»Р°РІР»СЏР» РіСЂСѓРїРїСѓ РїРѕС…РёС‚РёС‚РµР»РµР№ РїРѕРґР°СЂРєРѕРІ. РўРµРїРµСЂСЊ РІС‹ РґРѕР»Р¶РЅС‹ РѕС‚РѕРјСЃС‚РёС‚СЊ Р·Р° РЅРµРіРѕ Рё СЃРѕСЂРІР°С‚СЊ РїСЂР°Р·РґРЅРёРє Р»СЋР±РІРё!",
+        "bossChild-mother": ", РІР°С€Р° РјР°С‚СЊ РІРѕР·РіР»Р°РІР»СЏР»Р° РіСЂСѓРїРїСѓ РїРѕС…РёС‚РёС‚РµР»РµР№ РїРѕРґР°СЂРєРѕРІ. РўРµРїРµСЂСЊ РІС‹ РґРѕР»Р¶РЅС‹ РѕС‚РѕРјСЃС‚РёС‚СЊ Р·Р° РЅРµРµ Рё СЃРѕСЂРІР°С‚СЊ РїСЂР°Р·РґРЅРёРє Р»СЋР±РІРё!",
+        stealGift: "Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ, РІС‹ РѕСЃС‚Р°Р»РёСЃСЊ Р±РµР· РїРѕРґР°СЂРєР°.",
+        afterItem5: "РЎ РґРѕРІРѕР»СЊРЅРѕР№ СѓС…РјС‹Р»РєРѕР№ Р’С‹ СѓС€Р»Рё РІ Р°РєР°РґРµРјРёС‡РµСЃРєРёР№ РѕС‚РїСѓСЃРє!",
+        stat: "Р’ РёРіСЂРµ РѕСЃС‚Р°Р»РѕСЃСЊ [students], [mans] Рё [robbers].",
         statCount: {
-            "[students]": ["студент", "студента", "студентов"],
-            "[robbers]": ["похититель", "похитителя", "похитителей"],
-            "[mans]": ["ревнивый студент", "ревнивых студента", "ревнивых студентов"]
+            "[students]": ["СЃС‚СѓРґРµРЅС‚", "СЃС‚СѓРґРµРЅС‚Р°", "СЃС‚СѓРґРµРЅС‚РѕРІ"],
+            "[robbers]": ["РїРѕС…РёС‚РёС‚РµР»СЊ", "РїРѕС…РёС‚РёС‚РµР»СЏ", "РїРѕС…РёС‚РёС‚РµР»РµР№"],
+            "[mans]": ["СЂРµРІРЅРёРІС‹Р№ СЃС‚СѓРґРµРЅС‚", "СЂРµРІРЅРёРІС‹С… СЃС‚СѓРґРµРЅС‚Р°", "СЂРµРІРЅРёРІС‹С… СЃС‚СѓРґРµРЅС‚РѕРІ"]
         },
         end: {
-            studwin: "Победили cтуденты!",
-            robwin: "Победили похитители",
-            manwin: "Победила ревность",
-            menwin: "Победили мальчики",
-            womenwin: "Победили девочки"
+            studwin: "РџРѕР±РµРґРёР»Рё cС‚СѓРґРµРЅС‚С‹!",
+            robwin: "РџРѕР±РµРґРёР»Рё РїРѕС…РёС‚РёС‚РµР»Рё",
+            manwin: "РџРѕР±РµРґРёР»Р° СЂРµРІРЅРѕСЃС‚СЊ",
+            menwin: "РџРѕР±РµРґРёР»Рё РјР°Р»СЊС‡РёРєРё",
+            womenwin: "РџРѕР±РµРґРёР»Рё РґРµРІРѕС‡РєРё"
         },
         reward: {
-            "1": 'Даже простым студентом вы не теряете самообладания и жажды победы.<br/> За помощь в проведении праздника Дня Любви профком наградил вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
-            "2": 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит вам прекрасную возможность отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
-            "3": 'Вам это удалось!<br/> Вы успешно сорвали праздник, доказав, кто здесь главный.<br/> Теперь Вы можете отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
-            "4": 'Прекрасная работа, дежурный!<br/> У похитителей не было шансов.<br/> Находить злоумышленников вдвое быстрее вам помогут вкусные <em>печеньки</em> <div class="shop-item4"></div>',
-            "5": 'Вы - отличный помощник дежурного!<br/> Без вас этот праздник Любви мог и не состояться.<br/> <em>Печеньки</em> помогут вам и в следующий раз отыскать похитителей <div class="shop-item4"></div>',
-            "6": 'Ваша несдержанность помогла студентам нарушить коварный замысел похитителей!<br/> Но в следующей игре постарайтесь держать свою ревность под <em>замком</em> <div class="shop-item2"></div>',
-            "7": 'Не зря вы не высыпались все эти дни!<br/> Праздник Любви состоится!<br/> Что об этом думают похитители?<br/> это вам подскажет чудо техники - <em>веб-камера</em>! <div class="shop-item1"></div>',
-            "8": 'Как иногда внешность бывает обманчива!<br/> Милому котику удалось остановить банду похитителей подарков.<br/> Чтобы их месть не настигла Вас, закройтесь на оба <em>замка</em> <div class="shop-item2">2</div>',
-            "9": 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит Вам тройку <em>замков</em> для вашей защиты <div class="shop-item2">3</div>'
+            "1": 'Р”Р°Р¶Рµ РїСЂРѕСЃС‚С‹Рј СЃС‚СѓРґРµРЅС‚РѕРј РІС‹ РЅРµ С‚РµСЂСЏРµС‚Рµ СЃР°РјРѕРѕР±Р»Р°РґР°РЅРёСЏ Рё Р¶Р°Р¶РґС‹ РїРѕР±РµРґС‹.<br/> Р—Р° РїРѕРјРѕС‰СЊ РІ РїСЂРѕРІРµРґРµРЅРёРё РїСЂР°Р·РґРЅРёРєР° Р”РЅСЏ Р›СЋР±РІРё РїСЂРѕС„РєРѕРј РЅР°РіСЂР°РґРёР» РІР°СЃ <em>РђРєС‚РёРІРЅРѕР№ СЂРѕР»СЊСЋ</em> РЅР° 1 С‡Р°СЃ <div class="shop-item3"></div>',
+            "2": 'Р’Р°Рј СЌС‚Рѕ СѓРґР°Р»РѕСЃСЊ!<br/> Р’С‹ СѓСЃРїРµС€РЅРѕ СЃРѕСЂРІР°Р»Рё РїСЂР°Р·РґРЅРёРє, РІ Р±Р»Р°РіРѕРґР°СЂРЅРѕСЃС‚СЊ РЎРѕРІРµС‚ РїРѕС…РёС‚РёС‚РµР»РµР№<br/> РґР°СЂРёС‚ РІР°Рј РїСЂРµРєСЂР°СЃРЅСѓСЋ РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РѕС‚РґРѕС…РЅСѓС‚СЊ РІ <em>РђРєР°РґРµРјРёС‡РµСЃРєРѕРј РѕС‚РїСѓСЃРєРµ</em> <div class="shop-item5"></div>',
+            "3": 'Р’Р°Рј СЌС‚Рѕ СѓРґР°Р»РѕСЃСЊ!<br/> Р’С‹ СѓСЃРїРµС€РЅРѕ СЃРѕСЂРІР°Р»Рё РїСЂР°Р·РґРЅРёРє, РґРѕРєР°Р·Р°РІ, РєС‚Рѕ Р·РґРµСЃСЊ РіР»Р°РІРЅС‹Р№.<br/> РўРµРїРµСЂСЊ Р’С‹ РјРѕР¶РµС‚Рµ РѕС‚РґРѕС…РЅСѓС‚СЊ РІ <em>РђРєР°РґРµРјРёС‡РµСЃРєРѕРј РѕС‚РїСѓСЃРєРµ</em> <div class="shop-item5"></div>',
+            "4": 'РџСЂРµРєСЂР°СЃРЅР°СЏ СЂР°Р±РѕС‚Р°, РґРµР¶СѓСЂРЅС‹Р№!<br/> РЈ РїРѕС…РёС‚РёС‚РµР»РµР№ РЅРµ Р±С‹Р»Рѕ С€Р°РЅСЃРѕРІ.<br/> РќР°С…РѕРґРёС‚СЊ Р·Р»РѕСѓРјС‹С€Р»РµРЅРЅРёРєРѕРІ РІРґРІРѕРµ Р±С‹СЃС‚СЂРµРµ РІР°Рј РїРѕРјРѕРіСѓС‚ РІРєСѓСЃРЅС‹Рµ <em>РїРµС‡РµРЅСЊРєРё</em> <div class="shop-item4"></div>',
+            "5": 'Р’С‹ - РѕС‚Р»РёС‡РЅС‹Р№ РїРѕРјРѕС‰РЅРёРє РґРµР¶СѓСЂРЅРѕРіРѕ!<br/> Р‘РµР· РІР°СЃ СЌС‚РѕС‚ РїСЂР°Р·РґРЅРёРє Р›СЋР±РІРё РјРѕРі Рё РЅРµ СЃРѕСЃС‚РѕСЏС‚СЊСЃСЏ.<br/> <em>РџРµС‡РµРЅСЊРєРё</em> РїРѕРјРѕРіСѓС‚ РІР°Рј Рё РІ СЃР»РµРґСѓСЋС‰РёР№ СЂР°Р· РѕС‚С‹СЃРєР°С‚СЊ РїРѕС…РёС‚РёС‚РµР»РµР№ <div class="shop-item4"></div>',
+            "6": 'Р’Р°С€Р° РЅРµСЃРґРµСЂР¶Р°РЅРЅРѕСЃС‚СЊ РїРѕРјРѕРіР»Р° СЃС‚СѓРґРµРЅС‚Р°Рј РЅР°СЂСѓС€РёС‚СЊ РєРѕРІР°СЂРЅС‹Р№ Р·Р°РјС‹СЃРµР» РїРѕС…РёС‚РёС‚РµР»РµР№!<br/> РќРѕ РІ СЃР»РµРґСѓСЋС‰РµР№ РёРіСЂРµ РїРѕСЃС‚Р°СЂР°Р№С‚РµСЃСЊ РґРµСЂР¶Р°С‚СЊ СЃРІРѕСЋ СЂРµРІРЅРѕСЃС‚СЊ РїРѕРґ <em>Р·Р°РјРєРѕРј</em> <div class="shop-item2"></div>',
+            "7": 'РќРµ Р·СЂСЏ РІС‹ РЅРµ РІС‹СЃС‹РїР°Р»РёСЃСЊ РІСЃРµ СЌС‚Рё РґРЅРё!<br/> РџСЂР°Р·РґРЅРёРє Р›СЋР±РІРё СЃРѕСЃС‚РѕРёС‚СЃСЏ!<br/> Р§С‚Рѕ РѕР± СЌС‚РѕРј РґСѓРјР°СЋС‚ РїРѕС…РёС‚РёС‚РµР»Рё?<br/> СЌС‚Рѕ РІР°Рј РїРѕРґСЃРєР°Р¶РµС‚ С‡СѓРґРѕ С‚РµС…РЅРёРєРё - <em>РІРµР±-РєР°РјРµСЂР°</em>! <div class="shop-item1"></div>',
+            "8": 'РљР°Рє РёРЅРѕРіРґР° РІРЅРµС€РЅРѕСЃС‚СЊ Р±С‹РІР°РµС‚ РѕР±РјР°РЅС‡РёРІР°!<br/> РњРёР»РѕРјСѓ РєРѕС‚РёРєСѓ СѓРґР°Р»РѕСЃСЊ РѕСЃС‚Р°РЅРѕРІРёС‚СЊ Р±Р°РЅРґСѓ РїРѕС…РёС‚РёС‚РµР»РµР№ РїРѕРґР°СЂРєРѕРІ.<br/> Р§С‚РѕР±С‹ РёС… РјРµСЃС‚СЊ РЅРµ РЅР°СЃС‚РёРіР»Р° Р’Р°СЃ, Р·Р°РєСЂРѕР№С‚РµСЃСЊ РЅР° РѕР±Р° <em>Р·Р°РјРєР°</em> <div class="shop-item2">2</div>',
+            "9": 'Р’Р°Рј СЌС‚Рѕ СѓРґР°Р»РѕСЃСЊ!<br/> Р’С‹ СѓСЃРїРµС€РЅРѕ СЃРѕСЂРІР°Р»Рё РїСЂР°Р·РґРЅРёРє, РІ Р±Р»Р°РіРѕРґР°СЂРЅРѕСЃС‚СЊ РЎРѕРІРµС‚ РїРѕС…РёС‚РёС‚РµР»РµР№<br/> РґР°СЂРёС‚ Р’Р°Рј С‚СЂРѕР№РєСѓ <em>Р·Р°РјРєРѕРІ</em> РґР»СЏ РІР°С€РµР№ Р·Р°С‰РёС‚С‹ <div class="shop-item2">3</div>'
         },
         items: {
-            "1": "Веб-камера в упаковке",
-            "2": "Замок в коробке",
-            "3": "Абонемент Активная роль на 1 час",
-            "4": "Пачка печенья",
-            "5": "Чистый бланк для академического отпуска",
-            "6": "Пропуск в Клуб ФФЛ на 1 день"
+            "1": "Р’РµР±-РєР°РјРµСЂР° РІ СѓРїР°РєРѕРІРєРµ",
+            "2": "Р—Р°РјРѕРє РІ РєРѕСЂРѕР±РєРµ",
+            "3": "РђР±РѕРЅРµРјРµРЅС‚ РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ РЅР° 1 С‡Р°СЃ",
+            "4": "РџР°С‡РєР° РїРµС‡РµРЅСЊСЏ",
+            "5": "Р§РёСЃС‚С‹Р№ Р±Р»Р°РЅРє РґР»СЏ Р°РєР°РґРµРјРёС‡РµСЃРєРѕРіРѕ РѕС‚РїСѓСЃРєР°",
+            "6": "РџСЂРѕРїСѓСЃРє РІ РљР»СѓР± Р¤Р¤Р› РЅР° 1 РґРµРЅСЊ"
         }
     },
     maffia: {
         roleinfo: {
-            "0": "Вы - свидетель, поэтому не мешайте другим участникам.",
-            "1": "Вы - Честный гражданин!<br/> Вы выиграете, казнив всех мафиози. Днем с помощью кнопки <b>Голосовать</b> голосуйте против тех, кого подозреваете.",
-            "2": "Вы - Мафиози!<br/> Вы победите, убив всех граждан, а также маньяка. Ночью убивайте выбранную жертву с помощью кнопки <b>Убить</b>. Днем притворяйтесь гражданином и голосуйте против неугодных вам с помощью кнопки <b>Голосовать</b>.",
-            "3": "Вы - Босс мафии! Вы победите, убив всех граждан, а также маньяка. Ночью кнопкой <b>Заморозить</b> Вы лишаете кого-то действий на сутки. И кнопкой <b>Убить</b> кого-то убивайте. Днем притворяйтесь гражданином и голосуйте против неугодных вам кнопкой <b>Голосовать</b>.",
-            "4": "Вы - Комиссар!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью вы можете узнать роль персонажа с помощью кнопки <b>Проверить</b>.",
-            "5": "Вы - Сержант!<br/> Сотрудничайте с комиссаром. Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Если комиссара убьют, его место займете Вы.",
-            "6": "Вы - Mаньяк!<br/> Вы выиграете, убив всех мафиози. Ночью с помощью кнопки <b>Убить</b> Вы расправляетесь с ненавистными персонажами. Днем голосуете против них с помощью кнопки <b>Голосовать</b>.",
-            "7": "Вы - Доктор!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью с помощью кнопки <b>Лечить</b> Вы можете спасти одного из граждан.",
-            "8": "Вы - кот. Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
-            "9": "Вы - адвокат, играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "0": "Р’С‹ - СЃРІРёРґРµС‚РµР»СЊ, РїРѕСЌС‚РѕРјСѓ РЅРµ РјРµС€Р°Р№С‚Рµ РґСЂСѓРіРёРј СѓС‡Р°СЃС‚РЅРёРєР°Рј.",
+            "1": "Р’С‹ - Р§РµСЃС‚РЅС‹Р№ РіСЂР°Р¶РґР°РЅРёРЅ!<br/> Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, РєР°Р·РЅРёРІ РІСЃРµС… РјР°С„РёРѕР·Рё. Р”РЅРµРј СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b> РіРѕР»РѕСЃСѓР№С‚Рµ РїСЂРѕС‚РёРІ С‚РµС…, РєРѕРіРѕ РїРѕРґРѕР·СЂРµРІР°РµС‚Рµ.",
+            "2": "Р’С‹ - РњР°С„РёРѕР·Рё!<br/> Р’С‹ РїРѕР±РµРґРёС‚Рµ, СѓР±РёРІ РІСЃРµС… РіСЂР°Р¶РґР°РЅ, Р° С‚Р°РєР¶Рµ РјР°РЅСЊСЏРєР°. РќРѕС‡СЊСЋ СѓР±РёРІР°Р№С‚Рµ РІС‹Р±СЂР°РЅРЅСѓСЋ Р¶РµСЂС‚РІСѓ СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>РЈР±РёС‚СЊ</b>. Р”РЅРµРј РїСЂРёС‚РІРѕСЂСЏР№С‚РµСЃСЊ РіСЂР°Р¶РґР°РЅРёРЅРѕРј Рё РіРѕР»РѕСЃСѓР№С‚Рµ РїСЂРѕС‚РёРІ РЅРµСѓРіРѕРґРЅС‹С… РІР°Рј СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>.",
+            "3": "Р’С‹ - Р‘РѕСЃСЃ РјР°С„РёРё! Р’С‹ РїРѕР±РµРґРёС‚Рµ, СѓР±РёРІ РІСЃРµС… РіСЂР°Р¶РґР°РЅ, Р° С‚Р°РєР¶Рµ РјР°РЅСЊСЏРєР°. РќРѕС‡СЊСЋ РєРЅРѕРїРєРѕР№ <b>Р—Р°РјРѕСЂРѕР·РёС‚СЊ</b> Р’С‹ Р»РёС€Р°РµС‚Рµ РєРѕРіРѕ-С‚Рѕ РґРµР№СЃС‚РІРёР№ РЅР° СЃСѓС‚РєРё. Р РєРЅРѕРїРєРѕР№ <b>РЈР±РёС‚СЊ</b> РєРѕРіРѕ-С‚Рѕ СѓР±РёРІР°Р№С‚Рµ. Р”РЅРµРј РїСЂРёС‚РІРѕСЂСЏР№С‚РµСЃСЊ РіСЂР°Р¶РґР°РЅРёРЅРѕРј Рё РіРѕР»РѕСЃСѓР№С‚Рµ РїСЂРѕС‚РёРІ РЅРµСѓРіРѕРґРЅС‹С… РІР°Рј РєРЅРѕРїРєРѕР№ <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>.",
+            "4": "Р’С‹ - РљРѕРјРёСЃСЃР°СЂ!<br/> Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, РµСЃР»Рё РєР°Р·РЅРёС‚Рµ РІСЃРµС… РјР°С„РёРѕР·Рё, РїСЂРѕРіРѕР»РѕСЃРѕРІР°РІ РґРЅРµРј СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>. РќРѕС‡СЊСЋ РІС‹ РјРѕР¶РµС‚Рµ СѓР·РЅР°С‚СЊ СЂРѕР»СЊ РїРµСЂСЃРѕРЅР°Р¶Р° СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>РџСЂРѕРІРµСЂРёС‚СЊ</b>.",
+            "5": "Р’С‹ - РЎРµСЂР¶Р°РЅС‚!<br/> РЎРѕС‚СЂСѓРґРЅРёС‡Р°Р№С‚Рµ СЃ РєРѕРјРёСЃСЃР°СЂРѕРј. Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, РµСЃР»Рё РєР°Р·РЅРёС‚Рµ РІСЃРµС… РјР°С„РёРѕР·Рё, РїСЂРѕРіРѕР»РѕСЃРѕРІР°РІ РґРЅРµРј СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>. Р•СЃР»Рё РєРѕРјРёСЃСЃР°СЂР° СѓР±СЊСЋС‚, РµРіРѕ РјРµСЃС‚Рѕ Р·Р°Р№РјРµС‚Рµ Р’С‹.",
+            "6": "Р’С‹ - MР°РЅСЊСЏРє!<br/> Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, СѓР±РёРІ РІСЃРµС… РјР°С„РёРѕР·Рё. РќРѕС‡СЊСЋ СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>РЈР±РёС‚СЊ</b> Р’С‹ СЂР°СЃРїСЂР°РІР»СЏРµС‚РµСЃСЊ СЃ РЅРµРЅР°РІРёСЃС‚РЅС‹РјРё РїРµСЂСЃРѕРЅР°Р¶Р°РјРё. Р”РЅРµРј РіРѕР»РѕСЃСѓРµС‚Рµ РїСЂРѕС‚РёРІ РЅРёС… СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>.",
+            "7": "Р’С‹ - Р”РѕРєС‚РѕСЂ!<br/> Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, РµСЃР»Рё РєР°Р·РЅРёС‚Рµ РІСЃРµС… РјР°С„РёРѕР·Рё, РїСЂРѕРіРѕР»РѕСЃРѕРІР°РІ РґРЅРµРј СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р“РѕР»РѕСЃРѕРІР°С‚СЊ</b>. РќРѕС‡СЊСЋ СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р›РµС‡РёС‚СЊ</b> Р’С‹ РјРѕР¶РµС‚Рµ СЃРїР°СЃС‚Рё РѕРґРЅРѕРіРѕ РёР· РіСЂР°Р¶РґР°РЅ.",
+            "8": "Р’С‹ - РєРѕС‚. РќРѕС‡СЊСЋ РІС‹ РјРѕР¶РµС‚Рµ Р»РёС€РёС‚СЊ РґРµР№СЃС‚РІРёР№ Р»СЋР±РѕРіРѕ РёРіСЂРѕРєР°, РІС‹Р±СЂР°РІ РµРіРѕ РѕР±СЉРµРєС‚РѕРј СЃРІРѕРёС… РёРіСЂ. Р‘СѓРґСЊС‚Рµ РѕСЃС‚РѕСЂРѕР¶РЅС‹, РµСЃР»Рё РѕРЅ Р±СѓРґРµС‚ СѓР±РёС‚, РІР°СЃ Р¶РґРµС‚ С‚Р° Р¶Рµ СѓС‡РµСЃС‚СЊ. Р’С‹ РІС‹РёРіСЂР°РµС‚Рµ, РєРѕРіРґР° РІСЃСЏ РјР°С„РёСЏ Р±СѓРґРµС‚ СѓРЅРёС‡С‚РѕР¶РµРЅР°.",
+            "9": "Р’С‹ - Р°РґРІРѕРєР°С‚, РёРіСЂР°РµС‚Рµ РЅР° СЃС‚РѕСЂРѕРЅРµ РјР°С„РёРё. Р§С‚РѕР±С‹ РІС‹РёРіСЂР°С‚СЊ, РїРѕСЃС‚Р°СЂР°Р№С‚РµСЃСЊ РЅР°Р№С‚Рё С‡Р»РµРЅРѕРІ РјР°С„РёРё Рё СЃ РїРѕРјРѕС‰СЊСЋ РєРЅРѕРїРєРё <b>Р—Р°С‰РёС‰Р°С‚СЊ</b> СЃРїР°СЃС‚Рё РµРµ РѕС‚ СЂР°СЃРїСЂР°РІС‹ Рё РІРѕР·РјРµР·РґРёСЏ Р¶РёС‚РµР»РµР№ РіРѕСЂРѕРґР°.<br/> РџРѕРјРЅРёС‚Рµ, С‡С‚Рѕ Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РѕР±РµСЃРїРµС‡РёС‚СЊ РєРѕРјСѓ-С‚Рѕ Р·Р°С‰РёС‚Сѓ РЅР° СЃСѓС‚РєРё 2 СЂР°Р·Р° РїРѕРґСЂСЏРґ."
         },
         nightActions: {
             "1": "",
-            "2": "Один из мафиози выбрал гражданина для убийства.",
-            "3": "Босс мафии выбрал, кого заморозить.",
-            "4": "Комиссар выбрал, кому из граждан нанести визит. Надеемся, что он разоблачит мафиози или маньяка.",
+            "2": "РћРґРёРЅ РёР· РјР°С„РёРѕР·Рё РІС‹Р±СЂР°Р» РіСЂР°Р¶РґР°РЅРёРЅР° РґР»СЏ СѓР±РёР№СЃС‚РІР°.",
+            "3": "Р‘РѕСЃСЃ РјР°С„РёРё РІС‹Р±СЂР°Р», РєРѕРіРѕ Р·Р°РјРѕСЂРѕР·РёС‚СЊ.",
+            "4": "РљРѕРјРёСЃСЃР°СЂ РІС‹Р±СЂР°Р», РєРѕРјСѓ РёР· РіСЂР°Р¶РґР°РЅ РЅР°РЅРµСЃС‚Рё РІРёР·РёС‚. РќР°РґРµРµРјСЃСЏ, С‡С‚Рѕ РѕРЅ СЂР°Р·РѕР±Р»Р°С‡РёС‚ РјР°С„РёРѕР·Рё РёР»Рё РјР°РЅСЊСЏРєР°.",
             "5": "",
-            "6": "Маньяк выбрал жертву. Ни сна ни отдыха измученной душе...",
-            "7": "Доктор выехал на вызов.",
-            "8": "Спокойно и вальяжно, как ему и подобает, кот направился к одному из граждан.",
-            "9": "Адвокат взял под свою защиту кого-то из граждан.",
+            "6": "РњР°РЅСЊСЏРє РІС‹Р±СЂР°Р» Р¶РµСЂС‚РІСѓ. РќРё СЃРЅР° РЅРё РѕС‚РґС‹С…Р° РёР·РјСѓС‡РµРЅРЅРѕР№ РґСѓС€Рµ...",
+            "7": "Р”РѕРєС‚РѕСЂ РІС‹РµС…Р°Р» РЅР° РІС‹Р·РѕРІ.",
+            "8": "РЎРїРѕРєРѕР№РЅРѕ Рё РІР°Р»СЊСЏР¶РЅРѕ, РєР°Рє РµРјСѓ Рё РїРѕРґРѕР±Р°РµС‚, РєРѕС‚ РЅР°РїСЂР°РІРёР»СЃСЏ Рє РѕРґРЅРѕРјСѓ РёР· РіСЂР°Р¶РґР°РЅ.",
+            "9": "РђРґРІРѕРєР°С‚ РІР·СЏР» РїРѕРґ СЃРІРѕСЋ Р·Р°С‰РёС‚Сѓ РєРѕРіРѕ-С‚Рѕ РёР· РіСЂР°Р¶РґР°РЅ.",
             robbers: {
-                msg: "[nick]: Надо убить [target]",
-                self: "Мафиози [nick] - самоубийца.",
-                his: "Бегемот [nick], зачем ты бьешь своего?"
+                msg: "[nick]: РќР°РґРѕ СѓР±РёС‚СЊ [target]",
+                self: "РњР°С„РёРѕР·Рё [nick] - СЃР°РјРѕСѓР±РёР№С†Р°.",
+                his: "Р‘РµРіРµРјРѕС‚ [nick], Р·Р°С‡РµРј С‚С‹ Р±СЊРµС€СЊ СЃРІРѕРµРіРѕ?"
             }
         },
         morningInfo: {
             "1": "",
-            "2": "Ночью мафиози убили персонажа [nick] - [role].",
-            "3": "Ночью боссом мафии был заморожен на 1 сутки [nick]. Нам будет не хватать его мнения.",
-            "4": "Персонаж [nick] был проверен комиссаром. Кем же оказался проверяемый?",
+            "2": "РќРѕС‡СЊСЋ РјР°С„РёРѕР·Рё СѓР±РёР»Рё РїРµСЂСЃРѕРЅР°Р¶Р° [nick] - [role].",
+            "3": "РќРѕС‡СЊСЋ Р±РѕСЃСЃРѕРј РјР°С„РёРё Р±С‹Р» Р·Р°РјРѕСЂРѕР¶РµРЅ РЅР° 1 СЃСѓС‚РєРё [nick]. РќР°Рј Р±СѓРґРµС‚ РЅРµ С…РІР°С‚Р°С‚СЊ РµРіРѕ РјРЅРµРЅРёСЏ.",
+            "4": "РџРµСЂСЃРѕРЅР°Р¶ [nick] Р±С‹Р» РїСЂРѕРІРµСЂРµРЅ РєРѕРјРёСЃСЃР°СЂРѕРј. РљРµРј Р¶Рµ РѕРєР°Р·Р°Р»СЃСЏ РїСЂРѕРІРµСЂСЏРµРјС‹Р№?",
             "5": "",
-            "6": "Персонаж [nick] - [role] убит маньяком.",
-            "7": "Доктор посетил персонажа [nick]. Он оказался совершенно здоровым.",
-            "8": "Кот не давал спать всю ночь игроку [nick].",
-            "4x": "Комиссар спугнул преступника, который хотел убить персонажа [nick].",
-            "7x": "Ночью действиями реанимационной бригады был спасен от гибели персонаж [nick].",
-            "8x": "Рядом с телом жертвы был обнаружен мёртвый [role] - [nick]",
-            "9": "[nick] благодаря своему адвокату получил неприкосновенность на следующие сутки.",
-            "9x": "Благодаря адвокату и его работе [nick] сегодня остался жив.",
-            lock: "В один из домов было произведено нелегальное проникновение. К счастью, персонажа спасла маскировка.",
-            mylock: '<div class="green">Ваша маскировка была использована.</div>'
+            "6": "РџРµСЂСЃРѕРЅР°Р¶ [nick] - [role] СѓР±РёС‚ РјР°РЅСЊСЏРєРѕРј.",
+            "7": "Р”РѕРєС‚РѕСЂ РїРѕСЃРµС‚РёР» РїРµСЂСЃРѕРЅР°Р¶Р° [nick]. РћРЅ РѕРєР°Р·Р°Р»СЃСЏ СЃРѕРІРµСЂС€РµРЅРЅРѕ Р·РґРѕСЂРѕРІС‹Рј.",
+            "8": "РљРѕС‚ РЅРµ РґР°РІР°Р» СЃРїР°С‚СЊ РІСЃСЋ РЅРѕС‡СЊ РёРіСЂРѕРєСѓ [nick].",
+            "4x": "РљРѕРјРёСЃСЃР°СЂ СЃРїСѓРіРЅСѓР» РїСЂРµСЃС‚СѓРїРЅРёРєР°, РєРѕС‚РѕСЂС‹Р№ С…РѕС‚РµР» СѓР±РёС‚СЊ РїРµСЂСЃРѕРЅР°Р¶Р° [nick].",
+            "7x": "РќРѕС‡СЊСЋ РґРµР№СЃС‚РІРёСЏРјРё СЂРµР°РЅРёРјР°С†РёРѕРЅРЅРѕР№ Р±СЂРёРіР°РґС‹ Р±С‹Р» СЃРїР°СЃРµРЅ РѕС‚ РіРёР±РµР»Рё РїРµСЂСЃРѕРЅР°Р¶ [nick].",
+            "8x": "Р СЏРґРѕРј СЃ С‚РµР»РѕРј Р¶РµСЂС‚РІС‹ Р±С‹Р» РѕР±РЅР°СЂСѓР¶РµРЅ РјС‘СЂС‚РІС‹Р№ [role] - [nick]",
+            "9": "[nick] Р±Р»Р°РіРѕРґР°СЂСЏ СЃРІРѕРµРјСѓ Р°РґРІРѕРєР°С‚Сѓ РїРѕР»СѓС‡РёР» РЅРµРїСЂРёРєРѕСЃРЅРѕРІРµРЅРЅРѕСЃС‚СЊ РЅР° СЃР»РµРґСѓСЋС‰РёРµ СЃСѓС‚РєРё.",
+            "9x": "Р‘Р»Р°РіРѕРґР°СЂСЏ Р°РґРІРѕРєР°С‚Сѓ Рё РµРіРѕ СЂР°Р±РѕС‚Рµ [nick] СЃРµРіРѕРґРЅСЏ РѕСЃС‚Р°Р»СЃСЏ Р¶РёРІ.",
+            lock: "Р’ РѕРґРёРЅ РёР· РґРѕРјРѕРІ Р±С‹Р»Рѕ РїСЂРѕРёР·РІРµРґРµРЅРѕ РЅРµР»РµРіР°Р»СЊРЅРѕРµ РїСЂРѕРЅРёРєРЅРѕРІРµРЅРёРµ. Рљ СЃС‡Р°СЃС‚СЊСЋ, РїРµСЂСЃРѕРЅР°Р¶Р° СЃРїР°СЃР»Р° РјР°СЃРєРёСЂРѕРІРєР°.",
+            mylock: '<div class="green">Р’Р°С€Р° РјР°СЃРєРёСЂРѕРІРєР° Р±С‹Р»Р° РёСЃРїРѕР»СЊР·РѕРІР°РЅР°.</div>'
         },
         periodStart: {
-            "1": "Наступила ночь. Честные граждане спят. Всем остальным пора действовать.",
-            "2": "Наступил день. Честные граждане проснулись. Не дадим мафии прибрать к рукам наш город!",
-            "3": "Последнее слово - подозреваемому и его защитникам! А вы, уважаемые горожане, решайте - обвинить его или отпустить с миром. Будьте внимательны, подозреваемый может ввести вас в заблуждение!",
-            "4": "Наступило время голосования! Пора принимать решение!"
+            "1": "РќР°СЃС‚СѓРїРёР»Р° РЅРѕС‡СЊ. Р§РµСЃС‚РЅС‹Рµ РіСЂР°Р¶РґР°РЅРµ СЃРїСЏС‚. Р’СЃРµРј РѕСЃС‚Р°Р»СЊРЅС‹Рј РїРѕСЂР° РґРµР№СЃС‚РІРѕРІР°С‚СЊ.",
+            "2": "РќР°СЃС‚СѓРїРёР» РґРµРЅСЊ. Р§РµСЃС‚РЅС‹Рµ РіСЂР°Р¶РґР°РЅРµ РїСЂРѕСЃРЅСѓР»РёСЃСЊ. РќРµ РґР°РґРёРј РјР°С„РёРё РїСЂРёР±СЂР°С‚СЊ Рє СЂСѓРєР°Рј РЅР°С€ РіРѕСЂРѕРґ!",
+            "3": "РџРѕСЃР»РµРґРЅРµРµ СЃР»РѕРІРѕ - РїРѕРґРѕР·СЂРµРІР°РµРјРѕРјСѓ Рё РµРіРѕ Р·Р°С‰РёС‚РЅРёРєР°Рј! Рђ РІС‹, СѓРІР°Р¶Р°РµРјС‹Рµ РіРѕСЂРѕР¶Р°РЅРµ, СЂРµС€Р°Р№С‚Рµ - РѕР±РІРёРЅРёС‚СЊ РµРіРѕ РёР»Рё РѕС‚РїСѓСЃС‚РёС‚СЊ СЃ РјРёСЂРѕРј. Р‘СѓРґСЊС‚Рµ РІРЅРёРјР°С‚РµР»СЊРЅС‹, РїРѕРґРѕР·СЂРµРІР°РµРјС‹Р№ РјРѕР¶РµС‚ РІРІРµСЃС‚Рё РІР°СЃ РІ Р·Р°Р±Р»СѓР¶РґРµРЅРёРµ!",
+            "4": "РќР°СЃС‚СѓРїРёР»Рѕ РІСЂРµРјСЏ РіРѕР»РѕСЃРѕРІР°РЅРёСЏ! РџРѕСЂР° РїСЂРёРЅРёРјР°С‚СЊ СЂРµС€РµРЅРёРµ!"
         },
         mainvote: {
-            simpleVote: '<span class="votemsg">[nick] голосует против [target]</span>',
-            no: "Сегодня горожане не нашли виновного...",
-            eq: "Сегодня горожане так и не определились, кого следует казнить.",
-            protect: "Адвокату удалось доказать невиновность своего подзащитного!",
-            before: "[nick] подозревается в пособничестве мафии!",
-            question: "Вы считаете, что [nick]<br/> нужно казнить?",
-            "kick-yes": '[nick] считает, что <b class="nickname">[target]</b> следует казнить',
-            "kick-no": '[nick] считает, что <b class="nickname">[target]</b> следует помиловать',
-            "result-sub": "Казнить - <b>[YESVOTE]</b> голосов,  помиловать - <b>[NOVOTE]</b> голосов",
-            "result-stat": "Результаты голосования: [count1] предложили казнить обвиняемого, [count0] посчитали, что [nick] должен быть оправдан.",
-            result1: "Горожанами был казнен персонаж [nick] - [role].",
-            result0: "Гражданин [nick] был оправдан."
+            simpleVote: '<span class="votemsg">[nick] РіРѕР»РѕСЃСѓРµС‚ РїСЂРѕС‚РёРІ [target]</span>',
+            no: "РЎРµРіРѕРґРЅСЏ РіРѕСЂРѕР¶Р°РЅРµ РЅРµ РЅР°С€Р»Рё РІРёРЅРѕРІРЅРѕРіРѕ...",
+            eq: "РЎРµРіРѕРґРЅСЏ РіРѕСЂРѕР¶Р°РЅРµ С‚Р°Рє Рё РЅРµ РѕРїСЂРµРґРµР»РёР»РёСЃСЊ, РєРѕРіРѕ СЃР»РµРґСѓРµС‚ РєР°Р·РЅРёС‚СЊ.",
+            protect: "РђРґРІРѕРєР°С‚Сѓ СѓРґР°Р»РѕСЃСЊ РґРѕРєР°Р·Р°С‚СЊ РЅРµРІРёРЅРѕРІРЅРѕСЃС‚СЊ СЃРІРѕРµРіРѕ РїРѕРґР·Р°С‰РёС‚РЅРѕРіРѕ!",
+            before: "[nick] РїРѕРґРѕР·СЂРµРІР°РµС‚СЃСЏ РІ РїРѕСЃРѕР±РЅРёС‡РµСЃС‚РІРµ РјР°С„РёРё!",
+            question: "Р’С‹ СЃС‡РёС‚Р°РµС‚Рµ, С‡С‚Рѕ [nick]<br/> РЅСѓР¶РЅРѕ РєР°Р·РЅРёС‚СЊ?",
+            "kick-yes": '[nick] СЃС‡РёС‚Р°РµС‚, С‡С‚Рѕ <b class="nickname">[target]</b> СЃР»РµРґСѓРµС‚ РєР°Р·РЅРёС‚СЊ',
+            "kick-no": '[nick] СЃС‡РёС‚Р°РµС‚, С‡С‚Рѕ <b class="nickname">[target]</b> СЃР»РµРґСѓРµС‚ РїРѕРјРёР»РѕРІР°С‚СЊ',
+            "result-sub": "РљР°Р·РЅРёС‚СЊ - <b>[YESVOTE]</b> РіРѕР»РѕСЃРѕРІ,  РїРѕРјРёР»РѕРІР°С‚СЊ - <b>[NOVOTE]</b> РіРѕР»РѕСЃРѕРІ",
+            "result-stat": "Р РµР·СѓР»СЊС‚Р°С‚С‹ РіРѕР»РѕСЃРѕРІР°РЅРёСЏ: [count1] РїСЂРµРґР»РѕР¶РёР»Рё РєР°Р·РЅРёС‚СЊ РѕР±РІРёРЅСЏРµРјРѕРіРѕ, [count0] РїРѕСЃС‡РёС‚Р°Р»Рё, С‡С‚Рѕ [nick] РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕРїСЂР°РІРґР°РЅ.",
+            result1: "Р“РѕСЂРѕР¶Р°РЅР°РјРё Р±С‹Р» РєР°Р·РЅРµРЅ РїРµСЂСЃРѕРЅР°Р¶ [nick] - [role].",
+            result0: "Р“СЂР°Р¶РґР°РЅРёРЅ [nick] Р±С‹Р» РѕРїСЂР°РІРґР°РЅ."
         },
         itemUse: {
-            5: "Ночью на машине покинул город [nick] - [role]. Осторожней на поворотах!<br/>",
+            5: "РќРѕС‡СЊСЋ РЅР° РјР°С€РёРЅРµ РїРѕРєРёРЅСѓР» РіРѕСЂРѕРґ [nick] - [role]. РћСЃС‚РѕСЂРѕР¶РЅРµР№ РЅР° РїРѕРІРѕСЂРѕС‚Р°С…!<br/>",
             cookieResult: {
                 "true": {
-                    1: " почему-то не спала сегодня ночью. Может она мафиози?",
-                    2: " почему-то не спал сегодня ночью. Может он мафиози?"
+                    1: " РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЃРїР°Р»Р° СЃРµРіРѕРґРЅСЏ РЅРѕС‡СЊСЋ. РњРѕР¶РµС‚ РѕРЅР° РјР°С„РёРѕР·Рё?",
+                    2: " РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЃРїР°Р» СЃРµРіРѕРґРЅСЏ РЅРѕС‡СЊСЋ. РњРѕР¶РµС‚ РѕРЅ РјР°С„РёРѕР·Рё?"
                 },
                 "false": {
-                    1: " целую ночь провела дома.",
-                    2: " целую ночь провел дома."
+                    1: " С†РµР»СѓСЋ РЅРѕС‡СЊ РїСЂРѕРІРµР»Р° РґРѕРјР°.",
+                    2: " С†РµР»СѓСЋ РЅРѕС‡СЊ РїСЂРѕРІРµР» РґРѕРјР°."
                 },
                 no: {
-                    1: " смогла обнаружить Ваш жучок.",
-                    2: " смог обнаружить Ваш жучок."
+                    1: " СЃРјРѕРіР»Р° РѕР±РЅР°СЂСѓР¶РёС‚СЊ Р’Р°С€ Р¶СѓС‡РѕРє.",
+                    2: " СЃРјРѕРі РѕР±РЅР°СЂСѓР¶РёС‚СЊ Р’Р°С€ Р¶СѓС‡РѕРє."
                 }
             },
             cookie: {
-                text: "Вы воспользовались жучком против [VERB] [nick]. Результат вы узнаете на следующее утро.",
-                verb1: "синьоры",
-                verb2: "синьора"
+                text: "Р’С‹ РІРѕСЃРїРѕР»СЊР·РѕРІР°Р»РёСЃСЊ Р¶СѓС‡РєРѕРј РїСЂРѕС‚РёРІ [VERB] [nick]. Р РµР·СѓР»СЊС‚Р°С‚ РІС‹ СѓР·РЅР°РµС‚Рµ РЅР° СЃР»РµРґСѓСЋС‰РµРµ СѓС‚СЂРѕ.",
+                verb1: "СЃРёРЅСЊРѕСЂС‹",
+                verb2: "СЃРёРЅСЊРѕСЂР°"
             },
-            cookieNo: "Нет жучков",
-            cookieNan: "Выберите игрока из списка, которому хотите подбросить жучок",
-            cookieDelete: "Ночью Вам был подброшен жучок. К счастью, Вам удалось его обнаружить.",
-            tour: "Утром вы покинете город на машине",
-            tourNo: "У вас нет автомобиля"
+            cookieNo: "РќРµС‚ Р¶СѓС‡РєРѕРІ",
+            cookieNan: "Р’С‹Р±РµСЂРёС‚Рµ РёРіСЂРѕРєР° РёР· СЃРїРёСЃРєР°, РєРѕС‚РѕСЂРѕРјСѓ С…РѕС‚РёС‚Рµ РїРѕРґР±СЂРѕСЃРёС‚СЊ Р¶СѓС‡РѕРє",
+            cookieDelete: "РќРѕС‡СЊСЋ Р’Р°Рј Р±С‹Р» РїРѕРґР±СЂРѕС€РµРЅ Р¶СѓС‡РѕРє. Рљ СЃС‡Р°СЃС‚СЊСЋ, Р’Р°Рј СѓРґР°Р»РѕСЃСЊ РµРіРѕ РѕР±РЅР°СЂСѓР¶РёС‚СЊ.",
+            tour: "РЈС‚СЂРѕРј РІС‹ РїРѕРєРёРЅРµС‚Рµ РіРѕСЂРѕРґ РЅР° РјР°С€РёРЅРµ",
+            tourNo: "РЈ РІР°СЃ РЅРµС‚ Р°РІС‚РѕРјРѕР±РёР»СЏ"
         },
-        startText: "Борьба за город началась.",
-        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Мафиози голосуют против граждан, а мирные жители - против мафии.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для мирных: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="adv"></span> - 1, <span class="jeal"></span> - 1<br/> для мафии: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место комиссара занял сержант. Мы верим в нашего нового комиссара!",
-        bossChild: "Место босса мафии занимает его внебрачный ребенок!",
-        "bossChild-father": ", ваш отец был боссом мафии и был убит. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
-        "bossChild-mother": ", ваша мать была боссом мафии и была убита. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
-        stealGift: "К сожалению, Вас убили.",
-        afterItem5: "Вы покинули город на машине!",
-        stat: "В игре осталось [students], [mans] и [robbers].",
+        startText: "Р‘РѕСЂСЊР±Р° Р·Р° РіРѕСЂРѕРґ РЅР°С‡Р°Р»Р°СЃСЊ.",
+        intuitionStart: 'Р’ СЌС‚РѕР№ РёРіСЂРµ Р·Р°РґР°С‡Р° РєР°Р¶РґРѕРіРѕ СѓС‡Р°СЃС‚РЅРёРєР° - РѕРїСЂРµРґРµР»РёС‚СЊ РёРіСЂРѕРєР° СЃ СЂРѕР»СЊСЋ РїСЂРѕС‚РёРІРѕРїРѕР»РѕР¶РЅРѕР№ СЃС‚РѕСЂРѕРЅС‹ Рё РїСЂРѕРіРѕР»РѕСЃРѕРІР°С‚СЊ РїСЂРѕС‚РёРІ РЅРµРіРѕ РґРЅРµРј! РњР°С„РёРѕР·Рё РіРѕР»РѕСЃСѓСЋС‚ РїСЂРѕС‚РёРІ РіСЂР°Р¶РґР°РЅ, Р° РјРёСЂРЅС‹Рµ Р¶РёС‚РµР»Рё - РїСЂРѕС‚РёРІ РјР°С„РёРё.<br/> Р—Р° РєР°Р¶РґСѓСЋ РїСЂР°РІРёР»СЊРЅРѕ СѓРіР°РґР°РЅРЅСѓСЋ СЂРѕР»СЊ РёРіСЂРѕРєРё Р±СѓРґСѓС‚ РїРѕР»СѓС‡Р°С‚СЊ Р±Р°Р»Р»С‹: <blockquote>РґР»СЏ РјРёСЂРЅС‹С…: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="adv"></span> - 1, <span class="jeal"></span> - 1<br/> РґР»СЏ РјР°С„РёРё: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
+        newDuty: "РњРµСЃС‚Рѕ РєРѕРјРёСЃСЃР°СЂР° Р·Р°РЅСЏР» СЃРµСЂР¶Р°РЅС‚. РњС‹ РІРµСЂРёРј РІ РЅР°С€РµРіРѕ РЅРѕРІРѕРіРѕ РєРѕРјРёСЃСЃР°СЂР°!",
+        bossChild: "РњРµСЃС‚Рѕ Р±РѕСЃСЃР° РјР°С„РёРё Р·Р°РЅРёРјР°РµС‚ РµРіРѕ РІРЅРµР±СЂР°С‡РЅС‹Р№ СЂРµР±РµРЅРѕРє!",
+        "bossChild-father": ", РІР°С€ РѕС‚РµС† Р±С‹Р» Р±РѕСЃСЃРѕРј РјР°С„РёРё Рё Р±С‹Р» СѓР±РёС‚. РўРµРїРµСЂСЊ РїРѕ РјР°С„РёРѕР·РЅРѕРјСѓ РєРѕРґРµРєСЃСѓ РјР°С„РёСЋ РіРѕСЂРѕРґР° РґРѕР»Р¶РЅС‹ РІРѕР·РіР»Р°РІРёС‚СЊ Р’С‹.",
+        "bossChild-mother": ", РІР°С€Р° РјР°С‚СЊ Р±С‹Р»Р° Р±РѕСЃСЃРѕРј РјР°С„РёРё Рё Р±С‹Р»Р° СѓР±РёС‚Р°. РўРµРїРµСЂСЊ РїРѕ РјР°С„РёРѕР·РЅРѕРјСѓ РєРѕРґРµРєСЃСѓ РјР°С„РёСЋ РіРѕСЂРѕРґР° РґРѕР»Р¶РЅС‹ РІРѕР·РіР»Р°РІРёС‚СЊ Р’С‹.",
+        stealGift: "Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ, Р’Р°СЃ СѓР±РёР»Рё.",
+        afterItem5: "Р’С‹ РїРѕРєРёРЅСѓР»Рё РіРѕСЂРѕРґ РЅР° РјР°С€РёРЅРµ!",
+        stat: "Р’ РёРіСЂРµ РѕСЃС‚Р°Р»РѕСЃСЊ [students], [mans] Рё [robbers].",
         statCount: {
-            "[students]": ["гражданин", "гражданина", "граждан"],
-            "[robbers]": ["мафиози", "мафиози", "мафиози"],
-            "[mans]": ["маньяк", "маньяка", "маньяков"]
+            "[students]": ["РіСЂР°Р¶РґР°РЅРёРЅ", "РіСЂР°Р¶РґР°РЅРёРЅР°", "РіСЂР°Р¶РґР°РЅ"],
+            "[robbers]": ["РјР°С„РёРѕР·Рё", "РјР°С„РёРѕР·Рё", "РјР°С„РёРѕР·Рё"],
+            "[mans]": ["РјР°РЅСЊСЏРє", "РјР°РЅСЊСЏРєР°", "РјР°РЅСЊСЏРєРѕРІ"]
         },
         end: {
-            studwin: "Победили мирные граждане!",
-            robwin: "Победила мафия!",
-            manwin: "Победил маньяк!",
-            menwin: "Мужчины показали, кто здесь главный!",
-            womenwin: "Дамы были как всегда на высоте!"
+            studwin: "РџРѕР±РµРґРёР»Рё РјРёСЂРЅС‹Рµ РіСЂР°Р¶РґР°РЅРµ!",
+            robwin: "РџРѕР±РµРґРёР»Р° РјР°С„РёСЏ!",
+            manwin: "РџРѕР±РµРґРёР» РјР°РЅСЊСЏРє!",
+            menwin: "РњСѓР¶С‡РёРЅС‹ РїРѕРєР°Р·Р°Р»Рё, РєС‚Рѕ Р·РґРµСЃСЊ РіР»Р°РІРЅС‹Р№!",
+            womenwin: "Р”Р°РјС‹ Р±С‹Р»Рё РєР°Рє РІСЃРµРіРґР° РЅР° РІС‹СЃРѕС‚Рµ!"
         },
         reward: {
-            "1": 'Вы порядочный гражданин, и городу повезло, что Вы живете в нем.<br/> Мэр города за ваше участие в борьбе с мафией наградил Вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
-            "2": 'Мафия бессмертна!<br/> Вы в очередной раз это доказали,<br/> за это мафиозный клан подарил Вам <em>Автомобиль</em> <div class="shop-item5"></div>',
-            "3": 'Мафия бессмертна!<br/> В знак почтения члены клана преподнесли<br/> своему боссу новенький <em>Автомобиль</em> <div class="shop-item5"></div>',
-            "4": 'Городу повезло, что у него есть такой комиссар!<br/> Вам удалось сорвать коварные планы мафиозного клана по захвату города.<br/> Для борьбы с мафией используйте новейшие достижения технического прогресса. <div class="shop-item4"></div>',
-            "5": 'Славная работа, сержант!<br/> Город счастлив, что в полиции работают такие смелые люди.<br/> В вашем нелегком труде помогут <em>жучки</em>,<br/> которые сообщат Вам обо всех перемещениях злоумышленника <div class="shop-item4"></div>',
-            "6": 'Кто бы мог подумать?!<br/> Маньяк спас город от мафии.<br/> Однако, учитывая вашу репутацию, <em>маскировка</em> Вам не помешает <div class="shop-item2"></div>',
-            "7": 'За спасение жителей города от неминуемой смерти<br/> мэрия наградила Вас <em>личной рацией</em>, чтобы Вы всегда могли быстро прийти на выручку <div class="shop-item1"></div>',
-            "8": 'Мафии не удалось захватить город благодаря коту!<br/> Известие об этом быстро разнеслось по округе.<br/> Смелому животному пока лучше <em>замаскироваться</em>, да получше. <div class="shop-item2">2</div>',
-            "9": 'Благодаря Вам мафии удалось прибрать к рукам этот город!<br/> Помимо гонорара Вам пригодятся эти <em>маскировочные костюмы</em>, чтобы скрыться от правосудия. <div class="shop-item2">3</div>'
+            "1": 'Р’С‹ РїРѕСЂСЏРґРѕС‡РЅС‹Р№ РіСЂР°Р¶РґР°РЅРёРЅ, Рё РіРѕСЂРѕРґСѓ РїРѕРІРµР·Р»Рѕ, С‡С‚Рѕ Р’С‹ Р¶РёРІРµС‚Рµ РІ РЅРµРј.<br/> РњСЌСЂ РіРѕСЂРѕРґР° Р·Р° РІР°С€Рµ СѓС‡Р°СЃС‚РёРµ РІ Р±РѕСЂСЊР±Рµ СЃ РјР°С„РёРµР№ РЅР°РіСЂР°РґРёР» Р’Р°СЃ <em>РђРєС‚РёРІРЅРѕР№ СЂРѕР»СЊСЋ</em> РЅР° 1 С‡Р°СЃ <div class="shop-item3"></div>',
+            "2": 'РњР°С„РёСЏ Р±РµСЃСЃРјРµСЂС‚РЅР°!<br/> Р’С‹ РІ РѕС‡РµСЂРµРґРЅРѕР№ СЂР°Р· СЌС‚Рѕ РґРѕРєР°Р·Р°Р»Рё,<br/> Р·Р° СЌС‚Рѕ РјР°С„РёРѕР·РЅС‹Р№ РєР»Р°РЅ РїРѕРґР°СЂРёР» Р’Р°Рј <em>РђРІС‚РѕРјРѕР±РёР»СЊ</em> <div class="shop-item5"></div>',
+            "3": 'РњР°С„РёСЏ Р±РµСЃСЃРјРµСЂС‚РЅР°!<br/> Р’ Р·РЅР°Рє РїРѕС‡С‚РµРЅРёСЏ С‡Р»РµРЅС‹ РєР»Р°РЅР° РїСЂРµРїРѕРґРЅРµСЃР»Рё<br/> СЃРІРѕРµРјСѓ Р±РѕСЃСЃСѓ РЅРѕРІРµРЅСЊРєРёР№ <em>РђРІС‚РѕРјРѕР±РёР»СЊ</em> <div class="shop-item5"></div>',
+            "4": 'Р“РѕСЂРѕРґСѓ РїРѕРІРµР·Р»Рѕ, С‡С‚Рѕ Сѓ РЅРµРіРѕ РµСЃС‚СЊ С‚Р°РєРѕР№ РєРѕРјРёСЃСЃР°СЂ!<br/> Р’Р°Рј СѓРґР°Р»РѕСЃСЊ СЃРѕСЂРІР°С‚СЊ РєРѕРІР°СЂРЅС‹Рµ РїР»Р°РЅС‹ РјР°С„РёРѕР·РЅРѕРіРѕ РєР»Р°РЅР° РїРѕ Р·Р°С…РІР°С‚Сѓ РіРѕСЂРѕРґР°.<br/> Р”Р»СЏ Р±РѕСЂСЊР±С‹ СЃ РјР°С„РёРµР№ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ РЅРѕРІРµР№С€РёРµ РґРѕСЃС‚РёР¶РµРЅРёСЏ С‚РµС…РЅРёС‡РµСЃРєРѕРіРѕ РїСЂРѕРіСЂРµСЃСЃР°. <div class="shop-item4"></div>',
+            "5": 'РЎР»Р°РІРЅР°СЏ СЂР°Р±РѕС‚Р°, СЃРµСЂР¶Р°РЅС‚!<br/> Р“РѕСЂРѕРґ СЃС‡Р°СЃС‚Р»РёРІ, С‡С‚Рѕ РІ РїРѕР»РёС†РёРё СЂР°Р±РѕС‚Р°СЋС‚ С‚Р°РєРёРµ СЃРјРµР»С‹Рµ Р»СЋРґРё.<br/> Р’ РІР°С€РµРј РЅРµР»РµРіРєРѕРј С‚СЂСѓРґРµ РїРѕРјРѕРіСѓС‚ <em>Р¶СѓС‡РєРё</em>,<br/> РєРѕС‚РѕСЂС‹Рµ СЃРѕРѕР±С‰Р°С‚ Р’Р°Рј РѕР±Рѕ РІСЃРµС… РїРµСЂРµРјРµС‰РµРЅРёСЏС… Р·Р»РѕСѓРјС‹С€Р»РµРЅРЅРёРєР° <div class="shop-item4"></div>',
+            "6": 'РљС‚Рѕ Р±С‹ РјРѕРі РїРѕРґСѓРјР°С‚СЊ?!<br/> РњР°РЅСЊСЏРє СЃРїР°СЃ РіРѕСЂРѕРґ РѕС‚ РјР°С„РёРё.<br/> РћРґРЅР°РєРѕ, СѓС‡РёС‚С‹РІР°СЏ РІР°С€Сѓ СЂРµРїСѓС‚Р°С†РёСЋ, <em>РјР°СЃРєРёСЂРѕРІРєР°</em> Р’Р°Рј РЅРµ РїРѕРјРµС€Р°РµС‚ <div class="shop-item2"></div>',
+            "7": 'Р—Р° СЃРїР°СЃРµРЅРёРµ Р¶РёС‚РµР»РµР№ РіРѕСЂРѕРґР° РѕС‚ РЅРµРјРёРЅСѓРµРјРѕР№ СЃРјРµСЂС‚Рё<br/> РјСЌСЂРёСЏ РЅР°РіСЂР°РґРёР»Р° Р’Р°СЃ <em>Р»РёС‡РЅРѕР№ СЂР°С†РёРµР№</em>, С‡С‚РѕР±С‹ Р’С‹ РІСЃРµРіРґР° РјРѕРіР»Рё Р±С‹СЃС‚СЂРѕ РїСЂРёР№С‚Рё РЅР° РІС‹СЂСѓС‡РєСѓ <div class="shop-item1"></div>',
+            "8": 'РњР°С„РёРё РЅРµ СѓРґР°Р»РѕСЃСЊ Р·Р°С…РІР°С‚РёС‚СЊ РіРѕСЂРѕРґ Р±Р»Р°РіРѕРґР°СЂСЏ РєРѕС‚Сѓ!<br/> РР·РІРµСЃС‚РёРµ РѕР± СЌС‚РѕРј Р±С‹СЃС‚СЂРѕ СЂР°Р·РЅРµСЃР»РѕСЃСЊ РїРѕ РѕРєСЂСѓРіРµ.<br/> РЎРјРµР»РѕРјСѓ Р¶РёРІРѕС‚РЅРѕРјСѓ РїРѕРєР° Р»СѓС‡С€Рµ <em>Р·Р°РјР°СЃРєРёСЂРѕРІР°С‚СЊСЃСЏ</em>, РґР° РїРѕР»СѓС‡С€Рµ. <div class="shop-item2">2</div>',
+            "9": 'Р‘Р»Р°РіРѕРґР°СЂСЏ Р’Р°Рј РјР°С„РёРё СѓРґР°Р»РѕСЃСЊ РїСЂРёР±СЂР°С‚СЊ Рє СЂСѓРєР°Рј СЌС‚РѕС‚ РіРѕСЂРѕРґ!<br/> РџРѕРјРёРјРѕ РіРѕРЅРѕСЂР°СЂР° Р’Р°Рј РїСЂРёРіРѕРґСЏС‚СЃСЏ СЌС‚Рё <em>РјР°СЃРєРёСЂРѕРІРѕС‡РЅС‹Рµ РєРѕСЃС‚СЋРјС‹</em>, С‡С‚РѕР±С‹ СЃРєСЂС‹С‚СЊСЃСЏ РѕС‚ РїСЂР°РІРѕСЃСѓРґРёСЏ. <div class="shop-item2">3</div>'
         },
         items: {
-            "1": "Рация в коробке",
-            "2": "Маскировочный набор",
-            "3": "Абонемент Активная роль на 1 час",
-            "4": "Жучок в упаковке",
-            "5": "Сертификат на покупку автомобиля",
-            "6": "Пропуск в Клуб Мафии на 1 день"
+            "1": "Р Р°С†РёСЏ РІ РєРѕСЂРѕР±РєРµ",
+            "2": "РњР°СЃРєРёСЂРѕРІРѕС‡РЅС‹Р№ РЅР°Р±РѕСЂ",
+            "3": "РђР±РѕРЅРµРјРµРЅС‚ РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ РЅР° 1 С‡Р°СЃ",
+            "4": "Р–СѓС‡РѕРє РІ СѓРїР°РєРѕРІРєРµ",
+            "5": "РЎРµСЂС‚РёС„РёРєР°С‚ РЅР° РїРѕРєСѓРїРєСѓ Р°РІС‚РѕРјРѕР±РёР»СЏ",
+            "6": "РџСЂРѕРїСѓСЃРє РІ РљР»СѓР± РњР°С„РёРё РЅР° 1 РґРµРЅСЊ"
         }
     },
     all: {
         bonus: {
-            intuit: '<div class="red">Интуиция подсказывает Вам, что [nick] - [role]!</div>',
-            nokill: "[nick] использовал бонус бессмертия и остался в игре!",
-            rev: "Бонус светлого кольца наделяет Вас новой ролью - [role]",
-            poh: "Бонус тёмного кольца наделяет Вас новой ролью - [role]"
+            intuit: '<div class="red">РРЅС‚СѓРёС†РёСЏ РїРѕРґСЃРєР°Р·С‹РІР°РµС‚ Р’Р°Рј, С‡С‚Рѕ [nick] - [role]!</div>',
+            nokill: "[nick] РёСЃРїРѕР»СЊР·РѕРІР°Р» Р±РѕРЅСѓСЃ Р±РµСЃСЃРјРµСЂС‚РёСЏ Рё РѕСЃС‚Р°Р»СЃСЏ РІ РёРіСЂРµ!",
+            rev: "Р‘РѕРЅСѓСЃ СЃРІРµС‚Р»РѕРіРѕ РєРѕР»СЊС†Р° РЅР°РґРµР»СЏРµС‚ Р’Р°СЃ РЅРѕРІРѕР№ СЂРѕР»СЊСЋ - [role]",
+            poh: "Р‘РѕРЅСѓСЃ С‚С‘РјРЅРѕРіРѕ РєРѕР»СЊС†Р° РЅР°РґРµР»СЏРµС‚ Р’Р°СЃ РЅРѕРІРѕР№ СЂРѕР»СЊСЋ - [role]"
         },
-        "startText-sex": "В принципиальном поединке сошлись 2 непримиримых соперника: добро и зло, свет и тьма... И сторону здесь никто не выбирает.",
-        sex1: "Чтобы победить в Битве Полов, нужно расправиться со всей мужской половиной игроков.",
-        sex2: "Если хотите выиграть в Битве Полов, нужно дружно мужским коллективом выбить из игры всю прекрасную половину.",
-        rewardToy: "За проявленные успехи в игровой партии вы получаете замечательную новогоднюю игрушку!",
-        snowflake: "В этой суматохе Ваше внимание неожиданно привлекла прекрасная снежинка, которую в новогодние праздники можно будет обменять на подарки!",
-        greenVote: "[nick] подмигивает игроку [target]",
-        intuitVote: "Кто-то бросил косой взгляд в сторону одного из присутствующих",
-        leave1: "вышла из себя и из игры",
-        leave2: "вышел из себя и из игры",
-        zayavka: 'Играй чаще за роли <span class="robb"></span>, <span class="duty"></span> или <span class="jeal"></span> с помощью услуги Активная роль (ищи её в магазине)!'
+        "startText-sex": "Р’ РїСЂРёРЅС†РёРїРёР°Р»СЊРЅРѕРј РїРѕРµРґРёРЅРєРµ СЃРѕС€Р»РёСЃСЊ 2 РЅРµРїСЂРёРјРёСЂРёРјС‹С… СЃРѕРїРµСЂРЅРёРєР°: РґРѕР±СЂРѕ Рё Р·Р»Рѕ, СЃРІРµС‚ Рё С‚СЊРјР°... Р СЃС‚РѕСЂРѕРЅСѓ Р·РґРµСЃСЊ РЅРёРєС‚Рѕ РЅРµ РІС‹Р±РёСЂР°РµС‚.",
+        sex1: "Р§С‚РѕР±С‹ РїРѕР±РµРґРёС‚СЊ РІ Р‘РёС‚РІРµ РџРѕР»РѕРІ, РЅСѓР¶РЅРѕ СЂР°СЃРїСЂР°РІРёС‚СЊСЃСЏ СЃРѕ РІСЃРµР№ РјСѓР¶СЃРєРѕР№ РїРѕР»РѕРІРёРЅРѕР№ РёРіСЂРѕРєРѕРІ.",
+        sex2: "Р•СЃР»Рё С…РѕС‚РёС‚Рµ РІС‹РёРіСЂР°С‚СЊ РІ Р‘РёС‚РІРµ РџРѕР»РѕРІ, РЅСѓР¶РЅРѕ РґСЂСѓР¶РЅРѕ РјСѓР¶СЃРєРёРј РєРѕР»Р»РµРєС‚РёРІРѕРј РІС‹Р±РёС‚СЊ РёР· РёРіСЂС‹ РІСЃСЋ РїСЂРµРєСЂР°СЃРЅСѓСЋ РїРѕР»РѕРІРёРЅСѓ.",
+        rewardToy: "Р—Р° РїСЂРѕСЏРІР»РµРЅРЅС‹Рµ СѓСЃРїРµС…Рё РІ РёРіСЂРѕРІРѕР№ РїР°СЂС‚РёРё РІС‹ РїРѕР»СѓС‡Р°РµС‚Рµ Р·Р°РјРµС‡Р°С‚РµР»СЊРЅСѓСЋ РЅРѕРІРѕРіРѕРґРЅСЋСЋ РёРіСЂСѓС€РєСѓ!",
+        snowflake: "Р’ СЌС‚РѕР№ СЃСѓРјР°С‚РѕС…Рµ Р’Р°С€Рµ РІРЅРёРјР°РЅРёРµ РЅРµРѕР¶РёРґР°РЅРЅРѕ РїСЂРёРІР»РµРєР»Р° РїСЂРµРєСЂР°СЃРЅР°СЏ СЃРЅРµР¶РёРЅРєР°, РєРѕС‚РѕСЂСѓСЋ РІ РЅРѕРІРѕРіРѕРґРЅРёРµ РїСЂР°Р·РґРЅРёРєРё РјРѕР¶РЅРѕ Р±СѓРґРµС‚ РѕР±РјРµРЅСЏС‚СЊ РЅР° РїРѕРґР°СЂРєРё!",
+        greenVote: "[nick] РїРѕРґРјРёРіРёРІР°РµС‚ РёРіСЂРѕРєСѓ [target]",
+        intuitVote: "РљС‚Рѕ-С‚Рѕ Р±СЂРѕСЃРёР» РєРѕСЃРѕР№ РІР·РіР»СЏРґ РІ СЃС‚РѕСЂРѕРЅСѓ РѕРґРЅРѕРіРѕ РёР· РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‰РёС…",
+        leave1: "РІС‹С€Р»Р° РёР· СЃРµР±СЏ Рё РёР· РёРіСЂС‹",
+        leave2: "РІС‹С€РµР» РёР· СЃРµР±СЏ Рё РёР· РёРіСЂС‹",
+        zayavka: 'РРіСЂР°Р№ С‡Р°С‰Рµ Р·Р° СЂРѕР»Рё <span class="robb"></span>, <span class="duty"></span> РёР»Рё <span class="jeal"></span> СЃ РїРѕРјРѕС‰СЊСЋ СѓСЃР»СѓРіРё РђРєС‚РёРІРЅР°СЏ СЂРѕР»СЊ (РёС‰Рё РµС‘ РІ РјР°РіР°Р·РёРЅРµ)!'
     }
 };
 var periodNames = {
-    1: "Ночь",
-    2: "День",
-    3: "Вечер",
-    4: "Голосование"
+    1: "РќРѕС‡СЊ",
+    2: "Р”РµРЅСЊ",
+    3: "Р’РµС‡РµСЂ",
+    4: "Р“РѕР»РѕСЃРѕРІР°РЅРёРµ"
 };
 var startHours = {
     1: 21,
@@ -7645,7 +7653,7 @@ var startHours = {
     hisvote: {},
     votes: {}
 };
-var min10, replaceLogins = {}, randomNicks = ["Единорожка", "Булочка", "Тортик", "Пирожок", "Буковка", "Дятел", "Рожа", "Красавица", "Торчок", "Маньяк", "Крестоносец", "Страшила", "Бумеранг", "Мажор", "Хочу стенку", "Вреднуля", "Стакан", "Блатной", "Тихий вечер", "Скандинавец", "Тык-тык", "Персик", "Ватрушка", "Крышка", "Кролик", "Выдра", "Жиголо", "Скрытный", "Остроумный", "Любопытный", "Жук", "Зануда"];
+var min10, replaceLogins = {}, randomNicks = ["Р•РґРёРЅРѕСЂРѕР¶РєР°", "Р‘СѓР»РѕС‡РєР°", "РўРѕСЂС‚РёРє", "РџРёСЂРѕР¶РѕРє", "Р‘СѓРєРѕРІРєР°", "Р”СЏС‚РµР»", "Р РѕР¶Р°", "РљСЂР°СЃР°РІРёС†Р°", "РўРѕСЂС‡РѕРє", "РњР°РЅСЊСЏРє", "РљСЂРµСЃС‚РѕРЅРѕСЃРµС†", "РЎС‚СЂР°С€РёР»Р°", "Р‘СѓРјРµСЂР°РЅРі", "РњР°Р¶РѕСЂ", "РҐРѕС‡Сѓ СЃС‚РµРЅРєСѓ", "Р’СЂРµРґРЅСѓР»СЏ", "РЎС‚Р°РєР°РЅ", "Р‘Р»Р°С‚РЅРѕР№", "РўРёС…РёР№ РІРµС‡РµСЂ", "РЎРєР°РЅРґРёРЅР°РІРµС†", "РўС‹Рє-С‚С‹Рє", "РџРµСЂСЃРёРє", "Р’Р°С‚СЂСѓС€РєР°", "РљСЂС‹С€РєР°", "РљСЂРѕР»РёРє", "Р’С‹РґСЂР°", "Р–РёРіРѕР»Рѕ", "РЎРєСЂС‹С‚РЅС‹Р№", "РћСЃС‚СЂРѕСѓРјРЅС‹Р№", "Р›СЋР±РѕРїС‹С‚РЅС‹Р№", "Р–СѓРє", "Р—Р°РЅСѓРґР°"];
 var showTime = function() {
     var t = "";
     var h = game.time.h;
@@ -7656,7 +7664,7 @@ var showTime = function() {
 };
 var truncate = function(word, length) {
     if (word && word.length > length) {
-        return word.substring(0, length) + "…";
+        return word.substring(0, length) + "вЂ¦";
     } else {
         return word;
     }
@@ -7776,9 +7784,6 @@ game.writeText = function(text, udata, important, noreplace) {
     body.innerHTML = (important) ? '<div class="delimiter"></div><div class="important">' + text + '</div><div class="delimiter"></div>' : text;
     root.appendChild(name);
     root.appendChild(body);
-    if (strInt > 0) {
-        root.style.marginTop = strInt + "px";
-    }
     gebi("messages").appendChild(root);
     doScroll();
 }
@@ -7941,7 +7946,7 @@ game.updateInfoGame = function(text) {
     }
     nickText += '<span class="rolesmile role' + game.role + '"></span>' + roles(game.role).name;
     $("#nick").html(nickText);
-    $(".gamemakerinfo").html("<span>День " + game.day + "</span> ? <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
+    $(".gamemakerinfo").html("<span>Р”РµРЅСЊ " + game.day + "</span> ? <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
     showTime();
     if (game.active && !game.closed) {
         switch (game.period) {
@@ -7950,7 +7955,7 @@ game.updateInfoGame = function(text) {
             game.actions = roles(game.role).button.slice();
             break;
         case 2:
-            game.actions = ["Голосовать", "Переголосовать"];
+            game.actions = ["Р“РѕР»РѕСЃРѕРІР°С‚СЊ", "РџРµСЂРµРіРѕР»РѕСЃРѕРІР°С‚СЊ"];
             break;
         case 3:
             game.actions = [];
@@ -7997,7 +8002,7 @@ var sortPoints = function(obj) {
 game.setPeriod = function(event) {
     if (event.resultInfo) {
         if (event.resultInfo.points && event.resultInfo.logins) {
-            var pText = "Набрано баллов:<br/>";
+            var pText = "РќР°Р±СЂР°РЅРѕ Р±Р°Р»Р»РѕРІ:<br/>";
             sortPoints(event.resultInfo.points).forEach(function(el) {
                 if (event.resultInfo.logins[el.id]) {
                     pText += '<b class="nickname" data-id="' + el.id + '">' + event.resultInfo.logins[el.id] + "</b> - " + el.points + " , ";
@@ -8052,7 +8057,7 @@ game.setPeriod = function(event) {
             game.writeText(rolesText.substring(0, rolesText.length - 2), false, true);
         }
         if (event.addInfo.points) {
-            var pointsText = "Набрано баллов:<br/>"
+            var pointsText = "РќР°Р±СЂР°РЅРѕ Р±Р°Р»Р»РѕРІ:<br/>"
               , arrayForSort = sortPoints(event.addInfo.points);
             arrayForSort.forEach(function(el) {
                 if (playersInfoArray[el.id]) {
@@ -8154,7 +8159,7 @@ game.action = function() {
     if (playersList.find("div").is(".select")) {
         var selectedPl = playersList.find("div.select");
         if (game.period == 1) {
-            modalWindow("Уверены, что хотите это сделать?", function() {
+            modalWindow("РЈРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ СЌС‚Рѕ СЃРґРµР»Р°С‚СЊ?", function() {
                 sendToSocket({
                     type: "game-action",
                     target: selectedPl.attr("id")
@@ -8235,8 +8240,8 @@ game.kickVote = function(data) {
         replacedata: {
             "[YESVOTE]": game.kickVotes.yes,
             "[NOVOTE]": game.kickVotes.no,
-            "[YESs]": ((game.kickVotes.yes == 1) ? "" : "и"),
-            "[NOs]": ((game.kickVotes.no == 1) ? "" : "и")
+            "[YESs]": ((game.kickVotes.yes == 1) ? "" : "Рё"),
+            "[NOs]": ((game.kickVotes.no == 1) ? "" : "Рё")
         }
     }, false, true);
     game.writeText('<span class="important">' + game.event(data.event, false, true) + "</span><br/>" + msgtext, data.event.p);
@@ -8248,35 +8253,35 @@ var finalMsg = function(data, end) {
       , shareStr = ""
       , causeEvent = (data.item5) ? "afterItem5" : "stealGift";
     if (data.winners) {
-        str += "Победа оказалась на стороне: <br><b>" + data.winners.join("</b><br/><b>") + "</b>";
+        str += "РџРѕР±РµРґР° РѕРєР°Р·Р°Р»Р°СЃСЊ РЅР° СЃС‚РѕСЂРѕРЅРµ: <br><b>" + data.winners.join("</b><br/><b>") + "</b>";
     } else {
         str += (data.event) ? game.event(data.event, false, true) : roleText[gameMode()][causeEvent];
     }
     str += "<br/> ";
     if (game.role) {
         if (data.days) {
-            str += (end ? "Партия длилась " : "Вы продержались ") + someThing(data.days, "день", "дня", "дней") + "<br/> ";
+            str += (end ? "РџР°СЂС‚РёСЏ РґР»РёР»Р°СЃСЊ " : "Р’С‹ РїСЂРѕРґРµСЂР¶Р°Р»РёСЃСЊ ") + someThing(data.days, "РґРµРЅСЊ", "РґРЅСЏ", "РґРЅРµР№") + "<br/> ";
         }
         if (data.money) {
-            str += 'Вы получили <span class="gamemoney">' + over1000(data.money) + "</span><br/> ";
+            str += 'Р’С‹ РїРѕР»СѓС‡РёР»Рё <span class="gamemoney">' + over1000(data.money) + "</span><br/> ";
         }
         if (data.rate) {
-            str += "<b>Рейтинг +" + data.rate + "</b><br/> ";
+            str += "<b>Р РµР№С‚РёРЅРі +" + data.rate + "</b><br/> ";
         }
     }
     if (data.points) {
-        str += "<strong>Итоговые баллы:</strong> <blockquote>";
+        str += "<strong>РС‚РѕРіРѕРІС‹Рµ Р±Р°Р»Р»С‹:</strong> <blockquote>";
         sortPoints(data.points).forEach(function(el) {
             str += el.id + " - " + el.points + "<br/>";
         });
         str += "</blockquote>";
     } else {
         if (data.roles) {
-            str += "<strong>Роли исполняли:</strong> <blockquote>";
+            str += "<strong>Р РѕР»Рё РёСЃРїРѕР»РЅСЏР»Рё:</strong> <blockquote>";
             data.roles.forEach(function(el, index) {
                 if (el == "finish") {
                     if (index < data.roles.length - 1) {
-                        str += "<b>Изменившиеся роли:</b><br/>";
+                        str += "<b>РР·РјРµРЅРёРІС€РёРµСЃСЏ СЂРѕР»Рё:</b><br/>";
                     }
                 } else {
                     str += el[1] + " - " + roles(el[0]).name + "<br/>";
@@ -8290,10 +8295,10 @@ var finalMsg = function(data, end) {
         sound("win", true);
         var ticketImg = (isMaffia) ? "maffia/tickets/" + game.role + ".png" : "tickets/" + game.role + ".jpg";
         if (!isAppVK) {
-            str += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + "&amp;title=Мне удалось заработать " + over1000(data.money) + " за " + someThing(data.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">Сохранить игру</a><br/>';
+            str += '<a class="button share" target="_target" title="РџРѕРґРµР»РёС‚СЊСЃСЏ СЃ РґСЂСѓР·СЊСЏРјРё Р’РљРѕРЅС‚Р°РєС‚Рµ" href="' + getGameUrl(true) + "&amp;title=РњРЅРµ СѓРґР°Р»РѕСЃСЊ Р·Р°СЂР°Р±РѕС‚Р°С‚СЊ " + over1000(data.money) + " Р·Р° " + someThing(data.days, "РґРµРЅСЊ", "РґРЅСЏ", "РґРЅРµР№") + "!&amp;description=" + u.login + " РІ РёРіСЂРµ " + header.attr("data-name") + "!%0AР’ РёРіСЂРµ РїСЂРёРЅРёРјР°Р»Рё СѓС‡Р°СЃС‚РёРµ: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">РЎРѕС…СЂР°РЅРёС‚СЊ РёРіСЂСѓ</a><br/>';
         }
     }
-    str += (end) ? '<div class="button" onclick="wW.hide()">Посмотреть игру</div>' : "Хотите досмотреть игру до конца?";
+    str += (end) ? '<div class="button" onclick="wW.hide()">РџРѕСЃРјРѕС‚СЂРµС‚СЊ РёРіСЂСѓ</div>' : "РҐРѕС‚РёС‚Рµ РґРѕСЃРјРѕС‚СЂРµС‚СЊ РёРіСЂСѓ РґРѕ РєРѕРЅС†Р°?";
     return str;
 };
 game.killed = function(data) {
@@ -8316,7 +8321,7 @@ game.newRole = function(obj) {
             }
         }, false);
     }
-    alarm("Теперь ты - " + roles(obj.role).name + "!");
+    alarm("РўРµРїРµСЂСЊ С‚С‹ - " + roles(obj.role).name + "!");
     if (obj.child) {
         var parentSex = (playersInfoArray[obj.child] && playersInfoArray[obj.child].sex == 1) ? "mother" : "father";
         game.writeText(u.login + roleText[gameMode()]["bossChild-" + parentSex], false, true);
@@ -8351,9 +8356,9 @@ game.dejInfo = function(data) {
         }
         return str;
     };
-    var out = "Я - " + roles(data.role).name + "!";
+    var out = "РЇ - " + roles(data.role).name + "!";
     if (data.checks && Object.size(data.checks) > 0) {
-        out += " Мне стало известно, что " + checksList(data.checks) + " !";
+        out += " РњРЅРµ СЃС‚Р°Р»Рѕ РёР·РІРµСЃС‚РЅРѕ, С‡С‚Рѕ " + checksList(data.checks) + " !";
     }
     var from = {
         id: data.id,
@@ -8446,6 +8451,7 @@ game.start = function(data) {
     game.finish = false;
     game.day = 0;
     game.period = 1;
+    game.count = data.count;
     game.botwall = (data.botwall);
     game.fast = (data.fast);
     game.special = (data.special);
@@ -8473,8 +8479,9 @@ game.start = function(data) {
     }
     if (data.gameinfo) {
         room = data.gameinfo._id;
+        game.count = data.gameinfo.count;
         closedgame = (data.gameinfo.style == 2);
-        gametitle.html("<span>" + gameStyle[data.gameinfo.style] + " на " + data.gameinfo.count + " игроков</span>");
+        gametitle.html("<span>" + gameStyle[data.gameinfo.style] + " РЅР° " + data.gameinfo.count + " РёРіСЂРѕРєРѕРІ</span>");
         showPlayersList({}, room);
         data.banks = data.gameinfo.banks;
         game.day = data.gameinfo.day;
@@ -8523,14 +8530,13 @@ game.start = function(data) {
     game.showPlaylist(data.players);
     game.role = data.role;
     game.updateInfoGame();
-    var gamecaption = gametitle.find("span").eq(0).html();
-    gametitle.html("<span>" + gamecaption + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>');
+    gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Р‘Р°РЅРє СЃС‚СѓРґРµРЅС‚РѕРІ|Р‘Р°РЅРє РіСЂР°Р¶РґР°РЅ"></span> <span id="robbBank" data-title="Р‘Р°РЅРє РїРѕС…РёС‚РёС‚РµР»РµР№|Р‘Р°РЅРє РјР°С„РёРё"></span> <span id="allBank" data-title="РћР±С‰РёР№ Р±Р°РЅРє"></span> <span id="winBank" data-title="Р‘Р°РЅРє РїРѕР±РµРґС‹"></span>');
     game.recalculateBanks(data.banks, true);
     if (data.married) {
-        game.writeText("Занимайте места поудобнее. Свадебная церемония начнется днем...");
+        game.writeText("Р—Р°РЅРёРјР°Р№С‚Рµ РјРµСЃС‚Р° РїРѕСѓРґРѕР±РЅРµРµ. РЎРІР°РґРµР±РЅР°СЏ С†РµСЂРµРјРѕРЅРёСЏ РЅР°С‡РЅРµС‚СЃСЏ РґРЅРµРј...");
     } else {
         if (data.intuition) {
-            showNewDiv('<div class="lastwords">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + someThing(data.intuition, "день", "дня", "дней") + "!</div>");
+            showNewDiv('<div class="lastwords">' + roleText[gameMode()].intuitionStart + " РџРѕР±РµРґР° РІ СЌС‚РѕР№ РїР°СЂС‚РёРё Р¶РґРµС‚ Р’Р°СЃ С‡РµСЂРµР· " + someThing(data.intuition, "РґРµРЅСЊ", "РґРЅСЏ", "РґРЅРµР№") + "!</div>");
         } else {
             var firstStr = (game.style.style == 4) ? roleText.all["startText-sex"] : roleText[gameMode()].startText;
             game.writeText(firstStr + '<div class="delimiter"></div>');
@@ -8538,24 +8544,24 @@ game.start = function(data) {
         }
     }
     if (game.man) {
-        showNewDiv('<div class="lastwords">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>");
+        showNewDiv('<div class="lastwords">Р’РЅРёРјР°РЅРёРµ! Р’ СЌС‚РѕР№ РїР°СЂС‚РёРё ' + roles(6).name + " РёРіСЂР°РµС‚ СЃР°Рј Р·Р° СЃРµР±СЏ!</div>");
     }
-    if (caption.substring(0, 2).toLowerCase() == "пб" || game.botwall) {
-        showNewDiv('<div class="lastwords">Внимание! Это партия против ботов!</div>');
+    if (caption.substring(0, 2).toLowerCase() == "РїР±" || game.botwall) {
+        showNewDiv('<div class="lastwords">Р’РЅРёРјР°РЅРёРµ! Р­С‚Рѕ РїР°СЂС‚РёСЏ РїСЂРѕС‚РёРІ Р±РѕС‚РѕРІ!</div>');
     }
     if (!isMaffia) {
         $("#gift").show();
     }
     updateGameitems();
     if (data.roles) {
-        var allRoles = "В этой партии присутствуют следующие роли: ";
+        var allRoles = "Р’ СЌС‚РѕР№ РїР°СЂС‚РёРё РїСЂРёСЃСѓС‚СЃС‚РІСѓСЋС‚ СЃР»РµРґСѓСЋС‰РёРµ СЂРѕР»Рё: ";
         data.roles.forEach(function(el) {
             allRoles += '<span class="rolesmile role' + el + '"></span>';
         });
         showNewDiv("<div>" + allRoles + "</div");
     }
     if (u.invite && playersInfoArray[u.invite]) {
-        showNewDiv('<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>");
+        showNewDiv('<div class="red">Р’ СЌС‚РѕР№ РїР°СЂС‚РёРё РЅР°С…РѕРґРёС‚СЃСЏ РІР°С€ РЅР°СЃС‚Р°РІРЅРёРє - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>");
     }
     if (u.invited) {
         var pupils = [];
@@ -8567,7 +8573,7 @@ game.start = function(data) {
             }
         }
         if (pupils.length > 0) {
-            showNewDiv('<div class="red">В этой партии находятся ваши ученики: ' + pupils.join(", ") + "</div>");
+            showNewDiv('<div class="red">Р’ СЌС‚РѕР№ РїР°СЂС‚РёРё РЅР°С…РѕРґСЏС‚СЃСЏ РІР°С€Рё СѓС‡РµРЅРёРєРё: ' + pupils.join(", ") + "</div>");
         }
     }
     clearInterval(min10);
@@ -8579,7 +8585,7 @@ game.start = function(data) {
           , statRole = textRoles[game.role];
         helper.hint("start");
         if (u[statRole + "0"] + u[statRole + "1"] < 1) {
-            helper.hint("Это твоя первая роль " + roles(game.role).name + ".<br/> Посмотрим, сможешь ли ты с ней справиться!", true);
+            helper.hint("Р­С‚Рѕ С‚РІРѕСЏ РїРµСЂРІР°СЏ СЂРѕР»СЊ " + roles(game.role).name + ".<br/> РџРѕСЃРјРѕС‚СЂРёРј, СЃРјРѕР¶РµС€СЊ Р»Рё С‚С‹ СЃ РЅРµР№ СЃРїСЂР°РІРёС‚СЊСЃСЏ!", true);
         }
         u.money -= game.sum;
     }
@@ -8611,11 +8617,11 @@ function doItem(inum) {
         return;
     }
     if (!game.active) {
-        showMessage("Для Вас эта игровая партия уже завершена. Вы не можете повлиять на нее.");
+        showMessage("Р”Р»СЏ Р’Р°СЃ СЌС‚Р° РёРіСЂРѕРІР°СЏ РїР°СЂС‚РёСЏ СѓР¶Рµ Р·Р°РІРµСЂС€РµРЅР°. Р’С‹ РЅРµ РјРѕР¶РµС‚Рµ РїРѕРІР»РёСЏС‚СЊ РЅР° РЅРµРµ.");
         return;
     }
     if (game.style.style2) {
-        showMessage("Игра без предметов");
+        showMessage("РРіСЂР° Р±РµР· РїСЂРµРґРјРµС‚РѕРІ");
     } else {
         if (u["item" + inum]) {
             switch (inum) {
@@ -8638,7 +8644,7 @@ function doItem(inum) {
                 break;
             case 5:
                 if (u.item5 > 0) {
-                    modalWindow("Воспользовавшись этим предметом вы покинете игру, забрав с собой часть игрового банка. Хотите продолжить?", function() {
+                    modalWindow("Р’РѕСЃРїРѕР»СЊР·РѕРІР°РІС€РёСЃСЊ СЌС‚РёРј РїСЂРµРґРјРµС‚РѕРј РІС‹ РїРѕРєРёРЅРµС‚Рµ РёРіСЂСѓ, Р·Р°Р±СЂР°РІ СЃ СЃРѕР±РѕР№ С‡Р°СЃС‚СЊ РёРіСЂРѕРІРѕРіРѕ Р±Р°РЅРєР°. РҐРѕС‚РёС‚Рµ РїСЂРѕРґРѕР»Р¶РёС‚СЊ?", function() {
                         sendToSocket({
                             type: "gameitem",
                             item: inum
@@ -8753,12 +8759,12 @@ game.notePlayer = function(uid) {
     }
     var curpl = playersList.find("#" + uid);
     if (curpl) {
-        var text = '<br/><label>Роль <select id="note-role"><option selected="selected"></option>';
+        var text = '<br/><label>Р РѕР»СЊ <select id="note-role"><option selected="selected"></option>';
         for (var i = 1; i <= 9; i++) {
             text += '<option value="' + i + '">' + roles(i).name + "</option>";
         }
-        text += '</select></label><br/><label>Метка <input type="text" placeholder="Например, АКТИВ" id="note-text"/></label>';
-        modalWindow("Заметка об игроке " + playersInfoArray[uid].login + text, function() {
+        text += '</select></label><br/><label>РњРµС‚РєР° <input type="text" placeholder="РќР°РїСЂРёРјРµСЂ, РђРљРўРР’" id="note-text"/></label>';
+        modalWindow("Р—Р°РјРµС‚РєР° РѕР± РёРіСЂРѕРєРµ " + playersInfoArray[uid].login + text, function() {
             var nr = $("#note-role")
               , nt = $("#note-text")
               , playerIcon = curpl.find("b")
@@ -8802,15 +8808,15 @@ $("#snowball-domove").click(function() {
       , attack = battleDiv.find("input[name=snowball-att]:checked").val()
       , target = battleDiv.find("#snowball-target").val();
     if (!defend) {
-        showMessage("Выберите свою позицию - в первых рядах или позади?");
+        showMessage("Р’С‹Р±РµСЂРёС‚Рµ СЃРІРѕСЋ РїРѕР·РёС†РёСЋ - РІ РїРµСЂРІС‹С… СЂСЏРґР°С… РёР»Рё РїРѕР·Р°РґРё?");
         return;
     }
     if (!attack) {
-        showMessage("Выберите тип броска - на точность или на силу?");
+        showMessage("Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї Р±СЂРѕСЃРєР° - РЅР° С‚РѕС‡РЅРѕСЃС‚СЊ РёР»Рё РЅР° СЃРёР»Сѓ?");
         return;
     }
     if (!target) {
-        showMessage("Выберите соперника, в которого хотите бросить снежком");
+        showMessage("Р’С‹Р±РµСЂРёС‚Рµ СЃРѕРїРµСЂРЅРёРєР°, РІ РєРѕС‚РѕСЂРѕРіРѕ С…РѕС‚РёС‚Рµ Р±СЂРѕСЃРёС‚СЊ СЃРЅРµР¶РєРѕРј");
         return;
     }
     sendToSocket({
@@ -8854,7 +8860,7 @@ snowball.start = function(data) {
 ;
 snowball.setRound = function(data) {
     wW.hide();
-    if (data.round > 1) {
+    if (data.round) {
         var classtext = "snows" + (data.round + 4);
         snowPlayList1.removeClass().addClass("playerlist " + classtext);
         snowPlayList2.removeClass().addClass("playerlist " + classtext);
@@ -8909,12 +8915,6 @@ snowball.playerList = function(ids, playlist) {
                 showPlayerInfo(false);
                 return false;
             });
-            if (u.friends && u.friends.indexOf(el._id) > -1) {
-                newPl.addClass("green");
-            }
-            if (el.vip) {
-                newPl.addClass("vipPlayer");
-            }
             if (reds.indexOf(el._id) > -1) {
                 newPl.addClass("red");
             }
@@ -8938,7 +8938,7 @@ snowball.newMove = function(data) {
     if (snowball.active) {
         battleMain.removeClass("battlewait");
     }
-    var text = "Ход " + data.step + "<hr/>";
+    var text = "РҐРѕРґ " + data.step + "<hr/>";
     if (data.msg) {
         data.msg.forEach(function(el) {
             text += el.replace(u.login, '<span class="green">' + u.login + "</span>") + "<br/>";
@@ -8950,7 +8950,7 @@ snowball.newMove = function(data) {
             if (el == u._id) {
                 showWall("//loday.ru/images/snowball/shot.gif", true);
                 battleMain.addClass("insnow");
-                showMessage("Вас забросали снегом :(<br/> Вам удастся продолжить борьбу, если ваша команда выиграет этот раунд и &quot;откопает&quot; Вас");
+                showMessage("Р’Р°СЃ Р·Р°Р±СЂРѕСЃР°Р»Рё СЃРЅРµРіРѕРј :(<br/> Р’Р°Рј СѓРґР°СЃС‚СЃСЏ РїСЂРѕРґРѕР»Р¶РёС‚СЊ Р±РѕСЂСЊР±Сѓ, РµСЃР»Рё РІР°С€Р° РєРѕРјР°РЅРґР° РІС‹РёРіСЂР°РµС‚ СЌС‚РѕС‚ СЂР°СѓРЅРґ Рё &quot;РѕС‚РєРѕРїР°РµС‚&quot; Р’Р°СЃ");
                 snowball.active = false;
             }
             battleDiv.find("#" + el).addClass("snowman");
@@ -8970,12 +8970,12 @@ snowball.newMove = function(data) {
 }
 ;
 snowball.roundName = {
-    1: "1/32 финала",
-    2: "1/16 финала",
-    3: "1/8 финала",
-    4: "1/4 финала",
-    5: "Полуфинал",
-    6: "Финал"
+    1: "1/32 С„РёРЅР°Р»Р°",
+    2: "1/16 С„РёРЅР°Р»Р°",
+    3: "1/8 С„РёРЅР°Р»Р°",
+    4: "1/4 С„РёРЅР°Р»Р°",
+    5: "РџРѕР»СѓС„РёРЅР°Р»",
+    6: "Р¤РёРЅР°Р»"
 };
 snowball.setTime = function() {
     snowball.time++;
@@ -9054,7 +9054,7 @@ function showConvert(callback) {
 }
 function friendQuery(type, fid, success) {
     if (fid == u._id) {
-        showMessage("Вам грустно и одиноко? Но это не повод зацикливаться на себе! Поглядите вокруг..");
+        showMessage("Р’Р°Рј РіСЂСѓСЃС‚РЅРѕ Рё РѕРґРёРЅРѕРєРѕ? РќРѕ СЌС‚Рѕ РЅРµ РїРѕРІРѕРґ Р·Р°С†РёРєР»РёРІР°С‚СЊСЃСЏ РЅР° СЃРµР±Рµ! РџРѕРіР»СЏРґРёС‚Рµ РІРѕРєСЂСѓРі..");
         if (u.friends.indexOf(fid) > -1) {
             sendToSocket({
                 type: "friend-del",
@@ -9164,7 +9164,7 @@ function menu(type, evt) {
         if (isAppVK) {
             return true;
         }
-        html = (isMaffia) ? "Мафия онлайн<br/> <sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>" : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Cайт <a href="http://loday.ru/" target="_blank">Loday.ru</a><br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
+        html = (isMaffia) ? "РњР°С„РёСЏ РѕРЅР»Р°Р№РЅ<br/> <sub>Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ РёРіСЂС‹ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ Р±СЂР°СѓР·РµСЂ Google Chrome РёР»Рё Mozilla Firefox</sub>" : 'РРіСЂР° &quot;Р”РµРЅСЊ Р›СЋР±РІРё&quot; beta<br/>РїРѕ РјРѕС‚РёРІР°Рј Friends For Love<br/> CР°Р№С‚ <a href="http://loday.ru/" target="_blank">Loday.ru</a><br/> РџСЂРѕР±Р»РµРјС‹ СЃ РёРіСЂРѕР№? <a href="http://vk.com/igraffl" target="_blank">Р’Р°Рј СЃСЋРґР°</a><br/><sub>Р”Р»СЏ РїСЂР°РІРёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ РёРіСЂС‹ РёСЃРїРѕР»СЊР·СѓР№С‚Рµ Р±СЂР°СѓР·РµСЂ Google Chrome РёР»Рё Mozilla Firefox</sub>';
         break;
     case 2:
         if (!evt.target.id || evt.target.id == "players") {
@@ -9268,7 +9268,7 @@ $("output").bind("contextmenu", function(e) {
         var uid = e.target.getAttribute("data-id");
         if (e.target.textContent && uid != u._id) {
             var addIs = (reds.indexOf(uid) == -1);
-            modalWindow("Хотите " + (addIs ? "игнорировать" : "видеть") + " сообщения игрока " + e.target.textContent + "?", function() {
+            modalWindow("РҐРѕС‚РёС‚Рµ " + (addIs ? "РёРіРЅРѕСЂРёСЂРѕРІР°С‚СЊ" : "РІРёРґРµС‚СЊ") + " СЃРѕРѕР±С‰РµРЅРёСЏ РёРіСЂРѕРєР° " + e.target.textContent + "?", function() {
                 addRed(e.target.getAttribute("data-id"), addIs);
             });
         }
@@ -9318,7 +9318,7 @@ document.body.onkeydown = keyDown;
 function Unloader() {
     var o = this;
     this.unload = function(evt) {
-        var message = "Вы уверены, что хотите покинуть игру?";
+        var message = "Р’С‹ СѓРІРµСЂРµРЅС‹, С‡С‚Рѕ С…РѕС‚РёС‚Рµ РїРѕРєРёРЅСѓС‚СЊ РёРіСЂСѓ?";
         if (typeof evt == "undefined") {
             evt = window.event;
         }
@@ -9353,7 +9353,7 @@ function Unloader() {
     this.init();
 }
 if (!window.WebSocket) {
-    errorText("Ваш браузер не поддерживает технологию веб-сокетов. Пожалуйста, установите последююю версию браузера Google Chrome или Mozilla Firefox.");
+    errorText("Р’Р°С€ Р±СЂР°СѓР·РµСЂ РЅРµ РїРѕРґРґРµСЂР¶РёРІР°РµС‚ С‚РµС…РЅРѕР»РѕРіРёСЋ РІРµР±-СЃРѕРєРµС‚РѕРІ. РџРѕР¶Р°Р»СѓР№СЃС‚Р°, СѓСЃС‚Р°РЅРѕРІРёС‚Рµ РїРѕСЃР»РµРґСЋСЋСЋ РІРµСЂСЃРёСЋ Р±СЂР°СѓР·РµСЂР° Google Chrome РёР»Рё Mozilla Firefox.");
 }
 var parseQueryString = function(strQuery) {
     var strSearch = strQuery.substr(1)
@@ -9368,6 +9368,7 @@ var parseQueryString = function(strQuery) {
 };
 function showGroupWidget() {
     if (typeof VK == "undefined") {
+        console.log("not VK");
         return;
     }
     var groupId = isMaffia ? 109864615 : 39094155;
@@ -9387,7 +9388,7 @@ function appSocialButton() {
     }
     var groupId = isMaffia ? 109864615 : 39094155
       , appId = isMaffia ? 5206919 : 5065752
-      , appTitle = isMaffia ? "Мафия Онлайн" : "День Любви"
+      , appTitle = isMaffia ? "РњР°С„РёСЏ РћРЅР»Р°Р№РЅ" : "Р”РµРЅСЊ Р›СЋР±РІРё"
       , appImage = document.location.protocol + (isMaffia ? "//loday.ru/images/maffia/applogo.png" : "//loday.ru/images/gift.png");
     VK.init(function() {
         VK.callMethod("setTitle", appTitle);
@@ -9404,10 +9405,10 @@ function appSocialButton() {
             image: appImage
         }, {
             type: "custom",
-            text: "Рассказать друзьям"
+            text: "Р Р°СЃСЃРєР°Р·Р°С‚СЊ РґСЂСѓР·СЊСЏРј"
         }));
         VK.Widgets.ContactUs("vk_contact_us", {
-            text: "Задать вопрос",
+            text: "Р—Р°РґР°С‚СЊ РІРѕРїСЂРѕСЃ",
             height: 24
         }, -groupId);
         VK.Widgets.Subscribe("vk_subscribe", {
@@ -9453,7 +9454,7 @@ function appSocialButton() {
                       , noAppStr = "";
                     for (var i = 0; i < profilesCount; i++) {
                         var isInstall = yesApp.indexOf(data.response[i].uid) > -1
-                          , adduser = '<a href="http://vk.com/id' + data.response[i].uid + '" title="Открыть профиль" target="_blank"><figure' + (isInstall ? "" : ' class="noinstall"') + '><img src="' + data.response[i].photo_medium + '" /><figcaption>' + data.response[i].first_name + " " + data.response[i].last_name + "</figcaption></figure></a> ";
+                          , adduser = '<a href="http://vk.com/id' + data.response[i].uid + '" title="РћС‚РєСЂС‹С‚СЊ РїСЂРѕС„РёР»СЊ" target="_blank"><figure' + (isInstall ? "" : ' class="noinstall"') + '><img src="' + data.response[i].photo_medium + '" /><figcaption>' + data.response[i].first_name + " " + data.response[i].last_name + "</figcaption></figure></a> ";
                         if (isInstall) {
                             yesAppStr += adduser;
                         } else {
@@ -9461,7 +9462,7 @@ function appSocialButton() {
                         }
                     }
                     win.find(".info").append('<div class="vkfriends"></div>');
-                    $(".vkfriends").html("<p>Уже установили приложение (" + appCount + "):</p>" + yesAppStr + "<hr/><p>Еще не знают о Мафии Онлайн (" + noAppCount + ")</p>" + noAppStr + "<hr/>");
+                    $(".vkfriends").html("<p>РЈР¶Рµ СѓСЃС‚Р°РЅРѕРІРёР»Рё РїСЂРёР»РѕР¶РµРЅРёРµ (" + appCount + "):</p>" + yesAppStr + "<hr/><p>Р•С‰Рµ РЅРµ Р·РЅР°СЋС‚ Рѕ РњР°С„РёРё РћРЅР»Р°Р№РЅ (" + noAppCount + ")</p>" + noAppStr + "<hr/>");
                     $("<div/>", {
                         id: "vkfriends-button"
                     }).click(function() {
@@ -9480,7 +9481,7 @@ function appSocialButton() {
 if (isAppVK) {
     var qStr = parseQueryString(window.location.search);
     if (!qStr.viewer_id || !qStr.auth_key) {
-        errorText("Ошибка подключения аккаунта ВКонтакте: " + document.cookie);
+        errorText("РћС€РёР±РєР° РїРѕРґРєР»СЋС‡РµРЅРёСЏ Р°РєРєР°СѓРЅС‚Р° Р’РљРѕРЅС‚Р°РєС‚Рµ: " + document.cookie);
         errorText = function() {}
         ;
     }
@@ -9494,8 +9495,8 @@ if (isAppVK) {
     } else {
         createCookie("mafApp", "", -1);
     }
-    $.cachedScript("https://vk.com/js/api/xd_connection.js?2").done(function(script, textStatus) {
-        $.cachedScript("https://vk.com/js/api/share.js?95").done(function(script, textStatus) {
+    $.cachedScript("//vk.com/js/api/xd_connection.js?2").done(function(script, textStatus) {
+        $.cachedScript("//vk.com/js/api/share.js?95").done(function(script, textStatus) {
             appSocialButton();
             payDiv.find(".pay-item").click(function() {
                 var params = {
@@ -9519,37 +9520,45 @@ function socketConnect(retry) {
     try {
         console.log("connecting...");
         ws = new WebSocket("ws" + ((window.location.protocol == "https:") ? "s://" + domain + ":9090" : "://" + domain + ":9000"));
-        ws.onerror = function(event) {
-            errorText("Произошла ошибка при установке соединения. Проверьте настройки браузера, фаервола и интернет-соединения.");
-            ws.close();
+        if (!retry) {
+            ws.onerror = function(event) {
+                errorText("РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё СѓСЃС‚Р°РЅРѕРІРєРµ СЃРѕРµРґРёРЅРµРЅРёСЏ. РџСЂРѕРІРµСЂСЊС‚Рµ РЅР°СЃС‚СЂРѕР№РєРё Р±СЂР°СѓР·РµСЂР°, С„Р°РµСЂРІРѕР»Р° Рё РёРЅС‚РµСЂРЅРµС‚-СЃРѕРµРґРёРЅРµРЅРёСЏ.");
+                ws.close();
+            }
+            ;
         }
-        ;
         ws.onclose = function(event) {
             var closeText = "";
             switch (event.code) {
             case 1000:
-                closeText = "Браузер закрыл соединение";
+                closeText = "Р‘СЂР°СѓР·РµСЂ Р·Р°РєСЂС‹Р» СЃРѕРµРґРёРЅРµРЅРёРµ";
                 break;
             case 1001:
-                closeText = "Переход со страницы";
+                closeText = "РџРµСЂРµС…РѕРґ СЃРѕ СЃС‚СЂР°РЅРёС†С‹";
                 break;
             case 1006:
-                closeText = "Соединение прервано (обрыв связи)";
+                closeText = "РЎРѕРµРґРёРЅРµРЅРёРµ РїСЂРµСЂРІР°РЅРѕ (РѕР±СЂС‹РІ СЃРІСЏР·Рё)";
                 break;
             case 4000:
-                closeText = "Соединение разорвано (обнаружена чрезмерная активность)";
+                closeText = "РЎРѕРµРґРёРЅРµРЅРёРµ СЂР°Р·РѕСЂРІР°РЅРѕ (РѕР±РЅР°СЂСѓР¶РµРЅР° С‡СЂРµР·РјРµСЂРЅР°СЏ Р°РєС‚РёРІРЅРѕСЃС‚СЊ)";
                 break;
             case 4001:
-                closeText = "К сожалению, ваш аккаунт заблокирован";
+                closeText = "Рљ СЃРѕР¶Р°Р»РµРЅРёСЋ, РІР°С€ Р°РєРєР°СѓРЅС‚ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ";
+                break;
+            case 4002:
+                closeText = "РўРѕР»СЊРєРѕ С‡С‚Рѕ РІ РІР°С€ Р°РєРєР°СѓРЅС‚ Р±С‹Р» РІС‹РїРѕР»РЅРµРЅ РµС‰Рµ РѕРґРёРЅ РІС…РѕРґ";
                 break;
             case 4003:
-                closeText = "Сбой интернет-соединения";
+                closeText = "РЎР±РѕР№ РёРЅС‚РµСЂРЅРµС‚-СЃРѕРµРґРёРЅРµРЅРёСЏ";
                 break;
             case 4004:
-                closeText = "Сервер исключил Вас из-за неактивности соединения";
+                closeText = "РЎРµСЂРІРµСЂ РёСЃРєР»СЋС‡РёР» Р’Р°СЃ РёР·-Р·Р° РЅРµР°РєС‚РёРІРЅРѕСЃС‚Рё СЃРѕРµРґРёРЅРµРЅРёСЏ";
+                break;
+            case 4005:
+                closeText = "РЎРѕРµРґРёРЅРµРЅРёРµ СЂР°Р·РѕСЂРІР°РЅРѕ РёР·-Р·Р° РїРѕРІС‚РѕСЂРЅРѕРіРѕ РїРѕРґРєР»СЋС‡РµРЅРёСЏ";
                 break;
             default:
-                closeText = "Обрыв связи (" + event.code + ")";
+                closeText = "РћР±СЂС‹РІ СЃРІСЏР·Рё (" + event.code + ")";
             }
             console.log(event);
             var obj = {
@@ -9559,18 +9568,18 @@ function socketConnect(retry) {
             };
             if (event.wasClean && event.code != 1006) {
                 if (event.code == 4000 || event.code == 4001) {
-                    warningWindow(obj.message, function() {
+                    modalWindow(obj.message, function() {
                         errorText(closeText);
                     });
                 } else {
-                    warningWindow(obj.message, function() {
+                    modalWindow(obj.message + "<br/> РћР±РЅРѕРІРёС‚СЊ СЃС‚СЂР°РЅРёС†Сѓ?", function() {
                         window.location.reload();
-                    }, "Обновить страницу");
+                    });
                 }
             } else {
-                warningWindow(obj.message + "<br/> Идет попытка восстановить соединение...", function() {
+                modalWindow(obj.message + "<br/> РРґРµС‚ РїРѕРїС‹С‚РєР° РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ...<br/> РҐРѕС‚РёС‚Рµ Р·Р°Р№С‚Рё РІ РёРіСЂСѓ Р·Р°РЅРѕРІРѕ?", function() {
                     window.location.reload();
-                }, "Зайти в игру заново");
+                });
                 setTimeout(function() {
                     socketConnect(true);
                 }, 3000);
@@ -9601,11 +9610,13 @@ function socketConnect(retry) {
                     window.obUnloader = new Unloader();
                 }
             });
+            ws.onerror = function() {}
+            ;
         }
         ;
         console.log("connected");
     } catch (e) {
-        warningWindow("Невозможно установить соединение с сервером.");
+        warningWindow("РќРµРІРѕР·РјРѕР¶РЅРѕ СѓСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРѕРµРґРёРЅРµРЅРёРµ СЃ СЃРµСЂРІРµСЂРѕРј.");
     }
     ws.onmessage = socketEvent;
 }
