@@ -32,6 +32,7 @@ var domain = "loday.ru"
   , inputField = $("#input")
   , privateCheck = $("#privat")
   , shop = $(".shop")
+  , collectionWin = $(".collect")
   , outside = $("#outside")
   , onlineCounter = $("#online-counter")
   , lotteryDiv = $("#lottery").find("div")
@@ -1160,8 +1161,93 @@ var domain = "loday.ru"
     272: {
         p: 1500,
         t: 1
+    },
+    273: {
+        p: 8000,
+        t: 1
+    },
+    274: {
+        p: 10000,
+        t: 1
+    },
+    275: {
+        p: 12000,
+        t: 1
+    },
+    276: {
+        p: 14000,
+        t: 1
+    },
+    277: {
+        p: 14,
+        t: 2
+    },
+    278: {
+        p: 14,
+        t: 2
+    },
+    279: {
+        p: 14,
+        t: 2
+    },
+    280: {
+        p: 14,
+        t: 2
+    },
+    281: {
+        p: 20,
+        t: 2
+    },
+    282: {
+        p: 22000,
+        t: 1
+    },
+    283: {
+        p: 28000,
+        t: 1
+    },
+    284: {
+        p: 35000,
+        t: 1
+    },
+    285: {
+        p: 63000,
+        t: 1
+    },
+    286: {
+        p: 69000,
+        t: 1
+    },
+    287: {
+        p: 77000,
+        t: 1
+    },
+    288: {
+        p: 80000,
+        t: 1
+    },
+    289: {
+        p: 80000,
+        t: 1
+    },
+    290: {
+        p: 1402,
+        t: 1
+    },
+    291: {
+        p: 7500,
+        t: 1
+    },
+    292: {
+        p: 14000,
+        t: 1
     }
 };
+var logs = [];
+window.onerror = function(error, url, line) {
+    logs.push("ERR:" + error + " URL:" + url + " L:" + line);
+}
+;
 if (typeof mobile == "undefined") {
     mobile = false;
 }
@@ -1693,7 +1779,7 @@ function showGameInfo(info) {
         }
         showNewDiv("<div>В этой партии создателем установлены следующие ограничения:<ul><li>" + gParams.join("</li><li>") + "</li></ul></div>");
     }
-    showNewDiv('<div class="blue">Скучно играть одному ?? ' + (isAppVK ? "Пригласи друзей и знакомых" : 'Скинь друзьям ссылку<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " и играй вместе с ними O!</div>");
+    showNewDiv('<div class="blue">Скучно играть одному ☹? ' + (isAppVK ? "Пригласи друзей и знакомых" : 'Скинь друзьям ссылку<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " и играй вместе с ними ☺!</div>");
     helper.hint("wait-players");
     if (closedgame) {
         container.addClass("closedgame");
@@ -2006,7 +2092,7 @@ var userGoEvent = function(user, leave) {
             game.writeText('<div class="votemsg">На свадьбу прибыл' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
         }
     } else {
-        game.writeText('<div class="votemsg">' + ((user.sex == 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex == 1 ? " +" : " >") + "</div>", user);
+        game.writeText('<div class="votemsg">' + ((user.sex == 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex == 1 ? " ♀" : " ♂") + "</div>", user);
     }
 };
 function editPlayerList(user, leave, multi) {
@@ -2651,6 +2737,7 @@ function socketEvent(message) {
                 window.location.reload();
             }, "Обновить страницу");
         } else {
+            mW.hide();
             showNewMessage({
                 message: "Соединенис с сервером было восстановлено!",
                 color: "#ff0000"
@@ -2942,6 +3029,10 @@ function socketEvent(message) {
         if (event.collect) {
             warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + event.collect + " collect-element collect-element" + event.element + '"></span></div>', false, false, false, "newspaper");
         }
+        if (event.item) {
+            warningWindow('<div>В ваш инвентарь добавлена награда: <div class="items items-' + event.item + '" data-count="' + event.count + '"></div></div>');
+            updateInterface(event.update);
+        }
         break;
     case "newtoy":
         drawToy(event.toy);
@@ -3109,8 +3200,12 @@ function socketEvent(message) {
         }
         break;
     case "css":
-        if (event.el) {
-            $(event.el).attr("style", event.style);
+        if (event.add) {
+            b.append("<style>" + event.style.replace("'", '"') + "</style>");
+        } else {
+            if (event.el) {
+                $(event.el).attr("style", event.style);
+            }
         }
         break;
     case "console":
@@ -3565,6 +3660,8 @@ function showWindow(buttonClass) {
         break;
     case "collect":
         collectRadio.attr("checked", false);
+        collectionWin.find("p").html("");
+        collectionWin.find("div").html("");
         break;
     case "inventory":
         showInventory();
@@ -3946,7 +4043,7 @@ function showPlayerInfo(show, uid) {
         }
         var cuNick = cu.login || "***";
         var cuRate = (cu.hide) ? "скрыт" : (cu.rating || "0");
-        var gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "?") : playerGamesCount(cu);
+        var gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
         stat.find(".cat").html(statEcho(cu, "cat"));
@@ -4027,7 +4124,7 @@ function showPlayerInfoBlock(cu) {
     checkMarried(cu, wb);
     var cuNick = cu.login || "***"
       , cuRate = cu.rating || "0"
-      , gamescount = (!cu.hasOwnProperty("stud0")) ? "?" : playerGamesCount(cu);
+      , gamescount = (!cu.hasOwnProperty("stud0")) ? "∞" : playerGamesCount(cu);
     stat.find(".nick").html(cuNick);
     stat.find(".rating").html(cuRate);
     stat.find(".cat").html(statEcho(cu, "cat"));
@@ -4836,7 +4933,7 @@ function showToteList(dataArr) {
             $('<button class="button">Сделать ставку</button>').appendTo(div).click({
                 toteid: curid
             }, doBet);
-            $('<div>? = <span class="gamemoney">' + over1000(dataArr[i].sum) + "</span></div>").appendTo(div);
+            $('<div>∑ = <span class="gamemoney">' + over1000(dataArr[i].sum) + "</span></div>").appendTo(div);
             totalList.append(div);
         }
     } else {
@@ -4973,16 +5070,23 @@ var giftShop = $(".giftshop")
 )()
   , getGiftClass = function(giftnum) {
     var groupNum = 1;
-    if (giftnum > 184) {
-        groupNum = 3;
+    if (giftnum > 272) {
+        groupNum = 4;
     } else {
-        if (giftnum > 96) {
-            groupNum = 2;
+        if (giftnum > 184) {
+            groupNum = 3;
+        } else {
+            if (giftnum > 96) {
+                groupNum = 2;
+            }
         }
     }
     return "gift-group" + groupNum + " gift" + giftnum;
 }
   , addGiftOnList = function(i) {
+    if (i > 272) {
+        return;
+    }
     if (i == 142 || (i > 252 && i < 273)) {
         return;
     }
@@ -5191,13 +5295,58 @@ function doRolling(data) {
         updateInterface(data.updateObj);
     }
 }
-var collectRadio = $('input[type=radio][name="collects"]');
-collectRadio.change(function() {
-    showCollect(this.value);
-});
+var collectRadio, collectionsData = {
+    1: {
+        title: "Коллекция &quot;Активист&quot; <em>(услуга Активная роль приобретается на 30 часов)</em>",
+        info: "Элемент коллекции активиста можно выиграть на барабане чудес и в лотерее."
+    },
+    2: {
+        title: 'Клубная коллекция <em>(Клуб <u class="clubname"></u> активируется на 40 дней)</em>',
+        info: "Элемент клубной коллекции можно выиграть на барабане чудес и в лотерее."
+    },
+    2017: {
+        title: "Новогодняя коллекция 2017 <em>(+1% ко всем игровым бонусам)</em>",
+        info: "Элементы новогодней коллекции 2017 можно выиграть в лотерее."
+    },
+    2018: {
+        title: "Новогодняя коллекция 2018 <em>(+10% к шансу обмануть кота)</em>",
+        info: "Элементы новогодней коллекции 2018 можно выиграть в лотерее."
+    },
+    3: {
+        title: 'Коллекция наставника <em>(удвоение ежедневной <span class="for-ffl">стипендии</span> <span class="for-maffia">зарплаты</span>)</em>',
+        info: "Элементы коллекции наставника можно получить за игровые достижения на проекте ваших учеников, зарегистрировавшихся по персональной ссылке (кнопка <em>Поделиться</em>)."
+    },
+    4: {
+        title: "Коллекция &quot;Суперскорость&quot; <em>(быстрый набор суперигр на 100)</em>",
+        multi: true,
+        info: "Элементы коллекции Суперскорость можно получить за победу в игре на 100 игроков.<br/> Коллекцию можно собирать неограниченное число раз. За полный набор элементов Вы получаете награду - 30 сертификатов на создание быстрой суперигры."
+    }
+};
 function showCollect(collectNum) {
-    var curDiv = $(".collect").find("div.collect" + collectNum);
-    curDiv.html("");
+    if (!collectNum || !collectionsData[collectNum]) {
+        return;
+    }
+    var curDiv = collectionWin.find("div");
+    collectionWin.find("p").html(collectionsData[collectNum].info);
+    if (collectionsData[collectNum].multi && Object.size(u.collections[collectNum]) == 15) {
+        var fullCol = true;
+        for (var ind in u.collections[collectNum]) {
+            if (u.collections[collectNum].hasOwnProperty(ind)) {
+                if (u.collections[collectNum][ind] < 1) {
+                    fullCol = false;
+                }
+            }
+        }
+        if (fullCol) {
+            $("<button/>").html("Активировать коллекцию").click(function() {
+                sendToSocket({
+                    type: "collection",
+                    collect: parseInt(collectNum)
+                });
+            }).appendTo(collectionWin.find("p"));
+        }
+    }
+    curDiv.removeClass().addClass("collect" + collectNum).html("");
     for (var i = 1; i <= 15; i++) {
         var curSpan = $("<span></span>");
         if (!u.collections || !u.collections[collectNum] || !u.collections[collectNum][i]) {
@@ -6308,7 +6457,7 @@ function showProgressList(obj, pr, already) {
             if (obj.hasOwnProperty(i)) {
                 var curRang = u.progress[i] || 0, div = $("<div/>").append('<div class="progress-image progress' + curRang + '"></div>').append('<div class="progress-content"></div>').append('<div class="progress-bar"><div style="width:' + progressPersent(obj, i, curRang) + '"></div>'), contentHtml;
                 if (curRang >= maxProgressRank) {
-                    contentHtml = "<div></div><div>" + quests[i].title + "</div><div></div><div>" + obj[i] + "/?</div>";
+                    contentHtml = "<div></div><div>" + quests[i].title + "</div><div></div><div>" + obj[i] + "/∞</div>";
                     $(".progress-content", div).addClass("progress-done");
                 } else {
                     contentHtml = "<div>" + progressRank(i, curRang) + "</div><div>" + quests[i].title + '</div><div data-title="Награда за выполнение">' + progressReward(quests[i].prize[curRang]) + "</div><div>" + obj[i] + "/" + quests[i].values[curRang] + "</div>";
@@ -6454,6 +6603,19 @@ roulette.click(function() {
 });
 var zastavka;
 showWall(isMaffia ? "maffia/start.jpg" : "start.jpg");
+function loadImageFiles() {
+    for (var k = 0; k <= 9; k++) {
+        var rolePic = new Image();
+        rolePic.src = "/images/walls/" + ((k == 0) ? "0.gif" : k + ".jpg");
+    }
+    for (var mk = 1; mk <= 9; mk++) {
+        var mrolePic = new Image();
+        mrolePic.src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
+    }
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
+        new Image().src = el;
+    });
+}
 jQuery.cachedScript = function(url, options) {
     options = $.extend(options || {}, {
         dataType: "script",
@@ -6491,6 +6653,16 @@ $(document).ready(function() {
         $("#shop" + i + " .gamemoney").html(over1000(pr1) + '<hr/><span class="gamemoney">' + over1000(pr2) + "</span>");
         $("#shop" + i + " .money").html(over1000(pr3));
     }
+    for (var col in collectionsData) {
+        if (collectionsData.hasOwnProperty(col)) {
+            collectionWin.append('<input id="collect' + col + '" type="radio" name="collects" value="' + col + '"/><label for="collect' + col + '">' + collectionsData[col].title + "</label>");
+        }
+    }
+    collectionWin.append("<p></p><div></div>");
+    collectRadio = collectionWin.find('input[type=radio][name="collects"]');
+    collectRadio.change(function() {
+        showCollect(this.value);
+    });
     if (socketConnect) {
         if (!mobile) {
             socketConnect();
@@ -6510,6 +6682,7 @@ $(document).ready(function() {
     } else {
         outside.append('<img src="/images/calendar.png" alt="Расписание специальных партий"/>');
     }
+    loadImageFiles();
     if (!islocalStorage) {
         showNewDiv('<div class="important">В вашем браузере запрещено сохранение данных от веб-сайтов, поэтому некоторые настройки и функции будут недоступны</div>');
     }
@@ -6583,25 +6756,6 @@ $(window).resize(function() {
         });
     }
 });
-var logs = [];
-window.onerror = function(error, url, line) {
-    logs.push("ERR:" + error + " URL:" + url + " L:" + line);
-}
-;
-(function loadImageFiles() {
-    for (var k = 0; k <= 9; k++) {
-        var rolePic = new Image();
-        rolePic.src = "/images/walls/" + ((k == 0) ? "0.gif" : k + ".jpg");
-    }
-    for (var mk = 1; mk <= 9; mk++) {
-        var mrolePic = new Image();
-        mrolePic.src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
-    }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
-        new Image().src = el;
-    });
-}
-)();
 var newGame = {
     creating: false,
     plCount: 8,
@@ -7946,7 +8100,7 @@ game.updateInfoGame = function(text) {
     }
     nickText += '<span class="rolesmile role' + game.role + '"></span>' + roles(game.role).name;
     $("#nick").html(nickText);
-    $(".gamemakerinfo").html("<span>День " + game.day + "</span> ? <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
+    $(".gamemakerinfo").html("<span>День " + game.day + "</span> ➣ <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
     showTime();
     if (game.active && !game.closed) {
         switch (game.period) {
@@ -9583,6 +9737,9 @@ function socketConnect(retry) {
                 setTimeout(function() {
                     socketConnect(true);
                 }, 3000);
+                if (typeof window.obUnloader == "object") {
+                    window.obUnloader.resetUnload();
+                }
             }
             showNewMessage(obj);
         }
