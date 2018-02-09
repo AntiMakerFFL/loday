@@ -1575,6 +1575,11 @@ function warningWindow(text, callback, buttext, win, specialclass) {
     var newWW = wW.clone();
     newWW.appendTo(container);
     newWW.find("span").html(text);
+    if (buttext == "Выйти из игры") {
+        $("<div/>").addClass("button").html("Посмотреть игру").click(newWW, function(e) {
+            e.data.remove();
+        }).appendTo(newWW.find("span"));
+    }
     newWW.show();
     var wb = newWW.find("button");
     if (buttext) {
@@ -1585,11 +1590,14 @@ function warningWindow(text, callback, buttext, win, specialclass) {
     } else {
         wb.html("ОК");
     }
-    wb.unbind("click").one("click", function() {
-        newWW.fadeOut(300);
+    wb.one("click", function() {
+        $(this).parents(".warningWindow").fadeOut(400);
         if (callback) {
             callback();
         }
+        setTimeout(function(newWW) {
+            newWW.remove();
+        }, 1000, $(this).parents(".warningWindow"));
     });
     if (win != undefined && game.style && game.style.style == 4 && container.hasClass("current")) {
         var whowin = (win) ? (u.sex == 1 ? "women" : "men") : (u.sex == 1 ? "men" : "women");
@@ -1599,13 +1607,9 @@ function warningWindow(text, callback, buttext, win, specialclass) {
             newWW.addClass("win");
         }
     }
-    newWW.hide = function() {
-        $(this).removeClass("showWindow");
-    }
-    ;
     if (specialclass) {
         newWW.addClass(specialclass);
-        setTimeout(function() {
+        setTimeout(function(newWW) {
             newWW.addClass("showWindow");
         }, 500, newWW);
     } else {
@@ -5338,7 +5342,11 @@ function showCollect(collectNum) {
             }
         }
         if (fullCol) {
-            $("<button/>").html("Активировать коллекцию").click(function() {
+            $("<button/>").css({
+                display: "block",
+                margin: "3px auto"
+            }).html("Активировать коллекцию").click(function() {
+                closewindow();
                 sendToSocket({
                     type: "collection",
                     collect: parseInt(collectNum)
@@ -8452,7 +8460,7 @@ var finalMsg = function(data, end) {
             str += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + "&amp;title=Мне удалось заработать " + over1000(data.money) + " за " + someThing(data.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">Сохранить игру</a><br/>';
         }
     }
-    str += (end) ? '<div class="button" onclick="wW.hide()">Посмотреть игру</div>' : "Хотите досмотреть игру до конца?";
+    str += (end) ? "" : "Хотите досмотреть игру до конца?";
     return str;
 };
 game.killed = function(data) {
@@ -9013,7 +9021,6 @@ snowball.start = function(data) {
 }
 ;
 snowball.setRound = function(data) {
-    wW.hide();
     if (data.round) {
         var classtext = "snows" + (data.round + 4);
         snowPlayList1.removeClass().addClass("playerlist " + classtext);
@@ -9404,9 +9411,11 @@ addHandler(document, "contextmenu", function() {
     tp.hide();
     ptp.hide();
 });
-addHandler(document, "click", function() {
+addHandler(document, "click", function(e) {
     document.getElementById("contextMenu").style.display = "none";
-    plMenu.hide();
+    if (e.which != 3 || !e.target || !e.target.parentElement || !e.target.parentElement.id || e.target.parentElement.id !== "players") {
+        plMenu.hide();
+    }
     tp.hide();
     ptp.hide();
 });
@@ -9731,21 +9740,15 @@ function socketConnect(retry) {
                     });
                 }
             } else {
-                modalWindow(obj.message + "<br/> Идет попытка восстановить соединение...<br/> Хотите зайти в игру заново?", function() {
-                    window.location.reload();
-                });
+                showNewDiv('<div class="blue">Идет попытка восстановить соединение...<br/></div>');
                 setTimeout(function() {
                     socketConnect(true);
                 }, 3000);
-                if (typeof window.obUnloader == "object") {
-                    window.obUnloader.resetUnload();
-                }
             }
             showNewMessage(obj);
         }
         ;
         ws.onopen = function() {
-            wW.hide();
             var authObj = {
                 type: "authorize",
                 reconnect: retry,
