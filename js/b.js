@@ -1578,7 +1578,7 @@ function warningWindow(text, callback, buttext, win, specialclass) {
     if (buttext == "Выйти из игры") {
         $("<div/>").addClass("button").html("Посмотреть игру").click(newWW, function(e) {
             e.data.remove();
-        }).appendTo(newWW.find("span"));
+        }).appendTo(newWW.find("p>span"));
     }
     newWW.show();
     var wb = newWW.find("button");
@@ -1920,9 +1920,11 @@ function showNewDiv(text) {
     messagesList.append(text);
     doScroll();
 }
+var notextMsgCount = 0;
 function sendMessage() {
     var msgStr = inputField.val().trim().substring(0, 200)
       , strForSwitch = msgStr.toLowerCase().replace(/[.?!]/g, "").trim()
+      , nosmileStr = msgStr.replace(/\[[A-z]+\]/g, "").trim()
       , needsend = true;
     if (msgStr == "" || (container.hasClass("current") && (game.finish || game.period == 4))) {
         return;
@@ -1934,6 +1936,14 @@ function sendMessage() {
             from: "[server]"
         });
         return;
+    }
+    notextMsgCount = (nosmileStr == "") ? notextMsgCount + 1 : 0;
+    if (notextMsgCount > 3) {
+        if (!sounds.joke) {
+            sounds.joke = createAudio("/media/joke." + soundExt);
+        }
+        notextMsgCount = 0;
+        sound("joke");
     }
     var adresat = $("#adresat-id").val();
     switch (strForSwitch) {
@@ -9325,7 +9335,7 @@ function menu(type, evt) {
         if (isAppVK) {
             return true;
         }
-        html = (isMaffia) ? "Мафия онлайн<br/> <sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>" : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Cайт <a href="http://loday.ru/" target="_blank">Loday.ru</a><br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
+        html = (isMaffia) ? '<button onclick="showAlarms()">Лог уведомлений</button>' : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
         break;
     case 2:
         if (!evt.target.id || evt.target.id == "players") {
