@@ -1653,6 +1653,31 @@ function isset(par) {
 }
 function updateInterface(udata) {
     if (udata) {
+        if (udata.inc) {
+            udata.inc.forEach(function(el) {
+                if (el.collection) {
+                    if (!u.collections) {
+                        u.collections = {};
+                    }
+                    if (!u.collections[el.collection]) {
+                        u.collections[el.collection] = 0;
+                    }
+                    if (!u.collections[el.collection][el.item]) {
+                        u.collections[el.collection][el.item] = 0;
+                    }
+                    u.collections[el.collection][el.item] += el.value;
+                } else {
+                    if (!u.items) {
+                        u.items = {};
+                    }
+                    if (!u.items[el.item]) {
+                        u.items[el.item] = 0;
+                    }
+                    u.items[el.item] += el.value;
+                }
+            });
+            return;
+        }
         Object.update(u, udata);
     } else {
         udata = u;
@@ -1888,6 +1913,17 @@ function showNewMessage(event) {
                         break;
                     case "мяу":
                         showWall("other/cats.gif");
+                        pluhTime = datenow();
+                        break;
+                    case ":-*":
+                    case "чмок":
+                    case "люблю":
+                        var randLove = randomInt(10);
+                        if (randLove == 10) {
+                            showWall("/images/holidays/love/10.gif", true);
+                        } else {
+                            showPattern("/images/holidays/love/" + randLove + ".gif");
+                        }
                         pluhTime = datenow();
                         break;
                     }
@@ -2411,7 +2447,7 @@ function suggestedPlayer(data) {
 function showWall(pic, external, nohide) {
     var wp = $("#wallpaper")
       , isrc = (external) ? pic : "/images/walls/" + pic;
-    wp.css("background-image", "");
+    wp.removeAttr("style");
     wp.css("background-image", "url(" + isrc + ")");
     wp.show();
     wp.click(function() {
@@ -2422,6 +2458,19 @@ function showWall(pic, external, nohide) {
             $("#wallpaper").fadeOut(3000);
         }, 2000);
     }
+}
+function showPattern(pic) {
+    var wp = $("#wallpaper");
+    wp.css({
+        background: "url(" + pic + ") center/contain no-repeat"
+    });
+    wp.show();
+    wp.click(function() {
+        $("#wallpaper").hide();
+    });
+    setTimeout(function() {
+        $("#wallpaper").fadeOut(3000);
+    }, 2000);
 }
 function createAudio(src) {
     var audioElement = document.createElement("audio");
@@ -2532,8 +2581,11 @@ function socketEvent(message) {
                 if (mobile) {
                     showMessage("Пожалуйста, пройдите авторизацию повторно.");
                 } else {
-                    $(window).off("beforeunload", Unloader.unload);
-                    window.location.href = isMaffia ? "http://maffia-online.ru/" : "/";
+                    warningWindow("Ошибка авторизации", function() {
+                        $(window).off("beforeunload", Unloader.unload);
+                        window.location.href = isMaffia ? "http://maffia-online.ru/" : "/";
+                    }, "Авторизоваться");
+                    console.log(event.text);
                 }
             }
         }
@@ -2678,7 +2730,7 @@ function socketEvent(message) {
                 showNewDiv(regList);
             }
             if (event.was) {
-                var wasText = '<div class="wastoday">Сегодня были в игре (' + event.was.length + '):<input type="checkbox" id="showwasingame"/><label for="showwasingame"></label><div>';
+                var wasText = '<div class="wastoday">Сегодня были в игре (' + event.was.length + '):<input type="checkbox" class="spoiler" id="showwasingame"/><label for="showwasingame"></label><div>';
                 event.was.forEach(function(el) {
                     wasText += '<strong data-id="' + el._id + '">' + el.login + "</strong>, ";
                 });
@@ -3004,6 +3056,7 @@ function socketEvent(message) {
         break;
     case "box":
         updateInterface({
+            inc: event.inc,
             items: event.items
         });
         showBox(event);
@@ -3220,6 +3273,42 @@ function socketEvent(message) {
             if (event.el) {
                 $(event.el).attr("style", event.style);
             }
+        }
+        break;
+    case "f14pairs":
+        if (event.pairs) {
+            var amur = $('<img id="amur" src="/images/holidays/amur.gif"/>').appendTo(b);
+            if (!sounds.valentin) {
+                sounds.valentin = createAudio("/media/valentin." + soundExt);
+            }
+            sound("valentin");
+            amur.animate({
+                left: "-350px"
+            }, 10000, function() {
+                $(this).remove();
+                sounds.valentin.pause();
+                var pairsText = "Амурчик на 1 час соединил сердца следующих пар:<br/><ol>";
+                event.pairs.forEach(function(el) {
+                    if (el[1] && el[2]) {
+                        pairsText += '<li><strong class="sex1" data-id="' + el[1]._id + '">♀ ' + el[1].login + '</strong> <span class="green">+</span> <strong class="sex2" data-id="' + el[2]._id + '">' + el[2].login + " ♂</strong></li>";
+                    }
+                });
+                pairsText += "</ol>";
+                showNewDiv('<div class="february14-pairs">' + pairsText + "</div>");
+                doScroll();
+            });
+        }
+        if (event.task) {
+            setTimeout(function(event) {
+                showNewMessage({
+                    message: "Хочешь получить подарок на День святого валентина? Тогда сыграй со своей парой в игру:<br/><ul><li>" + gameStyle[event.task.style] + "</li><li>не менее чем на " + event.task.count + " игроков</li></ul>",
+                    msgType: "private",
+                    from: false,
+                    to: u._id,
+                    toName: u.login
+                });
+                $("#amur").attr("src", "/images/holidays/amur-arrow.gif");
+            }, 5000, event);
         }
         break;
     case "console":
@@ -3819,7 +3908,7 @@ function showWindow(buttonClass) {
     };
     specialClassSet("stat", "statwin");
     specialClassSet("tree", "treewin");
-    specialClassSet("valentinForm", "valentinwin");
+    specialClassSet("f14Win", "blackwin");
     specialClassSet("playerInfoBlock", "profileWindow");
     specialClassSet("buyGifts", "buyboxwin");
 }
@@ -5098,9 +5187,6 @@ var giftShop = $(".giftshop")
     return "gift-group" + groupNum + " gift" + giftnum;
 }
   , addGiftOnList = function(i) {
-    if (i > 272) {
-        return;
-    }
     if (i == 142 || (i > 252 && i < 273)) {
         return;
     }
@@ -5572,6 +5658,36 @@ function showStatistics(data) {
                     type: "buyGifts",
                     box: $(this).attr("data-type")
                 });
+            });
+        }
+        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code) {
+            messagesList.append('<div class="news"><em>' + data.params.vkpoll.title + '</em> <input type="checkbox" class="spoiler" id="showvkpoll"/><label for="showvkpoll"></label><div id="vk_poll" style="overflow:hidden"></div></div>');
+            VK.Widgets.Poll("vk_poll", {}, data.params.vkpoll.code);
+        }
+        if (isToday("14.2.2018")) {
+            $("<div/>", {
+                "class": "supportButton"
+            }).css({
+                width: "200px",
+                height: "102px",
+                background: "url(/images/holidays/f14send.png) center no-repeat",
+                margin: 0,
+                border: 0,
+                "box-shadow": "none"
+            }).attr("title", "Сделать анонимное признание...").click(function() {
+                showWindow("f14Win");
+            }).insertBefore("#lottery");
+            var f14Win = $("<div/>", {
+                "class": "f14Win"
+            }).html('<p>Только 14 февраля у Вас есть уникальная возможность анонимно признаться кому-то в любви или просто поздравить с Днем всех влюбленных!</p><textarea placeholder="Я люблю..." maxlength="1000"></textarea><button class="button">Отправить</button>').appendTo(win.find(".info"));
+            f14Win.find("button").click(function() {
+                var text = f14Win.find("textarea").val().substring(0, 1000);
+                sendToSocket({
+                    type: "f14msg",
+                    text: text
+                });
+                closewindow();
+                f14Win.find("textarea").val("");
             });
         }
     }
@@ -9550,9 +9666,9 @@ function showGroupWidget() {
         mode: 0,
         width: "200",
         height: "200",
-        color1: isMaffia ? "000000" : "FFFFFF",
-        color2: "000000",
-        color3: "5E81A8"
+        color1: isMaffia ? "000000" : "fbd7c5",
+        color2: isMaffia ? "000000" : "FFFFFF",
+        color3: isMaffia ? "5E81A8" : "827c99"
     }, groupId);
 }
 function appSocialButton() {

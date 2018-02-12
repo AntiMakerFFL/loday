@@ -13,6 +13,13 @@
     font-style: normal
 }
 
+@font-face {
+    font-family: 'Ribbon Heart';
+    src: url('/fonts/RibbonHeart/RibbonHeart.eot?#iefix') format('embedded-opentype'),url('/fonts/RibbonHeart/RibbonHeart.woff') format('woff'),url('/fonts/RibbonHeart/RibbonHeart.ttf') format('truetype'),url('/fonts/RibbonHeart/RibbonHeart.svg') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
 html,body {
     font: 400 14px Ubuntu,Arial,'PT Sans',SegoeUi,sans-serif;
     width: 100%;
@@ -23,7 +30,7 @@ html,body {
 }
 
 body {
-    background: #fff
+    background: url(/images/dl/background.jpg) right bottom/100% 100% no-repeat #fff
 }
 
 body.maffia {
@@ -65,8 +72,7 @@ nav>h2:hover,#left-panel>div:hover,.contrast2 {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: url(/images/header.png) no-repeat
+    height: 100%
 }
 
 #container.ingame:before {
@@ -382,11 +388,8 @@ article>h2,.hidden {
 }
 
 .color1 {
-    background: #ec68a1
-}
-
-.color1 {
-    background: linear-gradient(135deg,#ec68a1,#d0d0d0 20%,#ec68a1 40%,#d0d0d0 60%,#ec68a1 80%,#d0d0d0 100%)
+    background: #f3dbf7;
+    background: linear-gradient(to top,#b878b1 0,#fbd8c5 48%,#f3dbf7 75%,#f6dbf3 100%)
 }
 
 .back.color1 {
@@ -394,11 +397,8 @@ article>h2,.hidden {
 }
 
 .color2 {
-    background: #ff7070
-}
-
-.color2 {
-    background: linear-gradient(155deg,#f33 15%,#ff7070 30%)
+    background: #ff7070;
+    background: linear-gradient(to top,#9d0f20 0,#b096a8 48%,#c79eab 75%,#d96069 100%)
 }
 
 .back.color2 {
@@ -406,11 +406,8 @@ article>h2,.hidden {
 }
 
 .color3 {
-    background: #f4d177
-}
-
-.color3 {
-    background: linear-gradient(155deg,#f0bf42 15%,#f4d177 30%)
+    background: #f4d177;
+    background: linear-gradient(to top,#e38704 0,#b096a7 57%,#bc9aaa 75%,#f3c53a 100%)
 }
 
 .back.color3 {
@@ -418,11 +415,8 @@ article>h2,.hidden {
 }
 
 .color4 {
-    background: #e7df78
-}
-
-.color4 {
-    background: linear-gradient(155deg,#e0d752 15%,#e7df78 30%)
+    background: #e7df78;
+    background: linear-gradient(to top,#fbed4b 0,#b096a7 57%,#bc9aaa 75%,#fdf6a6 100%)
 }
 
 .back.color4 {
@@ -430,11 +424,8 @@ article>h2,.hidden {
 }
 
 .color5 {
-    background: #4db64d
-}
-
-.color5 {
-    background: linear-gradient(155deg,#14b814 15%,#4db64d 30%)
+    background: #4db64d;
+    background: linear-gradient(to top,#207f20 0,#b096a7 57%,#bc9aaa 75%,#4cc752 100%)
 }
 
 .back.color5 {
@@ -442,7 +433,8 @@ article>h2,.hidden {
 }
 
 .color6 {
-    background: #000
+    background: #000;
+    background: linear-gradient(to top,#020202 0,#b096a7 57%,#bc9aaa 75%,#b7b3b4 100%)
 }
 
 .back.color6 {
@@ -457,8 +449,28 @@ article>h2,.hidden {
     content: 'Чтобы отключить викторину, отправьте в чат сообщение "викторина-"';
     block}
 
-.color6 output: before {
-    content:'➷ Представьте, как Вам сейчас завидуют игроки без клуба?!';
+.color2 .messages {
+    background: url(/images/dl/chat2.png) right bottom/50% auto no-repeat #fdf9f9
+}
+
+.color3 .messages {
+    background: url(/images/dl/chat3.png) right bottom/50% auto no-repeat #fdf9f9
+}
+
+.color4 .messages {
+    background: url(/images/dl/chat4.png) right bottom/50% auto no-repeat #fdf9f9
+}
+
+.color5 .messages {
+    background: url(/images/dl/chat5.png) right bottom/50% auto no-repeat #fdf9f9
+}
+
+.color6 .messages {
+    background: url(/images/dl/chat6.png) right bottom/50% auto no-repeat #fdf9f9
+}
+
+.color6 output:before {
+    content: '➷ Представьте, как Вам сейчас завидуют игроки без клуба?!';
     display: block
 }
 
@@ -506,11 +518,20 @@ header {
 header:after {
     display: inline-block;
     position: absolute;
-    bottom: 40px;
-    right: 10px;
+    bottom: 25px;
+    right: 5px;
+    min-height: 53px;
     content: attr(data-name);
+    font: 400 56px 'Ribbon Heart',serif;
+    background: url(/images/dl/header-cats.png) right bottom no-repeat;
+    padding-right: 175px
+}
+
+.maffia header:after {
+    background: 0;
     color: #fff;
     text-shadow: -1px 0 #000,0 1px #000,1px 0 #000,0 -1px #000;
+    padding: 0;
     font: 700 42px Lora,Georgia,serif
 }
 
@@ -548,8 +569,7 @@ h3 {
     margin: 5px 2px;
     text-align: center;
     cursor: pointer;
-    background: url(/images/button-long.png) no-repeat;
-    background-size: 100% 100%;
+    background: #827c99;
     border: 1px solid #fff;
     color: #fff;
     border-radius: 10px;
@@ -1136,7 +1156,6 @@ article {
 }
 
 #main,.messages,#lists,#players {
-    background: #fdfdfd;
     border: 1px solid #999;
     box-sizing: border-box
 }
@@ -1146,6 +1165,7 @@ article {
 }
 
 #main {
+    background: #fcf9f9;
     height: 30%;
     width: 100%;
     overflow-x: hidden;
@@ -1220,7 +1240,7 @@ article {
     display: none
 }
 
-article li span {
+#main li span {
     display: table-cell;
     white-space: nowrap;
     line-height: 20px
@@ -1296,6 +1316,7 @@ article li span {
 .messages {
     display: none;
     height: 69%;
+    background: url(/images/dl/chat.png) center bottom/contain no-repeat #fcf9f9;
     font-size: 15px;
     border: 1px solid #999;
     border-radius: 0 0 10px 10px;
@@ -1575,7 +1596,7 @@ aside>.blocktitle {
     display: block;
     width: 100%;
     height: 22px;
-    border: 1px solid #00c;
+    border: 1px solid #857794;
     border-radius: 3px;
     line-height: 22px
 }
@@ -1622,8 +1643,8 @@ aside>.blocktitle {
 }
 
 .myselect>ul>li:hover {
-    -webkit-filter: brightness(150%);
-    filter: brightness(150%)
+    -webkit-filter: brightness(50%);
+    filter: brightness(50%)
 }
 
 #players b:before,.myselect>ul>li:before,.myselect>label:before,#player-status:before,.player-status:before,.playerlist b:before {
@@ -2168,17 +2189,14 @@ footer {
     -o-transition: -o-box-shadow .1s ease-in-out;
     transition: box-shadow .1s ease-in-out;
     font: bold 14px Ubuntu,Arial,Helvetica,Clean,sans-serif;
+    background: #827c99;
+    border: solid 1px #fcf9f9;
+    border-bottom: solid 3px #a1671d;
+    -moz-box-shadow: inset 0 0 0 1px #fcf9f9;
+    -webkit-box-shadow: inset 0 0 0 1px #fcf9f9;
+    box-shadow: inset 0 0 0 1px #fcf9f9;
     padding: 10px 20px;
     text-align: center;
-    background: #c68656;
-    background: -webkit-gradient(linear,0 0,0 bottom,from(#c68656),to(#b9390d));
-    background: -moz-linear-gradient(#c68656,#b9390d);
-    background: linear-gradient(#c68656,#b9390d);
-    border: solid 1px #a1681b;
-    border-bottom: solid 3px #a1671d;
-    -moz-box-shadow: inset 0 0 0 1px #c17b3f;
-    -webkit-box-shadow: inset 0 0 0 1px #c17b3f;
-    box-shadow: inset 0 0 0 1px #c17b3f;
     color: #fff;
     text-shadow: 0 1px 0 #a1671d
 }
@@ -2197,6 +2215,18 @@ footer {
     width: 100%
 }
 
+.maffia #shareButton {
+    background: #c68656;
+    background: -webkit-gradient(linear,0 0,0 bottom,from(#c68656),to(#b9390d));
+    background: -moz-linear-gradient(#c68656,#b9390d);
+    background: linear-gradient(#c68656,#b9390d);
+    border: solid 1px #a1681b;
+    border-bottom: solid 3px #a1671d;
+    -moz-box-shadow: inset 0 0 0 1px #c17b3f;
+    -webkit-box-shadow: inset 0 0 0 1px #c17b3f;
+    box-shadow: inset 0 0 0 1px #c17b3f
+}
+
 .maffia #shareButton:before {
     -webkit-box-shadow: #353535 0 1px 5px;
     -moz-box-shadow: #353535 0 1px 5px;
@@ -2208,22 +2238,28 @@ footer {
 }
 
 #shareButton:hover {
-    background: #e9893d;
-    background: -webkit-gradient(linear,0 0,0 bottom,from(#e9893d),to(#f6c696));
-    background: -moz-linear-gradient(#e9893d,#f6c696);
-    background: linear-gradient(#e9893d,#f6c696);
     border: solid 1px #a1681b;
     border-bottom: solid 3px #a1671d;
     box-shadow: inset 0 0 0 1px #f1bb8f
 }
 
-#shareButton:active {
+.maffia #shareButton:hover {
     background: #e9893d;
     background: -webkit-gradient(linear,0 0,0 bottom,from(#e9893d),to(#f6c696));
     background: -moz-linear-gradient(#e9893d,#f6c696);
-    background: linear-gradient(#e9893d,#f6c696);
+    background: linear-gradient(#e9893d,#f6c696)
+}
+
+#shareButton:active {
     border: solid 1px #a1681b;
     box-shadow: inset 0 10px 15px 0 #a1671d
+}
+
+.maffia #shareButton:active {
+    background: #e9893d;
+    background: -webkit-gradient(linear,0 0,0 bottom,from(#e9893d),to(#f6c696));
+    background: -moz-linear-gradient(#e9893d,#f6c696);
+    background: linear-gradient(#e9893d,#f6c696)
 }
 
 #vk-idea {
@@ -3370,7 +3406,8 @@ button:active,.button:active {
     font-size: 1.1em;
     margin: 5px 0;
     clear: both;
-    list-style: none
+    list-style: none;
+    min-height: 25px
 }
 
 .news:before {
@@ -3405,26 +3442,26 @@ button:active,.button:active {
     line-height: 0
 }
 
-#showwasingame,#showwasingame~div {
+.spoiler,.spoiler~div {
     display: none
 }
 
-#showwasingame+label:before {
+.spoiler+label:before {
     content: 'Показать ⇓';
     color: #00f;
     margin: 0 5px;
     font: 700 12px Ubuntu,Arial,sans-serif
 }
 
-.maffia #showwasingame+label:before {
+.maffia .spoiler+label:before {
     color: #fff
 }
 
-#showwasingame:checked~div {
+.spoiler:checked~div {
     display: block
 }
 
-#showwasingame:checked+label:before {
+.spoiler:checked+label:before {
     content: 'Скрыть ⇑'
 }
 
@@ -3444,6 +3481,33 @@ button:active,.button:active {
 
 .maffia .important {
     color: #fdfd00
+}
+
+.february14-pairs {
+    background: url(/images/holidays/f14back.gif) repeat #fff;
+    border: 5px double #900;
+    border-radius: 12px;
+    color: #00f;
+    padding: 5px 20px
+}
+
+.february14-pairs>ol {
+    display: table;
+    background: rgba(255,255,255,0.9);
+    font-size: 1.2em
+}
+
+.february14-pairs:after {
+    content: url(/images/holidays/f14pairs.gif);
+    display: block;
+    text-align: center
+}
+
+#amur {
+    position: absolute;
+    z-index: 99999;
+    left: 100%;
+    top: 20%
 }
 
 .newgame:before {
@@ -3908,7 +3972,7 @@ button.usergame {
     content: 'Внимание! Конкурс!'
 }
 
-.support>p {
+.support>p,.f14Win>p {
     color: #fff;
     font-size: 1.2em;
     background: #008;
@@ -3921,7 +3985,7 @@ button.usergame {
     margin: 5px auto
 }
 
-.support>textarea {
+.support>textarea,.f14Win>textarea {
     min-width: 60%;
     min-height: 100px
 }
@@ -4017,6 +4081,26 @@ button.usergame {
 
 .buyGifts>div>figure>figcaption:active {
     background-image: linear-gradient(#c61e40,#d4536d)
+}
+
+.f14Win {
+    background: url(/images/holidays/f14back.jpg) center/contain no-repeat
+}
+
+.f14Win:before {
+    content: 'С Днём святого Валентина!'
+}
+
+.f14Win>textarea {
+    position: absolute;
+    bottom: 50px;
+    left: 20%
+}
+
+.f14Win>button {
+    position: absolute;
+    bottom: 0;
+    left: 45%
 }
 
 .aboutgame {
@@ -6378,11 +6462,11 @@ button.usergame {
 }
 
 .sex1 {
-    color: #efa2f0
+    color: #efa2f0!important
 }
 
 .sex2 {
-    color: #3a93c9
+    color: #3a93c9!important
 }
 
 .mode1:after {
@@ -8262,8 +8346,8 @@ body {
 }
 
 #tickets>section>div:hover {
-    -webkit-filter: brightness(150%);
-    filter: brightness(150%)
+    -webkit-filter: brightness(50%);
+    filter: brightness(50%)
 }
 
 .clicked-ticket {
@@ -8555,8 +8639,8 @@ body {
     position: relative;
     padding: 10px;
     text-align: center;
-    background: rgba(120,240,94,0.2);
-    box-shadow: inset 3px 3px 5px #99cef2,inset -3px 3px 5px #99cef2,inset 3px -3px 5px #99cef2,inset -3px -3px 5px #99cef2;
+    background: #c69da9;
+    box-shadow: inset 3px 3px 5px #857794,inset -3px 3px 5px #857794,inset 3px -3px 5px #857794,inset -3px -3px 5px #857794;
     overflow: hidden;
     margin: 5px 20px
 }
@@ -8565,9 +8649,7 @@ body {
     content: 'Викторина';
     display: block;
     font-size: 1.1em;
-    color: #f00;
-    background: #fec;
-    border-bottom: 1px solid #29f
+    background: #fbdbc8
 }
 
 .quiz>p {
@@ -8581,7 +8663,7 @@ body {
     width: 30px;
     height: 30px;
     font: 500 22px/28px Ubuntu,Arial,sans-serif;
-    background: #99f;
+    background: #fbdbc8;
     border: 1px outset #000;
     box-sizing: border-box
 }
@@ -8653,6 +8735,10 @@ body {
 
 .quizHeader th,.quizHeader td {
     color: #fff!important
+}
+
+#container>.window.blackwin:before {
+    background: #000!important
 }
 
 #container>.window.statwin {
@@ -8803,9 +8889,9 @@ body {
     font-weight: 600;
     margin-top: 10px;
     border-radius: 0 10px 10px 0;
-    background-color: #0885c2;
+    background-color: #827c99;
     cursor: pointer;
-    box-shadow: inset 0 0 2px 1px #0885c2,0 0 1px 1px #fff,4px 5px 5px rgba(122,122,122,0.5)
+    box-shadow: inset 0 0 2px 1px #827c99,0 0 1px 1px #fff,4px 5px 5px rgba(122,122,122,0.5)
 }
 
 #left-panel>div:before {
@@ -8819,7 +8905,7 @@ body {
 }
 
 #left-panel>div:hover {
-    border-left: 5px solid #0885c2
+    border-left: 5px solid #827c99
 }
 
 #edit:before {
@@ -8965,7 +9051,7 @@ body {
 
 .birthdays {
     color: #339;
-    border: 1px solid #f00
+    border: 1px solid #857794
 }
 
 .birthdays:before {
@@ -10200,14 +10286,13 @@ button {
 }
 
 .maffia #contextMenu {
-    padding: 120px 10px 10px 10px;
-    background: #000;
-    color: #fff
+    padding: 220px 10px 10px 10px;
+    background: url(/images/maffia/applogo.png) no-repeat #000;
+    height: 300px
 }
 
 .maffia #contextMenu:before {
-    content: url(/images/maffia/apple/apple-touch-icon-120.png);
-    left: 90px
+    display: none
 }
 
 .maffia .green {
@@ -10364,10 +10449,15 @@ button {
     right: 0;
     bottom: 0;
     width: 200px;
-    background-color: #fff;
     overflow-x: hidden;
     overflow-y: auto;
     z-index: 100
+}
+
+#vk_groups>iframe {
+    border-left: 1px outset #999;
+    border-bottom: 1px outset #999;
+    border-radius: 0 0 0 20px
 }
 
 #outside>img {
@@ -10922,7 +11012,7 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #5997ca;
+    background: #827c99;
     box-shadow: inset -2px 0 2px #fff,inset 2px 0 2px #fff;
     -webkit-border-radius: 3px;
     border-radius: 3px
