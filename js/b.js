@@ -1915,12 +1915,16 @@ function showNewMessage(event) {
                         showWall("other/cats.gif");
                         pluhTime = datenow();
                         break;
+                    case "ауау":
+                        showWall("other/auau.gif");
+                        pluhTime = datenow();
+                        break;
                     case ":-*":
                     case "чмок":
                     case "люблю":
-                        var randLove = randomInt(10);
-                        if (randLove == 10) {
-                            showWall("/images/holidays/love/10.gif", true);
+                        var randLove = randomInt(12);
+                        if (randLove > 10) {
+                            showWall("/images/holidays/love/" + randLove + ".gif", true);
                         } else {
                             showPattern("/images/holidays/love/" + randLove + ".gif");
                         }
@@ -5660,7 +5664,7 @@ function showStatistics(data) {
                 });
             });
         }
-        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code) {
+        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code && typeof (VK) !== "undefined") {
             messagesList.append('<div class="news"><em>' + data.params.vkpoll.title + '</em> <input type="checkbox" class="spoiler" id="showvkpoll"/><label for="showvkpoll"></label><div id="vk_poll" style="overflow:hidden"></div></div>');
             VK.Widgets.Poll("vk_poll", {}, data.params.vkpoll.code);
         }
@@ -5688,6 +5692,11 @@ function showStatistics(data) {
                 });
                 closewindow();
                 f14Win.find("textarea").val("");
+            });
+            $.cachedScript("/js/hearts.js").done(function(script, textStatus) {
+                if (fall && !b.hasClass("noeffect")) {
+                    fall();
+                }
             });
         }
     }
@@ -9890,7 +9899,7 @@ function socketConnect(retry) {
             if (server2) {
                 authObj.server2 = true;
             }
-            sendToSocket(authObj);
+            setTimeout(sendToSocket, 500, authObj);
             $(function() {
                 if (!isAppVK && typeof window.obUnloader != "object") {
                     window.obUnloader = new Unloader();

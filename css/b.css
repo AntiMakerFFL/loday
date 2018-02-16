@@ -476,6 +476,7 @@ article>h2,.hidden {
 
 .color1 .hall1,.color2 .hall2,.color3 .hall3,.color4 .hall4,.color5 .hall5,.color6 .hall6 {
     border: 3px double rgba(255,255,255,0.5);
+    border-bottom: 0;
     box-shadow: none;
     -webkit-filter: none!important;
     filter: none!important
@@ -532,6 +533,7 @@ header:after {
     color: #fff;
     text-shadow: -1px 0 #000,0 1px #000,1px 0 #000,0 -1px #000;
     padding: 0;
+    bottom: 32px;
     font: 700 42px Lora,Georgia,serif
 }
 
@@ -1160,7 +1162,7 @@ article {
     box-sizing: border-box
 }
 
-.maffia #main,.maffia .messages,.maffia #lists,.maffia #players {
+.maffia #main,.maffia .messages,.maffia #lists,.maffia #container #players {
     background: #000
 }
 
@@ -1505,6 +1507,10 @@ aside>.blocktitle {
     line-height: 20px;
     padding: 1px 0 0 4px;
     overflow: hidden
+}
+
+.ingame #players {
+    background: #fcf9f9
 }
 
 .ingame #players>div:hover {
@@ -8645,11 +8651,22 @@ body {
     margin: 5px 20px
 }
 
+.maffia .quiz {
+    background: rgba(120,20,50,0.9);
+    color: #fff
+}
+
 .quiz:before {
     content: 'Викторина';
     display: block;
     font-size: 1.1em;
     background: #fbdbc8
+}
+
+.maffia .quiz:before {
+    color: #f00;
+    background: #fec;
+    border-bottom: 1px solid #29f
 }
 
 .quiz>p {
@@ -8666,6 +8683,10 @@ body {
     background: #fbdbc8;
     border: 1px outset #000;
     box-sizing: border-box
+}
+
+.maffia .quiz>p>span {
+    background: #99f
 }
 
 .quiz>p>span.spaceLetter {
@@ -9803,7 +9824,7 @@ section.bonus-ring:before {
     background: #264888
 }
 
-.maffia .color2 .blocktitle {
+.maffia .color2,.maffia .color2 .blocktitle {
     background: #882628;
     background: linear-gradient(#882628,rgba(136,38,40,0.6))
 }
@@ -9812,7 +9833,7 @@ section.bonus-ring:before {
     background: #882628
 }
 
-.maffia .color3 .blocktitle {
+.maffia .color3,.maffia .color3 .blocktitle {
     background: #a85600;
     background: linear-gradient(#a85600,rgba(168,86,0,0.6))
 }
@@ -9821,7 +9842,7 @@ section.bonus-ring:before {
     background: #a85600
 }
 
-.maffia .color4 .blocktitle {
+.maffia .color4,.maffia .color4 .blocktitle {
     background: #ebd428;
     background: linear-gradient(#ebd428,rgba(136,136,40,0.6))
 }
@@ -9830,7 +9851,7 @@ section.bonus-ring:before {
     background: #ebd428
 }
 
-.maffia .color5 .blocktitle {
+.maffia .color5,.maffia .color5 .blocktitle {
     background: #268828;
     background: linear-gradient(#268828,rgba(38,136,40,0.6))
 }
@@ -9839,7 +9860,7 @@ section.bonus-ring:before {
     background: #268828
 }
 
-.maffia .color6 .blocktitle {
+.maffia .color6,.maffia .color6 .blocktitle {
     background: #000;
     background: linear-gradient(#000,rgba(0,0,0,0.6))
 }
@@ -10122,11 +10143,6 @@ section.bonus-ring:before {
 .maffia .voted {
     opacity: 1;
     color: #b9b9b9!important
-}
-
-.maffia .quiz {
-    background: rgba(120,20,50,0.9);
-    color: #fff
 }
 
 .maffia .private,.maffia .helper-infotext {
