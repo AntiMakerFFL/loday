@@ -1,0 +1,74 @@
+.february23 .shop>div:nth-of-type(1):before,.february23 .item1:before{content:'Рация'}
+.february23 .shop>div:nth-of-type(2):before,.february23 .item2:before{content:'Бронежилет'}
+.february23 .shop>div:nth-of-type(3):before,.february23 .item3:before{content:'Наряд вне очереди'}
+.february23 .shop>div:nth-of-type(4):before,.february23 .item4:before{content:'Радиомаячок'}
+.february23 .shop>div:nth-of-type(5):before,.february23 .item5:before{content:'Танк'}
+.february23 .shop>div:nth-of-type(6):before,.february23 .item6:before{content:'Офицерские погоны'}
+.february23 .shop>div:nth-of-type(1)>div:nth-of-type(1),.february23 .shop-item1{background-image:url(/images/february23/item1-1.png)}
+.february23 .shop>div:nth-of-type(2)>div:nth-of-type(1),.february23 .shop-item2{background-image:url(/images/february23/item1-2.png)}
+.february23 .shop>div:nth-of-type(3)>div:nth-of-type(1),.february23 .shop-item3{background-image:url(/images/february23/item1-3.png)}
+.february23 .shop>div:nth-of-type(4)>div:nth-of-type(1),.february23 .shop-item4{background-image:url(/images/february23/item2-1.png)}
+.february23 .shop>div:nth-of-type(5)>div:nth-of-type(1),.february23 .shop-item5{background-image:url(/images/february23/item2-2.png)}
+.february23 .shop>div:nth-of-type(6)>div:nth-of-type(1),.february23 .shop-item6{background-image:url(/images/february23/item2-3.png)}
+.february23 #items>div>div{
+    background-image:url(/images/february23/items.png);
+    background-color:#ffc;
+}
+.february23 .item1-icon:before,.february23 .item2-icon:before,.february23 .item4-icon:before,.february23 .item5-icon:before{
+    background:url(/images/february23/items-small.png) no-repeat;
+}
+.february23 .items-1:before,.february23 .items-2:before,.february23 .items-4:before,.february23 .items-5:before{
+    background-image:url(/images/february23/items.png) !important;
+}
+.february23 .items-3{
+    background-image:url(/images/february23/item1-3.png) !important;
+    background-size:contain !important;
+}
+.february23 .items-6{
+    background-image:url(/images/february23/item2-3.png) !important;
+    background-size:contain !important;
+}
+
+.february23 .shop>div>div:nth-of-type(3)>span:after{
+    content:'для офицеров';
+}
+
+.february23 .window:before{
+    background:url(/images/february23/window.jpg) center/contain no-repeat,url(/images/february23/window-back.png) repeat #966 !important;
+}
+.february23 .ingame.nogift{background-color:#000 !important}
+/*
+.february23 #check6 + label:after,.february23 #UGcheck6 + label:after{content:'Террористы-смертники'}
+.february23 #smiles>div>span,.february23 .rolesmile,.february23 .stud:before,.february23 .duty:before,.february23 .assis:before,.february23 .sleep:before,
+.february23 .jeal:before,.february23 .robb:before,.february23 .hrobb:before{
+    background-image:url(/images/february23/roles-min.png);
+}
+
+.february23 .studTicket{
+    background:url(/images/february23/1.png) center no-repeat rgba(255,255,255,0.8) !important;
+    background-size:60% auto !important;
+}
+.february23 .ticket1{background:url(/images/february23/1.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket2{background:url(/images/february23/2.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket3{background:url(/images/february23/3.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket4{background:url(/images/february23/4.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket5{background:url(/images/february23/5.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket6{background:url(/images/february23/6.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket7{background:url(/images/february23/7.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.february23 .ticket8{background:url(/images/february23/8.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+
+.february23 .stud:after{content:'Рядовой'}
+.february23 .duty:after{content:'Командир разведгруппы'}
+.february23 .assis:after{content:'Разведчик'}
+.february23 .sleep:after{content:'Санитар'}
+.february23 .jeal:after{content:'Лётчик'}
+.february23 .robb:after{content:'Террорист'}
+.february23 .robb.some:after{content:'Террориста'}
+.february23 .hrobb:after{content:'Лидер террористов'}
+.february23 .cat:before,.february23 .role8{
+    background:url(/images/february23/8.png) center/contain no-repeat !important;
+}
+.february23 .cat:after{content:'Пацифист'}
+*/
+.february23.maffia #container>.warningWindow.win p{padding-top:200px}
+.february23 #container>.warningWindow.win p:before{content:url(/images/february23/win.png)}

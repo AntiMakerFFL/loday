@@ -2438,7 +2438,8 @@ footer>div:before {
     background: linear-gradient(to bottom,#ffe8cf 0,#ffe2bf 50%,#ffd4ab 51%,#ffd5ad 100%);
     border-radius: 10px;
     box-shadow: inset 0 0 10px rgba(205,55,55,0.5);
-    font-size: 1.1em
+    font-size: 1.1em;
+    overflow: hidden
 }
 
 #tooltip span {
@@ -3366,7 +3367,6 @@ button:active,.button:active {
 .nographic .message>div {
     margin-right: 5px
 }
-}
 
 .imageLoader {
     cursor: pointer
@@ -3772,6 +3772,15 @@ button.usergame {
     clear: both;
     margin: 20px auto;
     max-width: 400px
+}
+
+#UGsaves {
+    width: 200px
+}
+
+#UGsave {
+    margin: 10px auto 15px;
+    display: block
 }
 
 #UGitemsedit {
@@ -4836,7 +4845,7 @@ button.usergame {
 }
 
 .gift-group4:before {
-    background-image: url(/images/gifts4.png)
+    background-image: url(/images/gifts4.png?210218)
 }
 
 .gift1:before {
@@ -6005,6 +6014,118 @@ button.usergame {
 
 .gift292:before {
     background-position: -300px -200px
+}
+
+.gift293:before {
+    background-position: -400px -200px
+}
+
+.gift294:before {
+    background-position: -500px -200px
+}
+
+.gift295:before {
+    background-position: -600px -200px
+}
+
+.gift296:before {
+    background-position: -700px -200px
+}
+
+.gift297:before {
+    background-position: 0 -300px
+}
+
+.gift298:before {
+    background-position: -100px -300px
+}
+
+.gift299:before {
+    background-position: -200px -300px
+}
+
+.gift300:before {
+    background-position: -300px -300px
+}
+
+.gift301:before {
+    background-position: -400px -300px
+}
+
+.gift302:before {
+    background-position: -500px -300px
+}
+
+.gift303:before {
+    background-position: -600px -300px
+}
+
+.gift304:before {
+    background-position: -700px -300px
+}
+
+.gift305:before {
+    background-position: 0 -400px
+}
+
+.gift306:before {
+    background-position: -100px -400px
+}
+
+.gift307:before {
+    background-position: -200px -400px
+}
+
+.gift308:before {
+    background-position: -300px -400px
+}
+
+.gift309:before {
+    background-position: -400px -400px
+}
+
+.gift310:before {
+    background-position: -500px -400px
+}
+
+.gift311:before {
+    background-position: -600px -400px
+}
+
+.gift312:before {
+    background-position: -700px -400px
+}
+
+.gift313:before {
+    background-position: 0 -500px
+}
+
+.gift314:before {
+    background-position: -100px -500px
+}
+
+.gift315:before {
+    background-position: -200px -500px
+}
+
+.gift316:before {
+    background-position: -300px -500px
+}
+
+.gift317:before {
+    background-position: -400px -500px
+}
+
+.gift318:before {
+    background-position: -500px -500px
+}
+
+.gift319:before {
+    background-position: -600px -500px
+}
+
+.gift320:before {
+    background-position: -700px -500px
 }
 
 .giftForm {
@@ -8038,10 +8159,8 @@ input[type=range]::-ms-thumb {
     background-position: 0 100%
 }
 
-#stringInterval {
-    width: 3em;
-    text-align: right;
-    font-size: 1em
+#gamename {
+    width: 160px
 }
 
 #infomessage {
@@ -10897,6 +11016,10 @@ button {
 
     .maffia #left-panel>div {
         margin-top: 1px
+    }
+
+    .userGame-part1,.userGame-part2 {
+        padding: 10px 5%
     }
 }
 

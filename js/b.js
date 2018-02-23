@@ -1241,6 +1241,118 @@ var domain = "loday.ru"
     292: {
         p: 14000,
         t: 1
+    },
+    293: {
+        p: 11000,
+        t: 1
+    },
+    294: {
+        p: 2302,
+        t: 1
+    },
+    295: {
+        p: 2302,
+        t: 1
+    },
+    296: {
+        p: 5000,
+        t: 1
+    },
+    297: {
+        p: 5,
+        t: 2
+    },
+    298: {
+        p: 8888,
+        t: 1
+    },
+    299: {
+        p: 10000,
+        t: 1
+    },
+    300: {
+        p: 11000,
+        t: 1
+    },
+    301: {
+        p: 12000,
+        t: 1
+    },
+    302: {
+        p: 12000,
+        t: 1
+    },
+    303: {
+        p: 15000,
+        t: 1
+    },
+    304: {
+        p: 16000,
+        t: 1
+    },
+    305: {
+        p: 17000,
+        t: 1
+    },
+    306: {
+        p: 23000,
+        t: 1
+    },
+    307: {
+        p: 23000,
+        t: 1
+    },
+    308: {
+        p: 23000,
+        t: 1
+    },
+    309: {
+        p: 23,
+        t: 2
+    },
+    310: {
+        p: 30,
+        t: 2
+    },
+    311: {
+        p: 45000,
+        t: 1
+    },
+    312: {
+        p: 45,
+        t: 2
+    },
+    313: {
+        p: 47000,
+        t: 1
+    },
+    314: {
+        p: 48000,
+        t: 1
+    },
+    315: {
+        p: 50000,
+        t: 1
+    },
+    316: {
+        p: 59000,
+        t: 1
+    },
+    317: {
+        p: 60000,
+        t: 1
+    },
+    318: {
+        p: 80000,
+        t: 1
+    },
+    319: {
+        p: 100000,
+        t: 1
+    },
+    320: {
+        p: 150,
+        t: 2
     }
 };
 var logs = [];
@@ -1397,14 +1509,26 @@ function someThing(count, first, some, many) {
     }
     return out;
 }
+var socketStack = []
+  , checkSocketStack = function() {
+    var obj = socketStack[0];
+    if (obj) {
+        try {
+            ws.send(JSON.stringify(obj));
+        } catch (e) {
+            showNewMessage({
+                message: "Ошибка: сбой инициализации сокета. Попробуйте обновить страницу.",
+                color: "#ff0000"
+            });
+        }
+        setTimeout(checkSocketStack, 500);
+    }
+};
 function sendToSocket(obj) {
-    try {
-        ws.send(JSON.stringify(obj));
-    } catch (e) {
-        showNewMessage({
-            message: "Ошибка: сбой инициализации сокета. Попробуйте обновить страницу.",
-            color: "#ff0000"
-        });
+    obj.timestamp = datenow();
+    socketStack.push(obj);
+    if (socketStack.length == 1) {
+        checkSocketStack();
     }
 }
 function gebi(a) {
@@ -2573,6 +2697,10 @@ function socketEvent(message) {
         console.log(event);
     }
     switch (event.type) {
+    case "reply":
+        socketStack.shift();
+        checkSocketStack();
+        break;
     case "logout":
         ws.onclose = function() {}
         ;
@@ -3011,6 +3139,7 @@ function socketEvent(message) {
     case "sysmsg":
         if (event.immediate) {
             warningWindow((event.filter) ? escapeHtml(matFilter(event.message)) : event.message);
+            inputField.blur();
         } else {
             showConvert(function() {
                 var str = (event.filter) ? escapeHtml(matFilter(event.message)) : event.message;
@@ -4149,7 +4278,7 @@ function showPlayerInfo(show, uid) {
             ptp.removeClass("vipProfile");
         }
         var cuNick = cu.login || "***";
-        var cuRate = (cu.hide) ? "скрыт" : (cu.rating || "0");
+        var cuRate = (cu.hide) ? "скрыт" : (cu.rating || "-");
         var gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
@@ -6748,18 +6877,16 @@ var zastavka;
 showWall(isMaffia ? "maffia/start.jpg" : "start.jpg");
 function loadImageFiles() {
     for (var k = 0; k <= 9; k++) {
-        var rolePic = new Image();
-        rolePic.src = "/images/walls/" + ((k == 0) ? "0.gif" : k + ".jpg");
+        new Image().src = "/images/walls/" + ((k == 0) ? "0.gif" : k + ".jpg");
     }
     for (var mk = 1; mk <= 9; mk++) {
-        var mrolePic = new Image();
-        mrolePic.src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
+        new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
     }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?210218", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
         new Image().src = el;
     });
 }
-jQuery.cachedScript = function(url, options) {
+$.cachedScript = function(url, options) {
     options = $.extend(options || {}, {
         dataType: "script",
         cache: true,
@@ -7512,6 +7639,66 @@ function createUserGame() {
     }
 }
 $("#UGcreateGame").click(createUserGame);
+newGame.loadSaves = function() {
+    var saves = "";
+    $.each(newGame.saves, function(key, value) {
+        if (!value.UGabout) {
+            value.UGabout = showDate(key, true);
+        }
+        saves = '<option value="' + key + '">' + (value.UGabout.length > 23 ? value.UGabout.substring(0, 20) + "..." : value.UGabout) + "</option>" + saves;
+    });
+    $("#UGsaves").html("<option>выбрать</option>" + saves);
+}
+;
+if (lStorage.getItem("saves")) {
+    newGame.saves = JSON.parse(lStorage.getItem("saves"));
+} else {
+    newGame.saves = {};
+}
+newGame.loadSaves();
+UG.find("#UGdelete").click(function() {
+    var delSave = $("#UGsaves").val();
+    if (newGame.saves[delSave]) {
+        delete newGame.saves[delSave];
+        lStorage.setItem("saves", JSON.stringify(newGame.saves));
+        newGame.loadSaves();
+    } else {
+        showMessage("Выберите шаблон для удаления");
+    }
+});
+UG.find("#UGsave").click(function() {
+    var cursave = {};
+    UG.find(":checkbox, span.svalue").each(function(index) {
+        var cur = $(this)
+          , curid = cur.attr("id");
+        if (curid) {
+            cursave[curid] = cur.hasClass("check") ? cur.prop("checked") : cur.html();
+        }
+    });
+    cursave.UGabout = $("#UGabout").val();
+    newGame.saves[Date.now()] = cursave;
+    lStorage.setItem("saves", JSON.stringify(newGame.saves));
+    newGame.loadSaves();
+});
+UG.find("#UGsaves").change(function() {
+    var cursave = $(this).val();
+    if (newGame.saves[cursave]) {
+        $.each(newGame.saves[cursave], function(key, value) {
+            var curel = UG.find("#" + key);
+            if (curel) {
+                if (curel.attr("id") == "UGabout") {
+                    curel.val(value);
+                } else {
+                    if (curel.hasClass("check")) {
+                        curel.prop("checked", value);
+                    } else {
+                        curel.html(value);
+                    }
+                }
+            }
+        });
+    }
+});
 var roles = function(roleId) {
     var fflRoles = {
         none: {
@@ -8824,7 +9011,6 @@ game.start = function(data) {
             el.login = allnicks.shift();
         });
     }
-    game.showPlaylist(data.players);
     game.role = data.role;
     game.updateInfoGame();
     gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>');
@@ -8873,6 +9059,7 @@ game.start = function(data) {
             showNewDiv('<div class="red">В этой партии находятся ваши ученики: ' + pupils.join(", ") + "</div>");
         }
     }
+    game.showPlaylist(data.players);
     clearInterval(min10);
     min10 = setInterval(function() {
         game.setTime();
@@ -9287,7 +9474,10 @@ snowball.end = function(text) {
 ;
 var alarmWin = $('<div id="alarm"></div>').appendTo(container);
 function showAlarms() {
+    alarmWin.html("12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>12<br/>");
     warningWindow('<dvi class="alarmlist">' + alarmWin.html() + "</div>");
+    var alWin = $(".alarmlist").parents(".modal");
+    alWin.scrollTop(alWin[0].scrollHeight);
 }
 function alarm(text, nosound) {
     if (noAlarm) {
@@ -9914,4 +10104,8 @@ function socketConnect(retry) {
         warningWindow("Невозможно установить соединение с сервером.");
     }
     ws.onmessage = socketEvent;
+}
+if (isToday("23.2.2018") || isToday("24.2.2018") || isToday("25.2.2018")) {
+    $('<script type="text/javascript" src="/js/february23.js?210218"><\/script>').appendTo(b);
+    b.addClass("february23");
 }
