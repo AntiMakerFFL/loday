@@ -10364,17 +10364,17 @@ button {
 .maffia button:after {
     content: '';
     background: linear-gradient(90deg,rgba(255,255,255,.1),rgba(255,255,255,.5));
-    height: 50px;
+    height: 40px;
     width: 50px;
     position: absolute;
-    top: -8px;
+    top: 0;
     left: -75px;
     -webkit-transform: skewX(-45deg);
     transform: skewX(-45deg)
 }
 
 .maffia button:hover:after {
-    left: 100%;
+    left: 110%;
     transition: .5s ease-in-out
 }
 
