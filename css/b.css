@@ -1318,7 +1318,7 @@ article {
 .messages {
     display: none;
     height: 69%;
-    background: url(/images/dl/chat.png) center bottom/contain no-repeat #fcf9f9;
+    background: url(/images/dl/chat1.png) center bottom/contain no-repeat #fcf9f9;
     font-size: 15px;
     border: 1px solid #999;
     border-radius: 0 0 10px 10px;
@@ -10586,7 +10586,8 @@ button {
     width: 200px;
     overflow-x: hidden;
     overflow-y: auto;
-    z-index: 100
+    z-index: 100;
+    padding-bottom: 45px
 }
 
 #vk_groups>iframe {
@@ -10597,8 +10598,8 @@ button {
 
 #outside>img {
     display: block;
-    width: 189px;
-    margin: 0 auto
+    width: 190px;
+    margin: 0
 }
 
 .maffia #outside>img {
@@ -10722,6 +10723,111 @@ button {
 
 .maffia #online-counter {
     color: #fff
+}
+
+#curatorWindow {
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    bottom: 10px;
+    width: 200px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 999;
+    background: #fff;
+    border: 3px ridge #566376;
+    padding: 35px 0;
+    transition: all .3s
+}
+
+#curatorWindow:before {
+    content: 'Задай вопрос';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    font: 700 14px/30px Arial,sans-serif;
+    display: block;
+    text-align: center;
+    background: #566376;
+    color: #fff
+}
+
+#curatorWindow>.curatorHide {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-radius: 3px;
+    color: #fff;
+    font: 700 20px/10px Arial,sans-serif;
+    text-align: center;
+    cursor: pointer
+}
+
+#curatorWindow>.curatorHide:before {
+    content: '_'
+}
+
+#curatorWindow.hide {
+    top: auto;
+    height: 30px;
+    padding: 0;
+    cursor: pointer
+}
+
+#curatorWindow.hide>.curatorHide:before {
+    content: '..'
+}
+
+#curatorWindow.hide>div.output,#curatorWindow.hide>input {
+    display: none
+}
+
+#curatorWindow>div.output {
+    padding: 5px;
+    height: 100%;
+    box-sizing: border-box
+}
+
+#curatorWindow>div.output strong,#curatorWindow>div.output b {
+    display: block;
+    color: #06a0ea;
+    cursor: pointer
+}
+
+#curatorWindow>div.output span {
+    word-wrap: break-word
+}
+
+#curatorWindow>div.output button {
+    display: block;
+    margin: 1px auto;
+    color: #06a0ea;
+    border: 1px solid #06a0ea;
+    border-radius: 5px;
+    outline: 0;
+    background: #fff;
+    transition: none;
+    box-shadow: none
+}
+
+#curatorWindow>input {
+    position: absolute;
+    left: 5px;
+    width: 180px;
+    bottom: 5px;
+    height: 25px;
+    border: 1px solid #299f53;
+    padding: 0 5px
+}
+
+.gray {
+    color: #999
 }
 
 .snow>#container:before {
