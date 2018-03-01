@@ -1417,7 +1417,7 @@ function createSmilePanel() {
         allSmiles += '<span class="role' + role + '"></span>';
     }
     allSmiles += "<hr/>";
-    smilesArr.forEach(function(el) {
+    smilesArr.forEach(function(el, ind) {
         allSmiles += '<img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + el + '.gif" alt="' + el + '"/>';
     });
     smileBlock.find("div").html(allSmiles);
@@ -1517,8 +1517,8 @@ var socketTry = 0
     var obj = socketStack[0];
     if (obj) {
         socketTry++;
-        if (ws.readyState == 1 && lastSocketMsg + 100 < datenow()) {
-            lastSocketMsg = datenow();
+        if (ws.readyState == 1 && lastSocketMsg + 100 < Date.now()) {
+            lastSocketMsg = Date.now();
             try {
                 ws.send(JSON.stringify(obj));
             } catch (e) {
@@ -1535,7 +1535,7 @@ var socketTry = 0
     }
 };
 function sendToSocket(obj) {
-    obj.timestamp = datenow();
+    obj.timestamp = Date.now();
     socketStack.push(obj);
     if (socketStack.length == 1) {
         checkSocketStack();
