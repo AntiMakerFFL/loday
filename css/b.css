@@ -1376,18 +1376,21 @@ article {
     display: none;
     position: absolute;
     z-index: 100;
-    top: -235px;
+    top: -240px;
     left: 90%;
     width: 232px;
     height: 222px;
     border: 1px solid #999;
     background: rgba(255,255,255,0.7);
     box-shadow: 1px 0 1px 1px #77a,-1px 0 1px 1px #77a,0 -1px 1px 1px #77a,0 1px 1px 1px #77a;
-    padding: 5px
+    padding: 5px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none
 }
 
 .maffia #smiles>div {
-    background: rgba(0,0,0,0.7)
+    background: #000
 }
 
 #smiles>div>span {
@@ -2180,6 +2183,21 @@ footer {
 
 .panel-top {
     padding: 3px 0 3px 90px
+}
+
+#indicator {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 10px;
+    height: 10px;
+    background: #090;
+    border-radius: 50%;
+    border: 1px ridge #090
+}
+
+#indicator.offline {
+    background: #ff0
 }
 
 #shareButton {
@@ -3979,7 +3997,7 @@ button.usergame {
 }
 
 .support {
-    background: url(/nyback.jpg) center no-repeat;
+    background: url(/images/holidays/nyback.jpg) center no-repeat;
     background-size: contain
 }
 
@@ -10729,15 +10747,14 @@ button {
     display: none;
     position: fixed;
     top: 10px;
-    right: 10px;
+    right: 5px;
     bottom: 10px;
     width: 200px;
-    overflow-x: hidden;
-    overflow-y: auto;
     z-index: 999;
     background: #fff;
     border: 3px ridge #566376;
     padding: 35px 0;
+    overflow: hidden;
     transition: all .3s
 }
 
@@ -10791,13 +10808,28 @@ button {
 #curatorWindow>div.output {
     padding: 5px;
     height: 100%;
-    box-sizing: border-box
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto
 }
 
 #curatorWindow>div.output strong,#curatorWindow>div.output b {
     display: block;
     color: #06a0ea;
     cursor: pointer
+}
+
+#curatorWindow>div.output>div {
+    overflow: hidden;
+    clear: both
+}
+
+#curatorWindow>div.output p {
+    color: #666;
+    font-size: .8em;
+    text-align: right;
+    margin: 0;
+    float: right
 }
 
 #curatorWindow>div.output span {

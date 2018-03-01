@@ -1,4 +1,4 @@
-var domain = "loday.ru"
+var domain = document.location.hostname
   , room = 1
   , roomInHall = 1
   , u = {}
@@ -1393,7 +1393,7 @@ var islocalStorage = function() {
 var reds = (islocalStorage && localStorage.reds) ? localStorage.reds.split(",") : [];
 function serverPort(fullUrl) {
     var url = fullUrl ? document.location.protocol + "//loday.ru:" : "";
-    url += (document.location.protocol == "https:") ? "8081" : "8080";
+    url += (document.location.protocol == "https:") ? "808" + (domain == "maffia-online.ru" ? "2" : "1") : "8080";
     return url;
 }
 var smileBlock = $("#smiles")
@@ -1529,10 +1529,7 @@ var socketTry = 0
             }
         }
         if (socketTry > 2) {
-            showNewMessage({
-                message: "Возможно, потеряна связь с сервером! Убедитесь в наличии интернет-соединения.",
-                color: "#990000"
-            });
+            $("#indicator").addClass("offline");
         }
         setTimeout(checkSocketStack, socketTry * 1000);
     }
@@ -1624,6 +1621,18 @@ function curDate() {
         m = "0" + m;
     }
     return d + m + y;
+}
+function curTime() {
+    var date = new Date(), h, m;
+    h = date.getHours();
+    if (h < 10) {
+        h = "0" + h;
+    }
+    m = date.getMinutes();
+    if (m < 10) {
+        m = "0" + m;
+    }
+    return h + ":" + m;
 }
 function roleReplace(message) {
     if (message) {
@@ -2717,8 +2726,13 @@ function socketEvent(message) {
     }
     switch (event.type) {
     case "reply":
-        socketStack.shift();
+        socketStack.forEach(function(val, key) {
+            if (event.time == val.timestamp) {
+                socketStack.splice(key, 1);
+            }
+        });
         socketTry = 0;
+        $("#indicator").removeClass("offline");
         checkSocketStack();
         break;
     case "logout":
@@ -2735,7 +2749,7 @@ function socketEvent(message) {
                 } else {
                     warningWindow("Ошибка авторизации", function() {
                         $(window).off("beforeunload", Unloader.unload);
-                        window.location.href = isMaffia ? "http://maffia-online.ru/" : "/";
+                        window.location.href = "/";
                     }, "Авторизоваться");
                     console.log(event.text);
                 }
@@ -3658,7 +3672,7 @@ function changeFavicon(iconHref) {
     icon.replaceWith(cache);
 }
 function getGameUrl(vk) {
-    return (vk) ? "http://vk.com/share.php?url=http://loday.ru/" + (isMaffia ? "mafiya-online.html" : "") + "%23" + u._id : "http://loday.ru/" + (isMaffia ? "mafiya-online.html" : "") + "#" + u._id;
+    return (vk) ? "http://vk.com/share.php?url=" + (isMaffia ? "http://maffia-online.ru/" : "http://loday.ru/") + "%23" + u._id : (isMaffia ? "http://maffia-online.ru/" : "http://loday.ru/") + "#" + u._id;
 }
 function shareMaffia() {
     if (isMaffia) {
@@ -3912,12 +3926,28 @@ function showWindow(buttonClass) {
     win.addClass("openWindow");
     switch (buttonClass) {
     case "newgame":
+        $("#about").focus();
         if (u.vip) {
             var ngw = win.find(".gameCreate");
             if (!ngw.find("button").is(".usergame")) {
                 ngw.append('<button class="button usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-игра</button>');
             }
         }
+        break;
+    case "shop":
+        [3, 5].forEach(function(el) {
+            if (!u.hasOwnProperty("item" + el)) {
+                u["item" + el] = 0;
+            }
+            var cc = u["item" + el] || 0
+              , diff = cc - Date.now()
+              , delit = (el == 3) ? 3600000 : 86400000
+              , v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
+            $("#shop" + el).find("div:nth-of-type(2)").html(v);
+            if (el == 6 && diff > 0) {
+                $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
+            }
+        });
         break;
     case "donatoptions":
         if (u.vip) {
@@ -5896,6 +5926,9 @@ function showStatistics(data) {
             type: "tree"
         });
     }
+    $("<div/>", {
+        id: "indicator"
+    }).appendTo($(".panel-top"));
 }
 var itemsArray = {
     "7": "Сертификат на бесплатное объявление",
@@ -7967,7 +8000,8 @@ var roleText = {
             robwin: "Победили похитители",
             manwin: "Победила ревность",
             menwin: "Победили мальчики",
-            womenwin: "Победили девочки"
+            womenwin: "Победили девочки",
+            drawwin: "Победила дружба"
         },
         reward: {
             "1": 'Даже простым студентом вы не теряете самообладания и жажды победы.<br/> За помощь в проведении праздника Дня Любви профком наградил вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
@@ -8101,7 +8135,8 @@ var roleText = {
             robwin: "Победила мафия!",
             manwin: "Победил маньяк!",
             menwin: "Мужчины показали, кто здесь главный!",
-            womenwin: "Дамы были как всегда на высоте!"
+            womenwin: "Дамы были как всегда на высоте!",
+            drawwin: "Ничья"
         },
         reward: {
             "1": 'Вы порядочный гражданин, и городу повезло, что Вы живете в нем.<br/> Мэр города за ваше участие в борьбе с мафией наградил Вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
@@ -9519,12 +9554,10 @@ snowball.end = function(text) {
 var curator = {
     qid: 0
 };
+curatorWindow.find("div.output").append("<div>Есть вопрос по игре? Напиши его куратору прямо сейчас!</div>");
 curatorWindow.on("click", function() {
     if ($(this).hasClass("hide")) {
         $(this).removeClass("hide");
-        return true;
-    } else {
-        return false;
     }
 });
 curatorWindow.find("div.curatorHide").on("click", function(e) {
@@ -9565,6 +9598,7 @@ curator.msg = function(text, author) {
         curatorWindow.removeClass("hide");
     }
     sound("notify");
+    $("<p/>").html(curTime()).appendTo(newDiv);
     if (author) {
         if (author.qid) {
             newDiv.addClass("curator-qid" + author.qid);
@@ -9611,7 +9645,7 @@ curator.answer = function(data) {
         thisQ.css({
             opacity: 0.2
         });
-        thisQ.append("<span>Вопрос закреплен за куратором " + data.login + "</span>");
+        thisQ.append("<div>Вопрос закреплен за куратором " + data.login + "</div>");
     }
 }
 ;
@@ -10149,7 +10183,7 @@ var ws;
 function socketConnect(retry) {
     try {
         console.log("connecting...");
-        ws = new WebSocket("ws" + ((window.location.protocol == "https:") ? "s://" + domain + ":9090" : "://" + domain + ":9000"));
+        ws = new WebSocket("ws" + ((window.location.protocol == "https:") ? "s://" + domain + ":909" + (domain == "maffia-online.ru" ? "1" : "0") : "://" + domain + ":9000"));
         if (!retry) {
             ws.onerror = function(event) {
                 errorText("Произошла ошибка при установке соединения. Проверьте настройки браузера, фаервола и интернет-соединения.");
@@ -10158,6 +10192,7 @@ function socketConnect(retry) {
             ;
         }
         ws.onclose = function(event) {
+            $("#indicator").addClass("offline");
             var closeText = "";
             switch (event.code) {
             case 1000:
@@ -10216,6 +10251,7 @@ function socketConnect(retry) {
         }
         ;
         ws.onopen = function() {
+            $("#indicator").removeClass("offline");
             var authObj = {
                 type: "authorize",
                 reconnect: retry,
@@ -10246,8 +10282,4 @@ function socketConnect(retry) {
         warningWindow("Невозможно установить соединение с сервером.");
     }
     ws.onmessage = socketEvent;
-}
-if (isToday("23.2.2018") || isToday("24.2.2018") || isToday("25.2.2018")) {
-    $('<script type="text/javascript" src="/js/february23.js?240218"><\/script>').appendTo(b);
-    b.addClass("february23");
 }
