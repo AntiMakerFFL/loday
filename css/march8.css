@@ -1,0 +1,84 @@
+.march8 #container>.warningWindow button,.march8 #modalWindow>.modal>p>button,.march8 h3.hidden.leave{font-size:0}
+.march8 h3.hidden.leave:before{content:'Ой, все!';font-size:16px}
+.march8 #container>.warningWindow button:before{content:'Ясно';font-size:18px}
+.march8 #modalWindow>.modal>p>button:nth-of-type(1):before{content:'Может быть';font-size:18px}
+.march8 #modalWindow>.modal>p>button:nth-of-type(2):before{content:'Не хочу';font-size:18px}
+
+.march8 #container>.window:before{background:url(/images/holidays/march8/back.jpg) center no-repeat #000}
+.march8 .curgames:before{content:'Текущие балы'}
+
+
+.march8 .shop>div:nth-of-type(1):before,.march8 .item1:before{content:'Зеркальце'}
+.march8 .shop>div:nth-of-type(2):before,.march8 .item2:before{content:'Маска'}
+.march8 .shop>div:nth-of-type(3):before,.march8 .item3:before{content:'Всеобщее внимание'}
+.march8 .shop>div:nth-of-type(4):before,.march8 .item4:before{content:'Бинокль'}
+.march8 .shop>div:nth-of-type(5):before,.march8 .item5:before{content:'Карета'}
+.march8 .shop>div:nth-of-type(6):before,.march8 .item6:before{content:'Графский титул'}
+.march8 .shop>div:nth-of-type(1)>div:nth-of-type(1),.march8 .shop-item1{background-image:url(/images/holidays/march8/item1-1.png)}
+.march8 .shop>div:nth-of-type(2)>div:nth-of-type(1),.march8 .shop-item2{background-image:url(/images/holidays/march8/item1-2.png)}
+.march8 .shop>div:nth-of-type(3)>div:nth-of-type(1),.march8 .shop-item3{background-image:url(/images/holidays/march8/item1-3.png)}
+.march8 .shop>div:nth-of-type(4)>div:nth-of-type(1),.march8 .shop-item4{background-image:url(/images/holidays/march8/item2-1.png)}
+.march8 .shop>div:nth-of-type(5)>div:nth-of-type(1),.march8 .shop-item5{background-image:url(/images/holidays/march8/item2-2.png)}
+.march8 .shop>div:nth-of-type(6)>div:nth-of-type(1),.march8 .shop-item6{background-image:url(/images/holidays/march8/item2-3.png)}
+
+.march8 .items-1:before,.march8 .gameitem1>div{
+    background-image:url(/images/holidays/march8/item1-1.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+.march8 .items-2:before,.march8 .gameitem2>div{
+    background-image:url(/images/holidays/march8/item1-2.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+.march8 .items-4:before,.march8 .gameitem4>div{
+    background-image:url(/images/holidays/march8/item2-1.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+.march8 .items-5:before,.march8 .gameitem5>div{
+    background-image:url(/images/holidays/march8/item2-2.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+.march8 .items-3{
+    background-image:url(/images/holidays/march8/item1-3.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+.march8 .items-6{
+    background-image:url(/images/holidays/march8/item2-3.png) !important;
+    background-position:0 0 !important;
+    background-size:contain !important;
+}
+
+.march8 .shop>div>div:nth-of-type(3)>span:after{
+    content:'для графинь';
+}
+.march8 .studTicket{
+    background:url(/images/holidays/march8/1.png) center no-repeat rgba(255,255,255,0.8) !important;
+    background-size:60% auto !important;
+}
+.march8 .ticket1{background:url(/images/holidays/march8/1.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket2{background:url(/images/holidays/march8/2.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket3{background:url(/images/holidays/march8/3.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket4{background:url(/images/holidays/march8/4.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket5{background:url(/images/holidays/march8/5.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket6{background:url(/images/holidays/march8/6.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket7{background:url(/images/holidays/march8/7.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+.march8 .ticket8{background:url(/images/holidays/march8/8.png) center/contain no-repeat rgba(0,0,0,0.4) !important}
+
+.march8 .stud:after{content:'Гость'}
+.march8 .duty:after{content:'Хозяйка бала'}
+.march8 .assis:after{content:'Помощник хозяйки'}
+.march8 .sleep:after{content:'Портной'}
+.march8 .jeal:after{content:'Завистник'}
+.march8 .robb:after{content:'Заговорщик'}
+.march8 .robb.some:after{content:'Заговорщика'}
+.march8 .hrobb:after{content:'Главный заговорщик'}
+.march8 .cat:before,.march8 .role8{
+    background:url(/images/holidays/march8/8.png) center/contain no-repeat !important;
+}
+
+.march8.maffia #container>.warningWindow.win p{padding-top:120px}
+.march8 #container>.warningWindow.win p:before{content:url(/images/holidays/march8/win.png)}

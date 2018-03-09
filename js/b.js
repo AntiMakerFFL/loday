@@ -50,6 +50,7 @@ var domain = document.location.hostname
     g5: 1
 }
   , testMode = false
+  , specialDay = false
   , server2 = (typeof (server2) !== "undefined")
   , lastMsg = ""
   , closedgame = false
@@ -1354,6 +1355,102 @@ var domain = document.location.hostname
     320: {
         p: 150,
         t: 2
+    },
+    321: {
+        p: 5000,
+        t: 1
+    },
+    322: {
+        p: 8000,
+        t: 1
+    },
+    323: {
+        p: 8000,
+        t: 1
+    },
+    324: {
+        p: 8000,
+        t: 1
+    },
+    325: {
+        p: 10000,
+        t: 1
+    },
+    326: {
+        p: 11000,
+        t: 1
+    },
+    327: {
+        p: 17000,
+        t: 1
+    },
+    328: {
+        p: 19000,
+        t: 1
+    },
+    329: {
+        p: 22,
+        t: 2
+    },
+    330: {
+        p: 27000,
+        t: 1
+    },
+    331: {
+        p: 32000,
+        t: 1
+    },
+    332: {
+        p: 35000,
+        t: 1
+    },
+    333: {
+        p: 41000,
+        t: 1
+    },
+    334: {
+        p: 41000,
+        t: 1
+    },
+    335: {
+        p: 30,
+        t: 2
+    },
+    336: {
+        p: 15,
+        t: 2
+    },
+    337: {
+        p: 30,
+        t: 2
+    },
+    338: {
+        p: 95000,
+        t: 1
+    },
+    339: {
+        p: 21000,
+        t: 1
+    },
+    340: {
+        p: 100000,
+        t: 1
+    },
+    341: {
+        p: 8,
+        t: 2
+    },
+    342: {
+        p: 18,
+        t: 2
+    },
+    343: {
+        p: 18,
+        t: 2
+    },
+    344: {
+        p: 111,
+        t: 2
     }
 };
 var logs = [];
@@ -1730,7 +1827,6 @@ function warningWindow(text, callback, buttext, win, specialclass) {
     var wb = newWW.find("button");
     if (buttext) {
         wb.css({
-            width: "auto",
             padding: "0 10px"
         }).html(buttext);
     } else {
@@ -2738,23 +2834,8 @@ function socketEvent(message) {
     case "logout":
         ws.onclose = function() {}
         ;
-        if (isAppVK) {
-            errorText("Ошибка авторизации: " + event.text + ". Обновите страницу");
-        } else {
-            if (typeof (authDiv) !== "undefined") {
-                $("#authDiv").fadeIn(500);
-            } else {
-                if (mobile) {
-                    showMessage("Пожалуйста, пройдите авторизацию повторно.");
-                } else {
-                    warningWindow("Ошибка авторизации", function() {
-                        $(window).off("beforeunload", Unloader.unload);
-                        window.location.href = "/";
-                    }, "Авторизоваться");
-                    console.log(event.text);
-                }
-            }
-        }
+        b.removeClass("unauthorized");
+        authFalse();
         break;
     case "message":
         showNewMessage(event);
@@ -3935,7 +4016,7 @@ function showWindow(buttonClass) {
         }
         break;
     case "shop":
-        [3, 5].forEach(function(el) {
+        [3, 6].forEach(function(el) {
             if (!u.hasOwnProperty("item" + el)) {
                 u["item" + el] = 0;
             }
@@ -3944,7 +4025,7 @@ function showWindow(buttonClass) {
               , delit = (el == 3) ? 3600000 : 86400000
               , v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
             $("#shop" + el).find("div:nth-of-type(2)").html(v);
-            if (el == 6 && diff > 0) {
+            if (el == 6) {
                 $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
             }
         });
@@ -4215,12 +4296,12 @@ win.click(function(e) {
     }
 });
 function gamesListener(e, callback, args) {
-    var clicked = $(e.target);
-    if (clicked[0].nodeName == "UL") {
+    if (e.target.nodeName == "UL") {
         return;
     }
-    var action = clicked.attr("id") || clicked.parent().attr("id");
-    var options = (args) ? e.pageX + "|" + e.pageY : "";
+    var clicked = $(e.target)
+      , action = clicked.attr("id") || clicked.parent().attr("id") || clicked.parent().parent().attr("id")
+      , options = (args) ? e.pageX + "|" + e.pageY : "";
     if (action) {
         callback(action, options);
     }
@@ -5759,7 +5840,7 @@ function enableTree(data) {
     halltree = $('<div class="halltree"><img src="/images/tree.png" data-title="Оставь свои пожелания на Новогодней ёлке" alt="Новогодняя ёлка"/></div>');
     halltree.click(function() {
         showWindow("tree");
-    }).appendTo("#main");
+    }).appendTo(mainDiv);
     halltree.css({
         width: halltreeWidth
     });
@@ -6954,7 +7035,7 @@ function loadImageFiles() {
     for (var mk = 1; mk <= 9; mk++) {
         new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
     }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?210218", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
         new Image().src = el;
     });
 }
@@ -7012,7 +7093,7 @@ $(document).ready(function() {
     } else {
         console.log("socketConnect undefined");
     }
-    $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo("body");
+    $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
     $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function(script, textStatus) {
         mW.find(".modal").draggable();
     });
@@ -7891,15 +7972,15 @@ var roleText = {
     ffl: {
         roleinfo: {
             "0": "Вы - наблюдатель, поэтому не мешайте играть участникам.",
-            "1": "Вы - студент. Днём голосуйте против похитителей, а ночью старайтесь не привлекать их внимания своим храпом.",
-            "2": "Вы - похититель. Чтобы выиграть, вам нужно сорвать День Любви, оставив студентов без подарков.",
-            "3": "Вы - глава похитителей, выиграйте, оставив студентов без подарков к празднику. У вас есть уникальная возможность совершать 2 действия за 1 ночь.",
-            "4": "Вы - дежурный. Ночью ищите похителей, а днём подвергайте их справедливому изгнанию из общежития.",
-            "5": "Вы - помощник дежурного. Чтобы победить, вам нужно изгнать всех похитителей. Ждите своего часа, а пока... делайте вид, что активно помогаете дежурному.",
-            "6": "Вы - ревнивый студент. Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
-            "7": "Вы - лунатик. Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
-            "8": "Вы - котик. Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
-            "9": "Вы - вахтер. Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "1": "Вы - студент.<br/> Днём голосуйте против похитителей, а ночью старайтесь не привлекать их внимания своим храпом.",
+            "2": "Вы - похититель.<br/> Чтобы выиграть, вам нужно сорвать День Любви, оставив студентов без подарков.",
+            "3": "Вы - глава похитителей.<br/> Вы выиграйте, оставив студентов без подарков к празднику. У вас есть уникальная возможность совершать 2 действия за 1 ночь.",
+            "4": "Вы - дежурный.<br/> Ночью ищите похителей, а днём подвергайте их справедливому изгнанию из общежития.",
+            "5": "Вы - помощник дежурного.<br/> Чтобы победить, вам нужно изгнать всех похитителей. Ждите своего часа, а пока... делайте вид, что активно помогаете дежурному.",
+            "6": "Вы - ревнивый студент.<br/> Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
+            "7": "Вы - лунатик.<br/> Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
+            "8": "Вы - котик.<br/> Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
+            "9": "Вы - вахтер.<br/> Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
         },
         nightActions: {
             "1": "Студент спокойно спит.",
@@ -8028,13 +8109,13 @@ var roleText = {
             "0": "Вы - свидетель, поэтому не мешайте другим участникам.",
             "1": "Вы - Честный гражданин!<br/> Вы выиграете, казнив всех мафиози. Днем с помощью кнопки <b>Голосовать</b> голосуйте против тех, кого подозреваете.",
             "2": "Вы - Мафиози!<br/> Вы победите, убив всех граждан, а также маньяка. Ночью убивайте выбранную жертву с помощью кнопки <b>Убить</b>. Днем притворяйтесь гражданином и голосуйте против неугодных вам с помощью кнопки <b>Голосовать</b>.",
-            "3": "Вы - Босс мафии! Вы победите, убив всех граждан, а также маньяка. Ночью кнопкой <b>Заморозить</b> Вы лишаете кого-то действий на сутки. И кнопкой <b>Убить</b> кого-то убивайте. Днем притворяйтесь гражданином и голосуйте против неугодных вам кнопкой <b>Голосовать</b>.",
+            "3": "Вы - Босс мафии!<br/>  Вы победите, убив всех граждан, а также маньяка. Ночью кнопкой <b>Заморозить</b> Вы лишаете кого-то действий на сутки. И кнопкой <b>Убить</b> кого-то убивайте. Днем притворяйтесь гражданином и голосуйте против неугодных вам кнопкой <b>Голосовать</b>.",
             "4": "Вы - Комиссар!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью вы можете узнать роль персонажа с помощью кнопки <b>Проверить</b>.",
             "5": "Вы - Сержант!<br/> Сотрудничайте с комиссаром. Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Если комиссара убьют, его место займете Вы.",
             "6": "Вы - Mаньяк!<br/> Вы выиграете, убив всех мафиози. Ночью с помощью кнопки <b>Убить</b> Вы расправляетесь с ненавистными персонажами. Днем голосуете против них с помощью кнопки <b>Голосовать</b>.",
             "7": "Вы - Доктор!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью с помощью кнопки <b>Лечить</b> Вы можете спасти одного из граждан.",
-            "8": "Вы - кот. Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
-            "9": "Вы - адвокат, играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "8": "Вы - кот!<br/> Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
+            "9": "Вы - адвокат!<br/> Вы играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
         },
         nightActions: {
             "1": "",
@@ -8986,18 +9067,23 @@ game.start = function(data) {
     gebi("playersButton").className = "my";
     mW.hide();
     closewindow();
-    if (typeof f23Mode != "undefined") {
-        var num = randomInt(13)
-          , ext = "jpg";
-        if (num > 10) {
-            num -= 10;
-            ext = "gif";
-        } else {
-            if (num == 10) {
-                ext = "png";
+    if (specialDay) {
+        if (specialDay == "february23") {
+            var num = randomInt(13)
+              , ext = "jpg";
+            if (num > 10) {
+                num -= 10;
+                ext = "gif";
+            } else {
+                if (num == 10) {
+                    ext = "png";
+                }
             }
+            showWall("february23/" + num + "." + ext);
         }
-        showWall("february23/" + num + "." + ext);
+        if (specialDay == "march8") {
+            showWall("/images/holidays/march8/back.jpg", true);
+        }
     } else {
         if (data.married) {
             showWall((data.role) ? "wedding" + (data.role == 2 ? "2" : "1") + ".jpg" : "0.gif");
@@ -10179,6 +10265,25 @@ if (isAppVK) {
         });
     }
 }
+function authFalse() {
+    if (isAppVK) {
+        errorText("Ошибка авторизации: " + event.text + ". Обновите страницу");
+    } else {
+        if (typeof (authDiv) !== "undefined") {
+            $("#authDiv").fadeIn(500);
+        } else {
+            if (mobile) {
+                showMessage("Пожалуйста, пройдите авторизацию повторно.");
+            } else {
+                warningWindow("Ошибка авторизации", function() {
+                    $(window).off("beforeunload", Unloader.unload);
+                    window.location.href = "/";
+                }, "Авторизоваться");
+                console.log(event.text);
+            }
+        }
+    }
+}
 var ws;
 function socketConnect(retry) {
     try {
@@ -10221,6 +10326,10 @@ function socketConnect(retry) {
                 break;
             case 4005:
                 closeText = "Соединение разорвано из-за повторного подключения";
+                break;
+            case 4006:
+                closeText = "Ошибка авторизации";
+                authFalse();
                 break;
             default:
                 closeText = "Обрыв связи (" + event.code + ")";
@@ -10279,7 +10388,13 @@ function socketConnect(retry) {
         ;
         console.log("connected");
     } catch (e) {
+        console.log(e);
         warningWindow("Невозможно установить соединение с сервером.");
     }
     ws.onmessage = socketEvent;
+}
+if (isToday("8.3.2018") || isToday("9.3.2018") || isToday("10.3.2018") || isToday("11.3.2018")) {
+    $('<script type="text/javascript" src="/js/march8.js?7032018"><\/script>').appendTo(b);
+    $('<link rel="stylesheet" href="/css/march8.css">').appendTo(b);
+    b.addClass("march8");
 }

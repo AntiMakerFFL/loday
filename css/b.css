@@ -1361,11 +1361,376 @@ article {
     color: #f00
 }
 
-#smiles img {
+#smiles img,.smileimg {
     width: 19px;
     height: 19px;
     margin: 1px;
     cursor: pointer
+}
+
+.smileimg {
+    display: inline-block;
+    background: url(/images/smiles.png) no-repeat
+}
+
+.smile1 {
+    background-position: 0 0
+}
+
+.smile2 {
+    background-position: -20px 0
+}
+
+.smile3 {
+    background-position: -40px 0
+}
+
+.smile4 {
+    background-position: -60px 0
+}
+
+.smile5 {
+    background-position: -80px 0
+}
+
+.smile6 {
+    background-position: -100px 0
+}
+
+.smile7 {
+    background-position: -120px 0
+}
+
+.smile8 {
+    background-position: -140px 0
+}
+
+.smile9 {
+    background-position: -160px 0
+}
+
+.smile10 {
+    background-position: -180px 0
+}
+
+.smile11 {
+    background-position: 0 -20px
+}
+
+.smile12 {
+    background-position: -20px -20px
+}
+
+.smile13 {
+    background-position: -40px -20px
+}
+
+.smile14 {
+    background-position: -60px -20px
+}
+
+.smile15 {
+    background-position: -80px -20px
+}
+
+.smile16 {
+    background-position: -100px -20px
+}
+
+.smile17 {
+    background-position: -120px -20px
+}
+
+.smile18 {
+    background-position: -140px -20px
+}
+
+.smile19 {
+    background-position: -160px -20px
+}
+
+.smile20 {
+    background-position: -180px -20px
+}
+
+.smile21 {
+    background-position: 0 -40px
+}
+
+.smile22 {
+    background-position: -20px -40px
+}
+
+.smile23 {
+    background-position: -40px -40px
+}
+
+.smile24 {
+    background-position: -60px -40px
+}
+
+.smile25 {
+    background-position: -80px -40px
+}
+
+.smile26 {
+    background-position: -100px -40px
+}
+
+.smile27 {
+    background-position: -120px -40px
+}
+
+.smile28 {
+    background-position: -140px -40px
+}
+
+.smile29 {
+    background-position: -160px -40px
+}
+
+.smile30 {
+    background-position: -180px -40px
+}
+
+.smile31 {
+    background-position: 0 -60px
+}
+
+.smile32 {
+    background-position: -20px -60px
+}
+
+.smile33 {
+    background-position: -40px -60px
+}
+
+.smile34 {
+    background-position: -60px -60px
+}
+
+.smile35 {
+    background-position: -80px -60px
+}
+
+.smile36 {
+    background-position: -100px -60px
+}
+
+.smile37 {
+    background-position: -120px -60px
+}
+
+.smile38 {
+    background-position: -140px -60px
+}
+
+.smile39 {
+    background-position: -160px -60px
+}
+
+.smile40 {
+    background-position: -180px -60px
+}
+
+.smile41 {
+    background-position: 0 -80px
+}
+
+.smile42 {
+    background-position: -20px -80px
+}
+
+.smile43 {
+    background-position: -40px -80px
+}
+
+.smile44 {
+    background-position: -60px -80px
+}
+
+.smile45 {
+    background-position: -80px -80px
+}
+
+.smile46 {
+    background-position: -100px -80px
+}
+
+.smile47 {
+    background-position: -120px -80px
+}
+
+.smile48 {
+    background-position: -140px -80px
+}
+
+.smile49 {
+    background-position: -160px -80px
+}
+
+.smile50 {
+    background-position: -180px -80px
+}
+
+.smile51 {
+    background-position: 0 -100px
+}
+
+.smile52 {
+    background-position: -20px -100px
+}
+
+.smile53 {
+    background-position: -40px -100px
+}
+
+.smile54 {
+    background-position: -60px -100px
+}
+
+.smile55 {
+    background-position: -80px -100px
+}
+
+.smile56 {
+    background-position: -100px -100px
+}
+
+.smile57 {
+    background-position: -120px -100px
+}
+
+.smile58 {
+    background-position: -140px -100px
+}
+
+.smile59 {
+    background-position: -160px -100px
+}
+
+.smile60 {
+    background-position: -180px -100px
+}
+
+.smile61 {
+    background-position: 0 -120px
+}
+
+.smile62 {
+    background-position: -20px -120px
+}
+
+.smile63 {
+    background-position: -40px -120px
+}
+
+.smile64 {
+    background-position: -60px -120px
+}
+
+.smile65 {
+    background-position: -80px -120px
+}
+
+.smile66 {
+    background-position: -100px -120px
+}
+
+.smile67 {
+    background-position: -120px -120px
+}
+
+.smile68 {
+    background-position: -140px -120px
+}
+
+.smile69 {
+    background-position: -160px -120px
+}
+
+.smile70 {
+    background-position: -180px -120px
+}
+
+.smile71 {
+    background-position: 0 -140px
+}
+
+.smile72 {
+    background-position: -20px -140px
+}
+
+.smile73 {
+    background-position: -40px -140px
+}
+
+.smile74 {
+    background-position: -60px -140px
+}
+
+.smile75 {
+    background-position: -80px -140px
+}
+
+.smile76 {
+    background-position: -100px -140px
+}
+
+.smile77 {
+    background-position: -120px -140px
+}
+
+.smile78 {
+    background-position: -140px -140px
+}
+
+.smile79 {
+    background-position: -160px -140px
+}
+
+.smile80 {
+    background-position: -180px -140px
+}
+
+.smile81 {
+    background-position: 0 -160px
+}
+
+.smile82 {
+    background-position: -20px -160px
+}
+
+.smile83 {
+    background-position: -40px -160px
+}
+
+.smile84 {
+    background-position: -60px -160px
+}
+
+.smile85 {
+    background-position: -80px -160px
+}
+
+.smile86 {
+    background-position: -100px -160px
+}
+
+.smile87 {
+    background-position: -120px -160px
+}
+
+.smile88 {
+    background-position: -140px -160px
+}
+
+.smile89 {
+    background-position: -160px -160px
+}
+
+.smile90 {
+    background-position: -180px -160px
 }
 
 #showSmiles:checked+div {
@@ -1935,7 +2300,7 @@ aside>.blocktitle {
     box-sizing: border-box;
     height: 20px;
     padding: 2px;
-    font: italic 600 14px/18px Ubuntu,Arial,SegoeUi,sans-serif;
+    font: 700 14px/18px Ubuntu,Arial,SegoeUi,sans-serif;
     white-space: nowrap;
     cursor: pointer
 }
@@ -2936,16 +3301,11 @@ button:active,.button:active {
     font: 400 17px/17px Lora,Cormorant,serif,'PT Sans',SegoeUi,sans-serif;
     clear: both;
     overflow: hidden;
-    border-bottom: 1px outset rgba(66,33,33,0.1);
-    margin: 3px 1px
+    margin-top: 5px
 }
 
 .maffia .messages,.maffia .message {
     color: #00ec00
-}
-
-.maffia .message {
-    border-bottom: 1px solid rgba(255,255,255,0.4)
 }
 
 .message:before {
@@ -2982,14 +3342,6 @@ button:active,.button:active {
     width: 50px;
     height: 65px;
     margin-right: 10px
-}
-
-.ingame .message:before,.ingame .message.userimage>.selfimg {
-    display: inline-block
-}
-
-.nographic .selfimg {
-    display: none!important
 }
 
 .roleicon:before {
@@ -3289,8 +3641,19 @@ button:active,.button:active {
     background: url(/images/maffia/shop/item1-1.png) center/contain no-repeat
 }
 
+.ingame .message {
+    border-bottom: 1px outset rgba(66,33,33,0.1);
+    margin: 3px 1px
+}
+
+.maffia .ingame .message {
+    border-bottom: 1px solid rgba(255,255,255,0.4)
+}
+
 .message>div {
-    min-height: 20px
+    display: inline;
+    min-height: 20px;
+    margin-right: 5px
 }
 
 .message>div.writer,.message b {
@@ -3301,7 +3664,7 @@ button:active,.button:active {
     min-height: 0
 }
 
-.message>div.writer:before {
+.ingame .message>div.writer:before {
     content: '✎ ';
     opacity: .4
 }
@@ -3310,20 +3673,8 @@ button:active,.button:active {
     display: none
 }
 
-.nographic .message>div:nth-of-type(1):empty {
-    display: none
-}
-
-.nographic .message>div:nth-of-type(1):empty+div:not(.writer) {
-    display: block
-}
-
 .message>div:nth-of-type(2) {
     word-wrap: break-word
-}
-
-.nographic .message>div:nth-of-type(3) {
-    margin: 0
 }
 
 .me {
@@ -3352,9 +3703,29 @@ button:active,.button:active {
     opacity: .3
 }
 
+.ingame .message:before,.ingame .message.userimage>.selfimg {
+    display: inline-block
+}
+
+.nographic .selfimg {
+    display: none!important
+}
+
+.nographic .message>div:nth-of-type(1):empty {
+    display: none
+}
+
+.ingame .message>div,.nographic .message>div:nth-of-type(1):empty+div:not(.writer) {
+    display: block
+}
+
+.nographic .message>div:nth-of-type(3) {
+    margin: 0
+}
+
 .nographic .message {
     min-height: 0;
-    margin-top: 5px
+    border: 0!important
 }
 
 .nographic .message:before {
@@ -3363,27 +3734,32 @@ button:active,.button:active {
     display: none
 }
 
-.nographic .message>div {
-    display: inline;
-    min-height: 0
+.ingame .message>div {
+    margin-right: 0
 }
 
-.nographic .message>div.writer:before {
+.ingame .nographic .message {
+    margin-top: 5px
+}
+
+.ingame .nographic .message>div {
+    display: inline;
+    min-height: 0;
+    margin-right: 5px
+}
+
+.ingame .nographic .message>div.writer:before {
     content: '';
     line-height: 1em
 }
 
-.nographic .message>div.writer:after {
+.ingame .nographic .message>div.writer:after {
     content: '';
     line-height: 1em
 }
 
 .nographic .message>div.writer:empty:before,.nographic .message>div.writer:empty:after {
     content: '\2003'
-}
-
-.nographic .message>div {
-    margin-right: 5px
 }
 
 .imageLoader {
@@ -4863,7 +5239,7 @@ button.usergame {
 }
 
 .gift-group4:before {
-    background-image: url(/images/gifts4.png?210218)
+    background-image: url(/images/gifts4.png?50318)
 }
 
 .gift1:before {
@@ -6144,6 +6520,102 @@ button.usergame {
 
 .gift320:before {
     background-position: -700px -500px
+}
+
+.gift321:before {
+    background-position: 0 -600px
+}
+
+.gift322:before {
+    background-position: -100px -600px
+}
+
+.gift323:before {
+    background-position: -200px -600px
+}
+
+.gift324:before {
+    background-position: -300px -600px
+}
+
+.gift325:before {
+    background-position: -400px -600px
+}
+
+.gift326:before {
+    background-position: -500px -600px
+}
+
+.gift327:before {
+    background-position: -600px -600px
+}
+
+.gift328:before {
+    background-position: -700px -600px
+}
+
+.gift329:before {
+    background-position: 0 -700px
+}
+
+.gift330:before {
+    background-position: -100px -700px
+}
+
+.gift331:before {
+    background-position: -200px -700px
+}
+
+.gift332:before {
+    background-position: -300px -700px
+}
+
+.gift333:before {
+    background-position: -400px -700px
+}
+
+.gift334:before {
+    background-position: -500px -700px
+}
+
+.gift335:before {
+    background-position: -600px -700px
+}
+
+.gift336:before {
+    background-position: -700px -700px
+}
+
+.gift337:before {
+    background-position: 0 -800px
+}
+
+.gift338:before {
+    background-position: -100px -800px
+}
+
+.gift339:before {
+    background-position: -200px -800px
+}
+
+.gift340:before {
+    background-position: -300px -800px
+}
+
+.gift341:before {
+    background-position: -400px -800px
+}
+
+.gift342:before {
+    background-position: -500px -800px
+}
+
+.gift343:before {
+    background-position: -600px -800px
+}
+
+.gift344:before {
+    background-position: -700px -800px
 }
 
 .giftForm {
@@ -11067,6 +11539,38 @@ button {
 
     #outside {
         display: block
+    }
+}
+
+@media(max-width: 999px) {
+    body {
+        padding-right:30px
+    }
+
+    #outside {
+        display: block;
+        width: 30px;
+        overflow-y: hidden
+    }
+
+    #outside:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 30px;
+        background: #900;
+        z-index: 101
+    }
+
+    #outside:hover {
+        width: 200px;
+        overflow-y: auto
+    }
+
+    #outside:hover:before {
+        display: none
     }
 }
 
