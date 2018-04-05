@@ -3734,18 +3734,13 @@ button:active,.button:active {
     display: none
 }
 
-.ingame .message>div {
-    margin-right: 0
-}
-
 .ingame .nographic .message {
     margin-top: 5px
 }
 
 .ingame .nographic .message>div {
     display: inline;
-    min-height: 0;
-    margin-right: 5px
+    min-height: 0
 }
 
 .ingame .nographic .message>div.writer:before {
@@ -11120,6 +11115,18 @@ button {
 
 #maxonline:before {
     content: 'Рекорд - '
+}
+
+#enableRadioStream,#disableRadioStream {
+    padding: 10px 2px;
+    font-size: 18px;
+    text-align: center;
+    text-shadow: 1px 0 #060,1px 1px #060,0 1px #060,-1px 1px #060,-1px 0 #060,-1px -1px #060,0 -1px #060,1px -1px #060;
+    cursor: pointer
+}
+
+.maffia #enableRadioStream,.maffia #disableRadioStream {
+    color: #fff
 }
 
 #lottery {
