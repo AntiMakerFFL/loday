@@ -4244,6 +4244,9 @@ function showWindow(buttonClass) {
 $(".moneyblock").find("b").click(function() {
     sumChange();
     showWindow("pay");
+    if (mobile) {
+        $("#showHeaderPanel").prop("checked", false);
+    }
 });
 var payDiv = $(".pay")
   , donatInput = payDiv.find("input");
@@ -4282,6 +4285,9 @@ $("h3").click(function() {
     default:
         showWindow(buttonClass);
         break;
+    }
+    if (mobile) {
+        $("#showHeaderPanel").prop("checked", false);
     }
 });
 $("#left-panel").find("div").click(function() {
@@ -4442,16 +4448,16 @@ function checkMarried(cu, block) {
 }
 function showPlayerInfo(show, uid) {
     ptp.queue("fx", []);
-    var stat = ptp.find("#playerInfo-stat");
-    var cu = playersInfoArray[uid];
+    var stat = ptp.find("#playerInfo-stat")
+      , cu = playersInfoArray[uid];
     if (show && cu) {
         if (cu.bot && cu.creator && playersInfoArray[cu.creator]) {
             cu.icon = 2;
             cu.status = playersInfoArray[cu.creator].login;
         }
         var statEcho = function(obj, role) {
-            var win = (obj[role + "1"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "1"];
-            var lose = (obj[role + "0"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "0"];
+            var win = (obj[role + "1"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "1"]
+              , lose = (obj[role + "0"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "0"];
             return win + " / " + lose;
         };
         if (cu.image && cu.image.length > 2) {
@@ -4473,9 +4479,9 @@ function showPlayerInfo(show, uid) {
         } else {
             ptp.removeClass("vipProfile");
         }
-        var cuNick = cu.login || "***";
-        var cuRate = (cu.hide) ? "скрыт" : (cu.hasOwnProperty("rating") ? cu.rating : "-");
-        var gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
+        var cuNick = cu.login || "***"
+          , cuRate = (cu.hide) ? (cu._id == u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
+          , gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
         stat.find(".cat").html(statEcho(cu, "cat"));
@@ -5101,7 +5107,7 @@ blankForm.find("button").click(function() {
     closewindow();
 });
 function setWidth(width) {
-    if (width > 10 && width < 101 && !isAppVK) {
+    if (width > 10 && width < 101 && !isAppVK && !mobile) {
         container.css("width", width + "%");
         if (container.width() < 800) {
             b.addClass("w800");
@@ -7228,6 +7234,691 @@ $(window).resize(function() {
         });
     }
 });
+var lostdays = Math.floor((1525953600000 - Date.now()) / 86400000);
+if (lostdays > 0) {
+    $("<div/>").css({
+        position: "absolute",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        color: (isMaffia ? "#ddd" : "#900"),
+        padding: "3px 10px",
+        "text-align": "right"
+    }).html("До трехлетия проекта осталось " + someThing(lostdays, "день", "дня", "дней")).appendTo(mainDiv);
+}
+var newGame = {
+    creating: false,
+    plCount: 8,
+    stavka: 1,
+    type: 1,
+    style: 0,
+    minStavka: 1,
+    maxStavka: 2,
+    countForType: {
+        1: [8, 20],
+        2: [15, 25],
+        3: [20, 30],
+        4: [8, 20]
+    }
+};
+var plC = $("#plCount");
+var st = $("#stavka");
+function setCount(step) {
+    var newCount = parseInt(plC.html()) + step;
+    if (newCount >= newGame.countForType[newGame.type][0] && newCount <= newGame.countForType[newGame.type][1]) {
+        newGame.plCount = newCount;
+        plC.html(newCount);
+    }
+}
+function setStavka(step) {
+    var mymoney = Math.floor(u.money / 1000);
+    var newStavka = parseInt(st.html()) + step;
+    if (newStavka > mymoney) {
+        newStavka = mymoney;
+        $("#about").html("Игра на последние деньги :)");
+    }
+    if (newStavka >= newGame.minStavka && newStavka <= newGame.maxStavka) {
+        newGame.stavka = newStavka;
+    }
+    st.html(newGame.stavka);
+}
+var ch1 = $("#check1");
+var ch2 = $("#check2");
+var ch3 = $("#check3");
+var ch4 = $("#check4");
+var ch5 = $("#check5");
+var ch6 = $("#check6");
+function checkOptions() {
+    var mymoney = Math.floor(u.money / 1000);
+    if (u.club !== 1) {
+        ch2.prop("checked", false);
+        ch3.prop("checked", false);
+        ch4.prop("checked", false);
+        ch5.prop("checked", false);
+        ch6.prop("checked", false);
+    }
+    if (ch3.is(":checked") || ch4.is(":checked") || ch5.is(":checked") || ch6.is(":checked")) {
+        ch1.prop("checked", "checked");
+        ch2.prop("checked", "checked");
+    }
+    if (ch2.is(":checked")) {
+        ch1.prop("checked", "checked");
+    }
+    var scores = 0;
+    var oldStyle = newGame.style;
+    newGame.style = 0;
+    if (ch1.is(":checked")) {
+        scores += 1;
+        newGame.style += 1;
+    }
+    if (ch2.is(":checked")) {
+        scores += 10;
+        newGame.style += 10;
+    }
+    if (ch3.is(":checked")) {
+        scores += 100;
+        newGame.style += 100;
+    }
+    if (ch4.is(":checked")) {
+        scores += 100;
+        newGame.style += 1000;
+    }
+    if (ch5.is(":checked")) {
+        scores += 100;
+        newGame.style += 10000;
+    }
+    if (ch6.is(":checked")) {
+        scores += 100;
+        newGame.style += 100000;
+    }
+    if (scores == 0) {
+        newGame.minStavka = 1;
+        newGame.maxStavka = 2;
+    }
+    if (scores == 1) {
+        newGame.minStavka = 1;
+        newGame.maxStavka = 4;
+    }
+    if (scores > 10) {
+        newGame.minStavka = 2;
+        newGame.maxStavka = 16;
+    }
+    if (scores > 100) {
+        newGame.minStavka = 4;
+        newGame.maxStavka = 32;
+    }
+    if (scores > 200) {
+        newGame.minStavka = 8;
+        newGame.maxStavka = 64;
+    }
+    if (scores > 300) {
+        newGame.minStavka = 16;
+        newGame.maxStavka = 128;
+    }
+    if (scores > 400) {
+        newGame.minStavka = 32;
+        newGame.maxStavka = 500;
+    }
+    if (newGame.stavka < newGame.minStavka) {
+        newGame.stavka = newGame.minStavka;
+    }
+    if (newGame.stavka > newGame.maxStavka) {
+        newGame.stavka = newGame.maxStavka;
+    }
+    if (newGame.stavka > mymoney) {
+        var ch = $(this);
+        ch.prop("checked", !ch.prop("checked"));
+        newGame.stavka = mymoney;
+        newGame.style = oldStyle;
+    }
+    st.html(newGame.stavka);
+}
+function setGame(gtype) {
+    newGame.type = (gtype) ? parseInt(gtype) : $("#gamePanel").find("input:checked + label").attr("data-gametype");
+    if (newGame.type == 1 || newGame.type == 4) {
+        $("#gametype1_4").addClass("checkedGameType");
+    } else {
+        $("#gametype1_4").removeClass("checkedGameType");
+    }
+    var newCount = newGame.countForType[newGame.type][0];
+    newGame.plCount = newCount;
+    plC.html(newCount);
+}
+function checkGame() {
+    newGame.type = $("#gamePanel").find("input:checked + label").attr("data-gametype");
+    if (plC.html() < newGame.countForType[newGame.type][0]) {
+        newGame.plCount = newGame.countForType[newGame.type][0];
+        plC.html(newGame.plCount);
+    }
+    if (plC.html() > newGame.countForType[newGame.type][1]) {
+        newGame.plCount = newGame.countForType[newGame.type][1];
+        plC.html(newGame.plCount);
+    }
+}
+$("#gamePanel").find("label").click(function() {
+    setGame($(this).attr("data-gametype"));
+});
+$('.gameoptions input[type="checkbox"]').change(function(event) {
+    if (!u.club && ["check2", "check3", "check4", "check5", "check6"].indexOf(event.target.id) != -1) {
+        showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!');
+        event.stopPropagation();
+        event.preventDefault();
+        $(this).prop("checked", false);
+        return false;
+    }
+    checkOptions();
+    return true;
+});
+$("#about").keypress(function(event) {
+    var key = event.which;
+    var count = $(this).attr("maxlength");
+    var a = $("#about").val().length;
+    if (a >= count && key != 8 && key != 46) {
+        sound("signal");
+        return false;
+    } else {
+        return true;
+    }
+});
+function createGame() {
+    checkGame();
+    checkOptions();
+    newGame.plCount = parseInt(plC.html()) || 8;
+    newGame.stavka = parseInt(st.html()) || 1;
+    if (newGame.creating) {
+        return;
+    }
+    newGame.creating = true;
+    var about = $("#about").val().trim()
+      , gameObj = {
+        type: "create",
+        count: newGame.plCount,
+        sum: newGame.stavka,
+        gametype: newGame.type,
+        style: newGame.style,
+        selectRole: $("#selectRole").prop("checked"),
+        about: about
+    };
+    if (about.toLowerCase().indexOf("мур") > -1 || about.toLowerCase().indexOf("мяу") > -1) {
+        gameObj.cat = true;
+    }
+    sendToSocket(gameObj);
+    closewindow();
+    setTimeout(function() {
+        newGame.creating = false;
+    }, 1000);
+}
+function setStenka() {
+    $("#gamePanel").find("label").eq(1).click();
+    ch1.prop("checked", true);
+    ch2.prop("checked", true);
+    ch3.prop("checked", false);
+    ch4.prop("checked", true);
+    ch5.prop("checked", false);
+    ch6.prop("checked", true);
+    plC.html("16");
+    st.html("8");
+    $("#about").val("0-0 играем?");
+    showWindow("newgame");
+}
+function setCHP() {
+    $("#gamePanel").find("label").eq(0).click();
+    ch1.prop("checked", true);
+    ch2.prop("checked", true);
+    ch3.prop("checked", false);
+    ch4.prop("checked", true);
+    ch5.prop("checked", false);
+    ch6.prop("checked", true);
+    plC.html("8");
+    st.html("8");
+    $("#about").val("ЧП");
+    showWindow("newgame");
+}
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+var ticketK = 0.7
+  , selectYet = false;
+var ticketBlock = $("#tickets");
+function showTickets(count, noactive) {
+    var curDiv;
+    var w = container.width() - 40;
+    var h = container.height() - 40;
+    var k = (h / w) * ticketK;
+    var y = Math.ceil(Math.sqrt(count * k));
+    var x = Math.ceil(count / y);
+    var ticketHeight = Math.floor(h / y);
+    var ticketWidth = Math.floor(ticketHeight * ticketK);
+    if (ticketWidth > 70) {
+        ticketWidth = 70;
+    }
+    if (ticketHeight > 100) {
+        ticketHeight = 100;
+    }
+    ticketBlock.html("");
+    if (count > 30) {
+        ticketBlock.css("padding-top", "0");
+        curDiv = ticketBlock;
+    } else {
+        ticketBlock.css("padding-top", ((ticketBlock.outerHeight() / 2) - 200) + "px");
+        ticketBlock.append("<section></section>");
+        ticketBlock.append("<section></section>");
+        ticketBlock.append("<section></section>");
+        var ticketSide = Math.floor((count - 10) / 2);
+        curDiv = ticketBlock.find("section").eq(0);
+    }
+    for (var i = 0; i < count; i++) {
+        var newTicket = $('<div data-id="' + i + '" style="transform:rotate(' + getRandomInt(-5, 5).toString() + 'deg)"></div>');
+        newTicket.bind("click touchstart").click(function() {
+            if (!selectYet) {
+                selectYet = true;
+                var num = $(this).attr("data-id");
+                $(this).addClass("clicked-ticket");
+                sendToSocket({
+                    type: "ticket",
+                    ticket: num
+                });
+            }
+        });
+        if (noactive && noactive.indexOf(i) > -1) {
+            newTicket.addClass("studTicket");
+        }
+        curDiv.append(newTicket);
+        if (ticketSide && i == ticketSide - 1) {
+            curDiv = ticketBlock.find("section").eq(1);
+        }
+        if (ticketSide && i == ticketSide + 9) {
+            curDiv = ticketBlock.find("section").eq(2);
+        }
+    }
+    ticketBlock.find("div").css("width", ticketWidth + "px").css("height", ticketHeight + "px");
+    selectYet = false;
+    ticketBlock.show();
+}
+function hideTickets() {
+    ticketBlock.find("div").remove();
+    ticketBlock.hide();
+}
+function copyTicket(num) {
+    var curTicket = ticketBlock.find("div").eq(num);
+    curTicket.css("visibility", "hidden");
+    var w = curTicket.css("width")
+      , h = curTicket.css("height")
+      , coords = curTicket.position()
+      , newTicket = $('<div class="newTicket"></div>').html("<div><div></div><div></div></div>");
+    newTicket.css("width", h).css("height", w).css("left", coords.left + "px").css("top", coords.top + "px").css("font-size", Math.floor(parseInt(w) / 10) + "px");
+    ticketBlock.append(newTicket);
+    return newTicket;
+}
+function hideTicket(num) {
+    var newTicket = copyTicket(num)
+      , animateParams = " 1s 5ms 1 normal ease-in forwards"
+      , classes = {
+        1: {
+            animation: "hideTicket1" + animateParams,
+            webkitAnimation: "hideTicket1" + animateParams
+        },
+        2: {
+            animation: "hideTicket2" + animateParams,
+            webkitAnimation: "hideTicket2" + animateParams
+        },
+        3: {
+            animation: "hideTicket3" + animateParams,
+            webkitAnimation: "hideTicket3" + animateParams
+        },
+        4: {
+            animation: "hideTicket4" + animateParams,
+            webkitAnimation: "hideTicket4" + animateParams
+        }
+    };
+    if (b.hasClass("noeffect")) {
+        newTicket.hide();
+    } else {
+        newTicket.css(classes[[1, 2, 3, 4].randomValue()]);
+    }
+}
+function ticketOpen(num, res) {
+    if (res) {
+        sound("signal");
+        var rotatingTicket = copyTicket(num);
+        rotatingTicket.addClass("activeTicket");
+        rotatingTicket.find("div>div").eq(1).addClass("ticket" + res);
+        if (b.hasClass("noeffect")) {
+            rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
+        } else {
+            setTimeout(function() {
+                rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
+            }, 1000);
+        }
+    } else {
+        hideTicket(num);
+        selectYet = false;
+    }
+}
+var statDiv = $(".stat")
+  , specGameAbout = $("#specialAbout");
+statDiv.find("button").click(createSpecialGame);
+specGameAbout.keydown(function(e) {
+    if (e.which == 13) {
+        createSpecialGame();
+    }
+});
+function createSpecialGame() {
+    if (newGame.creating) {
+        return;
+    }
+    newGame.creating = true;
+    var g = {}
+      , about = specGameAbout.val().trim();
+    var selGameType = statDiv.find("input[name=sgametype]:checked").val();
+    switch (selGameType) {
+    case "1":
+        g.count = 8;
+        g.stavka = 5;
+        g.type = 2;
+        g.style = 101011;
+        g.botwall = true;
+        break;
+    case "2":
+        g.count = 5;
+        g.stavka = 5;
+        g.type = 6;
+        g.style = 1011;
+        g.botwall = true;
+        break;
+    case "3":
+        g.count = 16;
+        g.stavka = 8;
+        g.type = 2;
+        g.style = 101011;
+        g.botwall = false;
+        break;
+    case "4":
+        g.count = 10;
+        g.stavka = 4;
+        g.type = 6;
+        g.style = 1011;
+        g.botwall = false;
+        break;
+    case "5":
+        g.count = 14;
+        g.stavka = 7;
+        g.type = 11;
+        g.style = 101011;
+        g.botwall = false;
+        break;
+    case "6":
+        g.count = 24;
+        g.stavka = 5;
+        g.type = 10;
+        g.style = 101011;
+        g.botwall = false;
+        break;
+    case "7":
+        g.count = 8;
+        g.stavka = 4;
+        g.type = 4;
+        g.style = 1011;
+        g.botwall = false;
+        break;
+    default:
+        g.count = 8;
+        g.stavka = 2;
+        g.type = 1;
+        g.style = 0;
+        g.botwall = false;
+        break;
+    }
+    sendToSocket({
+        type: "create",
+        count: g.count,
+        sum: g.stavka,
+        gametype: g.type,
+        style: g.style,
+        botwall: g.botwall,
+        selectRole: $("#specialSelRole").prop("checked"),
+        about: about
+    });
+    closewindow();
+    setTimeout(function() {
+        newGame.creating = false;
+    }, 1000);
+}
+var UG = $(".userGame");
+function UGinc(elid, step) {
+    var el = UG.find("#" + elid)
+      , val = parseInt(el.html()) + step;
+    if (val < 0) {
+        return;
+    }
+    switch (elid) {
+    case "UGplCount":
+        if (val < 5) {
+            val = 5;
+        }
+        if (val > 30) {
+            val = 30;
+        }
+        break;
+    case "UGstavka":
+        if (val > 500) {
+            val = 500;
+        }
+        if (val > 2 && !UG.find("#UGcheck1").prop("checked") && !UG.find("#UGcheck2").prop("checked")) {
+            val = 2;
+        }
+        break;
+    case "UGrobb":
+        var pohMax = Math.floor(parseInt(UG.find("#UGplCount").html()) / 2) - 1;
+        if (UG.find("#UGhrobb").prop("checked")) {
+            pohMax -= 1;
+        }
+        if (val > pohMax) {
+            val = pohMax;
+        }
+        if (val < 1) {
+            val = 1;
+        }
+        break;
+    case "UGitem2":
+        if (val > 3) {
+            val = 3;
+        }
+        break;
+    }
+    el.html(val);
+}
+UG.find("#UGcheck4").change(function(event) {
+    var editopt = $("#UGitemsedit");
+    if ($(this).prop("checked")) {
+        editopt.addClass("noactive");
+    } else {
+        editopt.removeClass("noactive");
+    }
+    return true;
+});
+function createUserGame() {
+    if (newGame.creating) {
+        return;
+    }
+    var dataSending = function(cgo) {
+        newGame.creating = true;
+        sendToSocket(cgo);
+        closewindow();
+        setTimeout(function() {
+            newGame.creating = false;
+        }, 1000);
+    }
+      , about = UG.find("#UGabout").val().trim()
+      , count = parseInt(UG.find("#UGplCount").html())
+      , sum = parseInt(UG.find("#UGstavka").html())
+      , style = {
+        0: 0,
+        1: 0,
+        2: 0,
+        3: 0,
+        4: 0
+    }
+      , roles = {}
+      , params = {}
+      , special = UG.find("#UGspecialGame").prop("checked")
+      , selrole = UG.find("#UGselectRole").prop("checked");
+    if (UG.find("#UGcheck1").is(":checked")) {
+        style[0] = 1;
+    }
+    if (UG.find("#UGcheck2").is(":checked")) {
+        style[0] = 2;
+    }
+    if (UG.find("#UGcheck3").is(":checked")) {
+        style[1] = 1;
+    }
+    if (UG.find("#UGcheck4").is(":checked")) {
+        style[2] = 1;
+    }
+    if (UG.find("#UGcheck5").is(":checked")) {
+        style[3] = 1;
+    }
+    if (UG.find("#UGcheck6").is(":checked")) {
+        style[4] = 1;
+    }
+    if (style[2] == 0) {
+        var item2count = parseInt(UG.find("#UGitem2").html());
+        if (item2count < 3) {
+            params.item2 = item2count;
+        }
+        if (UG.find("#UGitem4").is(":checked")) {
+            params.item4 = 1;
+        }
+        if (UG.find("#UGbonus").is(":checked")) {
+            params.bonus = 1;
+        }
+    }
+    roles[2] = parseInt(UG.find("#UGrobb").html());
+    roles[6] = parseInt(UG.find("#UGjeal").html());
+    if (UG.find("#UGhrobb").is(":checked")) {
+        roles[3] = 1;
+    }
+    if (UG.find("#UGduty").is(":checked")) {
+        roles[4] = 1;
+    }
+    if (UG.find("#UGassis").is(":checked")) {
+        roles[5] = 1;
+    }
+    if (UG.find("#UGsleep").is(":checked")) {
+        roles[7] = 1;
+    }
+    if (UG.find("#UGcat").is(":checked")) {
+        roles[8] = 1;
+    }
+    if (UG.find("#UGadv").is(":checked")) {
+        roles[9] = 1;
+    }
+    if (roles[5] && !roles[4]) {
+        showMessage('Для роли <span class="assis"></span> обязательно наличие в начале партии роли <span class="duty"></span>');
+        return;
+    }
+    var activeRoles = 0;
+    for (var i in roles) {
+        if (roles.hasOwnProperty(i)) {
+            activeRoles += roles[i];
+        }
+    }
+    var cgo = {
+        type: "userGame",
+        about: about,
+        count: count,
+        sum: sum,
+        style: style,
+        special: special,
+        selectRole: selrole,
+        roles: roles
+    };
+    if (UG.find("#UGManModeGame").prop("checked")) {
+        cgo.man = true;
+    }
+    if (UG.find("#UGShortNights").prop("checked")) {
+        cgo.shortnight = true;
+    }
+    if (Object.size(params) > 0) {
+        cgo.params = params;
+    }
+    if (about.indexOf("#") > -1) {
+        cgo.ip = true;
+    }
+    if (!roles[6] && cgo.man) {
+        showMessage('Хотя бы одна роль <span class="jeal"></span> обязательна для режима <span class="jeal"></span>-одиночка');
+        return;
+    }
+    if (activeRoles > count) {
+        modalWindow("Количество активных ролей (" + activeRoles + ") превышает количество игроков (" + count + ") в партии.<br/>Изменить количество игроков на " + activeRoles + "?", function() {
+            cgo.count = activeRoles;
+            dataSending(cgo);
+        });
+    } else {
+        dataSending(cgo);
+    }
+}
+$("#UGcreateGame").click(createUserGame);
+newGame.loadSaves = function() {
+    var saves = "";
+    $.each(newGame.saves, function(key, value) {
+        if (!value.UGabout) {
+            value.UGabout = showDate(key, true);
+        }
+        saves = '<option value="' + key + '">' + (value.UGabout.length > 23 ? value.UGabout.substring(0, 20) + "..." : value.UGabout) + "</option>" + saves;
+    });
+    $("#UGsaves").html("<option>выбрать</option>" + saves);
+}
+;
+if (lStorage.getItem("saves")) {
+    newGame.saves = JSON.parse(lStorage.getItem("saves"));
+} else {
+    newGame.saves = {};
+}
+newGame.loadSaves();
+UG.find("#UGdelete").click(function() {
+    var delSave = $("#UGsaves").val();
+    if (newGame.saves[delSave]) {
+        delete newGame.saves[delSave];
+        lStorage.setItem("saves", JSON.stringify(newGame.saves));
+        newGame.loadSaves();
+    } else {
+        showMessage("Выберите шаблон для удаления");
+    }
+});
+UG.find("#UGsave").click(function() {
+    var cursave = {};
+    UG.find(":checkbox, span.svalue").each(function(index) {
+        var cur = $(this)
+          , curid = cur.attr("id");
+        if (curid) {
+            cursave[curid] = cur.hasClass("check") ? cur.prop("checked") : cur.html();
+        }
+    });
+    cursave.UGabout = $("#UGabout").val();
+    newGame.saves[Date.now()] = cursave;
+    lStorage.setItem("saves", JSON.stringify(newGame.saves));
+    newGame.loadSaves();
+});
+UG.find("#UGsaves").change(function() {
+    var cursave = $(this).val();
+    if (newGame.saves[cursave]) {
+        $.each(newGame.saves[cursave], function(key, value) {
+            var curel = UG.find("#" + key);
+            if (curel) {
+                if (curel.attr("id") == "UGabout") {
+                    curel.val(value);
+                } else {
+                    if (curel.hasClass("check")) {
+                        curel.prop("checked", value);
+                    } else {
+                        curel.html(value);
+                    }
+                }
+            }
+        });
+    }
+});
 var roles = function(roleId) {
     var fflRoles = {
         none: {
@@ -9013,679 +9704,6 @@ snowball.end = function(text) {
     warningWindow(text, goToRoom);
 }
 ;
-var newGame = {
-    creating: false,
-    plCount: 8,
-    stavka: 1,
-    type: 1,
-    style: 0,
-    minStavka: 1,
-    maxStavka: 2,
-    countForType: {
-        1: [8, 20],
-        2: [15, 25],
-        3: [20, 30],
-        4: [8, 20]
-    }
-};
-var plC = $("#plCount");
-var st = $("#stavka");
-function setCount(step) {
-    var newCount = parseInt(plC.html()) + step;
-    if (newCount >= newGame.countForType[newGame.type][0] && newCount <= newGame.countForType[newGame.type][1]) {
-        newGame.plCount = newCount;
-        plC.html(newCount);
-    }
-}
-function setStavka(step) {
-    var mymoney = Math.floor(u.money / 1000);
-    var newStavka = parseInt(st.html()) + step;
-    if (newStavka > mymoney) {
-        newStavka = mymoney;
-        $("#about").html("Игра на последние деньги :)");
-    }
-    if (newStavka >= newGame.minStavka && newStavka <= newGame.maxStavka) {
-        newGame.stavka = newStavka;
-    }
-    st.html(newGame.stavka);
-}
-var ch1 = $("#check1");
-var ch2 = $("#check2");
-var ch3 = $("#check3");
-var ch4 = $("#check4");
-var ch5 = $("#check5");
-var ch6 = $("#check6");
-function checkOptions() {
-    var mymoney = Math.floor(u.money / 1000);
-    if (u.club !== 1) {
-        ch2.prop("checked", false);
-        ch3.prop("checked", false);
-        ch4.prop("checked", false);
-        ch5.prop("checked", false);
-        ch6.prop("checked", false);
-    }
-    if (ch3.is(":checked") || ch4.is(":checked") || ch5.is(":checked") || ch6.is(":checked")) {
-        ch1.prop("checked", "checked");
-        ch2.prop("checked", "checked");
-    }
-    if (ch2.is(":checked")) {
-        ch1.prop("checked", "checked");
-    }
-    var scores = 0;
-    var oldStyle = newGame.style;
-    newGame.style = 0;
-    if (ch1.is(":checked")) {
-        scores += 1;
-        newGame.style += 1;
-    }
-    if (ch2.is(":checked")) {
-        scores += 10;
-        newGame.style += 10;
-    }
-    if (ch3.is(":checked")) {
-        scores += 100;
-        newGame.style += 100;
-    }
-    if (ch4.is(":checked")) {
-        scores += 100;
-        newGame.style += 1000;
-    }
-    if (ch5.is(":checked")) {
-        scores += 100;
-        newGame.style += 10000;
-    }
-    if (ch6.is(":checked")) {
-        scores += 100;
-        newGame.style += 100000;
-    }
-    if (scores == 0) {
-        newGame.minStavka = 1;
-        newGame.maxStavka = 2;
-    }
-    if (scores == 1) {
-        newGame.minStavka = 1;
-        newGame.maxStavka = 4;
-    }
-    if (scores > 10) {
-        newGame.minStavka = 2;
-        newGame.maxStavka = 16;
-    }
-    if (scores > 100) {
-        newGame.minStavka = 4;
-        newGame.maxStavka = 32;
-    }
-    if (scores > 200) {
-        newGame.minStavka = 8;
-        newGame.maxStavka = 64;
-    }
-    if (scores > 300) {
-        newGame.minStavka = 16;
-        newGame.maxStavka = 128;
-    }
-    if (scores > 400) {
-        newGame.minStavka = 32;
-        newGame.maxStavka = 500;
-    }
-    if (newGame.stavka < newGame.minStavka) {
-        newGame.stavka = newGame.minStavka;
-    }
-    if (newGame.stavka > newGame.maxStavka) {
-        newGame.stavka = newGame.maxStavka;
-    }
-    if (newGame.stavka > mymoney) {
-        var ch = $(this);
-        ch.prop("checked", !ch.prop("checked"));
-        newGame.stavka = mymoney;
-        newGame.style = oldStyle;
-    }
-    st.html(newGame.stavka);
-}
-function setGame(gtype) {
-    newGame.type = (gtype) ? parseInt(gtype) : $("#gamePanel").find("input:checked + label").attr("data-gametype");
-    if (newGame.type == 1 || newGame.type == 4) {
-        $("#gametype1_4").addClass("checkedGameType");
-    } else {
-        $("#gametype1_4").removeClass("checkedGameType");
-    }
-    var newCount = newGame.countForType[newGame.type][0];
-    newGame.plCount = newCount;
-    plC.html(newCount);
-}
-function checkGame() {
-    newGame.type = $("#gamePanel").find("input:checked + label").attr("data-gametype");
-    if (plC.html() < newGame.countForType[newGame.type][0]) {
-        newGame.plCount = newGame.countForType[newGame.type][0];
-        plC.html(newGame.plCount);
-    }
-    if (plC.html() > newGame.countForType[newGame.type][1]) {
-        newGame.plCount = newGame.countForType[newGame.type][1];
-        plC.html(newGame.plCount);
-    }
-}
-$("#gamePanel").find("label").click(function() {
-    setGame($(this).attr("data-gametype"));
-});
-$('.gameoptions input[type="checkbox"]').change(function(event) {
-    if (!u.club && ["check2", "check3", "check4", "check5", "check6"].indexOf(event.target.id) != -1) {
-        showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!');
-        event.stopPropagation();
-        event.preventDefault();
-        $(this).prop("checked", false);
-        return false;
-    }
-    checkOptions();
-    return true;
-});
-$("#about").keypress(function(event) {
-    var key = event.which;
-    var count = $(this).attr("maxlength");
-    var a = $("#about").val().length;
-    if (a >= count && key != 8 && key != 46) {
-        sound("signal");
-        return false;
-    } else {
-        return true;
-    }
-});
-function createGame() {
-    checkGame();
-    checkOptions();
-    newGame.plCount = parseInt(plC.html()) || 8;
-    newGame.stavka = parseInt(st.html()) || 1;
-    if (newGame.creating) {
-        return;
-    }
-    newGame.creating = true;
-    var about = $("#about").val().trim()
-      , gameObj = {
-        type: "create",
-        count: newGame.plCount,
-        sum: newGame.stavka,
-        gametype: newGame.type,
-        style: newGame.style,
-        selectRole: $("#selectRole").prop("checked"),
-        about: about
-    };
-    if (about.toLowerCase().indexOf("мур") > -1 || about.toLowerCase().indexOf("мяу") > -1) {
-        gameObj.cat = true;
-    }
-    sendToSocket(gameObj);
-    closewindow();
-    setTimeout(function() {
-        newGame.creating = false;
-    }, 1000);
-}
-function setStenka() {
-    $("#gamePanel").find("label").eq(1).click();
-    ch1.prop("checked", true);
-    ch2.prop("checked", true);
-    ch3.prop("checked", false);
-    ch4.prop("checked", true);
-    ch5.prop("checked", false);
-    ch6.prop("checked", true);
-    plC.html("16");
-    st.html("8");
-    $("#about").val("0-0 играем?");
-    showWindow("newgame");
-}
-function setCHP() {
-    $("#gamePanel").find("label").eq(0).click();
-    ch1.prop("checked", true);
-    ch2.prop("checked", true);
-    ch3.prop("checked", false);
-    ch4.prop("checked", true);
-    ch5.prop("checked", false);
-    ch6.prop("checked", true);
-    plC.html("8");
-    st.html("8");
-    $("#about").val("ЧП");
-    showWindow("newgame");
-}
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-var ticketK = 0.7
-  , selectYet = false;
-var ticketBlock = $("#tickets");
-function showTickets(count, noactive) {
-    var curDiv;
-    var w = container.width() - 40;
-    var h = container.height() - 40;
-    var k = (h / w) * ticketK;
-    var y = Math.ceil(Math.sqrt(count * k));
-    var x = Math.ceil(count / y);
-    var ticketHeight = Math.floor(h / y);
-    var ticketWidth = Math.floor(ticketHeight * ticketK);
-    if (ticketWidth > 70) {
-        ticketWidth = 70;
-    }
-    if (ticketHeight > 100) {
-        ticketHeight = 100;
-    }
-    ticketBlock.html("");
-    if (count > 30) {
-        ticketBlock.css("padding-top", "0");
-        curDiv = ticketBlock;
-    } else {
-        ticketBlock.css("padding-top", ((ticketBlock.outerHeight() / 2) - 200) + "px");
-        ticketBlock.append("<section></section>");
-        ticketBlock.append("<section></section>");
-        ticketBlock.append("<section></section>");
-        var ticketSide = Math.floor((count - 10) / 2);
-        curDiv = ticketBlock.find("section").eq(0);
-    }
-    for (var i = 0; i < count; i++) {
-        var newTicket = $('<div data-id="' + i + '" style="transform:rotate(' + getRandomInt(-5, 5).toString() + 'deg)"></div>');
-        newTicket.bind("click touchstart").click(function() {
-            if (!selectYet) {
-                selectYet = true;
-                var num = $(this).attr("data-id");
-                $(this).addClass("clicked-ticket");
-                sendToSocket({
-                    type: "ticket",
-                    ticket: num
-                });
-            }
-        });
-        if (noactive && noactive.indexOf(i) > -1) {
-            newTicket.addClass("studTicket");
-        }
-        curDiv.append(newTicket);
-        if (ticketSide && i == ticketSide - 1) {
-            curDiv = ticketBlock.find("section").eq(1);
-        }
-        if (ticketSide && i == ticketSide + 9) {
-            curDiv = ticketBlock.find("section").eq(2);
-        }
-    }
-    ticketBlock.find("div").css("width", ticketWidth + "px").css("height", ticketHeight + "px");
-    selectYet = false;
-    ticketBlock.show();
-}
-function hideTickets() {
-    ticketBlock.find("div").remove();
-    ticketBlock.hide();
-}
-function copyTicket(num) {
-    var curTicket = ticketBlock.find("div").eq(num);
-    curTicket.css("visibility", "hidden");
-    var w = curTicket.css("width")
-      , h = curTicket.css("height")
-      , coords = curTicket.position()
-      , newTicket = $('<div class="newTicket"></div>').html("<div><div></div><div></div></div>");
-    newTicket.css("width", h).css("height", w).css("left", coords.left + "px").css("top", coords.top + "px").css("font-size", Math.floor(parseInt(w) / 10) + "px");
-    ticketBlock.append(newTicket);
-    return newTicket;
-}
-function hideTicket(num) {
-    var newTicket = copyTicket(num)
-      , animateParams = " 1s 5ms 1 normal ease-in forwards"
-      , classes = {
-        1: {
-            animation: "hideTicket1" + animateParams,
-            webkitAnimation: "hideTicket1" + animateParams
-        },
-        2: {
-            animation: "hideTicket2" + animateParams,
-            webkitAnimation: "hideTicket2" + animateParams
-        },
-        3: {
-            animation: "hideTicket3" + animateParams,
-            webkitAnimation: "hideTicket3" + animateParams
-        },
-        4: {
-            animation: "hideTicket4" + animateParams,
-            webkitAnimation: "hideTicket4" + animateParams
-        }
-    };
-    if (b.hasClass("noeffect")) {
-        newTicket.hide();
-    } else {
-        newTicket.css(classes[[1, 2, 3, 4].randomValue()]);
-    }
-}
-function ticketOpen(num, res) {
-    if (res) {
-        sound("signal");
-        var rotatingTicket = copyTicket(num);
-        rotatingTicket.addClass("activeTicket");
-        rotatingTicket.find("div>div").eq(1).addClass("ticket" + res);
-        if (b.hasClass("noeffect")) {
-            rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
-        } else {
-            setTimeout(function() {
-                rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
-            }, 1000);
-        }
-    } else {
-        hideTicket(num);
-        selectYet = false;
-    }
-}
-var statDiv = $(".stat")
-  , specGameAbout = $("#specialAbout");
-statDiv.find("button").click(createSpecialGame);
-specGameAbout.keydown(function(e) {
-    if (e.which == 13) {
-        createSpecialGame();
-    }
-});
-function createSpecialGame() {
-    if (newGame.creating) {
-        return;
-    }
-    newGame.creating = true;
-    var g = {}
-      , about = specGameAbout.val().trim();
-    var selGameType = statDiv.find("input[name=sgametype]:checked").val();
-    switch (selGameType) {
-    case "1":
-        g.count = 8;
-        g.stavka = 5;
-        g.type = 2;
-        g.style = 101011;
-        g.botwall = true;
-        break;
-    case "2":
-        g.count = 5;
-        g.stavka = 5;
-        g.type = 6;
-        g.style = 1011;
-        g.botwall = true;
-        break;
-    case "3":
-        g.count = 16;
-        g.stavka = 8;
-        g.type = 2;
-        g.style = 101011;
-        g.botwall = false;
-        break;
-    case "4":
-        g.count = 10;
-        g.stavka = 4;
-        g.type = 6;
-        g.style = 1011;
-        g.botwall = false;
-        break;
-    case "5":
-        g.count = 14;
-        g.stavka = 7;
-        g.type = 11;
-        g.style = 101011;
-        g.botwall = false;
-        break;
-    case "6":
-        g.count = 24;
-        g.stavka = 5;
-        g.type = 10;
-        g.style = 101011;
-        g.botwall = false;
-        break;
-    case "7":
-        g.count = 8;
-        g.stavka = 4;
-        g.type = 4;
-        g.style = 1011;
-        g.botwall = false;
-        break;
-    default:
-        g.count = 8;
-        g.stavka = 2;
-        g.type = 1;
-        g.style = 0;
-        g.botwall = false;
-        break;
-    }
-    sendToSocket({
-        type: "create",
-        count: g.count,
-        sum: g.stavka,
-        gametype: g.type,
-        style: g.style,
-        botwall: g.botwall,
-        selectRole: $("#specialSelRole").prop("checked"),
-        about: about
-    });
-    closewindow();
-    setTimeout(function() {
-        newGame.creating = false;
-    }, 1000);
-}
-var UG = $(".userGame");
-function UGinc(elid, step) {
-    var el = UG.find("#" + elid)
-      , val = parseInt(el.html()) + step;
-    if (val < 0) {
-        return;
-    }
-    switch (elid) {
-    case "UGplCount":
-        if (val < 5) {
-            val = 5;
-        }
-        if (val > 30) {
-            val = 30;
-        }
-        break;
-    case "UGstavka":
-        if (val > 500) {
-            val = 500;
-        }
-        if (val > 2 && !UG.find("#UGcheck1").prop("checked") && !UG.find("#UGcheck2").prop("checked")) {
-            val = 2;
-        }
-        break;
-    case "UGrobb":
-        var pohMax = Math.floor(parseInt(UG.find("#UGplCount").html()) / 2) - 1;
-        if (UG.find("#UGhrobb").prop("checked")) {
-            pohMax -= 1;
-        }
-        if (val > pohMax) {
-            val = pohMax;
-        }
-        if (val < 1) {
-            val = 1;
-        }
-        break;
-    case "UGitem2":
-        if (val > 3) {
-            val = 3;
-        }
-        break;
-    }
-    el.html(val);
-}
-UG.find("#UGcheck4").change(function(event) {
-    var editopt = $("#UGitemsedit");
-    if ($(this).prop("checked")) {
-        editopt.addClass("noactive");
-    } else {
-        editopt.removeClass("noactive");
-    }
-    return true;
-});
-function createUserGame() {
-    if (newGame.creating) {
-        return;
-    }
-    var dataSending = function(cgo) {
-        newGame.creating = true;
-        sendToSocket(cgo);
-        closewindow();
-        setTimeout(function() {
-            newGame.creating = false;
-        }, 1000);
-    }
-      , about = UG.find("#UGabout").val().trim()
-      , count = parseInt(UG.find("#UGplCount").html())
-      , sum = parseInt(UG.find("#UGstavka").html())
-      , style = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0
-    }
-      , roles = {}
-      , params = {}
-      , special = UG.find("#UGspecialGame").prop("checked")
-      , selrole = UG.find("#UGselectRole").prop("checked");
-    if (UG.find("#UGcheck1").is(":checked")) {
-        style[0] = 1;
-    }
-    if (UG.find("#UGcheck2").is(":checked")) {
-        style[0] = 2;
-    }
-    if (UG.find("#UGcheck3").is(":checked")) {
-        style[1] = 1;
-    }
-    if (UG.find("#UGcheck4").is(":checked")) {
-        style[2] = 1;
-    }
-    if (UG.find("#UGcheck5").is(":checked")) {
-        style[3] = 1;
-    }
-    if (UG.find("#UGcheck6").is(":checked")) {
-        style[4] = 1;
-    }
-    if (style[2] == 0) {
-        var item2count = parseInt(UG.find("#UGitem2").html());
-        if (item2count < 3) {
-            params.item2 = item2count;
-        }
-        if (UG.find("#UGitem4").is(":checked")) {
-            params.item4 = 1;
-        }
-        if (UG.find("#UGbonus").is(":checked")) {
-            params.bonus = 1;
-        }
-    }
-    roles[2] = parseInt(UG.find("#UGrobb").html());
-    roles[6] = parseInt(UG.find("#UGjeal").html());
-    if (UG.find("#UGhrobb").is(":checked")) {
-        roles[3] = 1;
-    }
-    if (UG.find("#UGduty").is(":checked")) {
-        roles[4] = 1;
-    }
-    if (UG.find("#UGassis").is(":checked")) {
-        roles[5] = 1;
-    }
-    if (UG.find("#UGsleep").is(":checked")) {
-        roles[7] = 1;
-    }
-    if (UG.find("#UGcat").is(":checked")) {
-        roles[8] = 1;
-    }
-    if (UG.find("#UGadv").is(":checked")) {
-        roles[9] = 1;
-    }
-    if (roles[5] && !roles[4]) {
-        showMessage('Для роли <span class="assis"></span> обязательно наличие в начале партии роли <span class="duty"></span>');
-        return;
-    }
-    var activeRoles = 0;
-    for (var i in roles) {
-        if (roles.hasOwnProperty(i)) {
-            activeRoles += roles[i];
-        }
-    }
-    var cgo = {
-        type: "userGame",
-        about: about,
-        count: count,
-        sum: sum,
-        style: style,
-        special: special,
-        selectRole: selrole,
-        roles: roles
-    };
-    if (UG.find("#UGManModeGame").prop("checked")) {
-        cgo.man = true;
-    }
-    if (UG.find("#UGShortNights").prop("checked")) {
-        cgo.shortnight = true;
-    }
-    if (Object.size(params) > 0) {
-        cgo.params = params;
-    }
-    if (about.indexOf("#") > -1) {
-        cgo.ip = true;
-    }
-    if (!roles[6] && cgo.man) {
-        showMessage('Хотя бы одна роль <span class="jeal"></span> обязательна для режима <span class="jeal"></span>-одиночка');
-        return;
-    }
-    if (activeRoles > count) {
-        modalWindow("Количество активных ролей (" + activeRoles + ") превышает количество игроков (" + count + ") в партии.<br/>Изменить количество игроков на " + activeRoles + "?", function() {
-            cgo.count = activeRoles;
-            dataSending(cgo);
-        });
-    } else {
-        dataSending(cgo);
-    }
-}
-$("#UGcreateGame").click(createUserGame);
-newGame.loadSaves = function() {
-    var saves = "";
-    $.each(newGame.saves, function(key, value) {
-        if (!value.UGabout) {
-            value.UGabout = showDate(key, true);
-        }
-        saves = '<option value="' + key + '">' + (value.UGabout.length > 23 ? value.UGabout.substring(0, 20) + "..." : value.UGabout) + "</option>" + saves;
-    });
-    $("#UGsaves").html("<option>выбрать</option>" + saves);
-}
-;
-if (lStorage.getItem("saves")) {
-    newGame.saves = JSON.parse(lStorage.getItem("saves"));
-} else {
-    newGame.saves = {};
-}
-newGame.loadSaves();
-UG.find("#UGdelete").click(function() {
-    var delSave = $("#UGsaves").val();
-    if (newGame.saves[delSave]) {
-        delete newGame.saves[delSave];
-        lStorage.setItem("saves", JSON.stringify(newGame.saves));
-        newGame.loadSaves();
-    } else {
-        showMessage("Выберите шаблон для удаления");
-    }
-});
-UG.find("#UGsave").click(function() {
-    var cursave = {};
-    UG.find(":checkbox, span.svalue").each(function(index) {
-        var cur = $(this)
-          , curid = cur.attr("id");
-        if (curid) {
-            cursave[curid] = cur.hasClass("check") ? cur.prop("checked") : cur.html();
-        }
-    });
-    cursave.UGabout = $("#UGabout").val();
-    newGame.saves[Date.now()] = cursave;
-    lStorage.setItem("saves", JSON.stringify(newGame.saves));
-    newGame.loadSaves();
-});
-UG.find("#UGsaves").change(function() {
-    var cursave = $(this).val();
-    if (newGame.saves[cursave]) {
-        $.each(newGame.saves[cursave], function(key, value) {
-            var curel = UG.find("#" + key);
-            if (curel) {
-                if (curel.attr("id") == "UGabout") {
-                    curel.val(value);
-                } else {
-                    if (curel.hasClass("check")) {
-                        curel.prop("checked", value);
-                    } else {
-                        curel.html(value);
-                    }
-                }
-            }
-        });
-    }
-});
 var curator = {
     qid: 0
 };
@@ -9944,6 +9962,9 @@ function defPosition(event) {
         y: y
     };
 }
+function showHiddenCommands() {
+    showMessage("&quot;help&quot; - помощь по игре<br/>&quot;очистить чат&quot; - очистить полностью общий чат<br/>&quot;давай дружить&quot; - отправить конверт адресату<br/>&quot;я хочу&quot; - загадать желание<br/>&quot;конверт-&quot; - отключить анимацию движения информационных конвертов<br/>&quot;викторина-&quot; - отключение викторины в чате<br/>&quot;салют-&quot; - отключить анимацию фейерверков<br/>&quot;хочу чп&quot; - вызов окна создания ЧП на 8 игроков<br/><hr/>Наберите выбранную команду в чат (без кавычек)");
+}
 function menu(type, evt) {
     if (game.intuition) {
         return false;
@@ -9962,6 +9983,7 @@ function menu(type, evt) {
             return true;
         }
         html = (isMaffia) ? '<button onclick="showAlarms()">Лог уведомлений</button>' : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
+        html += '<button onclick="showHiddenCommands()">Скрытые команды чата</button>';
         break;
     case 2:
         if (!evt.target.id || evt.target.id == "players") {
@@ -10427,7 +10449,7 @@ function socketConnect(retry) {
             }
             setTimeout(sendToSocket, 500, authObj);
             $(function() {
-                if (!isAppVK && typeof window.obUnloader != "object") {
+                if (!isAppVK && !mobile && typeof window.obUnloader != "object") {
                     window.obUnloader = new Unloader();
                 }
             });
