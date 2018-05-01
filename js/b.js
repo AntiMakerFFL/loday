@@ -1451,6 +1451,222 @@ var domain = document.location.hostname
     344: {
         p: 111,
         t: 2
+    },
+    345: {
+        p: 1000,
+        t: 1
+    },
+    346: {
+        p: 1,
+        t: 2
+    },
+    347: {
+        p: 20000,
+        t: 1
+    },
+    348: {
+        p: 41000,
+        t: 1
+    },
+    349: {
+        p: 50000,
+        t: 1
+    },
+    350: {
+        p: 48000,
+        t: 1
+    },
+    351: {
+        p: 10000,
+        t: 1
+    },
+    352: {
+        p: 11000,
+        t: 1
+    },
+    353: {
+        p: 15000,
+        t: 1
+    },
+    354: {
+        p: 1000,
+        t: 1
+    },
+    355: {
+        p: 17,
+        t: 2
+    },
+    356: {
+        p: 18000,
+        t: 1
+    },
+    357: {
+        p: 7000,
+        t: 1
+    },
+    358: {
+        p: 14000,
+        t: 1
+    },
+    359: {
+        p: 70000,
+        t: 1
+    },
+    360: {
+        p: 10,
+        t: 2
+    },
+    361: {
+        p: 1000,
+        t: 1
+    },
+    362: {
+        p: 20,
+        t: 2
+    },
+    363: {
+        p: 15,
+        t: 2
+    },
+    364: {
+        p: 5000,
+        t: 1
+    },
+    365: {
+        p: 35,
+        t: 2
+    },
+    366: {
+        p: 14,
+        t: 2
+    },
+    367: {
+        p: 25000,
+        t: 1
+    },
+    368: {
+        p: 16000,
+        t: 1
+    },
+    369: {
+        p: 56000,
+        t: 1
+    },
+    370: {
+        p: 20,
+        t: 2
+    },
+    371: {
+        p: 27000,
+        t: 1
+    },
+    372: {
+        p: 20,
+        t: 2
+    },
+    373: {
+        p: 7000,
+        t: 1
+    },
+    374: {
+        p: 16000,
+        t: 1
+    },
+    375: {
+        p: 10000,
+        t: 1
+    },
+    376: {
+        p: 10000,
+        t: 1
+    },
+    377: {
+        p: 10,
+        t: 2
+    },
+    378: {
+        p: 55000,
+        t: 1
+    },
+    379: {
+        p: 13,
+        t: 2
+    },
+    380: {
+        p: 10,
+        t: 2
+    },
+    381: {
+        p: 32000,
+        t: 1
+    },
+    382: {
+        p: 22000,
+        t: 1
+    },
+    383: {
+        p: 14,
+        t: 2
+    },
+    384: {
+        p: 22000,
+        t: 1
+    },
+    385: {
+        p: 30000,
+        t: 1
+    },
+    386: {
+        p: 35000,
+        t: 1
+    },
+    387: {
+        p: 3000,
+        t: 1
+    },
+    388: {
+        p: 14000,
+        t: 1
+    },
+    389: {
+        p: 55000,
+        t: 1
+    },
+    390: {
+        p: 30,
+        t: 2
+    },
+    391: {
+        p: 30,
+        t: 2
+    },
+    392: {
+        p: 30000,
+        t: 1
+    },
+    393: {
+        p: 8000,
+        t: 1
+    },
+    394: {
+        p: 28000,
+        t: 1
+    },
+    395: {
+        p: 75000,
+        t: 1
+    },
+    396: {
+        p: 25,
+        t: 2
+    },
+    397: {
+        p: 52000,
+        t: 1
+    },
+    398: {
+        p: 52000,
+        t: 1
     }
 };
 var logs = [];
@@ -1510,6 +1726,7 @@ var f = {
             }).html("Закрыть радио").on("click", function() {
                 f.radioIframe(false);
                 lStorage.removeItem("radiostream");
+                $("#vk_groups").show();
             }).insertBefore(onlineCounter);
             onlineCounter.before('<iframe id="radioStream" src="/html/radio.html?' + encodeURIComponent(u.login) + '" frameborder="0" scrolling="no" style="width:200px;height:200px"></iframe>');
         } else {
@@ -1521,6 +1738,7 @@ var f = {
                 }).html("Слушать радио").on("click", function() {
                     f.radioIframe(true);
                     lStorage.setItem("radiostream", true);
+                    $("#vk_groups").hide();
                 }).insertBefore(onlineCounter);
             } else {
                 f.radioIframe(lStorage.getItem("radiostream") ? true : false);
@@ -2440,11 +2658,13 @@ function editPlayerList(user, leave, multi) {
     if (leave) {
         if (room.length > 2) {
             if (curgame) {
-                if (playersInfoArray[user._id] && user.role) {
-                    game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex == 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
-                        id: user._id
-                    });
-                    playersInfoArray[user._id].killed = true;
+                if (playersInfoArray[user._id]) {
+                    if (user.role) {
+                        game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex == 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
+                            id: user._id
+                        });
+                        playersInfoArray[user._id].killed = true;
+                    }
                 } else {
                     game.writeText('Кажется, <b class="nickname" data-id="' + user._id + '">кто-то</b> подглядывал за игрой', {
                         id: user._id
@@ -2486,7 +2706,9 @@ function editPlayerList(user, leave, multi) {
         if (reds.indexOf(user._id) > -1) {
             newPl.addClass("red");
         }
-        newPl.find("b").addClass("status" + user.icon);
+        if (user.icon) {
+            newPl.find("b").addClass("status" + user.icon);
+        }
         if (user.marked == 1) {
             newPl.addClass("marked");
         }
@@ -3043,7 +3265,7 @@ function socketEvent(message) {
                 hintsCheckBox.prop("checked", true);
                 hintsNeed = true;
             }
-            if (!lStorage.getItem("width") && !lStorage.getItem("recomwidth") && b.outerWidth() > 1200) {
+            if (!mobile && !isAppVK && !lStorage.getItem("width") && !lStorage.getItem("recomwidth") && b.outerWidth() > 1200) {
                 var recomWidth = Math.round(1200 / b.outerWidth() * 100);
                 if (recomWidth < 95) {
                     modalWindow("Рекомендуемая ширина игрового окна при данном разрешении - " + recomWidth + "%. Установить предполагаемые размеры?<br/> Изменить ширину  игры Вы всегда сможете в настройках игры.", function() {
@@ -4450,6 +4672,9 @@ function showPlayerInfo(show, uid) {
     var stat = ptp.find("#playerInfo-stat")
       , cu = playersInfoArray[uid];
     if (show && cu) {
+        if (cu.hide && uid == u._id) {
+            cu = u;
+        }
         if (cu.bot && cu.creator && playersInfoArray[cu.creator]) {
             cu.icon = 2;
             cu.status = playersInfoArray[cu.creator].login;
@@ -5510,14 +5735,18 @@ var giftShop = $(".giftshop")
 )()
   , getGiftClass = function(giftnum) {
     var groupNum = 1;
-    if (giftnum > 272) {
-        groupNum = 4;
+    if (giftnum > 344) {
+        groupNum = 5;
     } else {
-        if (giftnum > 184) {
-            groupNum = 3;
+        if (giftnum > 272) {
+            groupNum = 4;
         } else {
-            if (giftnum > 96) {
-                groupNum = 2;
+            if (giftnum > 184) {
+                groupNum = 3;
+            } else {
+                if (giftnum > 96) {
+                    groupNum = 2;
+                }
             }
         }
     }
@@ -7093,7 +7322,7 @@ function loadImageFiles() {
     for (var mk = 1; mk <= 9; mk++) {
         new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
     }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
         new Image().src = el;
     });
 }
@@ -7151,8 +7380,15 @@ $(document).ready(function() {
     } else {
         console.log("socketConnect undefined");
     }
-    $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
+    $.cachedScript("https://ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js").done(function(script, textStatus) {
+        WebFont.load({
+            google: {
+                families: ["Bad Script", "Ubuntu", "Lora", "Cormorant", "Marmelad", "PT Sans"]
+            }
+        });
+    });
     $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function(script, textStatus) {
+        $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
         mW.find(".modal").draggable();
     });
     if (isAppVK) {

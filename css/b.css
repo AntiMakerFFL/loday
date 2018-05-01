@@ -757,8 +757,8 @@ nav>h2 {
 }
 
 .maffia nav>h2 {
-    -webkit-filter: brightness(70%);
-    filter: brightness(70%)
+    -webkit-filter: brightness(50%);
+    filter: brightness(50%)
 }
 
 .hall1,.greenroom1>b {
@@ -1145,7 +1145,7 @@ article {
     display: block;
     position: absolute;
     z-index: 16;
-    left: 50px;
+    left: 54px;
     top: 125px;
     bottom: 75px;
     right: 240px;
@@ -1746,7 +1746,6 @@ article {
     position: absolute;
     z-index: 100;
     top: -240px;
-    left: 90%;
     width: 232px;
     height: 222px;
     border: 1px solid #999;
@@ -3169,7 +3168,7 @@ footer>div:before {
 
 .maffia .window {
     background: #000;
-    border: 5px solid #910000
+    border: 5px solid #1c5a65
 }
 
 .window .info {
@@ -3305,7 +3304,7 @@ button:active,.button:active {
     font: 400 17px/17px Lora,Cormorant,serif,'PT Sans',SegoeUi,sans-serif;
     clear: both;
     overflow: hidden;
-    margin-top: 5px
+    padding-bottom: 5px
 }
 
 .maffia .messages,.maffia .message {
@@ -9722,7 +9721,7 @@ body {
     left: 0;
     top: 0;
     bottom: 0;
-    width: 52px;
+    width: 55px;
     overflow: hidden
 }
 
@@ -10583,7 +10582,9 @@ section.bonus-ring:before {
 }
 
 .maffia #container:before {
-    background: url(/images/maffia/header.jpg) repeat-x
+    background: url(/images/maffia/header.jpg) repeat-x;
+    -webkit-filter: brightness(0.8);
+    filter: brightness(0.8)
 }
 
 .maffia #container.color1:before {
@@ -10620,12 +10621,13 @@ section.bonus-ring:before {
 }
 
 .maffia h3 {
-    background: url(/images/maffia/button.png) no-repeat;
-    background-size: 100% 100%;
-    color: #000;
-    border: 0;
-    border-radius: 0;
-    padding: 6px;
+    background: linear-gradient(to bottom,#309397,#1c5a65) no-repeat!important;
+    color: #fff;
+    text-shadow: 1px 1px #000;
+    border: 2px groove #90c3f7;
+    border-radius: 8px;
+    padding: 5px 10px;
+    height: 30px;
     box-shadow: none
 }
 
@@ -10990,10 +10992,10 @@ section.bonus-ring:before {
 }
 
 .maffia #container>.warningWindow p,.maffia #modalWindow p,.maffia #optionsWindow p {
-    background: #373737;
     color: #fff;
-    border: 5px solid #af6f2d;
-    border-radius: 10px
+    background: #171717;
+    border: 5px solid #1c5a65;
+    border-radius: 8px
 }
 
 .maffia .moneyblock {
@@ -11009,7 +11011,7 @@ section.bonus-ring:before {
 .maffia #left-panel>div {
     width: 46px;
     height: 46px;
-    margin-top: 6px;
+    margin-top: 4px;
     background: url(/images/maffia/menuitem.png) no-repeat;
     background-size: 100% 100%;
     border-radius: 0 5px 5px 0;
@@ -11025,7 +11027,6 @@ section.bonus-ring:before {
 }
 
 .maffia #left-panel>div:hover {
-    border: 0;
     padding-left: 5px
 }
 
@@ -11074,19 +11075,10 @@ button {
     transition: .5s ease-in-out
 }
 
-.maffia .button-findgame {
-    background-image: url(/images/maffia/button2.png)!important
-}
-
-.maffia .button-donatoptions {
-    background-image: url(/images/maffia/button3.png)!important;
-    background-size: 100% 100%!important
-}
-
 .maffia .info>div:before,.maffia section.bonus-ring:before {
     color: #fefefe;
-    background: #910000;
-    background: linear-gradient(to bottom,#910000,#270000,#910000);
+    background: #1c5a65;
+    background: linear-gradient(to bottom,#1c5a65,#300033,#1c5a65);
     box-shadow: none
 }
 
@@ -11124,6 +11116,14 @@ button {
 
 .maffia #contextMenu:before {
     display: none
+}
+
+.maffia #sendMsg,.maffia #shareButton,.maffia #left-panel>div,.maffia #container>.warningWindow button,.maffia #modalWindow button,.maffia #optionsWindow button,.maffia .button {
+    background: linear-gradient(to bottom,#309397,#1c5a65) no-repeat!important;
+    color: #fff;
+    text-shadow: 1px 1px #000;
+    border: 2px groove #90c3f7;
+    border-radius: 8px
 }
 
 .maffia .green {
