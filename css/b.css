@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Bad+Script|Ubuntu|Lora|Cormorant|Marmelad|PT+Sans:400,700&subset=latin,cyrillic-ext,latin-ext,cyrillic');@font-face {
+@font-face {
     font-family: 'SegoeUi';
     src: url('/fonts/SegoeUISymbol/SegoeUISymbol.eot?#iefix') format('embedded-opentype'),url('/fonts/SegoeUISymbol/SegoeUISymbol.woff') format('woff'),url('/fonts/SegoeUISymbol/SegoeUISymbol.ttf') format('truetype'),url('/fonts/SegoeUISymbol/SegoeUISymbol.svg#SegoeUISymbol') format('svg');
     font-weight: normal;
@@ -7,8 +7,7 @@
 
 @font-face {
     font-family: 'LED';
-    src: url('/fonts/led/LED.eot');
-    src: url('/fonts/led/LED.woff') format('woff'),url('/fonts/led/LED.ttf') format('truetype'),url('/fonts/led/LED.svg') format('svg');
+    src: url('/fonts/led/LED.eot?#iefix') format('embedded-opentype'),url('/fonts/led/LED.woff') format('woff'),url('/fonts/led/LED.ttf') format('truetype'),url('/fonts/led/LED.svg') format('svg');
     font-weight: normal;
     font-style: normal
 }
@@ -447,7 +446,8 @@ article>h2,.hidden {
 
 .color1 #mymessages:before {
     content: 'Чтобы отключить викторину, отправьте в чат сообщение "викторина-"';
-    block}
+    display: block
+}
 
 .color2 .messages {
     background: url(/images/dl/chat2.png) right bottom/50% auto no-repeat #fdf9f9
@@ -588,6 +588,7 @@ header>h3:hover {
 }
 
 .button-aboutgame {
+    display: inline-block!important;
     border-radius: 0!important
 }
 
@@ -1271,6 +1272,7 @@ article {
     position: absolute;
     left: 0;
     bottom: 0;
+    right: 50px;
     height: 22px
 }
 
@@ -2237,7 +2239,7 @@ aside>.blocktitle {
     left: 0;
     right: 0;
     bottom: 0;
-    font: 600 12px Lora,Times New Roman,serif;
+    font: 600 12px Lora,'Times New Roman',serif;
     text-align: center
 }
 
@@ -2560,7 +2562,7 @@ footer {
     height: 10px;
     background: #090;
     border-radius: 50%;
-    border: 1px ridge #090
+    border: 1px ridge #060
 }
 
 #indicator.offline {
@@ -3215,7 +3217,7 @@ footer>div:before {
     margin: 0;
     height: 50px;
     text-align: center;
-    font: 600 40px/48px Lora,Times New Roman,serif;
+    font: 600 40px/48px Lora,'Times New Roman',serif;
     color: #fff;
     background: #314755;
     background: -webkit-linear-gradient(to top,#26a0da,#314755);
@@ -3694,7 +3696,7 @@ button:active,.button:active {
 .message.private,.private {
     position: relative;
     color: #90c;
-    font: italic 700 1.2em Lora,Times New Roman,serif
+    font: italic 700 1.2em Lora,'Times New Roman',serif
 }
 
 .ingame .message:before,.ingame .message.userimage>.selfimg {
@@ -4503,7 +4505,7 @@ button.usergame {
 
 .aboutgame {
     color: #fff;
-    font: 500 1.2em Lora,Times New Roman,serif;
+    font: 500 1.2em Lora,'Times New Roman',serif;
     margin: 10px;
     background: url(/images/question.png) left top no-repeat,url(/images/question.png) left bottom no-repeat
 }
@@ -4571,7 +4573,7 @@ button.usergame {
     right: 15px;
     display: inline-block;
     height: 40px;
-    font: 600 30px/30px Lora,Times New Roman,serif;
+    font: 600 30px/30px Lora,'Times New Roman',serif;
     box-sizing: border-box;
     padding: 5px;
     cursor: pointer;
@@ -4911,7 +4913,7 @@ button.usergame {
     display: table;
     background: #ffc;
     box-shadow: inset 3px 3px 5px #f00,inset -3px -3px 5px #f00,inset 3px -3px 5px #f00,inset -3px 3px 5px #f00;
-    font: 400 18px Lora,Times New Roman,serif
+    font: 400 18px Lora,'Times New Roman',serif
 }
 
 .heart>div>p {
@@ -5229,6 +5231,10 @@ button.usergame {
 
 .gift-group4:before {
     background-image: url(/images/gifts4.png?50318)
+}
+
+.gift-group5:before {
+    background-image: url(/images/gifts5.png)
 }
 
 .gift1:before {
@@ -6607,6 +6613,222 @@ button.usergame {
     background-position: -700px -800px
 }
 
+.gift345:before {
+    background-position: 0 0
+}
+
+.gift346:before {
+    background-position: -100px 0
+}
+
+.gift347:before {
+    background-position: -200px 0
+}
+
+.gift348:before {
+    background-position: -300px 0
+}
+
+.gift349:before {
+    background-position: -400px 0
+}
+
+.gift350:before {
+    background-position: -500px 0
+}
+
+.gift351:before {
+    background-position: -600px 0
+}
+
+.gift352:before {
+    background-position: -700px 0
+}
+
+.gift353:before {
+    background-position: 0 -100px
+}
+
+.gift354:before {
+    background-position: -100px -100px
+}
+
+.gift355:before {
+    background-position: -200px -100px
+}
+
+.gift356:before {
+    background-position: -300px -100px
+}
+
+.gift357:before {
+    background-position: -400px -100px
+}
+
+.gift358:before {
+    background-position: -500px -100px
+}
+
+.gift359:before {
+    background-position: -600px -100px
+}
+
+.gift360:before {
+    background-position: -700px -100px
+}
+
+.gift361:before {
+    background-position: 0 -200px
+}
+
+.gift362:before {
+    background-position: -100px -200px
+}
+
+.gift363:before {
+    background-position: -200px -200px
+}
+
+.gift364:before {
+    background-position: -300px -200px
+}
+
+.gift365:before {
+    background-position: -400px -200px
+}
+
+.gift366:before {
+    background-position: -500px -200px
+}
+
+.gift367:before {
+    background-position: -600px -200px
+}
+
+.gift368:before {
+    background-position: -700px -200px
+}
+
+.gift369:before {
+    background-position: 0 -300px
+}
+
+.gift370:before {
+    background-position: -100px -300px
+}
+
+.gift371:before {
+    background-position: -200px -300px
+}
+
+.gift372:before {
+    background-position: -300px -300px
+}
+
+.gift373:before {
+    background-position: -400px -300px
+}
+
+.gift374:before {
+    background-position: -500px -300px
+}
+
+.gift375:before {
+    background-position: -600px -300px
+}
+
+.gift376:before {
+    background-position: -700px -300px
+}
+
+.gift377:before {
+    background-position: 0 -400px
+}
+
+.gift378:before {
+    background-position: -100px -400px
+}
+
+.gift379:before {
+    background-position: -200px -400px
+}
+
+.gift380:before {
+    background-position: -300px -400px
+}
+
+.gift381:before {
+    background-position: -400px -400px
+}
+
+.gift382:before {
+    background-position: -500px -400px
+}
+
+.gift383:before {
+    background-position: -600px -400px
+}
+
+.gift384:before {
+    background-position: -700px -400px
+}
+
+.gift385:before {
+    background-position: 0 -500px
+}
+
+.gift386:before {
+    background-position: -100px -500px
+}
+
+.gift387:before {
+    background-position: -200px -500px
+}
+
+.gift388:before {
+    background-position: -300px -500px
+}
+
+.gift389:before {
+    background-position: -400px -500px
+}
+
+.gift390:before {
+    background-position: -500px -500px
+}
+
+.gift391:before {
+    background-position: -600px -500px
+}
+
+.gift392:before {
+    background-position: -700px -500px
+}
+
+.gift393:before {
+    background-position: 0 -600px
+}
+
+.gift394:before {
+    background-position: -100px -600px
+}
+
+.gift395:before {
+    background-position: -200px -600px
+}
+
+.gift396:before {
+    background-position: -300px -600px
+}
+
+.gift397:before {
+    background-position: -400px -600px
+}
+
+.gift398:before {
+    background-position: -500px -600px
+}
+
 .giftForm {
     position: absolute;
     left: 0;
@@ -7028,7 +7250,7 @@ button.usergame {
     background: #fff;
     box-shadow: 1px 1px 1px #000,-1px -1px 1px #000;
     color: #006400;
-    font: 600 1.2em Lora,Times New Roman,serif
+    font: 600 1.2em Lora,'Times New Roman',serif
 }
 
 #donat-vip {
@@ -8060,7 +8282,7 @@ input[type="checkbox"],input[type="radio"] {
     height: 100%;
     box-sizing: border-box;
     background-color: rgba(0,0,255,0.5);
-    font: 500 1.2em/2em Lora,Times New Roman,serif;
+    font: 500 1.2em/2em Lora,'Times New Roman',serif;
     text-align: center;
     white-space: nowrap
 }
@@ -8225,7 +8447,7 @@ input[type="checkbox"],input[type="radio"] {
 .warningWindow .button {
     padding: 0 1em;
     display: inline-block;
-    font: 500 20px/normal Lucida Console,monospace
+    font: 500 20px/normal 'Lucida Console',monospace
 }
 
 .newspaper>.modal {
@@ -8436,7 +8658,7 @@ span.range:before {
 input[type=range] {
     -webkit-appearance: none;
     width: 100%;
-    margin: .45px 0
+    margin: 1px 0
 }
 
 input[type=range]:focus {
@@ -8545,7 +8767,7 @@ input[type=range]::-ms-thumb {
 }
 
 .font1 .message {
-    font-family: Georgia,Times New Roman,Book Antiqua,serif!important
+    font-family: Georgia,'Times New Roman','Book Antiqua',serif!important
 }
 
 .font2 .message {
@@ -8553,7 +8775,7 @@ input[type=range]::-ms-thumb {
 }
 
 .font3 .message {
-    font-family: Comic Sans MS,cursive!important
+    font-family: 'Comic Sans MS',cursive!important
 }
 
 .font4 .message {
@@ -8561,7 +8783,7 @@ input[type=range]::-ms-thumb {
 }
 
 .font5 .message {
-    font-family: Lucida Console,Courier New,monospace!important
+    font-family: 'Lucida Console','Courier New',monospace!important
 }
 
 .font-size12 .rolesmile,.font-size12 .stud:before,.font-size12 .duty:before,.font-size12 .assis:before,.font-size12 .sleep:before,.font-size12 .jeal:before,.font-size12 .robb:before,.font-size12 .hrobb:before,.font-size12 .cat:before {
@@ -9599,7 +9821,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1;
-    background: url(/images/locked.png) center/contain #396 no-repeat
+    background: url(/images/locked.png) center/contain no-repeat #396
 }
 
 #left-panel>div.locked:after {
@@ -10514,16 +10736,11 @@ section.bonus-ring:before {
 }
 
 .maffia .ingame {
-    background: url(/images/maffia/window.jpg) no-repeat!important;
-    background-size: 100% 100%!important
+    background: #000!important
 }
 
 .maffia .messages b[data-id],.maffia .messages strong[data-id],.maffia .nickname {
     color: #fd8600
-}
-
-.maffia .ingame.nogift {
-    background-image: url(/images/maffia/window.png)!important
 }
 
 .maffia #check6+label:after,.maffia #UGcheck6+label:after {

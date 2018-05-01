@@ -2435,21 +2435,20 @@ function editPlayerList(user, leave, multi) {
     if (!user._id) {
         return;
     }
+    var curgame = container.hasClass("current");
     playersList.find("#" + user._id).remove();
-    if (!playersInfoArray[user._id]) {
-        playersInfoArray[user._id] = {
-            login: "Кто-то",
-            sex: 2
-        };
-    }
     if (leave) {
         if (room.length > 2) {
-            if (container.hasClass("current")) {
+            if (curgame) {
                 if (playersInfoArray[user._id] && user.role) {
                     game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex == 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
                         id: user._id
                     });
                     playersInfoArray[user._id].killed = true;
+                } else {
+                    game.writeText('Кажется, <b class="nickname" data-id="' + user._id + '">кто-то</b> подглядывал за игрой', {
+                        id: user._id
+                    });
                 }
             } else {
                 userGoEvent(playersInfoArray[user._id], leave);
@@ -5303,7 +5302,7 @@ var donatBotnick = $("#donat-botnick");
 donatBotnick.find("button").click(function() {
     var botnick = donatBotnick.find("input[type=text]").val().trim().substring(0, 20);
     var botsex = ($("#botnick-sex").prop("checked")) ? 1 : 2;
-    if (u.money2 >= 100) {
+    if (u.money2 >= 200) {
         sendToSocket({
             type: "donat",
             action: "botnick",
@@ -5318,7 +5317,7 @@ donatBotnick.find("button").click(function() {
 var donatBotwords = $("#donat-botwords");
 donatBotwords.find("button").click(function() {
     var botText = donatBotwords.find("input").val().trim().substring(0, 150);
-    if (u.money2 >= 30) {
+    if (u.money2 >= 100) {
         sendToSocket({
             type: "donat",
             action: "botwords",
@@ -5525,6 +5524,10 @@ var giftShop = $(".giftshop")
     return "gift-group" + groupNum + " gift" + giftnum;
 }
   , addGiftOnList = function(i) {
+    i = parseInt(i);
+    if ([295, 308, 322, 324].indexOf(i) > -1) {
+        return;
+    }
     if (i == 142 || (i > 252 && i < 273)) {
         return;
     }
@@ -8384,7 +8387,7 @@ var addVote = function(id, isAdd) {
     }
 };
 function editPlayer(user, leave) {
-    $("#players>#" + user._id).remove();
+    playersList.find("#" + user._id).remove();
     if (leave) {
         if (playersInfoArray[user._id]) {
             playersInfoArray[user._id].killed = true;
