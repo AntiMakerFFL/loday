@@ -1,4 +1,46 @@
 @font-face {
+    font-family: 'Bad Script';
+    src: url('/fonts/BadScript/BadScript.eot?#iefix') format('embedded-opentype'),url('/fonts/BadScript/BadScript.woff') format('woff'),url('/fonts/BadScript/BadScript.ttf') format('truetype'),url('/fonts/BadScript/BadScript.svg') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Cormorant';
+    src: url('/fonts/Cormorant/Cormorant.eot?#iefix') format('embedded-opentype'),url('/fonts/Cormorant/Cormorant.woff') format('woff'),url('/fonts/Cormorant/Cormorant.ttf') format('truetype'),url('/fonts/Cormorant/Cormorant.svg#Cormorant') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Lora';
+    src: url('/fonts/Lora/Lora.eot?#iefix') format('embedded-opentype'),url('/fonts/Lora/Lora.woff') format('woff'),url('/fonts/Lora/Lora.ttf') format('truetype'),url('/fonts/Lora/Lora.svg#Lora') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Marmelad';
+    src: url('/fonts/Marmelad/Marmelad.eot?#iefix') format('embedded-opentype'),url('/fonts/Marmelad/Marmelad.woff') format('woff'),url('/fonts/Marmelad/Marmelad.ttf') format('truetype'),url('/fonts/Marmelad/Marmelad.svg#Marmelad') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'PT Sans';
+    src: url('/fonts/PTSans/PTSans.eot?#iefix') format('embedded-opentype'),url('/fonts/PTSans/PTSans.woff') format('woff'),url('/fonts/PTSans/PTSans.ttf') format('truetype'),url('/fonts/PTSans/PTSans.svg') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Ubuntu';
+    src: url('/fonts/Ubuntu/Ubuntu.eot?#iefix') format('embedded-opentype'),url('/fonts/Ubuntu/Ubuntu.woff') format('woff'),url('/fonts/Ubuntu/Ubuntu.ttf') format('truetype'),url('/fonts/Ubuntu/Ubuntu.svg#Ubuntu') format('svg');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
     font-family: 'SegoeUi';
     src: url('/fonts/SegoeUISymbol/SegoeUISymbol.eot?#iefix') format('embedded-opentype'),url('/fonts/SegoeUISymbol/SegoeUISymbol.woff') format('woff'),url('/fonts/SegoeUISymbol/SegoeUISymbol.ttf') format('truetype'),url('/fonts/SegoeUISymbol/SegoeUISymbol.svg#SegoeUISymbol') format('svg');
     font-weight: normal;
@@ -92,6 +134,7 @@ mark {
 
 input,textarea {
     font-size: 1em;
+    max-width: 100%;
     outline: 0;
     border: 0;
     box-shadow: none
@@ -546,7 +589,12 @@ header>h1 {
     z-index: -1;
     left: 115px;
     top: 0;
-    text-shadow: -0 -1px 0#fff,0 -1px 0 #fff,-0 1px 0 #fff,0 1px 0 #fff,-1px -0 0 #fff,1px -0 0 #fff,-1px 0 0 #fff,1px 0 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff
+    text-shadow: -0 -1px 0#fff,0 -1px 0 #fff,-0 1px 0 #fff,0 1px 0 #fff,-1px -0 0 #fff,1px -0 0 #fff,-1px 0 0 #fff,1px 0 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff,-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;
+    font-family: Lora,serif,'PT Sans',SegoeUi,sans-serif
+}
+
+.maffia #nick {
+    text-shadow: 2px 2px 3px #f00,-2px 2px 3px #f00,2px -2px 3px #f00,-2px -2px 3px #f00
 }
 
 #gift {
@@ -2607,51 +2655,8 @@ footer {
     width: 100%
 }
 
-.maffia #shareButton {
-    background: #c68656;
-    background: -webkit-gradient(linear,0 0,0 bottom,from(#c68656),to(#b9390d));
-    background: -moz-linear-gradient(#c68656,#b9390d);
-    background: linear-gradient(#c68656,#b9390d);
-    border: solid 1px #a1681b;
-    border-bottom: solid 3px #a1671d;
-    -moz-box-shadow: inset 0 0 0 1px #c17b3f;
-    -webkit-box-shadow: inset 0 0 0 1px #c17b3f;
-    box-shadow: inset 0 0 0 1px #c17b3f
-}
-
-.maffia #shareButton:before {
-    -webkit-box-shadow: #353535 0 1px 5px;
-    -moz-box-shadow: #353535 0 1px 5px;
-    box-shadow: #353535 0 1px 5px
-}
-
 #shareButton:active:before {
     padding: 1px 0 0
-}
-
-#shareButton:hover {
-    border: solid 1px #a1681b;
-    border-bottom: solid 3px #a1671d;
-    box-shadow: inset 0 0 0 1px #f1bb8f
-}
-
-.maffia #shareButton:hover {
-    background: #e9893d;
-    background: -webkit-gradient(linear,0 0,0 bottom,from(#e9893d),to(#f6c696));
-    background: -moz-linear-gradient(#e9893d,#f6c696);
-    background: linear-gradient(#e9893d,#f6c696)
-}
-
-#shareButton:active {
-    border: solid 1px #a1681b;
-    box-shadow: inset 0 10px 15px 0 #a1671d
-}
-
-.maffia #shareButton:active {
-    background: #e9893d;
-    background: -webkit-gradient(linear,0 0,0 bottom,from(#e9893d),to(#f6c696));
-    background: -moz-linear-gradient(#e9893d,#f6c696);
-    background: linear-gradient(#e9893d,#f6c696)
 }
 
 #vk-idea {
@@ -2911,7 +2916,7 @@ footer>div:before {
     max-width: 40%;
     background: rgba(4,24,228,0.8);
     color: #fff;
-    border-radius: 5px;
+    border-radius: 0 7px 7px 7px;
     border: 1px outset #fff;
     word-wrap: break-word
 }
@@ -2922,8 +2927,9 @@ footer>div:before {
 }
 
 .maffia .tooltip {
-    background: rgba(255,255,225,0.9);
-    color: #000
+    background: #fffff0;
+    color: #000;
+    border: 2px ridge #006
 }
 
 .stud,.duty,.assis,.sleep,.jeal,.robb,.hrobb,.cat {
@@ -3900,6 +3906,40 @@ button:active,.button:active {
     top: 20%
 }
 
+.tripleBD {
+    position: absolute;
+    z-index: 99999;
+    left: -500px;
+    top: 50%;
+    margin-top: -250px
+}
+
+.pairs3 {
+    border: 5px double #900;
+    padding: 5px 20px;
+    margin: 5px 3px 10px
+}
+
+.maffia .pairs3 {
+    border: 5px double #fd8600
+}
+
+.pairs3>ol {
+    display: table;
+    font-size: 1.2em
+}
+
+.pairs3:before {
+    content: url(/images/holidays/triple.png);
+    display: block;
+    text-align: center
+}
+
+.maffia .pairs3:before {
+    -webkit-filter: invert(1);
+    filter: invert(1)
+}
+
 .newgame:before {
     content: 'Создание заявки'
 }
@@ -4357,7 +4397,7 @@ button.usergame {
 
 .maffia .supportButton,.maffia .buyGiftsButton {
     color: #fff;
-    background: #7f0000;
+    background: #6f0000;
     border: 1px solid #aaa;
     box-shadow: inset 0 0 3px #999
 }
@@ -7324,6 +7364,13 @@ button.usergame {
     right: 0
 }
 
+.curatorPlayer:after {
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE/SURBVDhPvZI/S8RAEMVTiIWdItjYKHe7IWh1hY1gIfgNrCz9FhYKdhYiNkJuN9hoYdDbTbSVKxVsxNY/4KewUfRt8hLUJiaR+8HA8mb3MTM73shRC8mMFmbVhTtTrk+/czGrhb3U0n4gPhk4G+tyvPY3QpFOo6LXb0Y/AzkVnE3xejVK2oPisRL2OBKDZRfuXOrS7PN6NWjrJX9orimVYAxDmj5RqkYJcwKzGI82KJVA23OGqPCNUnN2VoZjmN9NVqEwj5SbkZnlVecfI+0uU/WJg3gcs0sLM7R7G/bSCabrg/YOSzNh7mqtzG+wkz6MsuXGOt0fLV5NMtUMzG2LZu9R93yecnOKZYbhM6V2RMJs4kNCGG9TakdfJHPKN72oYwNK7UB1p/nv2gdK7fh3w6hrl7RM1rU/WKM0SjzvCxz0vp0E0EDKAAAAAElFTkSuQmCC);
+    position: absolute;
+    top: 0;
+    right: 0
+}
+
 .blank:before {
     content: 'Анкета'
 }
@@ -8431,7 +8478,7 @@ input[type="checkbox"],input[type="radio"] {
 #container>.warningWindow button,#modalWindow button,#optionsWindow button {
     position: absolute;
     display: block;
-    width: 150px;
+    min-width: 150px;
     height: 40px;
     margin-left: -80px;
     bottom: 10px;
@@ -10559,11 +10606,7 @@ section.bonus-ring:before {
     border: 0
 }
 
-.maffia #nick {
-    text-shadow: 2px 2px 3px #f00,-2px 2px 3px #f00,2px -2px 3px #f00,-2px -2px 3px #f00
-}
-
-.maffia aside,.maffia .greenlist:before,.maffia .ingame #nick {
+.maffia aside,.maffia .greenlist:before,.maffia #nick {
     color: #fd9700
 }
 
@@ -10576,7 +10619,7 @@ section.bonus-ring:before {
 }
 
 .maffia #gametitle {
-    background: #900;
+    background: #700;
     color: #fff;
     box-shadow: -5px 5px 5px rgba(34,34,34,0.75),inset -5px 5px 35px #222
 }
@@ -11118,8 +11161,13 @@ button {
     display: none
 }
 
+.maffia #shareButton {
+    -webkit-box-shadow: none;
+    box-shadow: none
+}
+
 .maffia #sendMsg,.maffia #shareButton,.maffia #left-panel>div,.maffia #container>.warningWindow button,.maffia #modalWindow button,.maffia #optionsWindow button,.maffia .button {
-    background: linear-gradient(to bottom,#309397,#1c5a65) no-repeat!important;
+    background: linear-gradient(to bottom,#309397,#1c5a65) no-repeat;
     color: #fff;
     text-shadow: 1px 1px #000;
     border: 2px groove #90c3f7;
@@ -11826,10 +11874,22 @@ button {
     #container>.warningWindow>.modal,#modalWindow>.modal {
         max-width: none
     }
+
+    .panel-top,.panel-bottom {
+        margin-right: 0
+    }
+
+    #smiles>label {
+        margin-left: 0
+    }
+
+    #smiles>label:after {
+        display: none
+    }
 }
 
-@media(max-width: 600px) {
-    #nick,#image {
+@media(max-width: 600px) and (min-width:400px) {
+    #nick,#image,#indicator {
         display:none
     }
 
@@ -11856,6 +11916,22 @@ button {
         top: 105px
     }
 
+    article {
+        right: 160px
+    }
+
+    aside {
+        width: 150px
+    }
+
+    .panel-top,.panel-bottom {
+        padding-left: 25px!important
+    }
+
+    .panel-top:before,.panel-bottom:before {
+        display: none
+    }
+
     #gametitle {
         left: 5px;
         top: 75px
@@ -11863,8 +11939,13 @@ button {
 }
 
 @media(max-width: 400px) {
+    html,body {
+        overflow-x:auto;
+        width: 601px
+    }
+
     .window .mainbutton {
-        width:90%;
+        width: 90%;
         left: 5%
     }
 }
@@ -11917,6 +11998,40 @@ button {
     .maffia #left-panel>div {
         margin: -5px 1px -12px
     }
+
+    header {
+        height: 60px
+    }
+
+    header:after,header>.moneyblock,#statusbar,aside>#lists {
+        display: none
+    }
+
+    header>h3 {
+        margin-top: 0!important
+    }
+
+    article,aside {
+        top: 60px;
+        bottom: 55px
+    }
+
+    .rightPanel {
+        padding: 0;
+        height: 100%
+    }
+
+    footer {
+        bottom: 0
+    }
+
+    #shareButton {
+        top: 15px
+    }
+
+    #vk-idea {
+        top: -10px
+    }
 }
 
 @media(max-height: 470px) {
@@ -11967,44 +12082,21 @@ button {
 }
 
 @media(max-height: 370px) {
-    header {
-        height:60px
-    }
-
-    header:after,header>.moneyblock,#statusbar,#lists {
-        display: none
-    }
-
-    article,aside {
-        top: 60px;
-        bottom: 55px
-    }
-
-    .rightPanel {
-        padding: 0;
-        height: 100%
-    }
-
-    footer {
-        bottom: 0
-    }
-
-    #shareButton {
-        top: 15px
-    }
-
-    #vk-idea {
-        top: -10px
-    }
-
     #left-panel>div {
-        -webkit-transform: scale(0.5);
+        -webkit-transform:scale(0.5);
         transform: scale(0.5);
         margin: -5px 0 -20px
     }
 
     #tickets:before {
         font-size: .8em
+    }
+}
+
+@media(max-height: 300px) {
+    html,body {
+        overflow-y:auto;
+        height: 500px
     }
 }
 

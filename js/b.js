@@ -1705,6 +1705,12 @@ var islocalStorage = function() {
 };
 var reds = (islocalStorage && localStorage.reds) ? localStorage.reds.split(",") : [];
 var f = {
+    randomInt: function(max) {
+        return Math.floor(1 + Math.random() * max);
+    },
+    roundTwo: function(num) {
+        return Math.round(num * 100) / 100;
+    },
     onlineCount: function(count, event) {
         if (count > 0) {
             onlineCounter.html(count);
@@ -1790,12 +1796,6 @@ function insertToInput(add) {
     inputField.val(text + " [" + add + "]");
     $("#showSmiles").prop("checked", false);
     inputField.focus();
-}
-function randomInt(max) {
-    return Math.floor(1 + Math.random() * max);
-}
-function roundTwo(num) {
-    return Math.round(num * 100) / 100;
 }
 Object.size = function(obj) {
     var size = 0;
@@ -2422,7 +2422,7 @@ function showNewMessage(event) {
                     case ":-*":
                     case "чмок":
                     case "люблю":
-                        var randLove = randomInt(12);
+                        var randLove = f.randomInt(12);
                         if (randLove > 10) {
                             showWall("/images/holidays/love/" + randLove + ".gif", true);
                         } else {
@@ -2700,8 +2700,8 @@ function editPlayerList(user, leave, multi) {
         if (room.length < 3) {
             newPl.addClass("mode" + user.mode);
         }
-        if (user._id == "554f5adab84448cc1819490e") {
-            newPl.addClass("djPlayer");
+        if (user.curator) {
+            newPl.addClass("curatorPlayer");
         }
         if (reds.indexOf(user._id) > -1) {
             newPl.addClass("red");
@@ -3707,7 +3707,7 @@ function socketEvent(message) {
         if (event.hasOwnProperty("count")) {
             alarm((event.count > 0) ? "Дед Мороз подарил " + someThing(event.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
         } else {
-            var dmNum = randomInt(3)
+            var dmNum = f.randomInt(3)
               , dedmoroz = $('<img id="dm' + dmNum + '" class="dedmoroz" src="/images/2017/dm' + dmNum + '.gif"/>').appendTo(b);
             sound("dedMoroz");
             dedmoroz.animate(dmAnimates[dmNum], 20000, function() {
@@ -3818,6 +3818,35 @@ function socketEvent(message) {
                 });
                 $("#amur").attr("src", "/images/holidays/amur-arrow.gif");
             }, 5000, event);
+        }
+        break;
+    case "pairs3":
+        if (event.pairs) {
+            var triple = $('<img class="tripleBD" src="/images/holidays/3/' + f.randomInt(5) + '.gif"/>').appendTo(b);
+            triple.animate({
+                left: "100%"
+            }, 5000, function() {
+                $(this).remove();
+                if (event.pairs && event.pairs.length > 0) {
+                    var pairsText = "Смотрите, какие замечательные компании друзей у нас сегодня собрались:<br/><ol>";
+                    event.pairs.forEach(function(el) {
+                        if (el[1] && el[2] && el[3]) {
+                            pairsText += '<li><strong data-id="' + el[1]._id + '">' + el[1].login + '</strong>, <strong data-id="' + el[2]._id + '">' + el[2].login + '</strong> и <strong data-id="' + el[3]._id + '">' + el[3].login + "</strong></li>";
+                        }
+                    });
+                    pairsText += "</ol>";
+                    showNewDiv('<div class="pairs3">' + pairsText + "</div>");
+                }
+            });
+        }
+        if (event.task) {
+            showNewMessage({
+                message: "Хочешь получить подарок в честь трехлетия игры? Тогда сыграй с двумя своими друзьями в игру &quot;Без ботов&quot; на <i>" + event.task.count + "</i> игроков",
+                msgType: "private",
+                from: false,
+                to: u._id,
+                toName: u.login
+            });
         }
         break;
     case "curator":
@@ -5590,7 +5619,7 @@ function showToteList(dataArr) {
             for (var index in vars) {
                 if (vars.hasOwnProperty(index)) {
                     var cid = "tote" + i + "_" + index;
-                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
+                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + f.roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
                 }
             }
             $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
@@ -7380,13 +7409,6 @@ $(document).ready(function() {
     } else {
         console.log("socketConnect undefined");
     }
-    $.cachedScript("https://ajax.googleapis.com/ajax/libs/webfont/1.5.10/webfont.js").done(function(script, textStatus) {
-        WebFont.load({
-            google: {
-                families: ["Bad Script", "Ubuntu", "Lora", "Cormorant", "Marmelad", "PT Sans"]
-            }
-        });
-    });
     $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function(script, textStatus) {
         $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
         mW.find(".modal").draggable();
@@ -7473,18 +7495,20 @@ $(window).resize(function() {
         });
     }
 });
-var lostdays = Math.floor((1525953600000 - Date.now()) / 86400000);
-if (lostdays > 0) {
-    $("<div/>").css({
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        color: (isMaffia ? "#ddd" : "#900"),
-        padding: "3px 10px",
-        "text-align": "right"
-    }).html("До трехлетия проекта осталось " + someThing(lostdays, "день", "дня", "дней")).appendTo(mainDiv);
+var lostdays = (1525953600000 - Date.now()) / 86400000
+  , losttext = someThing(Math.floor(lostdays), "день", "дня", "дней");
+if (lostdays < 1) {
+    losttext = someThing(Math.floor(lostdays * 24), "час", "часа", "часов");
 }
+$("<div/>").css({
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    color: (isMaffia ? "#ddd" : "#900"),
+    padding: "3px 10px",
+    "text-align": "right"
+}).html("До трехлетия проекта осталось " + losttext).appendTo(mainDiv);
 var newGame = {
     creating: false,
     plCount: 8,
@@ -9375,7 +9399,7 @@ game.start = function(data) {
     closewindow();
     if (specialDay) {
         if (specialDay == "february23") {
-            var num = randomInt(13)
+            var num = f.randomInt(13)
               , ext = "jpg";
             if (num > 10) {
                 num -= 10;
@@ -9833,7 +9857,7 @@ snowball.setRound = function(data) {
     var nicksArray = [];
     snowSelect.html("");
     snowball.sides.they.forEach(function(el) {
-        nicksArray.push([playersInfoArray[el].login, el]);
+        nicksArray.push([playersInfoArray[el].login || "***", el]);
     });
     nicksArray.sort(plSort);
     nicksArray.forEach(function(el) {
