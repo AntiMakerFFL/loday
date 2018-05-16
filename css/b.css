@@ -11427,7 +11427,7 @@ button {
 }
 
 #lottery>div>p {
-    font: 40px/42px 'LED',sans-serif;
+    font: 24px 'LED',sans-serif;
     text-shadow: #363 1px 1px,#363 -1px 1px,#363 1px -1px,#363 -1px -1px;
     margin: 0;
     display: none;

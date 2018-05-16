@@ -2328,6 +2328,23 @@ function showGameInfo(info) {
         container.removeClass("wedding");
         game.married = false;
     }
+    if (info.starttime) {
+        if (zTimers[info._id]) {
+            clearInterval(zTimers[info._id]);
+        }
+        var zt = $("<span/>", {
+            id: "timer-" + info._id,
+            "class": "timer",
+            "data-lost": Math.floor((info.starttime - datenow()) / 1000)
+        });
+        $("<div/>", {
+            "class": "lastwords"
+        }).html("Игра начнется через: ").append(zt).appendTo(messagesList);
+        zayavkaInTimer(info._id);
+        zTimers[info._id] = setInterval(function() {
+            zayavkaInTimer(info._id);
+        }, 3000);
+    }
 }
 function showGamesList(gamesObj) {
     gamesInfoArray = {};
@@ -2737,7 +2754,21 @@ var zTimers = {}
     var curtimer = $("#" + gid).find(".timer");
     if (curtimer) {
         var lost = curtimer.attr("data-lost");
-        lost--;
+        lost -= 3;
+        if (lost > 0) {
+            curtimer.attr("data-lost", lost);
+            curtimer.html(countdown(lost));
+        } else {
+            clearInterval(zTimers[gid]);
+            delete zTimers[gid];
+        }
+    }
+}
+  , zayavkaInTimer = function(gid) {
+    var curtimer = $("#timer-" + gid);
+    if (curtimer) {
+        var lost = curtimer.attr("data-lost");
+        lost -= 3;
         if (lost > 0) {
             curtimer.attr("data-lost", lost);
             curtimer.html(countdown(lost));
@@ -2783,7 +2814,7 @@ function editGameList(event) {
             zayavkaTimer(event._id);
             zTimers[event._id] = setInterval(function() {
                 zayavkaTimer(event._id);
-            }, 1000);
+            }, 3000);
         }
         sortTable();
     }
@@ -3543,7 +3574,7 @@ function socketEvent(message) {
         break;
     case "gift":
         if (event.data) {
-            if (reds.indexOf(event.data.pid) > -1) {
+            if (event.data.pid && reds.indexOf(event.data.pid) > -1) {
                 modalWindow((event.data.login ? event.data.login : "Аноним") + " из вашего игнор-листа прислал Вам подарок. Хотите его удалить?", function() {
                     sendToSocket({
                         type: "gift-delete",
@@ -7237,7 +7268,7 @@ lotteryDiv.find("p").click(function() {
         clearInterval(lotteryInterval);
         var allLost = u.lottery - datenow();
         if (allLost > 0) {
-            lotteryInterval = setInterval(lotteryTimer, 1000);
+            lotteryInterval = setInterval(lotteryTimer, 5000);
             lotteryDiv.find("p").hide();
         } else {
             lotteryTimer();
@@ -7247,7 +7278,7 @@ lotteryDiv.find("p").click(function() {
 var lotteryInterval, lotteryQuery = false, lotteryTimerStart = function() {
     lotteryTimer();
     lotteryDiv.find("p").fadeIn();
-    lotteryInterval = setInterval(lotteryTimer, 1000);
+    lotteryInterval = setInterval(lotteryTimer, 5000);
 }, lotteryTimer = function() {
     var lost = Math.round((u.lottery - datenow()) / 1000);
     if (lost > 0) {
@@ -7495,20 +7526,6 @@ $(window).resize(function() {
         });
     }
 });
-var lostdays = (1525953600000 - Date.now()) / 86400000
-  , losttext = someThing(Math.floor(lostdays), "день", "дня", "дней");
-if (lostdays < 1) {
-    losttext = someThing(Math.floor(lostdays * 24), "час", "часа", "часов");
-}
-$("<div/>").css({
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    color: (isMaffia ? "#ddd" : "#900"),
-    padding: "3px 10px",
-    "text-align": "right"
-}).html("До трехлетия проекта осталось " + losttext).appendTo(mainDiv);
 var newGame = {
     creating: false,
     plCount: 8,
