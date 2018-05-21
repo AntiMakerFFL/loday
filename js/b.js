@@ -5522,9 +5522,8 @@ donatNickColor.find("button").click(function() {
         showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
     }
 });
-var donatAllMsg = $("#donat-allmessage");
-donatAllMsg.find("button").click(function() {
-    var msgText = donatAllMsg.find("input").val().trim().substring(0, 300);
+var donatAllMsg = $("#donat-allmessage")
+  , sendToAllMsg = function(msgText) {
     if (u.items[7]) {
         u.items[7] -= 1;
         sendToSocket({
@@ -5545,6 +5544,14 @@ donatAllMsg.find("button").click(function() {
             showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
         }
     }
+};
+donatAllMsg.find("button").click(function() {
+    sendToAllMsg(donatAllMsg.find("input").val().trim().substring(0, 300));
+});
+$("#speaker").click(function() {
+    modalWindow("Для отправки сообщения всем присутствующим в игре " + (u.items[7] ? "будет использован 1 сертификат на бесплатное объявление" : 'с вашего счета будет списано <span class="money">200</span>') + ". Хотите продолжить?", function() {
+        sendToAllMsg(inputField.val().trim().substring(0, 300));
+    });
 });
 var donatFoto = $("#donat-foto");
 donatFoto.find("button").click(function() {
@@ -6340,7 +6347,7 @@ function showStatistics(data) {
     };
     var st1 = data["game-bot"]
       , st2 = data["game-all"];
-    $("<h3>Cтатистика игровых партий: " + over1000(st2.count) + "</h3>").appendTo(statDiv);
+    statDiv.append("<div>Cтатистика игровых партий: " + over1000(st2.count) + "</div><hr/>");
     div100p(st1.pl, st1.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv);
     div100p(st2.win.stud, st2.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv);
     if (data.map) {
@@ -8639,7 +8646,7 @@ var startHours = {
     hisvote: {},
     votes: {}
 };
-var min10, replaceLogins = {}, randomNicks = ["Единорожка", "Булочка", "Тортик", "Пирожок", "Буковка", "Дятел", "Рожа", "Красавица", "Торчок", "Маньяк", "Крестоносец", "Страшила", "Бумеранг", "Мажор", "Хочу стенку", "Вреднуля", "Стакан", "Блатной", "Тихий вечер", "Скандинавец", "Тык-тык", "Персик", "Ватрушка", "Крышка", "Кролик", "Выдра", "Жиголо", "Скрытный", "Остроумный", "Любопытный", "Жук", "Зануда"];
+var min10, replaceLogins = {}, randomNicks = ["Единорожка", "Булочка", "Тортик", "Пирожок", "Буковка", "Дятел", "Рожа", "Красавица", "Торчок", "Маньяк", "Крестоносец", "Страшила", "Бумеранг", "Мажор", "Хочу стенку", "Вреднуля", "Стакан", "Блатной", "Тихий вечер", "Скандинавец", "Тык-тык", "Персик", "Ватрушка", "Крышка", "Кролик", "Выдра", "Жиголо", "Скрытный", "Остроумный", "Любопытный", "Жук", "Зануда", "Плюшка"];
 var showTime = function() {
     var t = "";
     var h = game.time.h;
@@ -10262,8 +10269,8 @@ function menu(type, evt) {
         if (isAppVK) {
             return true;
         }
-        html = (isMaffia) ? '<button onclick="showAlarms()">Лог уведомлений</button>' : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
-        html += '<button onclick="showHiddenCommands()">Скрытые команды чата</button>';
+        html = (isMaffia) ? "" : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
+        html += '<button onclick="showAlarms()">Лог уведомлений</button> <button onclick="showHiddenCommands()">Скрытые команды чата</button> <button onclick="showWindow(\'tournaments\')">История турниров</button> ';
         break;
     case 2:
         if (!evt.target.id || evt.target.id == "players") {

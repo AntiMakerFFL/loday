@@ -657,7 +657,7 @@ header>h3:hover {
     left: 3px;
     right: 3px;
     bottom: 3px;
-    background: url(/images/icons.png?90917) -100px 0 no-repeat
+    background: url(/images/icons.png) -100px 0 no-repeat
 }
 
 header>.gamestyle {
@@ -2699,7 +2699,7 @@ footer {
 }
 
 .panel-bottom {
-    padding: 3px 110px 3px 90px
+    padding: 3px 125px 3px 90px
 }
 
 footer>div:before {
@@ -2746,8 +2746,8 @@ footer>div:before {
 #sendMsg {
     position: absolute;
     top: 3px;
-    right: 5px;
-    width: 100px;
+    right: 35px;
+    width: 85px;
     height: 25px;
     padding: 0;
     font-weight: 700;
@@ -2797,6 +2797,16 @@ footer>div:before {
 #input:focus {
     background: #fff;
     color: #000
+}
+
+#speaker {
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    width: 25px;
+    height: 25px;
+    background: url(/images/icons.png?160518) -150px 0 no-repeat;
+    cursor: pointer
 }
 
 #fullScreen {
