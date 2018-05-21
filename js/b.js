@@ -4123,7 +4123,7 @@ function setRange(obj) {
         obj.parent().css("opacity", "");
     }
 }
-if (lStorage.getItem("nographic") == 1) {
+if (lStorage.getItem("nographic") == 1 || (mobile && lStorage.getItem("nographic") == null)) {
     allMessagesList.addClass("nographic");
     graphicCheckbox.prop("checked", false);
 }
@@ -4325,6 +4325,9 @@ function fontsOff(classes) {
     allMessagesList.removeClass(classes);
 }
 function showWindow(buttonClass) {
+    if (mobile) {
+        $("#showHeaderPanel").prop("checked", false);
+    }
     win.find(".info>div").hide();
     if (["tournaments", "aboutgame"].indexOf(buttonClass) > -1) {
         win.find(".info ." + buttonClass).load("/html/" + buttonClass + ((buttonClass == "aboutgame" && isMaffia) ? "-maffia" : "") + ".html");
@@ -4525,9 +4528,6 @@ function showWindow(buttonClass) {
 $(".moneyblock").find("b").click(function() {
     sumChange();
     showWindow("pay");
-    if (mobile) {
-        $("#showHeaderPanel").prop("checked", false);
-    }
 });
 var payDiv = $(".pay")
   , donatInput = payDiv.find("input");
@@ -4566,9 +4566,6 @@ $("h3").click(function() {
     default:
         showWindow(buttonClass);
         break;
-    }
-    if (mobile) {
-        $("#showHeaderPanel").prop("checked", false);
     }
 });
 $("#left-panel").find("div").click(function() {
@@ -5551,6 +5548,7 @@ donatAllMsg.find("button").click(function() {
 $("#speaker").click(function() {
     modalWindow("Для отправки сообщения всем присутствующим в игре " + (u.items[7] ? "будет использован 1 сертификат на бесплатное объявление" : 'с вашего счета будет списано <span class="money">200</span>') + ". Хотите продолжить?", function() {
         sendToAllMsg(inputField.val().trim().substring(0, 300));
+        inputField.val("");
     });
 });
 var donatFoto = $("#donat-foto");
@@ -6263,6 +6261,9 @@ function showStatistics(data) {
         }
         if (data.params.bestplayer && !server2) {
             showNewDiv('<div class="alarm">Лучший игрок месяца - <strong data-id="' + data.params.bestplayer._id + '">' + data.params.bestplayer.login + "</strong></div>");
+        }
+        if (data.params.maxonline) {
+            onlineCounter.after('<div id="maxonline">' + data.params.maxonline.count + " (" + showDate(data.params.maxonline.time) + ")</div>");
         }
         if (data.params.support) {
             $("<div/>", {
