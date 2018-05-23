@@ -660,6 +660,12 @@ header>h3:hover {
     background: url(/images/icons.png) -100px 0 no-repeat
 }
 
+.button-newgame:before {
+    content: '+';
+    margin-right: 5px;
+    font-weight: 700
+}
+
 header>.gamestyle {
     position: absolute;
     z-index: 15;
@@ -1193,7 +1199,7 @@ article {
     display: block;
     position: absolute;
     z-index: 16;
-    left: 54px;
+    left: 10px;
     top: 125px;
     bottom: 75px;
     right: 240px;
@@ -2946,7 +2952,7 @@ footer>div:before {
     white-space: nowrap
 }
 
-.stud:before,.duty:before,.assis:before,.sleep:before,.jeal:before,.robb:before,.hrobb:before,.cat:before,.adv:before {
+.stud:before,.duty:before,.assis:before,.sleep:before,.jeal:before,.robb:before,.hrobb:before,.cat:before,.law:before {
     content: '';
     display: inline-block;
     width: 20px;
@@ -2955,7 +2961,7 @@ footer>div:before {
     vertical-align: middle
 }
 
-.stud:after,.duty:after,.assis:after,.sleep:after,.jeal:after,.robb:after,.hrobb:after,.cat:after,.adv:after {
+.stud:after,.duty:after,.assis:after,.sleep:after,.jeal:after,.robb:after,.hrobb:after,.cat:after,.law:after {
     line-height: 22px
 }
 
@@ -3031,11 +3037,11 @@ footer>div:before {
     content: 'Котик'
 }
 
-.adv:before,.role9 {
+.law:before,.role9 {
     background: url(/images/roles/9.png) no-repeat!important
 }
 
-.adv:after {
+.law:after {
     content: 'Вахтёр'
 }
 
@@ -3067,11 +3073,11 @@ footer>div:before {
     background: url(/images/maffia/roles/7.png) no-repeat
 }
 
-.maffia .adv:before,.maffia .role9 {
+.maffia .law:before,.maffia .role9 {
     background: url(/images/maffia/roles/9.png) no-repeat!important
 }
 
-.maffia .adv:after {
+.maffia .law:after {
     content: 'Адвокат'
 }
 
@@ -3100,7 +3106,7 @@ footer>div:before {
 }
 
 .moneyblock>b {
-    font: 700 36px 'LED',sans-serif;
+    font: 700 42px/36px 'LED',sans-serif;
     color: #0f0;
     cursor: pointer;
     text-shadow: 1px 1px 1px #000,-1px -1px 1px #000,1px -1px 1px #000,-1px 1px 1px #000
@@ -8003,7 +8009,6 @@ button.usergame {
 }
 
 .ingame article {
-    left: 10px;
     right: 250px
 }
 
@@ -9802,11 +9807,29 @@ body {
     top: 0;
     right: 0;
     bottom: 0;
-    background-image: url(/images/panel.png?2810)
+    background-image: url(/images/panel.png?2205)
 }
 
 #left-panel>div:hover {
     border-left: 5px solid #827c99
+}
+
+.show-left-panel {
+    font-size: 30px;
+    text-align: center
+}
+
+.show-left-panel:before {
+    display: none
+}
+
+.show-left-panel~div {
+    opacity: 0;
+    transition: opacity 1s
+}
+
+.show-left-panel.active-left-panel~div {
+    opacity: 1
 }
 
 #edit:before {
@@ -9819,6 +9842,10 @@ body {
 
 .button-total:before {
     background-position: -84px 0
+}
+
+.button-donatoptions:before {
+    background-position: -42px -42px
 }
 
 .button-curgames:before {
