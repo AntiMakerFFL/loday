@@ -8009,6 +8009,7 @@ button.usergame {
 }
 
 .ingame article {
+    left: 10px!important;
     right: 250px
 }
 
@@ -9782,7 +9783,6 @@ body {
     z-index: 900;
     left: 0;
     top: 0;
-    bottom: 0;
     width: 55px;
     overflow: hidden
 }
@@ -9823,13 +9823,12 @@ body {
     display: none
 }
 
-.show-left-panel~div {
-    opacity: 0;
-    transition: opacity 1s
+#left-panel>.show-left-panel~div {
+    display: none
 }
 
-.show-left-panel.active-left-panel~div {
-    opacity: 1
+#left-panel>.show-left-panel.active-left-panel~div {
+    display: block
 }
 
 #edit:before {
@@ -11114,8 +11113,9 @@ section.bonus-ring:before {
     left: 7px
 }
 
-#left-panel>div.nobackground {
+#container>#left-panel>div.nobackground {
     background: transparent;
+    border: 0;
     box-shadow: none
 }
 
@@ -11229,6 +11229,11 @@ button {
 
 .maffia .for-ffl,.for-maffia {
     display: none
+}
+
+.helperbody header,.helperbody #main,.helperbody #messages,.helperbody #mymessages,.helperbody aside,.helperbody footer,.helperbody #left-panel {
+    -webkit-filter: brightness(0.2);
+    filter: brightness(0.2)
 }
 
 #helper {
@@ -11353,9 +11358,11 @@ button {
     background: #980f00
 }
 
-.help-active-item {
+.help-active-block {
     z-index: 10001;
-    box-shadow: inset 1px 1px 2px #f00,inset -1px -1px 2px #f00
+    box-shadow: inset 1px 1px 2px #f00,inset -1px -1px 2px #f00;
+    -webkit-filter: none!important;
+    filter: none!important
 }
 
 #outside {
