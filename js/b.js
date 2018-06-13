@@ -20,6 +20,7 @@ var domain = document.location.hostname
   , mainDiv = $("#main")
   , gamesList = mainDiv.find("ul")
   , gametitle = $("#gametitle")
+  , leftPanel = $("#left-panel")
   , win = $(".window")
   , tp = $("#tooltip")
   , ptp = $("#playerInfo")
@@ -34,6 +35,7 @@ var domain = document.location.hostname
   , shop = $(".shop")
   , collectionWin = $(".collect")
   , outside = $("#outside")
+  , submenu = $("#submenu")
   , onlineCounter = $("#online-counter")
   , lotteryDiv = $("#lottery").find("div")
   , lotteryWin = $(".lottery")
@@ -1674,8 +1676,14 @@ window.onerror = function(error, url, line) {
     logs.push("ERR:" + error + " URL:" + url + " L:" + line);
 }
 ;
-if (typeof mobile == "undefined") {
-    mobile = false;
+if (typeof mobile === "undefined") {
+    var mobile = false;
+}
+if (typeof isAppVK === "undefined") {
+    var isAppVK = false;
+}
+if (typeof mafApp === "undefined") {
+    var mafApp = false;
 }
 var islocalStorage = function() {
     var test = "test";
@@ -1710,6 +1718,14 @@ var f = {
     },
     roundTwo: function(num) {
         return Math.round(num * 100) / 100;
+    },
+    timeLost: function(timestamp) {
+        var lostdays = (timestamp - datenow()) / 86400000
+          , losttext = f.someThing(Math.floor(lostdays), "день", "дня", "дней");
+        if (lostdays < 1) {
+            losttext = f.someThing(Math.floor(lostdays * 24), "час", "часа", "часов");
+        }
+        return losttext;
     },
     onlineCount: function(count, event) {
         if (count > 0) {
@@ -1750,6 +1766,27 @@ var f = {
                 f.radioIframe(lStorage.getItem("radiostream") ? true : false);
             }
         }
+    },
+    someThing: function(count, first, some, many) {
+        var out, tmp = count % 100;
+        if (tmp > 10 && tmp < 20) {
+            out = count + " " + many;
+        } else {
+            switch (count % 10) {
+            case 1:
+                out = count + " " + first;
+                break;
+            case 2:
+            case 3:
+            case 4:
+                out = count + " " + some;
+                break;
+            default:
+                out = count + " " + many;
+                break;
+            }
+        }
+        return out;
     }
 };
 function serverPort(fullUrl) {
@@ -1778,7 +1815,7 @@ function createSmilePanel() {
         allSmiles += '<span class="role' + role + '"></span>';
     }
     allSmiles += "<hr/>";
-    smilesArr.forEach(function(el, ind) {
+    smilesArr.forEach(function(el) {
         allSmiles += '<img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + el + '.gif" alt="' + el + '"/>';
     });
     smileBlock.find("div").html(allSmiles);
@@ -1843,27 +1880,6 @@ function createCookie(name, value, days) {
 function getCookie(name) {
     var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"));
     return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-function someThing(count, first, some, many) {
-    var out, tmp = count % 100;
-    if (tmp > 10 && tmp < 20) {
-        out = count + " " + many;
-    } else {
-        switch (count % 10) {
-        case 1:
-            out = count + " " + first;
-            break;
-        case 2:
-        case 3:
-        case 4:
-            out = count + " " + some;
-            break;
-        default:
-            out = count + " " + many;
-            break;
-        }
-    }
-    return out;
 }
 var socketTry = 0
   , lastSocketMsg = 0
@@ -1967,16 +1983,6 @@ function isToday(str) {
     var d = new Date(datenow() + 10800000);
     return (str == (d.getUTCDate() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCFullYear()).toString());
 }
-function curDate() {
-    var date = new Date()
-      , d = date.getDate().toString()
-      , m = date.getMonth()
-      , y = date.getFullYear().toString();
-    if (m < 10) {
-        m = "0" + m;
-    }
-    return d + m + y;
-}
 function curTime() {
     var date = new Date(), h, m;
     h = date.getHours();
@@ -2036,7 +2042,7 @@ function specials_in(event) {
     var message = (event.from && !event.nofilter) ? escapeHtml(event.message) : event.message;
     if (message) {
         if (message.indexOf("*time*") > -1 || message.indexOf("[date]") > -1) {
-            var moment = event.time ? new Date(event.time) : new Date
+            var moment = event.time ? new Date(event.time) : new Date()
               , s = moment.getSeconds()
               , i = moment.getMinutes()
               , h = moment.getHours()
@@ -2099,7 +2105,7 @@ function warningWindow(text, callback, buttext, win, specialclass) {
             newWW.remove();
         }, 1000, $(this).parents(".warningWindow"));
     });
-    if (win != undefined && game.style && game.style.style == 4 && container.hasClass("current")) {
+    if (win !== undefined && game.style && game.style.style == 4 && container.hasClass("current")) {
         var whowin = (win) ? (u.sex == 1 ? "women" : "men") : (u.sex == 1 ? "men" : "women");
         newWW.addClass(whowin + "win");
     } else {
@@ -2149,7 +2155,7 @@ function showCash(text) {
     });
 }
 function isset(par) {
-    return !(typeof (par) === "undefined" || typeof (par) === "Null");
+    return !(typeof (par) === "undefined" || typeof (par) === null);
 }
 function updateInterface(udata) {
     if (udata) {
@@ -2208,17 +2214,17 @@ function updateInterface(udata) {
             continue;
         }
         var v, cc = udata["item" + i] || 0;
-        if (i % 3 == 0) {
-            var diff = cc - Date.now()
-              , delit = (i == 3) ? 3600000 : 86400000;
-            v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
+        if (i % 3 === 0) {
+            var diff = cc - Date.now();
+            v = (!diff || diff < 1) ? 0 : Math.ceil(diff / 3600000);
+            if (i == 6 && v > 0) {
+                $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(v, "час", "часа", "часов"));
+                v = Math.ceil(v / 24);
+            }
         } else {
             v = cc + "/" + ((cc >= items["s" + i]) ? "0" : (items["s" + i] - cc).toString());
         }
         $("#shop" + i).find("div:nth-of-type(2)").html(v);
-        if (i == 6 && diff > 0) {
-            $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
-        }
     }
     if (win.find(".inventory").is(":visible")) {
         showInventory();
@@ -2413,8 +2419,8 @@ function showNewMessage(event) {
         if (event.color && event.color == "#000") {
             event.color = defaultColor;
         }
-        var colorClass = (event.color && event.color !== defaultColor) ? ' style="color:' + event.color + '"' : "";
-        var caption = (udata && udata.id && udata.login) ? '<b data-id="' + udata.id + '"' + colorClass + ((udata.id == u._id) ? colorMe : "") + ">" + udata.login + "</b>" + ((event.to) ? "->" : ": ") : "";
+        var colorClass = (event.color && event.color !== defaultColor) ? ' style="color:' + event.color + '"' : ""
+          , caption = (udata && udata.id && udata.login) ? '<b data-id="' + udata.id + '"' + colorClass + ((udata.id == u._id) ? colorMe : "") + ">" + udata.login + "</b>" + ((event.to) ? "->" : ": ") : "";
         if (event.to && event.toName && event.toName.length > 0 && !game.intuition) {
             caption += ' <b data-id="' + event.to + '"';
             if (event.to == u._id) {
@@ -2483,7 +2489,7 @@ function sendMessage() {
       , strForSwitch = msgStr.toLowerCase().replace(/[.?!]/g, "").trim()
       , nosmileStr = msgStr.replace(/\[[A-z]+\]/g, "").trim()
       , needsend = true;
-    if (msgStr == "" || (container.hasClass("current") && (game.finish || game.period == 4))) {
+    if (!msgStr || (container.hasClass("current") && (game.finish || game.period == 4))) {
         return;
     }
     if (msgStr == "." && u._id != "554f490f8771f1d015807b59" && u.login != "Kinder" && !u.vip) {
@@ -2494,7 +2500,7 @@ function sendMessage() {
         });
         return;
     }
-    notextMsgCount = (nosmileStr == "") ? notextMsgCount + 1 : 0;
+    notextMsgCount = (nosmileStr === "") ? notextMsgCount + 1 : 0;
     if (notextMsgCount > 3) {
         if (!sounds.joke) {
             sounds.joke = createAudio("/media/joke." + soundExt);
@@ -2579,6 +2585,10 @@ function sendMessage() {
         case "салют+":
             fireworkEnable = true;
             showNewDiv('<div class="browm">Теперь Вы тоже не пропустите праздничные фейерверки</div>');
+            needsend = false;
+            break;
+        case "редактор меню":
+            showWindow("menu-editor");
             needsend = false;
             break;
         case "киндер-сюрприз":
@@ -2745,8 +2755,8 @@ function editPlayerList(user, leave, multi) {
     });
     str.sort(plSort);
     playersList.html();
-    $.each(str, function(key, value) {
-        playersList.append(value[1]);
+    $.each(str, function() {
+        playersList.append(this[1]);
     });
 }
 var zTimers = {}
@@ -2876,7 +2886,7 @@ function showTopLists(data) {
         if (data.topactiv.length > 0) {
             data.topactiv.forEach(function(el) {
                 try {
-                    el.activ = el.months[Object.keys(el.months)[0]]["activity"];
+                    el.activ = el.months[Object.keys(el.months)[0]].activity;
                     $('<div data-id="' + el._id + '"><span>' + (++num) + ".</span><span>" + el.login + "</span><span>" + over1000(el.activ) + "</span></div>").appendTo(list3Div);
                 } catch (e) {}
             });
@@ -2904,7 +2914,7 @@ function goToRoom(roomStr) {
     if (helper && helper.enabled()) {
         helper.stop();
     }
-    if (r == 6 && u.club == 0) {
+    if (r == 6 && !u.club) {
         showMessage('Только для членов Клуба <u class="clubname"></u>!');
     } else {
         showNewMessage({
@@ -3083,7 +3093,12 @@ function music() {
             sounds.music.pause();
         } else {
             sounds.music.currentTime = 0;
-            sounds.music.play();
+            var promise = sounds.music.play();
+            if (promise !== undefined) {
+                promise.then(function() {
+                    sounds.music.play();
+                });
+            }
         }
     } catch (e) {
         console.log("music.error: " + e);
@@ -3127,7 +3142,7 @@ function socketEvent(message) {
         ws.onclose = function() {}
         ;
         b.removeClass("unauthorized");
-        authFalse();
+        authFalse(event);
         break;
     case "message":
         showNewMessage(event);
@@ -3165,13 +3180,13 @@ function socketEvent(message) {
               , bs = bmin % 60
               , btext = "";
             if (bh > 0) {
-                btext += someThing(bh, "час", "часа", "часов") + " ";
+                btext += f.someThing(bh, "час", "часа", "часов") + " ";
             }
             if (bm > 0) {
-                btext += someThing(bm, "минуту", "минуты", "минут") + " ";
+                btext += f.someThing(bm, "минуту", "минуты", "минут") + " ";
             }
             if (bs > 0) {
-                btext += someThing(bs, "секунду", "секунды", "секунд");
+                btext += f.someThing(bs, "секунду", "секунды", "секунд");
             }
             showNewDiv('<div class="ban">Вы не можете пользоваться чатом еще ' + btext + "</div>");
             inputField.blur();
@@ -3210,7 +3225,7 @@ function socketEvent(message) {
                     if (u.vip) {
                         var vipDays = Math.ceil((u.vip - datenow()) / 86400000);
                         if (vipDays > 0) {
-                            stipText += '<br/><b class="red">Ещё ' + someThing(vipDays, "день", "дня", "дней") + " VIP-статуса</b>";
+                            stipText += '<br/><b class="red">Ещё ' + f.someThing(vipDays, "день", "дня", "дней") + " VIP-статуса</b>";
                         }
                     }
                     showCash(stipText);
@@ -3256,7 +3271,7 @@ function socketEvent(message) {
                   , lastPl = ""
                   , dnum = 0
                   , dcur = 0;
-                event.regplayers.forEach(function(el, index) {
+                event.regplayers.forEach(function(el) {
                     dcur = new Date(el.date).getDate();
                     if (dnum != dcur) {
                         dnum = dcur;
@@ -3277,10 +3292,7 @@ function socketEvent(message) {
                 showNewDiv(wasText.substr(0, wasText.length - 2) + "</div></div>");
             }
             if (mybirthday) {
-                showNewMessage({
-                    message: "Администрация игры поздравляет Вас с днём рождения и желает, чтобы в жизни было как можно больше приятных минут! <blockquote> http://loday.ru/images/walls/card.gif </blockquote>",
-                    msgStyle: "birthdays mybirthday"
-                });
+                showNewDiv('<div class="birthdays mybirthday">Администрация игры поздравляет Вас с днём рождения и желает, чтобы в жизни было как можно больше приятных минут! <blockquote><span class="imageLoader" data-title="Посмотреть открытку" onclick="showWall(\'' + document.location.protocol + "//" + domain + "/images/walls/card.gif',true,true)\"></span></blockquote></div>");
             }
             messagesList.find("strong").click(showProfile);
             if (!u.lottery || u.lottery < event.datenow) {
@@ -3292,14 +3304,14 @@ function socketEvent(message) {
                 $("#roll-start").addClass("rolling-was");
             }
             helper.hideLocation();
-            if (u.rating < 100 && lStorage.getItem("hints") != 0) {
+            if (u.rating < 100 && lStorage.getItem("hints") != "0") {
                 hintsCheckBox.prop("checked", true);
                 hintsNeed = true;
             }
             if (!mobile && !isAppVK && !lStorage.getItem("width") && !lStorage.getItem("recomwidth") && b.outerWidth() > 1200) {
                 var recomWidth = Math.round(1200 / b.outerWidth() * 100);
                 if (recomWidth < 95) {
-                    modalWindow("Рекомендуемая ширина игрового окна при данном разрешении - " + recomWidth + "%. Установить предполагаемые размеры?<br/> Изменить ширину  игры Вы всегда сможете в настройках игры.", function() {
+                    modalWindow("Рекомендуемая ширина игрового окна при данном разрешении - " + recomWidth + "%. Установить предполагаемые размеры?<br/> Изменить ширину игры Вы всегда сможете в настройках игры.", function() {
                         lStorage.setItem("recomwidth", true);
                         lStorage.setItem("width", recomWidth);
                         setWidth(recomWidth);
@@ -3386,7 +3398,7 @@ function socketEvent(message) {
                     start: function() {
                         $(this).addClass("nobackground");
                     },
-                    step: function(now, fx) {
+                    step: function(now) {
                         $(this).css({
                             transform: "rotate(" + now + "deg)"
                         });
@@ -3395,7 +3407,7 @@ function socketEvent(message) {
                     rotation: -360
                 }, {
                     duration: 3000,
-                    step: function(now, fx) {
+                    step: function(now) {
                         $(this).css({
                             transform: "rotate(" + now + "deg)"
                         });
@@ -3439,7 +3451,7 @@ function socketEvent(message) {
     case "area-battle":
         if (event.winner && event.area) {
             if (!mapAreas[event.area].win) {
-                mapAreas[event.area]["win"] = {};
+                mapAreas[event.area].win = {};
             }
             if (!mapAreas[event.area].win[event.winner]) {
                 mapAreas[event.area].win[event.winner] = 0;
@@ -3620,7 +3632,7 @@ function socketEvent(message) {
         break;
     case "reward":
         if (event.num) {
-            warningWindow('<div class="reward">' + roleText[gameMode()]["reward"][event.num] + "</div>", false, false, false, "newspaper");
+            warningWindow('<div class="reward">' + roleText[gameMode()].reward[event.num] + "</div>", false, false, false, "newspaper");
         }
         if (event.toy) {
             warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + event.toy + '"></div></div>', false, false, false, "newspaper");
@@ -3736,7 +3748,7 @@ function socketEvent(message) {
         break;
     case "dedmoroz":
         if (event.hasOwnProperty("count")) {
-            alarm((event.count > 0) ? "Дед Мороз подарил " + someThing(event.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
+            alarm((event.count > 0) ? "Дед Мороз подарил " + f.someThing(event.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
         } else {
             var dmNum = f.randomInt(3)
               , dedmoroz = $('<img id="dm' + dmNum + '" class="dedmoroz" src="/images/2017/dm' + dmNum + '.gif"/>').appendTo(b);
@@ -3751,12 +3763,12 @@ function socketEvent(message) {
         snowball.action(event);
         break;
     case "infomoder":
-        if (u.moder || u.moder2) {
+        if (typeof showInfoModer === "function") {
             showInfoModer(event.data);
         }
         break;
     case "moder":
-        if (u.moder) {
+        if (typeof moderAnswer === "function") {
             moderAnswer(event);
         }
         break;
@@ -3927,8 +3939,9 @@ gebi("input").onkeydown = function(e) {
 }
 ;
 $("#sendMsg").click(sendMessage);
+var scrollCheck = $("#scrolling");
 function doScroll() {
-    if ($("#scrolling").is(":checked")) {
+    if (scrollCheck.is(":checked")) {
         return;
     }
     var objDiv = gebi("messages");
@@ -4004,7 +4017,7 @@ playersList.bind("dblclick touchmove", function(e) {
         return;
     }
     selectPlayer(target.id);
-}).bind("touchend", function(e) {});
+});
 allMessagesList.click(function(e) {
     var event = e || window.event;
     var target = event.target || event.srcElement;
@@ -4035,7 +4048,7 @@ actionButton.click(function() {
     }
 });
 privateCheck.change(function() {
-    if ($("#adresat-id").val() == "" || (game.style && game.style.style1)) {
+    if (!$("#adresat-id").val() || (game.style && game.style.style1)) {
         $(this).prop("checked", false);
     }
 });
@@ -4096,7 +4109,9 @@ function setGameName(name) {
 }
 $("#shareButton").click(function() {
     if (isAppVK) {
-        VK.callMethod("showInviteBox");
+        if (isset(VK)) {
+            VK.callMethod("showInviteBox");
+        }
     } else {
         warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
     }
@@ -4117,13 +4132,13 @@ function setRange(obj) {
       , width = thumb.width();
     thumb.html(obj.val());
     thumb.css("left", obj.val() * (rangeWidth - width) / 100);
-    if (obj.val() == 0) {
+    if (obj.val() == "0") {
         obj.parent().css("opacity", 0.5);
     } else {
         obj.parent().css("opacity", "");
     }
 }
-if (lStorage.getItem("nographic") == 1 || (mobile && lStorage.getItem("nographic") == null)) {
+if (lStorage.getItem("nographic") == 1 || (mobile && lStorage.getItem("nographic") === null)) {
     allMessagesList.addClass("nographic");
     graphicCheckbox.prop("checked", false);
 }
@@ -4324,11 +4339,63 @@ function fontsOff(classes) {
     }
     allMessagesList.removeClass(classes);
 }
+function showSubmenuBlock(block) {
+    closewindow();
+    submenu.removeClass().addClass("sm-" + block).fadeIn(500);
+}
+function NYtoyAdd(e) {
+    var curtoy = $(this)
+      , treeWin = $(".tree")
+      , moveAt = function(e) {
+        var divOff = treeWin.offset();
+        curtoy.css({
+            left: (e.pageX - divOff.left + treeWin.scrollLeft() - curtoy.width() / 2),
+            top: (e.pageY - divOff.top + 1 + treeWin.scrollTop() + 50)
+        });
+    }
+      , returnToy = function() {
+        curtoy.css({
+            position: "static"
+        }).appendTo(win.find(".toybox"));
+        document.onclick = null;
+    };
+    curtoy.css({
+        position: "absolute"
+    }).appendTo(treeWin);
+    moveAt(e);
+    document.onmousemove = function(e) {
+        moveAt(e);
+    }
+    ;
+    document.onclick = returnToy;
+    nytree.click(function(e) {
+        document.onmousemove = null;
+        nytree.unbind("click");
+        document.onclick = null;
+        var offset = $(this).offset();
+        var relativeX = Math.round(e.pageX - offset.left + $(this).scrollLeft());
+        var relativeY = Math.round(e.pageY - offset.top + $(this).scrollTop());
+        modalWindow('Не забудьте указать ваше личное сообщение к игрушке<br/> <textarea placeholder="Поздравление или пожелание"></textarea><br/> Повесить игрушку?', function() {
+            var msg = mW.find("textarea").val()
+              , curid = curtoy.attr("data-id");
+            sendToSocket({
+                type: "nytoy",
+                x: relativeX,
+                y: relativeY,
+                id: curid,
+                text: msg
+            });
+            curtoy.hide();
+            delete u.items.nytoys[curid];
+        }, returnToy);
+    });
+}
 function showWindow(buttonClass) {
     if (mobile) {
         $("#showHeaderPanel").prop("checked", false);
     }
     win.find(".info>div").hide();
+    submenu.hide();
     if (["tournaments", "aboutgame"].indexOf(buttonClass) > -1) {
         win.find(".info ." + buttonClass).load("/html/" + buttonClass + ((buttonClass == "aboutgame" && isMaffia) ? "-maffia" : "") + ".html");
     }
@@ -4351,12 +4418,12 @@ function showWindow(buttonClass) {
                 u["item" + el] = 0;
             }
             var cc = u["item" + el] || 0
-              , diff = cc - Date.now()
+              , diff = cc - datenow()
               , delit = (el == 3) ? 3600000 : 86400000
               , v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
             $("#shop" + el).find("div:nth-of-type(2)").html(v);
             if (el == 6) {
-                $("#shop6").find("div:nth-of-type(2)").attr("data-title", someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
+                $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
             }
         });
         break;
@@ -4369,9 +4436,9 @@ function showWindow(buttonClass) {
                 $("#donat-foto").find(".money").hide();
             }
         }
-        var ruporText = (u.items[7]) ? someThing(u.items[7], "рупор", "рупора", "рупоров") : "Рассказать";
+        var ruporText = (u.items[7]) ? f.someThing(u.items[7], "рупор", "рупора", "рупоров") : "Рассказать";
         $("#donat-allmessage").find("button").html(ruporText);
-        var biggameText = (u.items[12]) ? someThing(u.items[12], "сертификат", "сертификата", "сертификатов") : "Создать";
+        var biggameText = (u.items[12]) ? f.someThing(u.items[12], "сертификат", "сертификата", "сертификатов") : "Создать";
         $("#donat-biggame").find("button").html(biggameText);
         break;
     case "collect":
@@ -4384,8 +4451,43 @@ function showWindow(buttonClass) {
         break;
     case "areamap":
         if (mapAreas) {
-            var svgobject = document.getElementById("citymap");
-            var mapOnLoad = function() {
+            var svgobject = document.getElementById("citymap")
+              , mapAreaOpen = function(e) {
+                var curMap = e.data
+                  , areaData = $("#areaData");
+                areaData.html("");
+                $("<h2>" + curMap.title + "</h2>").appendTo(areaData);
+                if (curMap.own) {
+                    areaData.append("Контролируют: " + ((curMap.own == "bots") ? "боты" : "игроки"));
+                    if (curMap.own == "bots") {
+                        $("<button/>", {
+                            "class": "button",
+                            "data-area": curMap.num
+                        }).html("Захватить").on("click", areaAttack).appendTo(areaData);
+                    }
+                    if (curMap.own == "players") {
+                        $("<button/>", {
+                            "class": "button",
+                            "data-area": curMap.num
+                        }).html("Оборонять").on("click", areaAttack).appendTo(areaData);
+                    }
+                }
+                if (curMap.win) {
+                    var dataText = '<table><tr><th colspan="2">Статистика битв</th></tr>';
+                    if (curMap.win.players) {
+                        dataText += "<tr><td>Победы игроков</td><td>" + curMap.win.players + "</td></tr>";
+                    }
+                    if (curMap.win.bots) {
+                        dataText += "<tr><td>Победы ботов</td><td>" + curMap.win.bots + "</td></tr>";
+                    }
+                    if (curMap.win.draw) {
+                        dataText += "<tr><td>Ничейные партии</td><td>" + curMap.win.draw + "</td></tr>";
+                    }
+                    dataText += "</table>";
+                    areaData.append(dataText);
+                }
+            }
+              , mapOnLoad = function() {
                 if ("contentDocument"in svgobject) {
                     var svgdom = $(svgobject.contentDocument);
                     for (var i = 1; i <= 8; i++) {
@@ -4396,33 +4498,7 @@ function showWindow(buttonClass) {
                             curArea.attr("class", curArea.attr("class") + " " + curMap.own);
                         }
                         curMap.num = i;
-                        curArea.click(curMap, function(e) {
-                            var curMap = e.data;
-                            var dataText = "<h2>" + curMap.title + "</h2>";
-                            if (curMap.own) {
-                                dataText += "Контролируют: " + ((curMap.own == "bots") ? "боты" : "игроки");
-                                if (curMap.own == "bots") {
-                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">Захватить</button>';
-                                }
-                                if (curMap.own == "players") {
-                                    dataText += '<button class="button" onclick="areaAttack(' + curMap.num + ')">Оборонять</button>';
-                                }
-                            }
-                            if (curMap.win) {
-                                dataText += '<table><tr><th colspan="2">Статистика битв</th></tr>';
-                                if (curMap.win.players) {
-                                    dataText += "<tr><td>Победы игроков</td><td>" + curMap.win.players + "</td></tr>";
-                                }
-                                if (curMap.win.bots) {
-                                    dataText += "<tr><td>Победы ботов</td><td>" + curMap.win.bots + "</td></tr>";
-                                }
-                                if (curMap.win.draw) {
-                                    dataText += "<tr><td>Ничейные партии</td><td>" + curMap.win.draw + "</td></tr>";
-                                }
-                                dataText += "</table>";
-                            }
-                            $("#areaData").html(dataText);
-                        });
+                        curArea.click(curMap, mapAreaOpen);
                     }
                 }
             };
@@ -4434,57 +4510,9 @@ function showWindow(buttonClass) {
         if (u.items && u.items.nytoys) {
             var toysDiv = win.find(".toybox");
             toysDiv.html("");
-            for (var ind in u.items.nytoys) {
-                if (u.items.nytoys.hasOwnProperty(ind)) {
-                    $('<span class="nytoy' + u.items.nytoys[ind] + '" data-id="' + ind + '"></span>').mousedown(function(e) {
-                        var curtoy = $(this)
-                          , treeWin = $(".tree")
-                          , moveAt = function(e) {
-                            var divOff = treeWin.offset();
-                            curtoy.css({
-                                left: (e.pageX - divOff.left + treeWin.scrollLeft() - curtoy.width() / 2),
-                                top: (e.pageY - divOff.top + 1 + treeWin.scrollTop() + 50)
-                            });
-                        }
-                          , returnToy = function() {
-                            curtoy.css({
-                                position: "static"
-                            }).appendTo(toysDiv);
-                            document.onclick = null;
-                        };
-                        curtoy.css({
-                            position: "absolute"
-                        }).appendTo(treeWin);
-                        moveAt(e);
-                        document.onmousemove = function(e) {
-                            moveAt(e);
-                        }
-                        ;
-                        document.onclick = returnToy;
-                        nytree.click(function(e) {
-                            document.onmousemove = null;
-                            nytree.unbind("click");
-                            document.onclick = null;
-                            var offset = $(this).offset();
-                            var relativeX = Math.round(e.pageX - offset.left + $(this).scrollLeft());
-                            var relativeY = Math.round(e.pageY - offset.top + $(this).scrollTop());
-                            modalWindow('Не забудьте указать ваше личное сообщение к игрушке<br/> <textarea placeholder="Поздравление или пожелание"></textarea><br/> Повесить игрушку?', function() {
-                                var msg = mW.find("textarea").val()
-                                  , curid = curtoy.attr("data-id");
-                                sendToSocket({
-                                    type: "nytoy",
-                                    x: relativeX,
-                                    y: relativeY,
-                                    id: curid,
-                                    text: msg
-                                });
-                                curtoy.hide();
-                                delete u.items.nytoys[curid];
-                            }, returnToy);
-                        });
-                    }).appendTo(toysDiv);
-                }
-            }
+            $.each(u.items.nytoys, function(ind, val) {
+                $('<span class="nytoy' + val + '" data-id="' + ind + '"></span>').mousedown(NYtoyAdd).appendTo(toysDiv);
+            });
         }
         break;
     case "lottery":
@@ -4493,7 +4521,7 @@ function showWindow(buttonClass) {
         lotteryWin.html("");
         for (var i = 1; i <= 100; i++) {
             lotteryfield += "<span>" + i + "</span>";
-            if (i % 10 == 0) {
+            if (i % 10 === 0) {
                 lotteryfield += "<br/>";
             }
         }
@@ -4510,6 +4538,9 @@ function showWindow(buttonClass) {
             });
             $(this).addClass("selectLottery");
         });
+        break;
+    case "menu-editor":
+        menuedit.window();
         break;
     }
     var specialClassSet = function(classname, winclass) {
@@ -4530,17 +4561,27 @@ $(".moneyblock").find("b").click(function() {
     showWindow("pay");
 });
 var payDiv = $(".pay")
-  , donatInput = payDiv.find("input");
+  , donatInput = payDiv.find("input")
+  , minDonatSum = function() {
+    if (parseInt(donatInput.val()) / 10 >= 1) {
+        return true;
+    } else {
+        showMessage("Минимальная сумма - 1 рубль");
+        return false;
+    }
+};
+payDiv.find("#payeer-button").on("click", minDonatSum);
+payDiv.find("#pay-button").on("click", minDonatSum);
 var sumChange = function() {
     var rSum = parseInt(donatInput.val()) / 10;
     if (rSum >= 1) {
-        payDiv.find("#pay-rouble").html(someThing(rSum, "рубль", "рубля", "рублей"));
+        payDiv.find("#pay-rouble").html(f.someThing(rSum, "рубль", "рубля", "рублей"));
         payDiv.find("#payeer-button").attr("href", serverPort(true) + "/billing/?uid=" + u._id + "&sum=" + rSum.toFixed(2));
         payDiv.find("#pay-button").attr("href", serverPort(true) + "/billing/form?id=" + u._id + "&sum=" + parseInt(rSum));
     } else {
         payDiv.find("#pay-rouble").html("");
-        payDiv.find("#payeer-button").attr("href", 'javascript:showMessage("Минимальная сумма - 1 рубль")');
-        payDiv.find("#pay-button").attr("href", 'javascript:showMessage("Минимальная сумма - 1 рубль")');
+        payDiv.find("#payeer-button").attr("href", "#");
+        payDiv.find("#pay-button").attr("href", "#");
     }
 };
 donatInput.change(sumChange).keyup(sumChange);
@@ -4568,14 +4609,11 @@ $("h3").click(function() {
         break;
     }
 });
-$("#left-panel").find("div").click(function() {
+var showWindowClick = function() {
     if (helper.checkLocked && helper.checkLocked($(this))) {
         return;
     }
-    if ($(this).attr("id") && $(this).attr("id") == "edit") {
-        editProfile(true);
-        return;
-    }
+    submenu.hide();
     if ($(this).hasClass("show-left-panel")) {
         if ($(this).hasClass("active-left-panel")) {
             $("article").css("left", "");
@@ -4585,40 +4623,56 @@ $("#left-panel").find("div").click(function() {
         $(this).toggleClass("active-left-panel");
         return;
     }
-    var buttonClass = $(this).attr("class").replace("nobackground", "").substr(7);
-    switch (buttonClass) {
-    case "total":
-        sendToSocket({
-            type: "tote",
-            action: "list"
-        });
-        break;
-    case "curgames":
-        sendToSocket({
-            type: "curgames-list"
-        });
-        break;
-    case "auction":
-        sendToSocket({
-            type: "auction",
-            action: "list"
-        });
-        break;
-    case "quiztop":
-        sendToSocket({
-            type: "quiz-list"
-        });
-        break;
-    case "myprogress":
-        if (Date.now() > progressTime) {
-            sendToSocket({
-                type: "progress-list"
-            });
-        }
-        break;
+    var fullClass = $(this).attr("class").replace("nobackground", "");
+    if (fullClass == "button-edit") {
+        editProfile(true);
+        return;
     }
-    showWindow(buttonClass);
+    if (fullClass.indexOf("block-") > -1) {
+        showSubmenuBlock(fullClass.substr(6));
+    } else {
+        var buttonClass = fullClass.substr(7);
+        switch (buttonClass) {
+        case "total":
+            sendToSocket({
+                type: "tote",
+                action: "list"
+            });
+            break;
+        case "curgames":
+            sendToSocket({
+                type: "curgames-list"
+            });
+            break;
+        case "auction":
+            sendToSocket({
+                type: "auction",
+                action: "list"
+            });
+            break;
+        case "quiztop":
+            sendToSocket({
+                type: "quiz-list"
+            });
+            break;
+        case "myprogress":
+            if (Date.now() > progressTime) {
+                sendToSocket({
+                    type: "progress-list"
+                });
+            }
+            break;
+        }
+        showWindow(buttonClass);
+    }
+};
+leftPanel.find("div").click(showWindowClick);
+submenu.click(function(e) {
+    if (e.target.id == "submenu") {
+        submenu.hide();
+    }
 });
+submenu.find("div>div").click(showWindowClick);
 $(document).on("mousemove touchmove", "[data-title]", function(e) {
     tooltip(e, $(this).attr("data-title"), true);
 }).on("mouseleave touchleave", "[data-title]", function(e) {
@@ -4628,12 +4682,14 @@ function closewindow() {
     win.removeClass("openWindow");
     container.removeClass("back");
 }
-win.click(function(e) {
-    var clicked = $(e.target), action;
-    if (action = clicked.attr("data-action")) {
-        eval(action + "(" + clicked.attr("data-params") + ")");
+function execDataAction(e) {
+    var $this = $(e.target)
+      , action = $this.attr("data-action");
+    if (action && window[action]) {
+        window[action]();
     }
-});
+}
+win.click(execDataAction);
 function gamesListener(e, callback, args) {
     if (e.target.nodeName == "UL") {
         return;
@@ -4746,8 +4802,8 @@ function showPlayerInfo(show, uid) {
             cu.status = playersInfoArray[cu.creator].login;
         }
         var statEcho = function(obj, role) {
-            var win = (obj[role + "1"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "1"]
-              , lose = (obj[role + "0"] == undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "0"];
+            var win = (obj[role + "1"] === undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "1"]
+              , lose = (obj[role + "0"] === undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "0"];
             return win + " / " + lose;
         };
         if (cu.image && cu.image.length > 2) {
@@ -4827,8 +4883,8 @@ function showPlayerInfoBlock(cu) {
       , giftInfo = wb.find(".playerInfo-gifts")
       , myprofile = (cu._id == u._id)
       , statEcho = function(obj, role) {
-        var win = (obj[role + "1"] == undefined) ? "0" : obj[role + "1"]
-          , lose = (obj[role + "0"] == undefined) ? "0" : obj[role + "0"];
+        var win = (obj[role + "1"] === undefined) ? "0" : obj[role + "1"]
+          , lose = (obj[role + "0"] === undefined) ? "0" : obj[role + "0"];
         return win + " / " + lose;
     };
     if (myprofile) {
@@ -4902,21 +4958,22 @@ function showPlayerInfoBlock(cu) {
     }
     giftInfo.html("");
     if (cu.gifts) {
+        var profileGiftClick = function() {
+            var thisgift = $(this);
+            modalWindow('Выбросить подарок?<br/> <div class="playerInfo-gifts singlegift"><div class="' + thisgift.attr("class") + '" data-title="' + thisgift.attr("data-title") + '"></div></div>', function() {
+                sendToSocket({
+                    type: "gift-delete",
+                    gift: thisgift.attr("data-giftid")
+                });
+                thisgift.remove();
+            });
+        };
         for (var k in cu.gifts) {
             if (cu.gifts.hasOwnProperty(k)) {
                 var cg = cu.gifts[k]
                   , curgift = $('<div data-giftid="' + k + '" class="' + getGiftClass(cg.num) + '" data-title="' + (cg.login ? cg.login : "Аноним") + ": " + (cg.text ? matFilter(cg.text) : "без комментариев") + " (" + showDate(k, true) + ')"></div>');
                 if (myprofile) {
-                    curgift.on("click touchstart", function() {
-                        var thisgift = $(this);
-                        modalWindow('Выбросить подарок?<br/> <div class="playerInfo-gifts singlegift"><div class="' + thisgift.attr("class") + '" data-title="' + thisgift.attr("data-title") + '"></div></div>', function() {
-                            sendToSocket({
-                                type: "gift-delete",
-                                gift: thisgift.attr("data-giftid")
-                            });
-                            thisgift.remove();
-                        });
-                    });
+                    curgift.on("click touchstart", profileGiftClick);
                 }
                 curgift.appendTo(giftInfo);
             }
@@ -4960,13 +5017,13 @@ function showPlayerInfoBlock(cu) {
     showWindow("playerInfoBlock");
 }
 shop.find("[data-item]").click(function() {
-    try {
-        var data = $(this).attr("data-item").split("-");
-        var item = parseInt(data[0]);
-        var money = parseInt(data[1]);
-    } catch (e) {
+    if (!$(this).attr("data-item")) {
         showMessage("Товар не выбран");
+        return;
     }
+    var data = $(this).attr("data-item").split("-")
+      , item = parseInt(data[0])
+      , money = parseInt(data[1]);
     if (item > 0 && item < 7) {
         sendToSocket({
             type: "buy",
@@ -5129,9 +5186,9 @@ charObj.changeChar = function() {
     } else {
         imageChar.removeAttr("style");
         var w = 200
-          , h = 260;
-        var y = (charObj.sex == 1) ? -1 : -4;
-        var x = 1;
+          , h = 260
+          , y = (charObj.sex == 1) ? -1 : -4
+          , x = 1;
         if (charObj.image > 8) {
             var dy = Math.floor((charObj.image - 1) / 8);
             y -= dy;
@@ -5139,7 +5196,7 @@ charObj.changeChar = function() {
         } else {
             x -= charObj.image;
         }
-        imageChar.css("background-position", ((x == 0) ? "0 " : x * w + "px ") + y * h + "px");
+        imageChar.css("background-position", (x ? x * w + "px " : "0 ") + y * h + "px");
     }
 }
 ;
@@ -5213,7 +5270,7 @@ regButton.click(function() {
             };
             var invite = getCookie("invite")
               , inviteVK = getCookie("invite-vk");
-            if (invite != undefined && invite.length == 24) {
+            if (invite !== undefined && invite.length == 24) {
                 outObj.invite = invite;
             }
             if (inviteVK) {
@@ -5664,7 +5721,7 @@ function showToteList(dataArr) {
             for (var index in vars) {
                 if (vars.hasOwnProperty(index)) {
                     var cid = "tote" + i + "_" + index;
-                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + f.roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
+                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? f.someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + f.roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
                 }
             }
             $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
@@ -6208,7 +6265,6 @@ function enableTree(data) {
     nytree = $('<div class="nytreeblock"><div class="nytree"><img src="/images/tree.png" alt=""/></div></div>');
     $('<div class="tree"></div>').append('<div class="toybox"></div>').append(nytree).appendTo(win.find(".info"));
     if (data.toys) {
-        var treeDiv = $(".nytree");
         data.toys.forEach(function(el) {
             drawToy(el);
         });
@@ -6237,7 +6293,7 @@ function drawToy(el) {
         left: el.x,
         top: el.y
     };
-    if (el.t == "") {
+    if (!el.t) {
         cssToy.opacity = 0.5;
     }
     $('<span class="nytoy' + el.c + '" data-title="' + el.u + '"></span>').css(cssToy).click(function() {
@@ -6257,7 +6313,7 @@ function drawToy(el) {
         height: miniToyH,
         marginLeft: marginLeft
     };
-    if (el.t == "") {
+    if (!el.t) {
         cssData.opacity = 0.5;
     }
     $('<span class="nytoy' + el.c + '"></span>').css(cssData).appendTo(halltree);
@@ -6307,7 +6363,7 @@ function showStatistics(data) {
                 });
             });
         }
-        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code && typeof (VK) !== "undefined") {
+        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code && typeof VK !== "undefined") {
             messagesList.append('<div class="news"><em>' + data.params.vkpoll.title + '</em> <input type="checkbox" class="spoiler" id="showvkpoll"/><label for="showvkpoll"></label><div id="vk_poll" style="overflow:hidden"></div></div>');
             VK.Widgets.Poll("vk_poll", {}, data.params.vkpoll.code);
         }
@@ -6336,7 +6392,7 @@ function showStatistics(data) {
                 closewindow();
                 f14Win.find("textarea").val("");
             });
-            $.cachedScript("/js/hearts.js").done(function(script, textStatus) {
+            $.cachedScript("/js/hearts.js").done(function() {
                 if (fall && !b.hasClass("noeffect")) {
                     fall();
                 }
@@ -6406,7 +6462,7 @@ function showBox(data) {
     var text = '<div class="box">';
     for (var ind in data.box) {
         if (data.box.hasOwnProperty(ind)) {
-            var title = (ind > 0 && ind < 7) ? roleText[gameMode()]["items"][ind] : getItemsArray(ind);
+            var title = (ind > 0 && ind < 7) ? roleText[gameMode()].items[ind] : getItemsArray(ind);
             text += '<div data-title="' + title + '" class="items-' + ind + '">';
             if (data.box[ind] > 1) {
                 text += "<span>" + data.box[ind] + "</span>";
@@ -6418,12 +6474,19 @@ function showBox(data) {
     warningWindow(data.text + ":<br/>" + text);
 }
 function itemAction(e) {
-    modalWindow("Активировать предмет?", function() {
-        sendToSocket({
-            type: "items",
-            action: e.data.item
-        });
-    });
+    var i = e.data.item;
+    if (i) {
+        if (["7", "12", "13", "18"].indexOf(i) >= 0) {
+            showMessage("Этот предмет пригодится Вам в соответствующей локации");
+        } else {
+            modalWindow("Активировать предмет?", function() {
+                sendToSocket({
+                    type: "items",
+                    action: i
+                });
+            });
+        }
+    }
 }
 function showInventory() {
     if (u.items) {
@@ -6433,22 +6496,14 @@ function showInventory() {
             for (var i in u.items) {
                 if (u.items.hasOwnProperty(i)) {
                     if (i != "nytoys" && u.items[i] > 0) {
-                        var title = (i > 0 && i < 7) ? roleText[gameMode()]["items"][i] : getItemsArray(i)
+                        var title = (i > 0 && i < 7) ? roleText[gameMode()].items[i] : getItemsArray(i)
                           , curItem = $("<div></div>").attr("data-title", title).addClass("items-" + i);
                         if (u.items[i] > 1) {
                             curItem.html("<span>" + u.items[i] + "</span>");
                         }
-                        if (["7", "12", "13", "18"].indexOf(i) >= 0) {
-                            curItem.css({
-                                cursor: "auto"
-                            }).click(function() {
-                                showMessage("Этот предмет пригодится Вам в соответствующей локации");
-                            });
-                        } else {
-                            curItem.click({
-                                item: i
-                            }, itemAction);
-                        }
+                        curItem.click({
+                            item: i
+                        }, itemAction);
                         curItem.appendTo(inventar);
                     }
                 }
@@ -6525,8 +6580,9 @@ function showInventory() {
         }
     }
 }
-function areaAttack(areaNum) {
-    if (u.money >= 2000) {
+function areaAttack() {
+    var areaNum = $(this).attr("data-area");
+    if (areaNum && u.money >= 2000) {
         sendToSocket({
             type: "area",
             num: areaNum
@@ -7176,13 +7232,13 @@ function progressRewardType(type) {
         out = "money";
         break;
     default:
-        out = i + "-icon";
+        out = type + "-icon";
     }
     return out;
 }
 function progressReward(obj) {
     var rewardHtml = "";
-    for (i in obj) {
+    for (var i in obj) {
         if (obj.hasOwnProperty(i)) {
             rewardHtml += '<span class="' + progressRewardType(i) + '">' + ((i == "money") ? over1000(obj[i] * 1000) : obj[i]) + "</span>";
         }
@@ -7208,7 +7264,7 @@ function progressRank(i, curRang) {
     case 17:
     case 18:
     case 19:
-        out = (curRang == 0) ? roles(quests[i].role).name + "-" + ranks[curRang] : ranks[curRang] + " " + roles(quests[i].role).name.toLowerCase();
+        out = (curRang === 0) ? roles(quests[i].role).name + "-" + ranks[curRang] : ranks[curRang] + " " + roles(quests[i].role).name.toLowerCase();
         break;
     case 25:
     case 26:
@@ -7241,6 +7297,13 @@ function showProgressList(obj, pr, already) {
             14: "nokill",
             24: "poh",
             31: "rev"
+        }
+          , getProgressBonus = function(e) {
+            sendToSocket({
+                type: "progress-bonus",
+                block: e.data
+            });
+            progressTime = 0;
         };
         for (var i in obj) {
             if (obj.hasOwnProperty(i)) {
@@ -7260,13 +7323,7 @@ function showProgressList(obj, pr, already) {
                     }).html('<div class="bonus-' + ringObj[i] + '"></div><span></span>');
                     if (already && already.indexOf(blockNum) > -1) {
                         $("span", bonusButton).html((u.progress["block" + blockNum]) ? "Усилить предмет" : "Забрать бонус");
-                        bonusButton.click(blockNum, function(e) {
-                            sendToSocket({
-                                type: "progress-bonus",
-                                block: e.data
-                            });
-                            progressTime = 0;
-                        });
+                        bonusButton.click(blockNum, getProgressBonus);
                     } else {
                         bonusButton.addClass("progress-button-noactive");
                         $("span", bonusButton).html("Бонус недоступен");
@@ -7329,7 +7386,7 @@ var rouletteForm = $(".rouletteForm")
         rouletteForm.find("button").hide();
     }
 }
-  , rouletteInfo = function(data, update) {
+  , rouletteInfo = function(data) {
     var rRes = $("#rouletteResult").find("p");
     rRes.html("");
     if (data.hasOwnProperty("sum")) {
@@ -7394,7 +7451,7 @@ var zastavka;
 showWall(isMaffia ? "maffia/start.jpg" : "start.jpg");
 function loadImageFiles() {
     for (var k = 0; k <= 9; k++) {
-        new Image().src = "/images/walls/" + ((k == 0) ? "0.gif" : k + ".jpg");
+        new Image().src = "/images/walls/" + ((k === 0) ? "0.gif" : k + ".jpg");
     }
     for (var mk = 1; mk <= 9; mk++) {
         new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
@@ -7409,7 +7466,7 @@ $.cachedScript = function(url, options) {
         cache: true,
         url: url
     });
-    return jQuery.ajax(options);
+    return $.ajax(options);
 }
 ;
 $(document).ready(function() {
@@ -7457,7 +7514,7 @@ $(document).ready(function() {
     } else {
         console.log("socketConnect undefined");
     }
-    $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function(script, textStatus) {
+    $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function() {
         $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
         mW.find(".modal").draggable();
     });
@@ -7483,8 +7540,8 @@ function maffiaNEW() {
     $("#statusText").attr("placeholder", "введите описание");
     $("header>h3.button-findgame").html("Мне повезет!");
     $("#selectChar").appendTo(header);
-    $("#scrolling+label").prependTo(".panel-top");
-    $("#scrolling").prependTo(".panel-top");
+    scrollCheck.next("label").prependTo(".panel-top");
+    scrollCheck.prependTo(".panel-top");
     $("#smiles").appendTo(".panel-top");
     $(".tooltip").appendTo(b);
     $("#gameWidth").parent().hide();
@@ -7527,7 +7584,7 @@ function maffiaNEW() {
     }
     ;
     container.removeAttr("style");
-    $('<link rel="stylesheet" href="/css/maffia-new.css?50118">').appendTo(b);
+    $('<link rel="stylesheet" href="/css/maffia-new.css?50518">').appendTo(b);
     maffiaCheckbox.prop("checked", true);
     isMaffia = true;
     showGroupWidget();
@@ -7579,6 +7636,18 @@ function setStavka(step) {
     }
     st.html(newGame.stavka);
 }
+$("#setCount1").on("click", function() {
+    setCount(-1);
+});
+$("#setCount2").on("click", function() {
+    setCount(1);
+});
+$("#setStavka1").on("click", function() {
+    setStavka(-1);
+});
+$("#setStavka2").on("click", function() {
+    setStavka(1);
+});
 var ch1 = $("#check1");
 var ch2 = $("#check2");
 var ch3 = $("#check3");
@@ -7628,7 +7697,7 @@ function checkOptions() {
         scores += 100;
         newGame.style += 100000;
     }
-    if (scores == 0) {
+    if (!scores) {
         newGame.minStavka = 1;
         newGame.maxStavka = 2;
     }
@@ -7777,15 +7846,19 @@ function getRandomInt(min, max) {
 var ticketK = 0.7
   , selectYet = false;
 var ticketBlock = $("#tickets");
+function ticketClick() {
+    if (!selectYet) {
+        selectYet = true;
+        var num = $(this).attr("data-id");
+        $(this).addClass("clicked-ticket");
+        sendToSocket({
+            type: "ticket",
+            ticket: num
+        });
+    }
+}
 function showTickets(count, noactive) {
-    var curDiv;
-    var w = container.width() - 40;
-    var h = container.height() - 40;
-    var k = (h / w) * ticketK;
-    var y = Math.ceil(Math.sqrt(count * k));
-    var x = Math.ceil(count / y);
-    var ticketHeight = Math.floor(h / y);
-    var ticketWidth = Math.floor(ticketHeight * ticketK);
+    var curDiv, w = container.width() - 40, h = container.height() - 40, k = (h / w) * ticketK, y = Math.ceil(Math.sqrt(count * k)), ticketHeight = Math.floor(h / y), ticketWidth = Math.floor(ticketHeight * ticketK), ticketSide = false;
     if (ticketWidth > 70) {
         ticketWidth = 70;
     }
@@ -7801,22 +7874,12 @@ function showTickets(count, noactive) {
         ticketBlock.append("<section></section>");
         ticketBlock.append("<section></section>");
         ticketBlock.append("<section></section>");
-        var ticketSide = Math.floor((count - 10) / 2);
+        ticketSide = Math.floor((count - 10) / 2);
         curDiv = ticketBlock.find("section").eq(0);
     }
     for (var i = 0; i < count; i++) {
         var newTicket = $('<div data-id="' + i + '" style="transform:rotate(' + getRandomInt(-5, 5).toString() + 'deg)"></div>');
-        newTicket.bind("click touchstart").click(function() {
-            if (!selectYet) {
-                selectYet = true;
-                var num = $(this).attr("data-id");
-                $(this).addClass("clicked-ticket");
-                sendToSocket({
-                    type: "ticket",
-                    ticket: num
-                });
-            }
-        });
+        newTicket.bind("click touchstart").click(ticketClick);
         if (noactive && noactive.indexOf(i) > -1) {
             newTicket.addClass("studTicket");
         }
@@ -7910,60 +7973,76 @@ function createSpecialGame() {
     var selGameType = statDiv.find("input[name=sgametype]:checked").val();
     switch (selGameType) {
     case "1":
-        g.count = 8;
-        g.stavka = 5;
-        g.type = 2;
-        g.style = 101011;
-        g.botwall = true;
+        g = {
+            count: 8,
+            stavka: 5,
+            type: 2,
+            style: 101011,
+            botwall: true
+        };
         break;
     case "2":
-        g.count = 5;
-        g.stavka = 5;
-        g.type = 6;
-        g.style = 1011;
-        g.botwall = true;
+        g = {
+            ount: 5,
+            stavka: 5,
+            type: 6,
+            style: 1011,
+            botwall: true
+        };
         break;
     case "3":
-        g.count = 16;
-        g.stavka = 8;
-        g.type = 2;
-        g.style = 101011;
-        g.botwall = false;
+        g = {
+            ount: 16,
+            stavka: 8,
+            type: 2,
+            style: 101011,
+            botwall: false
+        };
         break;
     case "4":
-        g.count = 10;
-        g.stavka = 4;
-        g.type = 6;
-        g.style = 1011;
-        g.botwall = false;
+        g = {
+            ount: 10,
+            stavka: 4,
+            type: 6,
+            style: 1011,
+            botwall: false
+        };
         break;
     case "5":
-        g.count = 14;
-        g.stavka = 7;
-        g.type = 11;
-        g.style = 101011;
-        g.botwall = false;
+        g = {
+            ount: 14,
+            stavka: 7,
+            type: 11,
+            style: 101011,
+            botwall: false
+        };
         break;
     case "6":
-        g.count = 24;
-        g.stavka = 5;
-        g.type = 10;
-        g.style = 101011;
-        g.botwall = false;
+        g = {
+            ount: 24,
+            stavka: 5,
+            type: 10,
+            style: 101011,
+            botwall: false
+        };
         break;
     case "7":
-        g.count = 8;
-        g.stavka = 4;
-        g.type = 4;
-        g.style = 1011;
-        g.botwall = false;
+        g = {
+            ount: 8,
+            stavka: 4,
+            type: 4,
+            style: 1011,
+            botwall: false
+        };
         break;
     default:
-        g.count = 8;
-        g.stavka = 2;
-        g.type = 1;
-        g.style = 0;
-        g.botwall = false;
+        g = {
+            ount: 8,
+            stavka: 2,
+            type: 1,
+            style: 0,
+            botwall: false
+        };
         break;
     }
     sendToSocket({
@@ -8025,7 +8104,7 @@ function UGinc(elid, step) {
     }
     el.html(val);
 }
-UG.find("#UGcheck4").change(function(event) {
+UG.find("#UGcheck4").change(function() {
     var editopt = $("#UGitemsedit");
     if ($(this).prop("checked")) {
         editopt.addClass("noactive");
@@ -8078,7 +8157,7 @@ function createUserGame() {
     if (UG.find("#UGcheck6").is(":checked")) {
         style[4] = 1;
     }
-    if (style[2] == 0) {
+    if (!style[2]) {
         var item2count = parseInt(UG.find("#UGitem2").html());
         if (item2count < 3) {
             params.item2 = item2count;
@@ -8167,11 +8246,7 @@ newGame.loadSaves = function() {
     $("#UGsaves").html("<option>выбрать</option>" + saves);
 }
 ;
-if (lStorage.getItem("saves")) {
-    newGame.saves = JSON.parse(lStorage.getItem("saves"));
-} else {
-    newGame.saves = {};
-}
+newGame.saves = lStorage.getItem("saves") ? JSON.parse(lStorage.getItem("saves")) : {};
 newGame.loadSaves();
 UG.find("#UGdelete").click(function() {
     var delSave = $("#UGsaves").val();
@@ -8185,7 +8260,7 @@ UG.find("#UGdelete").click(function() {
 });
 UG.find("#UGsave").click(function() {
     var cursave = {};
-    UG.find(":checkbox, span.svalue").each(function(index) {
+    UG.find(":checkbox, span.svalue").each(function() {
         var cur = $(this)
           , curid = cur.attr("id");
         if (curid) {
@@ -8327,10 +8402,10 @@ var roles = function(roleId) {
             button: ["Защищать"]
         }
     };
-    return (isMaffia) ? maffiaRoles[roleId] : fflRoles[roleId];
+    return isMaffia ? maffiaRoles[roleId] : fflRoles[roleId];
 };
 var gameMode = function() {
-    return (isMaffia) ? "maffia" : "ffl";
+    return isMaffia ? "maffia" : "ffl";
 };
 var roleText = {
     ffl: {
@@ -8658,9 +8733,8 @@ var startHours = {
 };
 var min10, replaceLogins = {}, randomNicks = ["Единорожка", "Булочка", "Тортик", "Пирожок", "Буковка", "Дятел", "Рожа", "Красавица", "Торчок", "Маньяк", "Крестоносец", "Страшила", "Бумеранг", "Мажор", "Хочу стенку", "Вреднуля", "Стакан", "Блатной", "Тихий вечер", "Скандинавец", "Тык-тык", "Персик", "Ватрушка", "Крышка", "Кролик", "Выдра", "Жиголо", "Скрытный", "Остроумный", "Любопытный", "Жук", "Зануда", "Плюшка"];
 var showTime = function() {
-    var t = "";
-    var h = game.time.h;
-    var m = game.time.m;
+    var h = game.time.h
+      , m = game.time.m;
     h = (h < 10) ? "0" + h : h;
     m = (m < 10) ? "0" + m : m;
     $("#gametime").html(h + ":" + m);
@@ -8833,8 +8907,8 @@ game.event = function(data, datafrom, needReturn) {
                     val = roles(2).name;
                 }
                 if (data.text == "stat") {
-                    var someForms = roleText[gameMode()]["statCount"][key];
-                    text = text.replace(key, someThing(val, someForms[0], someForms[1], someForms[2]));
+                    var someForms = roleText[gameMode()].statCount[key];
+                    text = text.replace(key, f.someThing(val, someForms[0], someForms[1], someForms[2]));
                 } else {
                     text = (key == "[role]") ? text.replace(key, roleReplace(roles(val).name)) : text.replace(key, val);
                 }
@@ -8935,18 +9009,14 @@ game.showPlaylist = function(players) {
         str.push(sustr);
     });
     str.sort(plSort);
-    $.each(str, function(key, value) {
-        playersList.append(value[1]);
+    $.each(str, function() {
+        playersList.append(this[1]);
     });
 }
 ;
 game.updateInfoGame = function(text) {
     var nickText = u.login;
-    if ($("div").is(".nickblock")) {
-        nickText += "<br/>";
-    } else {
-        nickText += " - ";
-    }
+    nickText += $("div").is(".nickblock") ? "<br/>" : " - ";
     nickText += '<span class="rolesmile role' + game.role + '"></span>' + roles(game.role).name;
     $("#nick").html(nickText);
     $(".gamemakerinfo").html("<span>День " + game.day + "</span> ➣ <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
@@ -9125,14 +9195,13 @@ game.setPeriod = function(event) {
         });
     }
     game.updateInfoGame(param);
-    game.writeText('<div class="delimiter"></div><div class="periodMsg">' + roleText[gameMode()]["periodStart"][game.period] + '</div><div class="delimiter"></div> ');
+    game.writeText('<div class="delimiter"></div><div class="periodMsg">' + roleText[gameMode()].periodStart[game.period] + '</div><div class="delimiter"></div> ');
     if (event.banks) {
         game.recalculateBanks(event.banks);
     }
 }
 ;
 game.setTime = function() {
-    var nextPeriod = (game.period > 3) ? 1 : game.period + 1;
     game.time.m += (game.botwall || game.fast) ? 10 : 5;
     if (game.time.m > 59) {
         game.time.m = 0;
@@ -9145,7 +9214,7 @@ game.setTime = function() {
 }
 ;
 game.action = function() {
-    if (!game.active || actionButton.html() == "") {
+    if (!game.active || !actionButton.html()) {
         return;
     }
     if (room == "testgame") {
@@ -9177,6 +9246,8 @@ game.action = function() {
             changeAction();
         }
         sound("click", true);
+    } else {
+        showMessage("Сначала необходимо выбрать в списке одного из участников партии");
     }
 }
 ;
@@ -9263,7 +9334,7 @@ var finalMsg = function(data, end) {
     str += "<br/> ";
     if (game.role) {
         if (data.days) {
-            str += (end ? "Партия длилась " : "Вы продержались ") + someThing(data.days, "день", "дня", "дней") + "<br/> ";
+            str += (end ? "Партия длилась " : "Вы продержались ") + f.someThing(data.days, "день", "дня", "дней") + "<br/> ";
         }
         if (data.money) {
             str += 'Вы получили <span class="gamemoney">' + over1000(data.money) + "</span><br/> ";
@@ -9298,7 +9369,7 @@ var finalMsg = function(data, end) {
         sound("win", true);
         var ticketImg = (isMaffia) ? "maffia/tickets/" + game.role + ".png" : "tickets/" + game.role + ".jpg";
         if (!isAppVK) {
-            str += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + "&amp;title=Мне удалось заработать " + over1000(data.money) + " за " + someThing(data.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">Сохранить игру</a><br/>';
+            str += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + "&amp;title=Мне удалось заработать " + over1000(data.money) + " за " + f.someThing(data.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">Сохранить игру</a><br/>';
         }
     }
     str += (end) ? "" : "Хотите досмотреть игру до конца?";
@@ -9356,7 +9427,7 @@ game.dejInfo = function(data) {
         var str = "";
         for (var key in obj) {
             if (obj.hasOwnProperty(key)) {
-                if (str != "") {
+                if (str) {
                     str += ", ";
                 }
                 str += obj[key][1] + " - " + roles(obj[key][0]).name;
@@ -9391,7 +9462,7 @@ var animateNumber = function(objId, newVal, digit1000) {
     var el;
     if (objId == "gamemoney") {
         el = gamemoney;
-        if (gamemoney.html() != "" && gamemoney.html() != over1000(newVal)) {
+        if (gamemoney.html() && gamemoney.html() != over1000(newVal)) {
             sound("money");
         }
     } else {
@@ -9406,7 +9477,7 @@ var animateNumber = function(objId, newVal, digit1000) {
         }
     });
 };
-game.recalculateBanks = function(banks, start) {
+game.recalculateBanks = function(banks) {
     if (!banks) {
         return;
     }
@@ -9525,7 +9596,7 @@ game.start = function(data) {
         }
         if (data.params.hasOwnProperty("item2")) {
             game.item2limit = data.params.item2;
-            if (game.item2limit == 0) {
+            if (game.item2limit === 0) {
                 itemPanel.find(".gameitem2").addClass("itemoff");
             }
         }
@@ -9543,16 +9614,16 @@ game.start = function(data) {
     game.role = data.role;
     game.updateInfoGame();
     gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>');
-    game.recalculateBanks(data.banks, true);
+    game.recalculateBanks(data.banks);
     if (data.married) {
         game.writeText("Занимайте места поудобнее. Свадебная церемония начнется днем...");
     } else {
         if (data.intuition) {
-            showNewDiv('<div class="lastwords">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + someThing(data.intuition, "день", "дня", "дней") + "!</div>");
+            showNewDiv('<div class="lastwords">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(data.intuition, "день", "дня", "дней") + "!</div>");
         } else {
             var firstStr = (game.style.style == 4) ? roleText.all["startText-sex"] : roleText[gameMode()].startText;
             game.writeText(firstStr + '<div class="delimiter"></div>');
-            game.writeText((game.style.style == 4) ? roleText.all["sex" + u.sex] : roleText[gameMode()]["roleinfo"][game.role]);
+            game.writeText((game.style.style == 4) ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role]);
         }
     }
     if (game.man) {
@@ -9594,8 +9665,7 @@ game.start = function(data) {
         game.setTime();
     }, 1000);
     if (game.role) {
-        var wText = ""
-          , statRole = textRoles[game.role];
+        var statRole = textRoles[game.role];
         helper.hint("start");
         if (u[statRole + "0"] + u[statRole + "1"] < 1) {
             helper.hint("Это твоя первая роль " + roles(game.role).name + ".<br/> Посмотрим, сможешь ли ты с ней справиться!", true);
@@ -9739,7 +9809,7 @@ $("div>span", itemPanel).click(function() {
     var itemNum = $(this).parent().attr("class").substring(8);
     buyItem(itemNum);
 });
-game.deleteLock = function(text) {
+game.deleteLock = function() {
     if (u.item2) {
         u.item2 -= 1;
     }
@@ -9941,8 +10011,8 @@ snowball.playerList = function(ids, playlist) {
     });
     str.sort(plSort);
     playlist.html();
-    $.each(str, function(key, value) {
-        playlist.append(value[1]);
+    $.each(str, function() {
+        playlist.append(this[1]);
     });
 }
 ;
@@ -10178,12 +10248,13 @@ function friendQuery(type, fid, success) {
     if (type == "friend-answer" && success) {
         addFriend(fid, true);
     }
-    var out = {};
-    out.type = type;
+    var out = {
+        type: type,
+        fid: fid
+    };
     if (success) {
         out.success = success;
     }
-    out.fid = fid;
     sendToSocket(out);
 }
 function addFriend(fid, add) {
@@ -10225,29 +10296,30 @@ plMenu.find("span").eq(1).click(function() {
     }
 });
 plMenu.find("span").eq(2).click(function() {
-    var fid;
-    if (fid = $(this).parent().attr("data-id")) {
+    var fid = $(this).parent().attr("data-id");
+    if (fid) {
         addFriend(fid, false);
         friendQuery("friend-del", fid);
     }
 });
 plMenu.find("span").eq(3).click(function() {
-    var fid;
-    if (fid = $(this).parent().attr("data-id")) {
+    var fid = $(this).parent().attr("data-id");
+    if (fid) {
         addRed(fid, true);
     }
 });
 plMenu.find("span").eq(4).click(function() {
-    var fid;
-    if (fid = $(this).parent().attr("data-id")) {
+    var fid = $(this).parent().attr("data-id");
+    if (fid) {
         addRed(fid, false);
     }
 });
 function defPosition(event) {
-    var x = y = 0;
-    if (document.attachEvent != null) {
-        x = window.event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-        y = window.event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
+    var x = 0
+      , y = 0;
+    if (document.attachEvent !== null) {
+        x = event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
+        y = event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
     } else {
         if (!document.attachEvent && document.addEventListener) {
             x = event.clientX + window.scrollX;
@@ -10260,9 +10332,90 @@ function defPosition(event) {
     };
 }
 function showHiddenCommands() {
-    showMessage("&quot;help&quot; - помощь по игре<br/>&quot;очистить чат&quot; - очистить полностью общий чат<br/>&quot;давай дружить&quot; - отправить конверт адресату<br/>&quot;я хочу&quot; - загадать желание<br/>&quot;конверт-&quot; - отключить анимацию движения информационных конвертов<br/>&quot;викторина-&quot; - отключение викторины в чате<br/>&quot;салют-&quot; - отключить анимацию фейерверков<br/>&quot;хочу чп&quot; - вызов окна создания ЧП на 8 игроков<br/><hr/>Наберите выбранную команду в чат (без кавычек)");
+    showMessage("&quot;help&quot; - помощь по игре<br/>&quot;очистить чат&quot; - очистить полностью общий чат<br/>&quot;редактор меню&quot; - пользовательская настройка главного меню и блоков подменю<br/>&quot;давай дружить&quot; - отправить конверт адресату<br/>&quot;я хочу&quot; - загадать желание<br/>&quot;конверт-&quot; - отключить анимацию движения информационных конвертов<br/>&quot;викторина-&quot; - отключение викторины в чате<br/>&quot;салют-&quot; - отключить анимацию фейерверков<br/>&quot;хочу чп&quot; - вызов окна создания ЧП на 8 игроков<br/><hr/>Наберите выбранную команду в чат (без кавычек)");
 }
-function menu(type, evt) {
+var menuedit = {
+    submenuElements: {},
+    getOptions: function() {
+        try {
+            return JSON.parse(lStorage.getItem("menu"));
+        } catch (e) {
+            return false;
+        }
+    },
+    check: function(options) {
+        if (!options) {
+            options = menuedit.getOptions();
+        }
+        submenu.find("div").removeClass("hiddenclass");
+        leftPanel.children("div").show();
+        leftPanel.find(".button-giftshop").nextAll("div").hide();
+        if (options) {
+            if (options.blocks) {
+                options.blocks.forEach(function(v) {
+                    if (v) {
+                        if (v.substring(0, 5) == "block") {
+                            leftPanel.find("." + v).hide();
+                        } else {
+                            submenu.find("." + v).addClass("hiddenclass");
+                        }
+                    }
+                });
+            }
+            if (options.show) {
+                options.show.forEach(function(v) {
+                    leftPanel.find("." + v).show();
+                });
+            }
+        }
+    },
+    save: function() {
+        var menuOptions = {
+            blocks: [],
+            show: []
+        };
+        $.each($("#submenuEdit-block1").find("input:not(:checked)"), function() {
+            menuOptions.blocks.push(this.value.indexOf("block") > -1 ? this.value : menuedit.submenuElements[this.value]);
+        });
+        $.each($("#submenuEdit-block2").find("input:checked"), function() {
+            menuOptions.show.push(menuedit.submenuElements[this.value]);
+        });
+        if (menuOptions.blocks.length > 0 || menuOptions.show.length > 0) {
+            lStorage.setItem("menu", JSON.stringify(menuOptions));
+        } else {
+            lStorage.removeItem("menu");
+        }
+        menuedit.check(menuOptions);
+        closewindow();
+    },
+    window: function() {
+        var text = ""
+          , text2 = "<p>Включить следующие элементы в главное меню:</p>"
+          , i = 0
+          , options = menuedit.getOptions();
+        $.each(submenu.children("div"), function(numblock, mblock) {
+            var blockNum = numblock + 1
+              , blockClass = $(mblock).attr("class").replace("submenu", "block");
+            text += '<p><input type="checkbox" class="check" id="submenuEditorBlock' + blockNum + '" value="' + blockClass + '"' + ((options && options.blocks && options.blocks.indexOf(blockClass) > -1) ? "" : ' checked="checked"') + '/><label for="submenuEditorBlock' + blockNum + '">Блок №' + blockNum + "</p>";
+            $.each($(mblock).children("div"), function() {
+                i++;
+                menuedit.submenuElements[i] = $(this).attr("class").replace(" hiddenclass", "");
+                text += '<input type="checkbox" class="check" id="submenuEditorItem' + i + '" value="' + i + '"' + ((options && options.blocks && options.blocks.indexOf(menuedit.submenuElements[i]) > -1) ? "" : ' checked="checked"') + '/><label for="submenuEditorItem' + i + '">' + $(this).attr("data-title") + "</label>";
+                text2 += '<input type="checkbox" class="check" id="submenuItem' + i + '" value="' + i + '"' + ((options && options.show && options.show.indexOf(menuedit.submenuElements[i]) > -1) ? ' checked="checked"' : "") + '/><label for="submenuItem' + i + '">' + $(this).attr("data-title") + "</label>";
+            });
+        });
+        win.find(".menu-editor").html('<div id="submenuEdit-block1">' + text + '</div><hr/><div id="submenuEdit-block2">' + text2 + "</div>");
+        $("<button/>", {
+            "class": "button"
+        }).html("Сохранить").on("click", menuedit.save).insertAfter("#submenuEdit-block2");
+    }
+};
+leftPanel.on("contextmenu", function() {
+    showWindow("menu-editor");
+    return false;
+});
+menuedit.check();
+function menu(isPlayersMenu, evt) {
     if (game.intuition) {
         return false;
     }
@@ -10272,21 +10425,13 @@ function menu(type, evt) {
     } else {
         evt.cancelBubble = true;
     }
-    var menu = (type == 1) ? document.getElementById("contextMenu") : document.getElementById("playersMenu");
-    var html = "";
-    switch (type) {
-    case 1:
-        if (isAppVK) {
-            return true;
-        }
-        html = (isMaffia) ? "" : 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
-        html += '<button onclick="showAlarms()">Лог уведомлений</button> <button onclick="showHiddenCommands()">Скрытые команды чата</button> <button onclick="showWindow(\'tournaments\')">История турниров</button> ';
-        break;
-    case 2:
+    var menuBlock = isPlayersMenu ? document.getElementById("playersMenu") : document.getElementById("contextMenu")
+      , html = "";
+    if (isPlayersMenu) {
         if (!evt.target.id || evt.target.id == "players") {
             return false;
         }
-        menu.dataset.id = evt.target.id;
+        menuBlock.dataset.id = evt.target.id;
         var classMenu = "";
         if (reds && reds.indexOf(evt.target.id) > -1) {
             classMenu += "isred";
@@ -10300,18 +10445,22 @@ function menu(type, evt) {
         if (playersInfoArray[evt.target.id] && playersInfoArray[evt.target.id].bot) {
             classMenu += " bot";
         }
-        menu.className = classMenu;
-        break;
-    default:
-        return true;
-        break;
+        menuBlock.className = classMenu;
+    } else {
+        if (isAppVK) {
+            return true;
+        }
+        if (!isMaffia) {
+            html += 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
+        }
+        html += '<button data-action="showAlarms">Лог уведомлений</button> <button data-action="showHiddenCommands">Скрытые команды чата</button>';
     }
     if (html) {
-        menu.innerHTML = html;
+        menuBlock.innerHTML = html;
     }
-    menu.style.top = defPosition(evt).y + "px";
-    menu.style.left = defPosition(evt).x + "px";
-    menu.style.display = "block";
+    menuBlock.style.top = defPosition(evt).y + "px";
+    menuBlock.style.left = defPosition(evt).x + "px";
+    menuBlock.style.display = "block";
     return false;
 }
 var isFullScreen = false;
@@ -10351,6 +10500,7 @@ function fullScreenToggle() {
     }
 }
 $("#fullScreen").click(fullScreenToggle);
+$("#contextMenu").on("click", execDataAction);
 function addHandler(object, event, handler, useCapture) {
     if (object.addEventListener) {
         object.addEventListener(event, handler, useCapture ? useCapture : false);
@@ -10375,13 +10525,13 @@ addHandler(document, "click", function(e) {
     ptp.hide();
 });
 $(document).on("click", "strong[data-id]", showProfile);
-header.bind("contextmenu touchcancel", function(e) {
-    return menu(1, e);
+header.on("contextmenu touchcancel", function(e) {
+    return menu(false, e);
 });
-playersList.bind("contextmenu", function(e) {
-    return menu(2, e);
+playersList.on("contextmenu", function(e) {
+    return menu(true, e);
 });
-$("output").bind("contextmenu", function(e) {
+$("output").on("contextmenu", function(e) {
     if ((e.target.nodeName == "B" || e.target.nodeName == "STRONG") && e.target.getAttribute("data-id")) {
         var uid = e.target.getAttribute("data-id");
         if (e.target.textContent && uid != u._id) {
@@ -10423,7 +10573,7 @@ function keyDown(event) {
     }
 }
 inputField.keydown(function(event) {
-    if (event.which == 38 && inputField.val() == "") {
+    if (event.which == 38 && !inputField.val()) {
         event.preventDefault();
         inputField.val(lastMsg);
         return false;
@@ -10478,7 +10628,7 @@ var parseQueryString = function(strQuery) {
       , strPattern = /([^=]+)=([^&]+)&?/ig
       , arrMatch = strPattern.exec(strSearch)
       , objRes = {};
-    while (arrMatch != null) {
+    while (arrMatch !== null) {
         objRes[arrMatch[1]] = arrMatch[2];
         arrMatch = strPattern.exec(strSearch);
     }
@@ -10554,9 +10704,9 @@ function appSocialButton() {
                     getIdsArr = getIdsArr.concat(noApp);
                 } else {
                     var uidArr = [];
-                    for (i = 0; i < 5; i++) {
-                        var max = noApp.length - 1;
-                        var rand = Math.floor(Math.random() * max);
+                    for (var k = 0; k < 5; k++) {
+                        var max = noApp.length - 1
+                          , rand = Math.floor(Math.random() * max);
                         uidArr.push(noApp[rand]);
                         noApp.splice(rand, 1);
                     }
@@ -10613,8 +10763,8 @@ if (isAppVK) {
     } else {
         createCookie("mafApp", "", -1);
     }
-    $.cachedScript("//vk.com/js/api/xd_connection.js?2").done(function(script, textStatus) {
-        $.cachedScript("//vk.com/js/api/share.js?95").done(function(script, textStatus) {
+    $.cachedScript("//vk.com/js/api/xd_connection.js?2").done(function() {
+        $.cachedScript("//vk.com/js/api/share.js?95").done(function() {
             appSocialButton();
             payDiv.find(".pay-item").click(function() {
                 var params = {
@@ -10628,12 +10778,12 @@ if (isAppVK) {
 } else {
     createCookie("vid", "", -1);
     if (!mobile) {
-        $.cachedScript("//vk.com/js/api/openapi.js?147").done(function(script, textStatus) {
-            showGroupWidget();
+        $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {
+            setTimeout(showGroupWidget, 5000);
         });
     }
 }
-function authFalse() {
+function authFalse(event) {
     if (isAppVK) {
         errorText("Ошибка авторизации: " + event.text + ". Обновите страницу");
     } else {
@@ -10659,7 +10809,7 @@ function socketConnect(retry) {
         ws = new WebSocket("ws" + ((window.location.protocol == "https:") ? "s://" + domain + ":909" + (domain == "maffia-online.ru" ? "1" : "0") : "://" + domain + ":9000"));
         if (!retry) {
             ws.onerror = function(event) {
-                errorText("Произошла ошибка при установке соединения. Проверьте настройки браузера, фаервола и интернет-соединения. Отключите, если используете, сервис VPN или прокси-сервер.");
+                errorText("Произошла ошибка при установке соединения " + (event.target ? event.target.url : "no target") + ". Проверьте настройки браузера, фаервола и интернет-соединения. Отключите, если используете, сервис VPN или прокси-сервер.");
                 ws.close();
             }
             ;
@@ -10697,7 +10847,7 @@ function socketConnect(retry) {
                 break;
             case 4006:
                 closeText = "Ошибка авторизации";
-                authFalse();
+                authFalse(event);
                 break;
             default:
                 closeText = "Обрыв связи (" + event.code + ")";

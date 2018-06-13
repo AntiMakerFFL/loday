@@ -550,7 +550,7 @@ header {
     display: block;
     position: absolute;
     z-index: 10;
-    left: 45px;
+    left: 5px;
     right: 5px;
     top: 0;
     height: 125px;
@@ -1199,7 +1199,7 @@ article {
     display: block;
     position: absolute;
     z-index: 16;
-    left: 10px;
+    left: 50px;
     top: 125px;
     bottom: 75px;
     right: 240px;
@@ -3154,6 +3154,58 @@ footer>div:before {
     content: ''
 }
 
+#submenu {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 200;
+    overflow: auto;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 0
+}
+
+#submenu:before {
+    height: 100%;
+    display: inline-block;
+    vertical-align: middle;
+    content: ''
+}
+
+#submenu>div {
+    display: none;
+    white-space: normal;
+    vertical-align: middle;
+    text-align: left;
+    background: #d0d7d0;
+    border: 5px solid #1c5a65;
+    border-radius: 8px;
+    box-shadow: 0 0 20px 3px #566;
+    min-width: 100px;
+    min-height: 100px
+}
+
+.maffia #submenu>div {
+    color: #fff;
+    background: #171717
+}
+
+#submenu.sm-player>.submenu-player,#submenu.sm-money>.submenu-money,#submenu.sm-group>.submenu-group,#submenu.sm-stat>.submenu-stat {
+    display: inline-block
+}
+
+#container #submenu>div>div {
+    display: inline-block;
+    -webkit-transform: scale(2) perspective(200px) rotateY(25deg);
+    transform: scale(2) perspective(200px) rotateY(25deg);
+    margin: 50px;
+    background: -webkit-linear-gradient(-45deg,rgba(255,255,255,0.5) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.5) 50%,rgba(255,255,255,0.5) 75%,transparent 75%,transparent) rgba(119,204,255,0.8);
+    border-radius: 6px
+}
+
 .window {
     position: absolute;
     z-index: 200;
@@ -4427,12 +4479,12 @@ button.usergame {
     content: 'Внимание! Конкурс!'
 }
 
-.support>p,.f14Win>p {
+.support>p,.f14Win>p,.menu-editor p {
     color: #fff;
     font-size: 1.2em;
-    background: #008;
-    padding: 10px;
-    box-shadow: 0 0 10px 10px #008
+    background: #006;
+    padding: 6px 10px;
+    box-shadow: 0 0 10px 6px #008
 }
 
 .support>textarea,.support>button {
@@ -4443,6 +4495,29 @@ button.usergame {
 .support>textarea,.f14Win>textarea {
     min-width: 60%;
     min-height: 100px
+}
+
+.menu-editor {
+    overflow-y: auto;
+    text-align: center
+}
+
+.menu-editor:before {
+    content: 'Редактор меню'
+}
+
+.menu-editor label {
+    color: #fff;
+    text-shadow: 1px 1px 5px #060,-1px 1px 5px #060,1px -1px 5px #060,-1px -1px 5px #060;
+    font-size: 16px;
+    display: inline-block;
+    margin: 5px
+}
+
+.menu-editor button {
+    margin-top: 15px;
+    width: 200px;
+    max-width: 100%
 }
 
 #container>.window.buyboxwin {
@@ -4653,6 +4728,7 @@ button.usergame {
     box-sizing: border-box;
     background: url(/images/shop/item.png) no-repeat rgba(255,155,0,0.7);
     background-size: 100% 100%;
+    border-radius: 10px;
     float: left;
     position: relative;
     padding-top: 60px
@@ -4668,7 +4744,7 @@ button.usergame {
     left: 0;
     width: 100%;
     height: 50px;
-    font: 500 28px/50px Ubuntu,Arial,sans-serif;
+    font: 500 24px/50px Ubuntu,Arial,sans-serif;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -7381,7 +7457,7 @@ button.usergame {
 }
 
 .curatorPlayer:after {
-    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAE/SURBVDhPvZI/S8RAEMVTiIWdItjYKHe7IWh1hY1gIfgNrCz9FhYKdhYiNkJuN9hoYdDbTbSVKxVsxNY/4KewUfRt8hLUJiaR+8HA8mb3MTM73shRC8mMFmbVhTtTrk+/czGrhb3U0n4gPhk4G+tyvPY3QpFOo6LXb0Y/AzkVnE3xejVK2oPisRL2OBKDZRfuXOrS7PN6NWjrJX9orimVYAxDmj5RqkYJcwKzGI82KJVA23OGqPCNUnN2VoZjmN9NVqEwj5SbkZnlVecfI+0uU/WJg3gcs0sLM7R7G/bSCabrg/YOSzNh7mqtzG+wkz6MsuXGOt0fLV5NMtUMzG2LZu9R93yecnOKZYbhM6V2RMJs4kNCGG9TakdfJHPKN72oYwNK7UB1p/nv2gdK7fh3w6hrl7RM1rU/WKM0SjzvCxz0vp0E0EDKAAAAAElFTkSuQmCC);
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGuSURBVDhPvVQ9SwNBEI3+Av0D+dIqai+iplRsrNL6AwR7OxvRpLK5XEQsglhKLESINipoZZdOEFFDjB+Fce+SaD4YZ3b3DJvdM2n0weOWmzfvdnZ2LvC/WIPBqO2MRzPuAnHEcsbonYz2j6BdGY7YTipiszI+QWGaPVEstPU+JOW/I2yx2XDaedOMuhhOsxf84IxMMwNFceSXycBEofUxpTLFV9WkxYMarF99wgYycVhVYkTKoVxp0wEG8cxU8cppHYqsDfcfyEqbr1fP6opGMiltJLBzpgacPzS5SXy/CpNZFx5xfVlsKhpBVlK6T1dDFzmwdFTjpPXUXpUbntw1NB2RPKQdNsN250wijxO7Llzgbqn0RE4/RyJ5SLvehtlCg5e+nBe7NVEx9CvZ43W5BXmfUj3yKfoBNUVMgFFMJcd2XGNMEJsCMCDdBDCQ1IUON6Id5m5M3RXEydqUNh34XWwyLLy24PjWXDLl+M41jZEYJzVpdJtfC+UdkbRRi03LdDOkqbbTbqLmuaeZByoBk1LmRrESnVnfvy8F2H26DiHLnScGMyymdfNvEQh8A+B9msD5IBBdAAAAAElFTkSuQmCC);
     position: absolute;
     top: 0;
     right: 0
@@ -9782,12 +9858,11 @@ body {
     position: absolute;
     z-index: 900;
     left: 0;
-    top: 0;
-    width: 55px;
+    top: 140px;
     overflow: hidden
 }
 
-#left-panel>div {
+#left-panel>div,#submenu>div>div {
     display: block;
     position: relative;
     width: 42px;
@@ -9800,13 +9875,16 @@ body {
     box-shadow: inset 0 0 2px 1px #827c99,0 0 1px 1px #fff,4px 5px 5px rgba(122,122,122,0.5)
 }
 
-#left-panel>div:before {
+#left-panel>div:before,#submenu>div>div:before {
     content: '';
     position: absolute;
     left: 0;
     top: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0
+}
+
+#submenu>div>div:before {
     background-image: url(/images/panel.png?2205)
 }
 
@@ -9831,7 +9909,50 @@ body {
     display: block
 }
 
-#edit:before {
+#container #left-panel>div {
+    width: 50px;
+    height: 50px;
+    background: 0;
+    border: 0
+}
+
+.block-player:before,.block-money:before,.block-group:before,.block-stat:before,.button-giftshop:before {
+    background: url(/images/menu3.png) no-repeat
+}
+
+.block-player:before {
+    background-position: 0 0!important
+}
+
+.block-money:before {
+    background-position: 0 -50px!important
+}
+
+.block-group:before {
+    background-position: 0 -100px!important
+}
+
+.block-stat:before {
+    background-position: 0 -150px!important
+}
+
+.button-giftshop:before {
+    background-position: 0 -200px!important
+}
+
+#left-panel>.button-giftshop~div {
+    display: none
+}
+
+#left-panel>.button-giftshop~div:before {
+    background-image: url(/images/panel.png?2205);
+    left: 4px;
+    top: 4px;
+    right: 4px;
+    bottom: 4px
+}
+
+.button-edit:before {
     background-position: 0 0
 }
 
@@ -9853,10 +9974,6 @@ body {
 
 .button-auction:before {
     background-position: -42px 0
-}
-
-.button-giftshop:before {
-    background-position: -126px 0
 }
 
 .button-tournaments:before {
@@ -9906,7 +10023,7 @@ body {
     background: url(/images/locked.png) center/contain no-repeat #396
 }
 
-#left-panel>div.locked:after {
+#left-panel>div.locked:after,#submenu>div>div.locked:after {
     border-radius: 0 10px 10px 0
 }
 
@@ -10104,6 +10221,10 @@ body {
     border-top: 3px groove #999;
     border-left: 3px groove #999;
     text-align: right
+}
+
+.items-7,.items-12,.items-13,.items-18 {
+    cursor: auto!important
 }
 
 .items-1,.items-2,.items-4,.items-5 {
@@ -11087,7 +11208,7 @@ section.bonus-ring:before {
     background: url(/images/maffia/options.png) no-repeat
 }
 
-.maffia #left-panel>div {
+.maffia #left-panel>div,.maffia #submenu>div>div {
     width: 46px;
     height: 46px;
     margin-top: 4px;
@@ -11097,20 +11218,19 @@ section.bonus-ring:before {
     box-shadow: none
 }
 
-.maffia #left-panel>div:before {
-    left: 2px;
-    top: 2px;
-    right: 2px;
-    bottom: 2px;
+.maffia #left-panel>div:before,.maffia #submenu>div>div:before {
     border-radius: 0 5px 5px 0
 }
 
-.maffia #left-panel>div:hover {
-    padding-left: 5px
+.maffia #submenu>div>div:before {
+    left: 2px;
+    top: 2px;
+    right: 2px;
+    bottom: 2px
 }
 
-.maffia #left-panel>div:hover:before {
-    left: 7px
+.maffia #left-panel>div:hover {
+    margin-left: 5px
 }
 
 #container>#left-panel>div.nobackground {
@@ -11203,7 +11323,7 @@ button {
     box-shadow: none
 }
 
-.maffia #sendMsg,.maffia #shareButton,.maffia #left-panel>div,.maffia #container>.warningWindow button,.maffia #modalWindow button,.maffia #optionsWindow button,.maffia .button {
+.maffia #sendMsg,.maffia #shareButton,.maffia #left-panel>div,.maffia #submenu>div>div,.maffia #container>.warningWindow button,.maffia #modalWindow button,.maffia #optionsWindow button,.maffia .button {
     background: linear-gradient(to bottom,#309397,#1c5a65) no-repeat;
     color: #fff;
     text-shadow: 1px 1px #000;
@@ -11996,11 +12116,11 @@ button {
 
 @media(max-height: 730px) {
     #left-panel>div {
-        margin-top:4px
+        margin-top:3px
     }
 
     .maffia #left-panel>div {
-        margin-top: 1px
+        margin-top: 0
     }
 
     .userGame-part1,.userGame-part2 {
@@ -12213,4 +12333,8 @@ ul::-webkit-scrollbar-thumb {
 
 ul::-webkit-scrollbar-track {
     background: #cdcdcd!important
+}
+
+.hiddenclass {
+    display: none!important
 }
