@@ -1199,7 +1199,7 @@ article {
     display: block;
     position: absolute;
     z-index: 16;
-    left: 50px;
+    left: 55px;
     top: 125px;
     bottom: 75px;
     right: 240px;
@@ -1855,7 +1855,7 @@ article {
 #scrolling:checked+label:before {
     position: relative;
     left: 30px;
-    content: 'отключено';
+    content: '⭳';
     color: #fff
 }
 
@@ -2002,7 +2002,8 @@ aside>.blocktitle {
     height: 50px;
     right: 0;
     position: absolute;
-    bottom: 0
+    bottom: 0;
+    border-radius: 3px
 }
 
 #statusbar>span {
@@ -2160,6 +2161,7 @@ aside>.blocktitle {
     padding: 2px;
     top: 25px;
     border: 1px inset #930;
+    border-radius: 3px;
     height: 21px;
     margin: 2px
 }
@@ -2665,10 +2667,23 @@ footer {
     padding: 1px 0 0
 }
 
+#shareVkLink:before {
+    content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIFSURBVEhL7ZbNaxNBGMaXpAXv0pP2XlBJD+KphSLtxZs3pQdPbU9e/Ae8KJvGSwuKpaD24BcpFhoKLUXxJBEEsxtL23w1xBpCSqPR1JiYZJ/Ou5nNbsJos0lKLnngd5h3Z55n9s1kGamn7uru+z5JVi855eB4O5CH7tWUPIFhh6xEHW4VnUGJkCd3/4fY7mii2KANZDUseb1OniLQfeWicGEHkNyBCzxFILcyIlrUCcibpwjUC26gfzaI8Vcx3FxNYGZjH4OPtoXzRDQdfHvzG97Gczr3PqT12rmH2/iUysOQ21+tE6PPo7X5xPU38dozoungidcxbg9oDNeTkF6fXt+vFpmM4L5ZFYG0uaF8qYKhxd1aKNF0MOFP/uZWgC/yU69N+hK8YgZPWTZDom5ZfQhbwVdfmm9NurX2FXfeJfkIePz5EJefhfGrWOEVYCWUhdPiYWArmFjeyXJLoFjW8P1PmY+AsqbpGMqxDQzMb9WtN7AdTAcqdVTi1v/X34qGK0vhuvUGtoOJsRdRlJhpo6j2o2B2gERj4yBaaSmYuObdQ8bSZtJTNYOzc1v638cq6tB51inr+paDCfpgeD4eIJQpgBpgnOozD4JYYAeNWk2i3/oG+8hY17YV3A694Hp17SLArifdufqQ5C8umig0aAUKZZ7c/QTR7jp1vT3xTXs6VUnSMfZvgA6hayf5AAAAAElFTkSuQmCC);
+    margin-right: 5px;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    vertical-align: bottom
+}
+
 #vk-idea {
     position: absolute;
     top: -20px;
     right: 5px
+}
+
+.ingame #vk-idea {
+    display: none
 }
 
 #vk-idea>a {
@@ -2736,8 +2751,17 @@ footer>div:before {
     cursor: pointer
 }
 
-#privat,label {
+.maffia .clear-adresat {
+    color: #f00
+}
+
+label {
     cursor: pointer
+}
+
+#privat+label:before {
+    margin-right: 0;
+    vertical-align: bottom
 }
 
 .panel-top:before {
@@ -3098,7 +3122,8 @@ footer>div:before {
 
 .moneyblock>span {
     font: 36px 'LED',sans-serif;
-    text-shadow: 1px 0 #fff,1px 1px #fff,0 1px #fff,-1px 1px #fff,-1px 0 #fff,-1px -1px #fff,0 -1px #fff,1px -1px #fff
+    text-shadow: 1px 0 #fff,1px 1px #fff,0 1px #fff,-1px 1px #fff,-1px 0 #fff,-1px -1px #fff,0 -1px #fff,1px -1px #fff;
+    vertical-align: top
 }
 
 .maffia .moneyblock>span {
@@ -3109,7 +3134,8 @@ footer>div:before {
     font: 700 42px/36px 'LED',sans-serif;
     color: #0f0;
     cursor: pointer;
-    text-shadow: 1px 1px 1px #000,-1px -1px 1px #000,1px -1px 1px #000,-1px 1px 1px #000
+    text-shadow: 1px 1px 1px #000,-1px -1px 1px #000,1px -1px 1px #000,-1px 1px 1px #000;
+    vertical-align: top
 }
 
 .gamemoney,.money {
@@ -3242,6 +3268,9 @@ footer>div:before {
 
 .maffia .window {
     background: #000;
+    background: -moz-radial-gradient(center,ellipse cover,#959595 0,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#4e4e4e 76%,#383838 87%,#1b1b1b 100%);
+    background: -webkit-radial-gradient(center,ellipse cover,#959595 0,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#4e4e4e 76%,#383838 87%,#1b1b1b 100%);
+    background: radial-gradient(ellipse at center,#959595 0,#0d0d0d 46%,#010101 50%,#0a0a0a 53%,#4e4e4e 76%,#383838 87%,#1b1b1b 100%);
     border: 5px solid #1c5a65
 }
 
@@ -3898,6 +3927,11 @@ button:active,.button:active {
     background: url(/images/icons.png) -25px 0 no-repeat
 }
 
+.specialnews>sup {
+    display: block;
+    text-align: right
+}
+
 .wastoday {
     font-family: Lora,serif
 }
@@ -3945,6 +3979,42 @@ button:active,.button:active {
 
 .maffia .important {
     color: #fdfd00
+}
+
+.startgame {
+    color: #000;
+    padding: 15px 20px;
+    margin: 3px 5px 2px 2px;
+    background: #f4dcc4;
+    background: linear-gradient(to bottom,#e0c5ab,#f4dcc4);
+    box-shadow: inset 2px 2px 5px 5px #875e34,inset 8px 8px 10px 10px #d5b089,inset -6px -1px 5px 1px #875e34,inset -12px -5px 5px 6px #d5b089,-3px 3px 5px 2px #997
+}
+
+.startText {
+    padding-bottom: 3px;
+    margin-bottom: 10px;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    text-align: right
+}
+
+.startText:before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: #222;
+    margin-top: 2px
+}
+
+.startgame .message {
+    color: #000!important;
+    margin: 0 10px 10px;
+    box-shadow: 0 0 10px 1px #999;
+    padding: 10px
+}
+
+.startgame .important {
+    color: #900
 }
 
 .february14-pairs {
@@ -4236,7 +4306,7 @@ button.usergame {
 }
 
 .userGame {
-    background: url(/images/vip.gif) repeat rgba(12,200,45,0.5)
+    background: url(/images/vip.gif) repeat
 }
 
 .userGame:before {
@@ -4689,8 +4759,9 @@ button.usergame {
     left: 5px;
     right: 5px;
     height: 40px;
-    padding: 0;
-    display: block
+    padding: 0 5px;
+    display: block;
+    margin: 5px
 }
 
 .shop>p>b {
@@ -4699,7 +4770,7 @@ button.usergame {
 
 #showDonat {
     position: absolute;
-    top: 65px;
+    top: 55px;
     right: 15px;
     display: inline-block;
     height: 40px;
@@ -5365,7 +5436,7 @@ button.usergame {
 }
 
 .gift-group5:before {
-    background-image: url(/images/gifts5.png)
+    background-image: url(/images/gifts5.png?240618)
 }
 
 .gift1:before {
@@ -6960,6 +7031,10 @@ button.usergame {
     background-position: -500px -600px
 }
 
+.gift399:before {
+    background-position: -600px -600px
+}
+
 .giftForm {
     position: absolute;
     left: 0;
@@ -7355,7 +7430,7 @@ button.usergame {
 
 .maffia .donatoptions>div {
     background: #3939bb;
-    background: linear-gradient(rgba(55,55,255,0.3),rgba(155,155,255,0.8),rgba(55,55,255,0.3));
+    background: linear-gradient(rgba(110,29,10,0.3),rgba(110,29,10,0.8),rgba(110,29,10,0.3));
     color: #fff
 }
 
@@ -7365,9 +7440,8 @@ button.usergame {
 }
 
 .donatoptions label {
-    color: #f00;
-    font-weight: 700;
-    text-shadow: 2px 0 3px #ffc,-2px 0 3px #ffc,0 -2px 3px #ffc,0 2px 3px #ffc
+    color: #fff;
+    text-shadow: 2px 0 3px #900,-2px 0 3px #900,0 -2px 3px #900,0 2px 3px #900
 }
 
 .donatoptions input:not([type="file"]) {
@@ -7381,7 +7455,7 @@ button.usergame {
     background: #fff;
     box-shadow: 1px 1px 1px #000,-1px -1px 1px #000;
     color: #006400;
-    font: 600 1.2em Lora,'Times New Roman',serif
+    font: 700 20px Lora,'Times New Roman',serif
 }
 
 #donat-vip {
@@ -8183,14 +8257,21 @@ button.usergame {
     right: 0;
     bottom: 40%;
     overflow-y: auto;
-    background: url(/images/snowball/back.jpg) center #eef no-repeat;
-    background-size: contain;
-    padding: 0 215px
+    padding: 0 205px 10px
+}
+
+.battle100 {
+    background: url(/images/battle/snowball/back.jpg) center no-repeat #eef;
+    background-size: contain
+}
+
+.battle101 {
+    background: url(/images/battle/back.jpg) top center no-repeat #000;
+    background-size: contain
 }
 
 .battlemain {
     text-align: center;
-    background: rgba(255,205,255,0.5);
     height: 100%;
     position: relative;
     font-size: 2em
@@ -8203,7 +8284,7 @@ button.usergame {
     background: rgba(255,255,255,0.7);
     position: absolute;
     left: 0;
-    bottom: 0;
+    bottom: 5px;
     right: 0
 }
 
@@ -8238,15 +8319,16 @@ button.usergame {
     border-radius: 10px
 }
 
-#snowball-domove,.battlemain>b {
+.snowball-domove,.battlemain>b {
     position: absolute;
-    right: 0;
+    right: 10px;
     bottom: 0;
-    font-size: 1em
+    font-size: 1em;
+    color: #fff
 }
 
-.battlewait>div,.insnow>div {
-    display: none
+.battlewait>div,.killed>div {
+    display: none!important
 }
 
 .battlewait {
@@ -8257,22 +8339,37 @@ button.usergame {
     content: 'Ожидаем других игроков...'
 }
 
-.insnow {
-    background: url(/images/snowball/snowman.png) right top no-repeat rgba(105,105,155,0.3);
+.battle100.killed {
+    background: url(/images/battle/snowball/snowman.png) right top no-repeat rgba(105,105,155,0.3);
     background-size: auto 100%
 }
 
-.insnow:after {
+.battle100.killed:after {
     content: 'Вы - снеговик!'
+}
+
+.battle101.killed {
+    background: #000;
+    background: rgba(0,0,0,0.5)
+}
+
+.battle101.killed:after {
+    content: 'Вы - убиты!';
+    background: 0;
+    color: #fff;
+    top: 0
 }
 
 .playerlist {
     position: absolute;
-    top: 5px;
-    bottom: 5px;
+    top: 0;
+    bottom: 10px;
     width: 200px;
     overflow-x: hidden;
-    overflow-y: scroll
+    overflow-y: scroll;
+    border: 3px ridge #777;
+    padding: 5px;
+    box-sizing: border-box
 }
 
 .playerlist:nth-of-type(1) {
@@ -8297,7 +8394,7 @@ button.usergame {
     display: block;
     width: 0;
     height: 36px;
-    background: url(/images/snowball/snowball.png) repeat;
+    background: url(/images/battle/snowball/snowball.png) repeat;
     background-size: auto 100%
 }
 
@@ -8323,6 +8420,16 @@ button.usergame {
 
 .snows10 .snowblock {
     height: 18px!important
+}
+
+.playerlist>div>.battleblock {
+    display: block;
+    width: 100%;
+    height: 6px;
+    background: #090;
+    border: 1px solid #000;
+    border-radius: 3px;
+    box-sizing: border-box
 }
 
 .battle #image,.battle .moneyblock,.battle .gamestyle,.battle header:after,.battle h3.button-shop,.battle #gametitle,.battle .blocktitle {
@@ -8384,7 +8491,11 @@ input[type="checkbox"],input[type="radio"] {
     width: 20px;
     height: 20px;
     margin-right: 5px;
-    vertical-align: bottom
+    vertical-align: top
+}
+
+.maffia .closedgame #players>div:before,.maffia .check+label:before {
+    background-image: url(/images/maffia/checkbox.png)
 }
 
 .closedgame #players>div {
@@ -8446,7 +8557,8 @@ input[type="checkbox"],input[type="radio"] {
     padding: 30px 20px 60px 20px;
     white-space: normal;
     position: relative;
-    min-width: 350px
+    min-width: 350px;
+    font-weight: 700
 }
 
 #container>.warningWindow p:before,#modalWindow p:before,#optionsWindow p:before {
@@ -9911,8 +10023,11 @@ body {
 
 #container #left-panel>div {
     width: 50px;
-    height: 50px;
-    background: 0;
+    height: 50px
+}
+
+.maffia #container #left-panel>div {
+    background: linear-gradient(to bottom,#dcdaa5,#d70) no-repeat;
     border: 0
 }
 
@@ -10005,11 +10120,8 @@ body {
 }
 
 .locked {
-    position: relative
-}
-
-.locked:hover {
-    border: 0!important
+    position: relative;
+    overflow: hidden
 }
 
 .locked:after {
@@ -10020,7 +10132,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1;
-    background: url(/images/locked.png) center/contain no-repeat #396
+    background: url(/images/locked.png) center/contain no-repeat #333
 }
 
 #left-panel>div.locked:after,#submenu>div>div.locked:after {
@@ -11076,7 +11188,9 @@ section.bonus-ring:before {
 
 .maffia .ingame .blocktitle,.maffia .shop>p {
     background: #000;
-    box-shadow: none
+    box-shadow: none;
+    border: 0;
+    border-radius: 0
 }
 
 .maffia .shop>p {
@@ -11193,7 +11307,7 @@ section.bonus-ring:before {
 
 .maffia #container>.warningWindow p,.maffia #modalWindow p,.maffia #optionsWindow p {
     color: #fff;
-    background: #171717;
+    background: #122722;
     border: 5px solid #1c5a65;
     border-radius: 8px
 }
@@ -12167,17 +12281,29 @@ button {
         height: 60px
     }
 
-    header:after,header>.moneyblock,#statusbar,aside>#lists {
+    #image,header:after,header>.moneyblock,#statusbar,aside>#lists {
         display: none
+    }
+
+    header>h1 {
+        left: 15px
     }
 
     header>h3 {
         margin-top: 0!important
     }
 
+    nav {
+        left: 0
+    }
+
     article,aside {
         top: 60px;
         bottom: 55px
+    }
+
+    #left-panel {
+        top: 60px
     }
 
     .rightPanel {

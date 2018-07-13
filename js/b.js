@@ -1669,6 +1669,10 @@ var domain = document.location.hostname
     398: {
         p: 52000,
         t: 1
+    },
+    399: {
+        p: 5,
+        t: 2
     }
 };
 var logs = [];
@@ -1732,7 +1736,7 @@ var f = {
             onlineCounter.html(count);
         }
         if (event) {
-            event.text += (event.action == "join") ? " входит в игру" : " покидает игру";
+            event.text += (event.action === "join") ? " входит в игру" : " покидает игру";
             event.text += " (" + count + ")";
             alarm(event.text, true);
         }
@@ -1763,7 +1767,7 @@ var f = {
                     $("#vk_groups").hide();
                 }).insertBefore(onlineCounter);
             } else {
-                f.radioIframe(lStorage.getItem("radiostream") ? true : false);
+                f.radioIframe(!!lStorage.getItem("radiostream"));
             }
         }
     },
@@ -1787,11 +1791,25 @@ var f = {
             }
         }
         return out;
+    },
+    notEnough: function(data) {
+        var standartText = 'Недостаточно <span class="' + (data.action === "money2" ? "money" : "gamemoney") + '">средств</span> для выполнения этой операции. ';
+        if (data.message) {
+            standartText = data.message;
+        }
+        if (data.action === "money2") {
+            standartText += "<br/>Хотите пополнить счёт?";
+            modalWindow(standartText, function() {
+                showWindow("pay");
+            });
+        } else {
+            showMessage(standartText);
+        }
     }
 };
 function serverPort(fullUrl) {
     var url = fullUrl ? document.location.protocol + "//loday.ru:" : "";
-    url += (document.location.protocol == "https:") ? "808" + (domain == "maffia-online.ru" ? "2" : "1") : "8080";
+    url += (document.location.protocol === "https:") ? "808" + (domain === "maffia-online.ru" ? "2" : "1") : "8080";
     return url;
 }
 var smileBlock = $("#smiles")
@@ -1888,7 +1906,7 @@ var socketTry = 0
     var obj = socketStack[0];
     if (obj) {
         socketTry++;
-        if (ws.readyState == 1 && lastSocketMsg + 100 < Date.now()) {
+        if (ws.readyState === 1 && lastSocketMsg + 100 < Date.now()) {
             lastSocketMsg = Date.now();
             try {
                 ws.send(JSON.stringify(obj));
@@ -1908,7 +1926,7 @@ var socketTry = 0
 function sendToSocket(obj) {
     obj.timestamp = Date.now();
     socketStack.push(obj);
-    if (socketStack.length == 1) {
+    if (socketStack.length === 1) {
         checkSocketStack();
     }
 }
@@ -1977,11 +1995,11 @@ function rusDate(str, text, withpoints) {
     if (d == "Invalid Date") {
         return "Неверная дата";
     }
-    return d.getDate() + " " + monthNames[d.getMonth()] + (withpoints == "short" ? "" : " " + d.getFullYear() + " (" + weekdays[d.getDay()] + ")");
+    return d.getDate() + " " + monthNames[d.getMonth()] + (withpoints === "short" ? "" : " " + d.getFullYear() + " (" + weekdays[d.getDay()] + ")");
 }
 function isToday(str) {
     var d = new Date(datenow() + 10800000);
-    return (str == (d.getUTCDate() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCFullYear()).toString());
+    return (str === (d.getUTCDate() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCFullYear()).toString());
 }
 function curTime() {
     var date = new Date(), h, m;
@@ -2082,7 +2100,7 @@ function warningWindow(text, callback, buttext, win, specialclass) {
     var newWW = wW.clone();
     newWW.appendTo(container);
     newWW.find("span").html(text);
-    if (buttext == "Выйти из игры") {
+    if (buttext === "Выйти из игры") {
         $("<div/>").addClass("button").html("Посмотреть игру").click(newWW, function(e) {
             e.data.remove();
         }).appendTo(newWW.find("p>span"));
@@ -2105,8 +2123,8 @@ function warningWindow(text, callback, buttext, win, specialclass) {
             newWW.remove();
         }, 1000, $(this).parents(".warningWindow"));
     });
-    if (win !== undefined && game.style && game.style.style == 4 && container.hasClass("current")) {
-        var whowin = (win) ? (u.sex == 1 ? "women" : "men") : (u.sex == 1 ? "men" : "women");
+    if (win !== undefined && game.style && game.style.style === 4 && container.hasClass("current")) {
+        var whowin = (win) ? (u.sex === 1 ? "women" : "men") : (u.sex === 1 ? "men" : "women");
         newWW.addClass(whowin + "win");
     } else {
         if (win && $(window).height() > 430) {
@@ -2198,16 +2216,16 @@ function updateInterface(udata) {
                 "background-size": "contain"
             });
         } else {
-            $("#image").removeClass().removeAttr("style").addClass(((udata.sex == 1) ? "iw" : "im") + udata.image);
+            $("#image").removeClass().removeAttr("style").addClass(((udata.sex === 1) ? "iw" : "im") + udata.image);
         }
     }
     if (isset(udata.money)) {
         animateNumber("gamemoney", udata.money, true);
-        shop.find("p").find(".gamemoney").html(udata.money);
+        shop.find("p").find(".gamemoney").html(over1000(udata.money));
     }
     if (isset(udata.money2)) {
         animateNumber("money", udata.money2, true);
-        shop.find("p").find(".money").html(udata.money2);
+        shop.find("p").find(".money").html(over1000(udata.money2));
     }
     for (var i = 1; i < 7; i++) {
         if (!udata.hasOwnProperty("item" + i)) {
@@ -2217,7 +2235,7 @@ function updateInterface(udata) {
         if (i % 3 === 0) {
             var diff = cc - Date.now();
             v = (!diff || diff < 1) ? 0 : Math.ceil(diff / 3600000);
-            if (i == 6 && v > 0) {
+            if (i === 6 && v > 0) {
                 $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(v, "час", "часа", "часов"));
                 v = Math.ceil(v / 24);
             }
@@ -2268,7 +2286,7 @@ function gameTypeInfo(info) {
     return addIcon + " " + gameStyle[styleObj] + " на " + info.count + " игроков";
 }
 function showGameInfo(info) {
-    closedgame = (info.style == 2);
+    closedgame = (info.style === 2);
     gametitle.html("<span>" + gameTypeInfo(info) + '</span> <span id="addedToGame">' + info.add + '</span> <span id="remainForGame">' + (info.count - info.add) + "</span> <span>Cтавка " + info.sum + "</span>");
     $("article").find(".blocktitle").find(".gamemakerinfo").html(info.creator + ": &laquo;" + info.caption + "&raquo;").attr("data-title", info.caption);
     header.find(".gamestyle").find("span").each(function(index) {
@@ -2279,14 +2297,14 @@ function showGameInfo(info) {
     });
     var sb = gebi("playersButton");
     sb.className = "";
-    if (closedgame && info.creator == u.login) {
+    if (closedgame && info.creator === u.login) {
         sb.className = "my";
         sb.innerHTML = "Принять";
     }
     game.sum = info.sum;
     gamemoney.html(over1000(u.money - info.sum));
     var firstText = roleText.all.zayavka;
-    if (info.style == 3) {
+    if (info.style === 3) {
         firstText = "Это необычная игра, а битва против ботов, где Вам вместе с другими игроками предстоит противостоять команде ботов!<br/> Дождитесь союзников, соперники прибудут позже.";
     } else {
         if (info.married) {
@@ -2369,7 +2387,7 @@ function showNewMessage(event) {
       , udata = event.from;
     root.className = "message";
     name.className = "writer";
-    if (!udata && event.message == "Игра начинается") {
+    if (!udata && event.message === "Игра начинается") {
         udata = "[server]";
         $("h3.leave").css({
             visibility: "hidden"
@@ -2396,7 +2414,7 @@ function showNewMessage(event) {
                 uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
                 root.appendChild(uIm);
             } else {
-                var nclass = (udata.sex == 1) ? "w" : "m";
+                var nclass = (udata.sex === 1) ? "w" : "m";
                 nclass = (udata.image) ? nclass + udata.image : "";
                 root.className += " " + nclass;
             }
@@ -2414,16 +2432,16 @@ function showNewMessage(event) {
     if (event.msgType === "private") {
         root.className += " private";
     }
-    var colorMe = (u.color && u.color != defaultColor) ? ' style="color:' + u.color + ' !important"' : ' class="me"';
+    var colorMe = (u.color && u.color !== defaultColor) ? ' style="color:' + u.color + ' !important"' : ' class="me"';
     if (!event.target) {
-        if (event.color && event.color == "#000") {
+        if (event.color && event.color === "#000") {
             event.color = defaultColor;
         }
         var colorClass = (event.color && event.color !== defaultColor) ? ' style="color:' + event.color + '"' : ""
-          , caption = (udata && udata.id && udata.login) ? '<b data-id="' + udata.id + '"' + colorClass + ((udata.id == u._id) ? colorMe : "") + ">" + udata.login + "</b>" + ((event.to) ? "->" : ": ") : "";
+          , caption = (udata && udata.id && udata.login) ? '<b data-id="' + udata.id + '"' + colorClass + ((udata.id === u._id) ? colorMe : "") + ">" + udata.login + "</b>" + ((event.to) ? "->" : ": ") : "";
         if (event.to && event.toName && event.toName.length > 0 && !game.intuition) {
             caption += ' <b data-id="' + event.to + '"';
-            if (event.to == u._id) {
+            if (event.to === u._id) {
                 if (!container.hasClass("ingame") && pluhTime < datenow() - 10000) {
                     switch (event.message) {
                     case "плюх":
@@ -2462,7 +2480,7 @@ function showNewMessage(event) {
             caption += ">" + event.toName + "</b>: ";
         }
         name.innerHTML = caption;
-        if (udata && udata == "[server]") {
+        if (udata && udata === "[server]") {
             body.style.color = "#f00";
             body.style.fontFamily = "Ubuntu Mono, Consolas, Monaco, monospace";
         }
@@ -2474,7 +2492,7 @@ function showNewMessage(event) {
     root.appendChild(name);
     root.appendChild(body);
     messagesList.append(root);
-    if ((udata && udata.id && udata.id == u._id) || (event.to && event.to == u._id)) {
+    if ((udata && udata.id && udata.id === u._id) || (event.to && event.to === u._id)) {
         mymessagesList.append($(root).clone());
     }
     doScroll();
@@ -2489,10 +2507,10 @@ function sendMessage() {
       , strForSwitch = msgStr.toLowerCase().replace(/[.?!]/g, "").trim()
       , nosmileStr = msgStr.replace(/\[[A-z]+\]/g, "").trim()
       , needsend = true;
-    if (!msgStr || (container.hasClass("current") && (game.finish || game.period == 4))) {
+    if (!msgStr || (container.hasClass("current") && (game.finish || game.period === 4))) {
         return;
     }
-    if (msgStr == "." && u._id != "554f490f8771f1d015807b59" && u.login != "Kinder" && !u.vip) {
+    if (msgStr === "." && !u.vip) {
         showNewMessage({
             message: 'Не "точкай" :)',
             color: "#ff0000",
@@ -2605,13 +2623,13 @@ function sendMessage() {
             return;
         }
         var adresatName = (adresat.length > 0) ? $("#adresat").val() : "";
-        if (isPrivate && adresatName == $("#nick").html()) {
+        if (isPrivate && adresatName === $("#nick").html()) {
             return;
         }
         var msgType = (adresat.length > 0) ? ((isPrivate) ? "private" : "direct") : "public";
         lastMsg = msgStr;
-        if (room == "testgame") {
-            if (game.period && !u.vip && !isPrivate && (game.period == 1 || game.period == 4)) {
+        if (room === "testgame") {
+            if (game.period && !u.vip && !isPrivate && (game.period === 1 || game.period === 4)) {
                 showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)");
             } else {
                 showNewMessage({
@@ -2663,9 +2681,9 @@ function sendMessage() {
 }
 var userGoEvent = function(user, leave) {
     if (container.hasClass("wedding")) {
-        var userText = (user.sex == 1) ? "a гостья" : " гость";
+        var userText = (user.sex === 1) ? "a гостья" : " гость";
         if (game.married && game.married.indexOf(user._id) > -1) {
-            userText = (user.sex == 1) ? 'a <span class="lastwords">невеста</span>' : ' <span class="lastwords">жених</span>';
+            userText = (user.sex === 1) ? 'a <span class="lastwords">невеста</span>' : ' <span class="lastwords">жених</span>';
         }
         if (leave) {
             game.writeText('<div class="votemsg">Зал для свадебной церемонии покинул' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
@@ -2673,7 +2691,7 @@ var userGoEvent = function(user, leave) {
             game.writeText('<div class="votemsg">На свадьбу прибыл' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
         }
     } else {
-        game.writeText('<div class="votemsg">' + ((user.sex == 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex == 1 ? " ♀" : " ♂") + "</div>", user);
+        game.writeText('<div class="votemsg">' + ((user.sex === 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex === 1 ? " ♀" : " ♂") + "</div>", user);
     }
 };
 function editPlayerList(user, leave, multi) {
@@ -2687,7 +2705,7 @@ function editPlayerList(user, leave, multi) {
             if (curgame) {
                 if (playersInfoArray[user._id]) {
                     if (user.role) {
-                        game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex == 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
+                        game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex === 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
                             id: user._id
                         });
                         playersInfoArray[user._id].killed = true;
@@ -2736,7 +2754,7 @@ function editPlayerList(user, leave, multi) {
         if (user.icon) {
             newPl.find("b").addClass("status" + user.icon);
         }
-        if (user.marked == 1) {
+        if (user.marked === 1) {
             newPl.addClass("marked");
         }
         if (!multi && room.length > 2 && !container.hasClass("current")) {
@@ -2796,7 +2814,7 @@ function editGameList(event) {
         if (event.special) {
             newGame.addClass("specialgame");
         }
-        if (event.gametype == 13) {
+        if (event.gametype === 13) {
             newGame.addClass("important");
         }
         newGame.html('<span class="row1">' + (event.cat ? "&#128008;" : "") + event.creator + '</span><span class="row2">' + event.sum + '</span><span class="row3">' + event.count + '</span><span class="row4">' + (event.selecting ? '<b class="selrolgame"></b>' : "") + (event.botwall ? '<b class="botwall"></b>' : "") + (event.shortnight ? '<b class="shortnight"></b>' : "") + (event.man ? '<b class="manmode"></b>' : "") + gameStyle[event.style] + '</span><span class="row5">' + event.add + '</span><span class="row6">' + (event.count - event.add) + "</span>");
@@ -2804,13 +2822,13 @@ function editGameList(event) {
         var thisInfo = '<div class="gticons">';
         for (var i = 1; i < 5; i++) {
             var newSpan = "<span";
-            if (event["style" + i] == 1) {
+            if (event["style" + i] === 1) {
                 newSpan += ' class="enabled"';
             }
             newSpan += "></span>";
             thisInfo += newSpan;
         }
-        thisInfo += '</div><div class="gtheader">' + (gameTypes[event.gametype] ? gameTypes[event.gametype] : "Нестандартная партия") + '</div><div class="gtcaption">' + event.caption + '</div><div class="gtplayers">' + (event.players ? event.players.join(", ") : "") + "</div>";
+        thisInfo += '</div><div class="gtheader">' + (gameTypes[event.gametype] ? gameTypes[event.gametype] : "Нестандартная партия") + '</div><div class="gtcaption">' + event.caption + '</div><div class="gtplayers">' + (event.players ? event.players.join(", ") : "") + "</div>" + (event.bonus ? "<sub>За участие в этой игре можно получить подарок.</sub>" : "");
         gamesInfoArray[event._id] = thisInfo;
         gamesList.append(newGame);
         if (event.starttime) {
@@ -2839,18 +2857,17 @@ greenUpdateButton.click(function() {
         greenUpdateButton.addClass("show");
     }, 5000);
 });
+var greenlist = lists.find(".greenlist");
 function showGreenList(greens) {
-    var greenlist = lists.find(".greenlist");
     greenlist.html("");
     greens.forEach(function(el) {
         editGreen(el, true);
     });
 }
 function editGreen(green, add) {
-    var thislist = lists.find(".greenlist");
     if (add) {
-        var roomClass = (green.room.length > 2) ? ((green.marked && green.marked == 2) ? "lock" : "open") : "greenroom" + green.room.substring(0, 1);
-        var newGreen = $('<div class="green' + green.sex + " " + roomClass + '"' + (green.marked == 2 ? "" : ' data-id="' + green._id + '"') + '><b data-room="' + green.room + '"><span class="lock2"></span></b><span>' + green.login + "</span></div>");
+        var roomClass = (green.room.length > 2) ? ((green.marked && green.marked === 2) ? "lock" : "open") : "greenroom" + green.room.substring(0, 1);
+        var newGreen = $('<div class="green' + green.sex + " " + roomClass + '"' + (green.marked === 2 ? "" : ' data-id="' + green._id + '"') + '><b data-room="' + green.room + '"><span class="lock2"></span></b><span>' + green.login + "</span></div>");
         newGreen.find("span").click(function() {
             $("#adresat-id").val(green._id);
             $("#adresat").val(green.login);
@@ -2862,7 +2879,7 @@ function editGreen(green, add) {
                 uid: green._id
             });
         });
-        thislist.append(newGreen);
+        greenlist.append(newGreen);
     }
 }
 function showTopLists(data) {
@@ -2904,17 +2921,17 @@ function showTopLists(data) {
     lists.find("div:not(.greenlist)").find("[data-id]").click(showProfile);
 }
 function goToRoom(roomStr) {
-    if (room == "testgame" && helper.helpGameTimer) {
+    if (room === "testgame" && helper.helpGameTimer) {
         helper.helpGameStop();
     }
     var r = (roomStr) ? roomStr : roomInHall;
-    if (ws.readyState == 3) {
+    if (ws.readyState === 3) {
         return;
     }
     if (helper && helper.enabled()) {
         helper.stop();
     }
-    if (r == 6 && !u.club) {
+    if (r === 6 && !u.club) {
         showMessage('Только для членов Клуба <u class="clubname"></u>!');
     } else {
         showNewMessage({
@@ -2949,7 +2966,7 @@ function randomGame() {
     }
 }
 function selectPlayer(target) {
-    if (target == u._id) {
+    if (target === u._id) {
         return;
     }
     playersList.find("div").removeClass("select");
@@ -2971,7 +2988,7 @@ function markAll() {
     var nomarked = playersList.find("div:not(.marked)");
     if (container.hasClass("ingame") && nomarked.length > 0) {
         var uid = nomarked.eq(0).attr("id");
-        if (uid.length != 24 || parseInt($("#remainForGame").html()) < 2) {
+        if (uid.length !== 24 || parseInt($("#remainForGame").html()) < 2) {
             return;
         }
         sendToSocket({
@@ -3130,7 +3147,7 @@ function socketEvent(message) {
     switch (event.type) {
     case "reply":
         socketStack.forEach(function(val, key) {
-            if (event.time == val.timestamp) {
+            if (event.time === val.timestamp) {
                 socketStack.splice(key, 1);
             }
         });
@@ -3146,7 +3163,7 @@ function socketEvent(message) {
         break;
     case "message":
         showNewMessage(event);
-        if (event.msgType == "exit") {
+        if (event.msgType === "exit") {
             mW.hide();
             warningWindow(event.message, goToRoom);
         }
@@ -3160,7 +3177,7 @@ function socketEvent(message) {
             } else {
                 game.writeText(event.message, event.from || null, true);
             }
-            if (event.msgType == "exit") {
+            if (event.msgType === "exit") {
                 mW.hide();
                 game.finished();
                 var win = (event.win);
@@ -3219,7 +3236,7 @@ function socketEvent(message) {
                 showGreenList(event.greens);
             }
             showTopLists(event);
-            if (event.stip && event.stip != "no") {
+            if (event.stip && event.stip !== "no") {
                 showConvert(function() {
                     var stipText = "Вам начислена " + (isMaffia ? "зарплата" : "стипендия") + ' в размере <span class="gamemoney">' + over1000(event.stip) + "</span>";
                     if (u.vip) {
@@ -3237,7 +3254,7 @@ function socketEvent(message) {
                 var bdStr = '<div class="birthdays"> Сегодня отмечают свой день рождения следующие игроки: <ul> ';
                 event.birthdays.forEach(function(el) {
                     bdStr += '<li><strong data-id="' + el._id + '">' + el.login + "</strong></li>";
-                    if (el._id == u._id) {
+                    if (el._id === u._id) {
                         mybirthday = true;
                     }
                 });
@@ -3252,20 +3269,12 @@ function socketEvent(message) {
                 $('<script type="text/javascript" src="/js/dj.js"><\/script>').appendTo(b);
             }
             if (u.moder || (u.moder2 && server2)) {
-                $('<script type="text/javascript" src="/js/moder.js?190118"><\/script>').appendTo(b);
+                $('<script type="text/javascript" src="/js/moder.js?050718"><\/script>').appendTo(b);
                 if (event.statistics && event.statistics.valentin) {
                     b.append("<style>.ad-valentin{display:block !important}</style>");
                 }
             }
             shareMaffia();
-            if (event.news) {
-                event.news.forEach(function(el) {
-                    showNewDiv('<div class="news specialnews">' + el + "</div>");
-                });
-                if (!isAppVK) {
-                    showNewDiv('<div class="news">Присоединяйся к нам в <a href="https://t.me/joinchat/HmvAhBCL8vCkPu7EEv_-kA" target="_blank">Telegram</a></div>');
-                }
-            }
             if (event.regplayers && event.regplayers.length > 0) {
                 var regList = '<div class="news">Последние 10 новичков: '
                   , lastPl = ""
@@ -3273,7 +3282,7 @@ function socketEvent(message) {
                   , dcur = 0;
                 event.regplayers.forEach(function(el) {
                     dcur = new Date(el.date).getDate();
-                    if (dnum != dcur) {
+                    if (dnum !== dcur) {
                         dnum = dcur;
                         lastPl += "<br/> " + rusDate(el.date, false, "short") + ": ";
                     } else {
@@ -3304,7 +3313,7 @@ function socketEvent(message) {
                 $("#roll-start").addClass("rolling-was");
             }
             helper.hideLocation();
-            if (u.rating < 100 && lStorage.getItem("hints") != "0") {
+            if (u.rating < 100 && lStorage.getItem("hints") !== "0") {
                 hintsCheckBox.prop("checked", true);
                 hintsNeed = true;
             }
@@ -3334,7 +3343,7 @@ function socketEvent(message) {
             if (hintsNeed || u.curator) {
                 curatorWindow.addClass("hide").show();
             }
-            if (u.status && u.status.toLowerCase() == "kinder") {
+            if (u.status && u.status.toLowerCase() === "kinder") {
                 setTimeout(maffiaNEW, 2000);
             }
             f.radioIframe();
@@ -3363,7 +3372,7 @@ function socketEvent(message) {
         break;
     case "register":
         regButton.prop("disabled", false);
-        if (event.result == "busy") {
+        if (event.result === "busy") {
             showMessage("Этот логин уже занят, придумайте другой");
         } else {
             if (event.result) {
@@ -3427,6 +3436,9 @@ function socketEvent(message) {
             showGreenList(event.greens);
         }
         break;
+    case "standart":
+        f.notEnough(event);
+        break;
     case "inform":
         editPlayerList(event.user, event.leave);
         break;
@@ -3477,7 +3489,7 @@ function socketEvent(message) {
         break;
     case "friend-query":
         var frQ = function(data) {
-            if (reds.indexOf(data.fromId) == -1 && !u.server2) {
+            if (reds.indexOf(data.fromId) === -1 && !u.server2) {
                 showConvert(function() {
                     modalWindow(data.from + " хочет добавить вас в друзья. Вы согласны?", function() {
                         friendQuery("friend-answer", data.fromId, true);
@@ -3519,9 +3531,9 @@ function socketEvent(message) {
     case "quiz":
         if (quizEnable) {
             if (event.login) {
-                var quizMsg = '<div class="alarm">Игрок <b>' + event.login + "</b> дал" + (event.sex == 1 ? "а" : "") + " правильный ответ - <em>" + event.answer + "</em>";
+                var quizMsg = '<div class="alarm">Игрок <b>' + event.login + "</b> дал" + (event.sex === 1 ? "а" : "") + " правильный ответ - <em>" + event.answer + "</em>";
                 if (event.rank) {
-                    quizMsg += " и достиг" + (event.sex == 1 ? "ла" : "") + " нового звания - <strong>" + event.rank + "</strong>";
+                    quizMsg += " и достиг" + (event.sex === 1 ? "ла" : "") + " нового звания - <strong>" + event.rank + "</strong>";
                 }
                 quizMsg += "</div>";
                 showNewDiv(quizMsg);
@@ -3552,8 +3564,7 @@ function socketEvent(message) {
             inputField.blur();
         } else {
             showConvert(function() {
-                var str = (event.filter) ? escapeHtml(matFilter(event.message)) : event.message;
-                warningWindow(str);
+                warningWindow(event.filter ? escapeHtml(matFilter(event.message)) : event.message);
             });
         }
         break;
@@ -3701,7 +3712,7 @@ function socketEvent(message) {
             var incObj = quests[event.num].prize[event.value];
             for (var ind in incObj) {
                 if (incObj.hasOwnProperty(ind)) {
-                    u[ind] += (ind == "money") ? incObj[ind] * 1000 : incObj[ind];
+                    u[ind] += (ind === "money") ? incObj[ind] * 1000 : incObj[ind];
                 }
             }
             updateInterface();
@@ -3759,7 +3770,7 @@ function socketEvent(message) {
             });
         }
         break;
-    case "snowball":
+    case "battle":
         snowball.action(event);
         break;
     case "infomoder":
@@ -3793,19 +3804,19 @@ function socketEvent(message) {
         if (event.sex) {
             var weddingText = "";
             if (event.winner) {
-                weddingText = event.sex == 1 ? 'Под восхищенные мужские взгляды <b data-id="' + event.winnerId + '">' + event.winner + "</b> изящно ловит букет, не оставив соперницам ни шанса!" : 'Ловким движением <b data-id="' + event.winnerId + '">' + event.winner + "</b> хватает подвязку своими сильными руками, что не остается без внимания присутствующих на празднике девушек!";
+                weddingText = event.sex === 1 ? 'Под восхищенные мужские взгляды <b data-id="' + event.winnerId + '">' + event.winner + "</b> изящно ловит букет, не оставив соперницам ни шанса!" : 'Ловким движением <b data-id="' + event.winnerId + '">' + event.winner + "</b> хватает подвязку своими сильными руками, что не остается без внимания присутствующих на празднике девушек!";
             }
-            game.writeText('<img src="/images/cups/wed' + (event.sex == 1 ? "wo" : "") + 'menitem.png" alt="" style="float:left"/> ' + weddingText, false, true);
+            game.writeText('<img src="/images/cups/wed' + (event.sex === 1 ? "wo" : "") + 'menitem.png" alt="" style="float:left"/> ' + weddingText, false, true);
         } else {
-            var drawText = '<div class="draw-result">' + event.moder.login + " провел" + ((event.moder.sex == 1) ? "а" : "") + " жеребьевку. Результаты представлены ниже:<br/> ";
+            var drawText = '<div class="draw-result">' + event.moder.login + " провел" + ((event.moder.sex === 1) ? "а" : "") + " жеребьевку. Результаты представлены ниже:<br/> ";
             if (event.count > 1) {
                 for (var k = 0, group = 0, len = event.arr.length; k < len; k++) {
-                    if (k == group * event.count) {
+                    if (k === group * event.count) {
                         group++;
                         drawText += "<u>Группа " + group + "</u><br/><ol>";
                     }
                     drawText += "<li>" + event.arr[k] + "</li>";
-                    if (k + 1 == group * event.count || k + 1 == len) {
+                    if (k + 1 === group * event.count || k + 1 === len) {
                         drawText += "</ol>";
                     }
                 }
@@ -3933,7 +3944,7 @@ $("#nick").click(function() {
     }
 });
 gebi("input").onkeydown = function(e) {
-    if (e.which == 13 && !e.ctrlKey && !e.shiftKey) {
+    if (e.which === 13 && !e.ctrlKey && !e.shiftKey) {
         sendMessage();
     }
 }
@@ -3961,9 +3972,9 @@ $("nav>h2").click(function() {
     }
     goToRoom(roomNum);
 }).bind("mouseenter", function(e) {
-    var hallNum = parseInt($(this).attr("class").substring(4));
-    var toolText = (room == hallNum) ? "Вы здесь" : "Перейти в " + hallTitles[hallNum];
-    if (hallNum == 6 && !u.club) {
+    var hallNum = parseInt($(this).attr("class").substring(4))
+      , toolText = (room === hallNum) ? "Вы здесь" : "Перейти в " + hallTitles[hallNum];
+    if (hallNum === 6 && !u.club) {
         toolText = hallTitles[hallNum] + " только для членов клуба";
     }
     tooltip(e, toolText, true);
@@ -3971,7 +3982,7 @@ $("nav>h2").click(function() {
     tooltip(e, "", false);
 });
 var defineTargetClick = function(target) {
-    if (target.tagName == "I") {
+    if (target.tagName === "I") {
         target = $(target).parent().parent()[0];
     }
     if (target.tagName !== "DIV") {
@@ -3982,9 +3993,9 @@ var defineTargetClick = function(target) {
 playersList.bind("dblclick touchmove", function(e) {
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.id != "players") {
+    if (target.id !== "players") {
         target = defineTargetClick(target);
-        if (target.tagName == "DIV" && target.id) {
+        if (target.tagName === "DIV" && target.id) {
             $("#adresat-id").val(target.id);
             $("#adresat").val(target.dataset.nick);
         }
@@ -3996,12 +4007,12 @@ playersList.bind("dblclick touchmove", function(e) {
     }
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.tagName == "B" && container.hasClass("current")) {
+    if (target.tagName === "B" && container.hasClass("current")) {
         game.notePlayer(target.parentElement.id);
     } else {
-        if (target.id != "players") {
+        if (target.id !== "players") {
             target = defineTargetClick(target);
-            if (target.tagName == "DIV" && target.id) {
+            if (target.tagName === "DIV" && target.id) {
                 selectPlayer(target.id);
             }
         }
@@ -4013,7 +4024,7 @@ playersList.bind("dblclick touchmove", function(e) {
     }
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.tagName != "DIV" || target.id == "players") {
+    if (target.tagName !== "DIV" || target.id === "players") {
         return;
     }
     selectPlayer(target.id);
@@ -4021,7 +4032,7 @@ playersList.bind("dblclick touchmove", function(e) {
 allMessagesList.click(function(e) {
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.tagName != "B") {
+    if (target.tagName !== "B") {
         return;
     }
     if (!target.dataset.id) {
@@ -4093,7 +4104,7 @@ function changeFavicon(iconHref) {
     icon.replaceWith(cache);
 }
 function getGameUrl(vk) {
-    return (vk) ? "http://vk.com/share.php?url=" + (isMaffia ? "http://maffia-online.ru/" : "http://loday.ru/") + "%23" + u._id : (isMaffia ? "http://maffia-online.ru/" : "http://loday.ru/") + "#" + u._id;
+    return document.location.protocol + (vk ? "//vk.com/share.php?url=" + document.location.protocol + (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "%23" + u._id : (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "#" + u._id);
 }
 function shareMaffia() {
     if (isMaffia) {
@@ -4113,7 +4124,7 @@ $("#shareButton").click(function() {
             VK.callMethod("showInviteBox");
         }
     } else {
-        warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
+        warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a id="shareVkLink" target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
     }
 });
 function setRange(obj) {
@@ -4397,14 +4408,16 @@ function showWindow(buttonClass) {
     win.find(".info>div").hide();
     submenu.hide();
     if (["tournaments", "aboutgame"].indexOf(buttonClass) > -1) {
-        win.find(".info ." + buttonClass).load("/html/" + buttonClass + ((buttonClass == "aboutgame" && isMaffia) ? "-maffia" : "") + ".html");
+        win.find(".info ." + buttonClass).load("/html/" + buttonClass + ((buttonClass === "aboutgame" && isMaffia) ? "-maffia" : "") + ".html");
     }
     win.find(".info ." + buttonClass).show();
     container.addClass("back");
     win.addClass("openWindow");
     switch (buttonClass) {
     case "newgame":
-        $("#about").focus();
+        if (!isAppVK) {
+            $("#about").focus();
+        }
         if (u.vip) {
             var ngw = win.find(".gameCreate");
             if (!ngw.find("button").is(".usergame")) {
@@ -4419,10 +4432,10 @@ function showWindow(buttonClass) {
             }
             var cc = u["item" + el] || 0
               , diff = cc - datenow()
-              , delit = (el == 3) ? 3600000 : 86400000
+              , delit = (el === 3) ? 3600000 : 86400000
               , v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
             $("#shop" + el).find("div:nth-of-type(2)").html(v);
-            if (el == 6) {
+            if (el === 6) {
                 $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
             }
         });
@@ -4458,14 +4471,14 @@ function showWindow(buttonClass) {
                 areaData.html("");
                 $("<h2>" + curMap.title + "</h2>").appendTo(areaData);
                 if (curMap.own) {
-                    areaData.append("Контролируют: " + ((curMap.own == "bots") ? "боты" : "игроки"));
-                    if (curMap.own == "bots") {
+                    areaData.append("Контролируют: " + ((curMap.own === "bots") ? "боты" : "игроки"));
+                    if (curMap.own === "bots") {
                         $("<button/>", {
                             "class": "button",
                             "data-area": curMap.num
                         }).html("Захватить").on("click", areaAttack).appendTo(areaData);
                     }
-                    if (curMap.own == "players") {
+                    if (curMap.own === "players") {
                         $("<button/>", {
                             "class": "button",
                             "data-area": curMap.num
@@ -4494,7 +4507,7 @@ function showWindow(buttonClass) {
                         var curArea = $("#area" + i, svgdom)
                           , curMap = mapAreas[i];
                         curArea.html("<title>" + curMap.title + "</title>");
-                        if (curMap.own && curMap.own == "bots") {
+                        if (curMap.own && curMap.own === "bots") {
                             curArea.attr("class", curArea.attr("class") + " " + curMap.own);
                         }
                         curMap.num = i;
@@ -4544,7 +4557,7 @@ function showWindow(buttonClass) {
         break;
     }
     var specialClassSet = function(classname, winclass) {
-        if (buttonClass == classname) {
+        if (buttonClass === classname) {
             win.addClass(winclass);
         } else {
             win.removeClass(winclass);
@@ -4668,16 +4681,11 @@ var showWindowClick = function() {
 };
 leftPanel.find("div").click(showWindowClick);
 submenu.click(function(e) {
-    if (e.target.id == "submenu") {
+    if (e.target.id === "submenu") {
         submenu.hide();
     }
 });
 submenu.find("div>div").click(showWindowClick);
-$(document).on("mousemove touchmove", "[data-title]", function(e) {
-    tooltip(e, $(this).attr("data-title"), true);
-}).on("mouseleave touchleave", "[data-title]", function(e) {
-    tooltip(e, "", false);
-});
 function closewindow() {
     win.removeClass("openWindow");
     container.removeClass("back");
@@ -4691,7 +4699,7 @@ function execDataAction(e) {
 }
 win.click(execDataAction);
 function gamesListener(e, callback, args) {
-    if (e.target.nodeName == "UL") {
+    if (e.target.nodeName === "UL") {
         return;
     }
     var clicked = $(e.target)
@@ -4794,7 +4802,7 @@ function showPlayerInfo(show, uid) {
     var stat = ptp.find("#playerInfo-stat")
       , cu = playersInfoArray[uid];
     if (show && cu) {
-        if (cu.hide && uid == u._id) {
+        if (cu.hide && uid === u._id) {
             cu = u;
         }
         if (cu.bot && cu.creator && playersInfoArray[cu.creator]) {
@@ -4812,7 +4820,7 @@ function showPlayerInfo(show, uid) {
                 "background-size": "contain"
             });
         } else {
-            ptp.find("#playerInfo-image").removeClass().removeAttr("style").addClass("i" + ((cu.sex == 1) ? "w" : "m") + cu.image);
+            ptp.find("#playerInfo-image").removeClass().removeAttr("style").addClass("i" + ((cu.sex === 1) ? "w" : "m") + cu.image);
         }
         if (cu.club) {
             ptp.addClass("club");
@@ -4826,7 +4834,7 @@ function showPlayerInfo(show, uid) {
             ptp.removeClass("vipProfile");
         }
         var cuNick = cu.login || "***"
-          , cuRate = (cu.hide) ? (cu._id == u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
+          , cuRate = (cu.hide) ? (cu._id === u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
           , gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
@@ -4849,8 +4857,8 @@ function showPlayerInfo(show, uid) {
         }
         ptp.find("#playerInfo-cups").html(cups);
         ptp.delay(1000).fadeTo(900, 1);
-        if (container.hasClass("current") && game.period == 2 && !game.finish) {
-            if (cu.sex == 1) {
+        if (container.hasClass("current") && game.period === 2 && !game.finish) {
+            if (cu.sex === 1) {
                 gameptp.addClass("woman-gameinfo");
             } else {
                 gameptp.removeClass("woman-gameinfo");
@@ -5010,7 +5018,10 @@ function showPlayerInfoBlock(cu) {
                     });
                 });
             } else {
-                showMessage('Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету.");
+                f.notEnough({
+                    action: "money2",
+                    message: 'Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету."
+                });
             }
         }).appendTo(giftInfo);
     }
@@ -5086,7 +5097,7 @@ function sortTable(column) {
         column = colNum;
     } else {
         sound("shuffle");
-        if (colNum == column) {
+        if (colNum === column) {
             sortType *= -1;
         }
         colNum = column;
@@ -5100,7 +5111,7 @@ function sortTable(column) {
         });
         str.push(sustr);
     });
-    if (column == 1 || column == 4) {
+    if (column === 1 || column === 4) {
         str.sort(sSort);
     } else {
         str.sort(iSort);
@@ -5144,7 +5155,7 @@ function over1000(num) {
         num = "";
         for (var k = 1, i = str.length - 1; i >= 0; i--,
         k++) {
-            if (k % 3 == 1) {
+            if (k % 3 === 1) {
                 num = " " + num;
             }
             num = str[i] + num;
@@ -5168,7 +5179,7 @@ imageChar.find("span").click(function() {
     if (!charObj.image || charObj.image.length > 2) {
         charObj.image = 0;
     }
-    charObj.image += ($(this).attr("id") == "nextChar") ? 1 : -1;
+    charObj.image += ($(this).attr("id") === "nextChar") ? 1 : -1;
     if (charObj.image < 1) {
         charObj.image = 24;
     }
@@ -5187,7 +5198,7 @@ charObj.changeChar = function() {
         imageChar.removeAttr("style");
         var w = 200
           , h = 260
-          , y = (charObj.sex == 1) ? -1 : -4
+          , y = (charObj.sex === 1) ? -1 : -4
           , x = 1;
         if (charObj.image > 8) {
             var dy = Math.floor((charObj.image - 1) / 8);
@@ -5224,7 +5235,7 @@ regButton.click(function() {
     } else {
         if (u.login) {
             var isChanges = false;
-            if (u.sex != charObj.sex) {
+            if (u.sex !== charObj.sex) {
                 u.sex = charObj.sex;
                 if (playersInfoArray[u._id]) {
                     playersInfoArray[u._id].sex = charObj.sex;
@@ -5232,7 +5243,7 @@ regButton.click(function() {
                 outObj.sex = charObj.sex;
                 isChanges = true;
             }
-            if (u.image != charObj.image) {
+            if (u.image !== charObj.image) {
                 u.image = charObj.image;
                 if (playersInfoArray[u._id]) {
                     playersInfoArray[u._id].image = charObj.image;
@@ -5240,7 +5251,7 @@ regButton.click(function() {
                 outObj.image = charObj.image;
                 isChanges = true;
             }
-            if (u.about != about) {
+            if (u.about !== about) {
                 u.about = about;
                 if (playersInfoArray[u._id]) {
                     playersInfoArray[u._id].about = about;
@@ -5270,7 +5281,7 @@ regButton.click(function() {
             };
             var invite = getCookie("invite")
               , inviteVK = getCookie("invite-vk");
-            if (invite !== undefined && invite.length == 24) {
+            if (invite !== undefined && invite.length === 24) {
                 outObj.invite = invite;
             }
             if (inviteVK) {
@@ -5320,7 +5331,7 @@ function editProfileSize() {
 function editProfile(open) {
     if (open) {
         editProfileSize();
-        if (u.sex == 1) {
+        if (u.sex === 1) {
             $("#sex2").prop("checked", true);
         } else {
             $("#sex1").prop("checked", true);
@@ -5340,7 +5351,7 @@ function editProfile(open) {
             }
         }
         charObj.changeChar();
-        if (open == "addChar") {
+        if (open === "addChar") {
             charDiv.addClass("addChar");
             $("#charAbout").val("");
         } else {
@@ -5374,7 +5385,7 @@ $("#char-create").click(function() {
 });
 $("#char-delete").click(function() {
     var charNum = selectCharDiv.find("input[name=selectedChar]:checked").val();
-    if (charNum == "0") {
+    if (charNum === "0") {
         showMessage("Нельзя удалить основной персонаж. Для смены ника воспользуйтесь разделом VIP");
         return;
     }
@@ -5391,7 +5402,7 @@ $("#char-delete").click(function() {
     }
 });
 function showCharImage(cu) {
-    return "<span " + (cu.image.length > 2 ? 'style="background:url(/files/' + u._id + cu.image + ") center center no-repeat;background-size:contain;" : 'class="i' + ((cu.sex == 1) ? "w" : "m") + cu.image) + '"></span>';
+    return "<span " + (cu.image.length > 2 ? 'style="background:url(/files/' + u._id + cu.image + ") center center no-repeat;background-size:contain;" : 'class="i' + ((cu.sex === 1) ? "w" : "m") + cu.image) + '"></span>';
 }
 function showSelectChar() {
     var charsData = "";
@@ -5402,13 +5413,13 @@ function showSelectChar() {
         }
         charsData += '/><label for="selectedChar0">' + showCharImage(u.mainChar) + u.mainChar.login + "</label>";
     } else {
-        charsData += '<input type="radio" name="selectedChar" id="selectedChar0" value="0" checked="checked"/><label for="selectedChar0"><span class="i' + ((u.sex == 1) ? "w" : "m") + u.image + '"></span>' + u.login + "</label>";
+        charsData += '<input type="radio" name="selectedChar" id="selectedChar0" value="0" checked="checked"/><label for="selectedChar0"><span class="i' + ((u.sex === 1) ? "w" : "m") + u.image + '"></span>' + u.login + "</label>";
     }
     if (u.chars) {
         u.chars.forEach(function(el, ind) {
             var n = ind + 1;
             charsData += '<input type="radio" name="selectedChar" id="selectedChar' + n + '" value="' + n + '"';
-            if (u.charNum && u.charNum == n) {
+            if (u.charNum && u.charNum === n) {
                 charsData += ' checked="checked"';
             }
             charsData += '/><label for="selectedChar' + n + '">' + showCharImage(el) + el.login + "</label>";
@@ -5442,7 +5453,7 @@ function showBlank() {
 blankForm.find("button").click(function() {
     var fields = {};
     blankForm.find("input").each(function(index) {
-        if (index == 1 && new Date($(this).val()) == "Invalid Date") {
+        if (index === 1 && new Date($(this).val()) == "Invalid Date") {
             $(this).val("");
         }
         fields[index] = $(this).val();
@@ -5498,9 +5509,9 @@ function setStatus() {
     $("#statusText").val(u.status);
 }
 $("#saveStatus").click(function() {
-    var text = $("#statusText").val();
-    var icon = statusSelect.find("label").attr("class").substring(6) || 0;
-    if (u.status == text && u.icon == icon) {
+    var text = $("#statusText").val()
+      , icon = statusSelect.find("label").attr("class").substring(6) || 0;
+    if (u.status === text && u.icon === icon) {
         return;
     }
     u.status = text;
@@ -5524,7 +5535,9 @@ vipButton.click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        f.notEnough({
+            action: "money2"
+        });
     }
 });
 var donatNick = $("#donat-nick");
@@ -5539,7 +5552,9 @@ donatNick.find("button").click(function() {
             });
             closewindow();
         } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+            f.notEnough({
+                action: "money2"
+            });
         }
     } else {
         showMessage("Минимальная длина НикНейма 4 символа");
@@ -5566,7 +5581,9 @@ donatChange.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для обмена');
+        f.notEnough({
+            action: "money2"
+        });
     }
 });
 var donatNickColor = $("#donat-nickcolor");
@@ -5582,7 +5599,9 @@ donatNickColor.find("button").click(function() {
             closewindow();
         });
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        f.notEnough({
+            action: "money2"
+        });
     }
 });
 var donatAllMsg = $("#donat-allmessage")
@@ -5617,42 +5636,68 @@ $("#speaker").click(function() {
         inputField.val("");
     });
 });
-var donatFoto = $("#donat-foto");
+var donatFoto = $("#donat-foto")
+  , donatFotoFile = donatFoto.find("input")[0]
+  , donatFotoFileImage = false;
+$(donatFotoFile).change(function() {
+    if (window.FileReader) {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                donatFotoFileImage = e.target.result;
+            }
+            ;
+            reader.readAsDataURL(this.files[0]);
+        }
+    } else {
+        showMessage("К сожалению, в вашем браузере не поддерживается предпросмотр загружаемых файлов.<br/> Если хотите посмотреть как будет выглядеть ваша аватарка перед загрузкой, воспользуйтесь другим браузером.");
+    }
+});
 donatFoto.find("button").click(function() {
     if (!u.vip && u.money2 < 1000) {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        f.notEnough({
+            action: "money2"
+        });
         return;
     }
-    if (!donatFoto.find("input")[0].files || !donatFoto.find("input")[0].files[0]) {
+    if (!donatFotoFile.files || !donatFotoFile.files[0]) {
         showMessage("Не выбран файл для загрузки");
         return;
     }
-    var file = donatFoto.find("input")[0].files[0];
+    var file = donatFotoFile.files[0];
     if (file.size > 300 * 1024) {
         showMessage("Размер файла превышает 300 КБ");
         return;
     }
-    var data = new FormData();
-    data.append("uploadFile", file);
-    var port = serverPort(false);
-    $.ajax({
-        url: document.location.protocol + "//" + domain + ":" + port + "/upload",
-        data: data,
-        cache: false,
-        contentType: false,
-        processData: false,
-        type: "POST",
-        success: function(response) {
-            if (response.status == "ok") {
-                showMessage(response.text);
-            } else {
-                showMessage("Не удалось установить аватар:<br/> " + response.errors);
+    var createFotoLoading = function() {
+        var data = new FormData();
+        data.append("uploadFile", file);
+        $.ajax({
+            url: document.location.protocol + "//" + domain + ":" + serverPort(false) + "/upload",
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: "POST",
+            success: function(response) {
+                if (response.status === "ok") {
+                    showMessage(response.text);
+                } else {
+                    showMessage("Не удалось установить аватар:<br/> " + response.errors);
+                }
+            },
+            xhrFields: {
+                withCredentials: true
             }
-        },
-        xhrFields: {
-            withCredentials: true
-        }
-    });
+        });
+        closewindow();
+    };
+    if (donatFotoFileImage) {
+        var imgStyle = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
+        modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img src="' + donatFotoFileImage + '" ' + imgStyle + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img src="' + donatFotoFileImage + '" ' + imgStyle + '/><br/> в режиме День Любви</div><br class="clearfix"/>', createFotoLoading);
+    } else {
+        createFotoLoading();
+    }
 });
 var donatBotnick = $("#donat-botnick");
 donatBotnick.find("button").click(function() {
@@ -5667,7 +5712,9 @@ donatBotnick.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        f.notEnough({
+            action: "money2"
+        });
     }
 });
 var donatBotwords = $("#donat-botwords");
@@ -5681,7 +5728,9 @@ donatBotwords.find("button").click(function() {
         });
         closewindow();
     } else {
-        showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+        f.notEnough({
+            action: "money2"
+        });
     }
 });
 var donatBigGame = $("#donat-biggame");
@@ -5704,7 +5753,9 @@ donatBigGame.find("button").click(function() {
             });
             closewindow();
         } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
+            f.notEnough({
+                action: "money2"
+            });
         }
     }
 });
@@ -5829,7 +5880,9 @@ function doAuctionBet(param) {
         return;
     }
     if (betSum > u.money2) {
-        showMessage('Для такой ставки недостаточно <span class="money">денег</span> на вашем игровом счете');
+        f.notEnough({
+            action: "money2"
+        });
         return;
     }
     modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + over1000(betSum) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
@@ -5888,10 +5941,10 @@ var giftShop = $(".giftshop")
     if ([295, 308, 322, 324].indexOf(i) > -1) {
         return;
     }
-    if (i == 142 || (i > 252 && i < 273)) {
+    if (i === 142 || (i > 252 && i < 273)) {
         return;
     }
-    var gmg = (gifts[i].t == 1);
+    var gmg = (gifts[i].t === 1);
     if ((isShowGiftType1 && gmg) || (isShowGiftType2 && !gmg)) {
         $('<input type="radio" id="gift' + i + '" name="gift" value="' + i + '"/><label for="gift' + i + '" class="' + getGiftClass(i) + '" data-title="' + (gmg ? "на 30 дней" : "на память") + '"><b class="' + (gmg ? "game" : "") + 'money">' + over1000(gifts[i].p) + "</b></label>").appendTo(giftList);
     }
@@ -5899,7 +5952,7 @@ var giftShop = $(".giftshop")
   , showGiftList = function() {
     giftList.html("");
     if (giftSortOrder) {
-        if (giftSortOrder == 1) {
+        if (giftSortOrder === 1) {
             for (var i = 0, len = sortGifts.length; i < len; i++) {
                 addGiftOnList(sortGifts[i]);
             }
@@ -5930,7 +5983,7 @@ $("#giftSortDec").click(function() {
     showGiftList();
 });
 function selectGiftType() {
-    var type1 = (this.id == "giftSortType1")
+    var type1 = (this.id === "giftSortType1")
       , otherCheckBox = type1 ? $("#giftSortType2") : $("#giftSortType1");
     if (type1) {
         isShowGiftType1 = $(this).prop("checked");
@@ -5962,11 +6015,11 @@ giftShop.find("button").click(function() {
         showMessage("Вы забыли уточнить, кому хотите подарить подарок!");
         return;
     }
-    if (u.login == giftWhom) {
+    if (u.login === giftWhom) {
         showMessage("Вы не можете подарить подарок себе, это будет не по-товарищески.");
         return;
     }
-    if (((gifts[selGift].t == 2) ? u.money2 : u.money) >= gifts[selGift].p) {
+    if (((gifts[selGift].t === 2) ? u.money2 : u.money) >= gifts[selGift].p) {
         sendToSocket({
             type: "gift",
             whom: giftWhom,
@@ -6129,7 +6182,7 @@ function showCollect(collectNum) {
     }
     var curDiv = collectionWin.find("div");
     collectionWin.find("p").html(collectionsData[collectNum].info);
-    if (collectionsData[collectNum].multi && Object.size(u.collections[collectNum]) == 15) {
+    if (collectionsData[collectNum].multi && Object.size(u.collections[collectNum]) === 15) {
         var fullCol = true;
         for (var ind in u.collections[collectNum]) {
             if (u.collections[collectNum].hasOwnProperty(ind)) {
@@ -6170,7 +6223,7 @@ function showQuiz(data) {
       , qP = $("<p></p>");
     for (var i = 0; i < data.wordlen; i++) {
         var curLet = "<span";
-        if (data.open && data.open[i] && data.open[i] == " ") {
+        if (data.open && data.open[i] && data.open[i] === " ") {
             curLet += ' class="spaceLetter"';
         }
         curLet += ">" + ((data.open && data.open[i]) ? data.open[i] : "") + "</span>";
@@ -6398,6 +6451,14 @@ function showStatistics(data) {
                 }
             });
         }
+        if (data.params.news) {
+            $.each(data.params.news, function(ind, el) {
+                showNewDiv('<div class="news specialnews">' + el.text + "<sup>" + rusDate(ind) + "</sup></div>");
+            });
+            if (!isAppVK) {
+                showNewDiv('<div class="news">Присоединяйся к нам в <a href="https://t.me/joinchat/HmvAhBCL8vCkPu7EEv_-kA" target="_blank">Telegram</a></div>');
+            }
+        }
     }
     var div100p = function(v1, v2, text) {
         var div = $("<div/>").addClass("percent")
@@ -6495,7 +6556,7 @@ function showInventory() {
         if (Object.size(u.items) > 0 || u.bonus) {
             for (var i in u.items) {
                 if (u.items.hasOwnProperty(i)) {
-                    if (i != "nytoys" && u.items[i] > 0) {
+                    if (i !== "nytoys" && u.items[i] > 0) {
                         var title = (i > 0 && i < 7) ? roleText[gameMode()].items[i] : getItemsArray(i)
                           , curItem = $("<div></div>").attr("data-title", title).addClass("items-" + i);
                         if (u.items[i] > 1) {
@@ -7240,7 +7301,7 @@ function progressReward(obj) {
     var rewardHtml = "";
     for (var i in obj) {
         if (obj.hasOwnProperty(i)) {
-            rewardHtml += '<span class="' + progressRewardType(i) + '">' + ((i == "money") ? over1000(obj[i] * 1000) : obj[i]) + "</span>";
+            rewardHtml += '<span class="' + progressRewardType(i) + '">' + ((i === "money") ? over1000(obj[i] * 1000) : obj[i]) + "</span>";
         }
     }
     return rewardHtml;
@@ -7251,7 +7312,7 @@ function progressPersent(obj, i, curRang) {
     if (persent > 100) {
         persent = 100;
     }
-    return persent + "%" + ((persent == 100 && curRang != 7) ? '" data-title="Чтобы получить достижение, выполните задание еще 1 раз' : "");
+    return persent + "%" + ((persent === 100 && curRang !== 7) ? '" data-title="Чтобы получить достижение, выполните задание еще 1 раз' : "");
 }
 function progressRank(i, curRang) {
     var out = ""
@@ -7418,7 +7479,7 @@ var rouletteForm = $(".rouletteForm")
         }
         var event = e || window.event
           , target = event.target || event.srcElement;
-        if (target.tagName == "TD" || target.tagName == "TH") {
+        if (target.tagName === "TD" || target.tagName === "TH") {
             rouletteForm.find("span").html(target.innerHTML);
             rouletteForm.show();
         }
@@ -7456,7 +7517,7 @@ function loadImageFiles() {
     for (var mk = 1; mk <= 9; mk++) {
         new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
     }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png?240618", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
         new Image().src = el;
     });
 }
@@ -7489,7 +7550,7 @@ $(document).ready(function() {
     $(".gamesheader>.row6").click(function() {
         sortTable(6);
     });
-    shop.find("p").addClass("moneyblock").html('Ваш счёт <span class="gamemoney"></span> <span class="money"></span>');
+    shop.find("p").addClass("moneyblock").html('<span class="gamemoney"></span> <span class="money"></span>');
     for (var i = 1; i < 7; i++) {
         var pr1 = prices["i" + i]
           , pr2 = prices["i" + i] * 0.8
@@ -8731,7 +8792,7 @@ var startHours = {
     hisvote: {},
     votes: {}
 };
-var min10, replaceLogins = {}, randomNicks = ["Единорожка", "Булочка", "Тортик", "Пирожок", "Буковка", "Дятел", "Рожа", "Красавица", "Торчок", "Маньяк", "Крестоносец", "Страшила", "Бумеранг", "Мажор", "Хочу стенку", "Вреднуля", "Стакан", "Блатной", "Тихий вечер", "Скандинавец", "Тык-тык", "Персик", "Ватрушка", "Крышка", "Кролик", "Выдра", "Жиголо", "Скрытный", "Остроумный", "Любопытный", "Жук", "Зануда", "Плюшка"];
+var min10, replaceLogins = {}, randomNicks = ["Египет", "Марокко", "Нигерия", "Сенегал", "Тунис", "Австралия", "Иран", "Саудовская Аравия", "Южная Корея", "Япония", "Англия", "Бельгия", "Германия", "Дания", "Исландия", "Испания", "Польша", "Португалия", "Россия", "Сербия", "Франция", "Хорватия", "Швейцария", "Швеция", "Коста-Рика", "Мексика", "Панама", "Аргентина", "Бразилия", "Колумбия", "Уругвай", "Перу"];
 var showTime = function() {
     var h = game.time.h
       , m = game.time.m;
@@ -8816,7 +8877,7 @@ game.writeText = function(text, udata, important, noreplace) {
     var root = document.createElement("div");
     root.className = "message";
     if (udata) {
-        if (udata == "radio") {
+        if (udata === "radio") {
             root.className += " poh-radio";
         } else {
             if (udata.role) {
@@ -8843,7 +8904,7 @@ game.writeText = function(text, udata, important, noreplace) {
                             uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
                             root.appendChild(uIm);
                         } else {
-                            var nclass = (udata.sex == 1) ? "w" : "m";
+                            var nclass = (udata.sex === 1) ? "w" : "m";
                             nclass = (udata.image) ? nclass + udata.image : "";
                             root.className += " " + nclass;
                         }
@@ -8869,7 +8930,7 @@ game.event = function(data, datafrom, needReturn) {
     var getKeyVal = function(obj, str) {
         var out = {}
           , parts = str.split(":");
-        if (parts[0] == "all") {
+        if (parts[0] === "all") {
             parts.shift();
             obj = roleText.all;
         }
@@ -9086,16 +9147,16 @@ game.setPeriod = function(event) {
         return;
     }
     playersList.find("div").removeClass("voted");
-    if (event.period == 2) {
+    if (event.period === 2) {
         sound("day", true);
     } else {
-        if (event.period == 1) {
+        if (event.period === 1) {
             sound("night", true);
         } else {
             sound("notify", true);
         }
     }
-    if (event.period != 3) {
+    if (event.period !== 3) {
         playersList.find("b").html("");
     }
     game.day = event.day;
@@ -9109,14 +9170,14 @@ game.setPeriod = function(event) {
     var param = "";
     if (event.msgArray && event.msgArray.length > 0) {
         var msgs = event.msgArray;
-        if (game.period == 4) {
-            param = (msgs[0] == u._id) ? false : game.event(msgs[1], false, true);
+        if (game.period === 4) {
+            param = (msgs[0] === u._id) ? false : game.event(msgs[1], false, true);
         } else {
             var text = "";
             msgs.forEach(function(el) {
                 text += game.event(el, false, true) + "<br/>";
             });
-            game.writeText(text, false, (game.period == 2), true);
+            game.writeText(text, false, (game.period === 2), true);
         }
     }
     if (event.addInfo) {
@@ -9175,7 +9236,7 @@ game.setPeriod = function(event) {
         }
         break;
     case 2:
-        game.closed = (event.closed && event.closed == u._id) ? true : false;
+        game.closed = !!(event.closed && event.closed === u._id);
         container.removeClass("nightPeriod");
         if (game.active) {
             helper.hint("day-side" + (game.isRobber(game.role) ? "2" : "1"));
@@ -9183,7 +9244,7 @@ game.setPeriod = function(event) {
         break;
     case 3:
         if (game.active) {
-            helper.hint((event.msgArray && event.msgArray[0] && event.msgArray[0].p && event.msgArray[0].p.id && event.msgArray[0].p.id == u._id) ? "voteme" : "vote");
+            helper.hint((event.msgArray && event.msgArray[0] && event.msgArray[0].p && event.msgArray[0].p.id && event.msgArray[0].p.id === u._id) ? "voteme" : "vote");
         }
         break;
     }
@@ -9217,7 +9278,7 @@ game.action = function() {
     if (!game.active || !actionButton.html()) {
         return;
     }
-    if (room == "testgame") {
+    if (room === "testgame") {
         var selPl = playersList.find("div.select").attr("id");
         game.vote({
             target: helper.helpGamePlayers[selPl]._id,
@@ -9230,7 +9291,7 @@ game.action = function() {
     }
     if (playersList.find("div").is(".select")) {
         var selectedPl = playersList.find("div.select");
-        if (game.period == 1) {
+        if (game.period === 1) {
             modalWindow("Уверены, что хотите это сделать?", function() {
                 sendToSocket({
                     type: "game-action",
@@ -9304,7 +9365,7 @@ game.vote = function(data) {
 }
 ;
 game.kickVote = function(data) {
-    if (data.kick == 1) {
+    if (data.kick === "1") {
         game.kickVotes.yes++;
     } else {
         game.kickVotes.no++;
@@ -9314,8 +9375,8 @@ game.kickVote = function(data) {
         replacedata: {
             "[YESVOTE]": game.kickVotes.yes,
             "[NOVOTE]": game.kickVotes.no,
-            "[YESs]": ((game.kickVotes.yes == 1) ? "" : "и"),
-            "[NOs]": ((game.kickVotes.no == 1) ? "" : "и")
+            "[YESs]": ((game.kickVotes.yes === 1) ? "" : "и"),
+            "[NOs]": ((game.kickVotes.no === 1) ? "" : "и")
         }
     }, false, true);
     game.writeText('<span class="important">' + game.event(data.event, false, true) + "</span><br/>" + msgtext, data.event.p);
@@ -9460,9 +9521,9 @@ game.dejInfo = function(data) {
 ;
 var animateNumber = function(objId, newVal, digit1000) {
     var el;
-    if (objId == "gamemoney") {
+    if (objId === "gamemoney") {
         el = gamemoney;
-        if (gamemoney.html() && gamemoney.html() != over1000(newVal)) {
+        if (gamemoney.html() && gamemoney.html() !== over1000(newVal)) {
             sound("money");
         }
     } else {
@@ -9503,25 +9564,25 @@ game.start = function(data) {
     mW.hide();
     closewindow();
     if (specialDay) {
-        if (specialDay == "february23") {
+        if (specialDay === "february23") {
             var num = f.randomInt(13)
               , ext = "jpg";
             if (num > 10) {
                 num -= 10;
                 ext = "gif";
             } else {
-                if (num == 10) {
+                if (num === 10) {
                     ext = "png";
                 }
             }
             showWall("february23/" + num + "." + ext);
         }
-        if (specialDay == "march8") {
+        if (specialDay === "march8") {
             showWall("/images/holidays/march8/back.jpg", true);
         }
     } else {
         if (data.married) {
-            showWall((data.role) ? "wedding" + (data.role == 2 ? "2" : "1") + ".jpg" : "0.gif");
+            showWall((data.role) ? "wedding" + (data.role === 2 ? "2" : "1") + ".jpg" : "0.gif");
         } else {
             if (isMaffia) {
                 showWall((data.role) ? "maffia/" + data.role + ".jpg" : "0.gif");
@@ -9557,14 +9618,15 @@ game.start = function(data) {
     game.item2limit = (u.item2 && u.item2 > 2) ? 3 : 2;
     itemPanel.removeClass();
     itemPanel.find("div").removeClass("itemoff");
-    var caption = "";
+    var caption = ""
+      , startText = "";
     if (data.caption) {
         caption = data.caption;
     }
     if (data.gameinfo) {
         room = data.gameinfo._id;
         game.count = data.gameinfo.count;
-        closedgame = (data.gameinfo.style == 2);
+        closedgame = (data.gameinfo.style === 2);
         gametitle.html("<span>" + gameStyle[data.gameinfo.style] + " на " + data.gameinfo.count + " игроков</span>");
         showPlayersList({}, room);
         data.banks = data.gameinfo.banks;
@@ -9616,21 +9678,23 @@ game.start = function(data) {
     gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>');
     game.recalculateBanks(data.banks);
     if (data.married) {
-        game.writeText("Занимайте места поудобнее. Свадебная церемония начнется днем...");
+        startText += "Занимайте места поудобнее. Свадебная церемония начнется днем...";
     } else {
         if (data.intuition) {
-            showNewDiv('<div class="lastwords">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(data.intuition, "день", "дня", "дней") + "!</div>");
+            startText += '<div class="important">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(data.intuition, "день", "дня", "дней") + "!</div>";
         } else {
-            var firstStr = (game.style.style == 4) ? roleText.all["startText-sex"] : roleText[gameMode()].startText;
-            game.writeText(firstStr + '<div class="delimiter"></div>');
-            game.writeText((game.style.style == 4) ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role]);
+            startText += '<div class="startText">';
+            startText += (game.style.style === 4) ? roleText.all["startText-sex"] : roleText[gameMode()].startText;
+            startText += '</div><div class="message noimage">';
+            startText += (game.style.style === 4) ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role];
+            startText += "</div>";
         }
     }
     if (game.man) {
-        showNewDiv('<div class="lastwords">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>");
+        startText += '<div class="important">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>";
     }
-    if (caption.substring(0, 2).toLowerCase() == "пб" || game.botwall) {
-        showNewDiv('<div class="lastwords">Внимание! Это партия против ботов!</div>');
+    if (caption.substring(0, 2).toLowerCase() === "пб" || game.botwall) {
+        startText += '<div class="important">Внимание! Это партия против ботов!</div>';
     }
     if (!isMaffia) {
         $("#gift").show();
@@ -9641,24 +9705,25 @@ game.start = function(data) {
         data.roles.forEach(function(el) {
             allRoles += '<span class="rolesmile role' + el + '"></span>';
         });
-        showNewDiv("<div>" + allRoles + "</div");
+        startText += "<div>" + allRoles + "</div";
     }
     if (u.invite && playersInfoArray[u.invite]) {
-        showNewDiv('<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>");
+        startText += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>";
     }
     if (u.invited) {
         var pupils = [];
         for (var i in playersInfoArray) {
             if (playersInfoArray.hasOwnProperty(i)) {
-                if (playersInfoArray[i].invite && playersInfoArray[i].invite == u._id) {
+                if (playersInfoArray[i].invite && playersInfoArray[i].invite === u._id) {
                     pupils.push(playersInfoArray[i].login);
                 }
             }
         }
         if (pupils.length > 0) {
-            showNewDiv('<div class="red">В этой партии находятся ваши ученики: ' + pupils.join(", ") + "</div>");
+            startText += '<div class="red">В этой партии находятся ваши ученики: ' + pupils.join(", ") + "</div>";
         }
     }
+    showNewDiv('<div class="startgame">' + startText + "</div>");
     game.showPlaylist(data.players);
     clearInterval(min10);
     min10 = setInterval(function() {
@@ -9687,8 +9752,8 @@ function updateGameitems() {
         if (!u["item" + i] || u["item" + i] < 0) {
             u["item" + i] = 0;
         }
-        var itemVal = (i == 2) ? game.item2 : u["item" + i]
-          , limit = (i == 2) ? game.item2limit : items["g" + i];
+        var itemVal = (i === 2) ? game.item2 : u["item" + i]
+          , limit = (i === 2) ? game.item2limit : items["g" + i];
         if (!itemVal) {
             curItem.addClass("noitem");
         }
@@ -9753,8 +9818,8 @@ game.itemUse = function(data) {
             game.writeText(game.event({
                 text: "itemUse:cookie:text",
                 replacedata: {
-                    "[VERB]": ((playersInfoArray[data.uid].sex == 1) ? roleText[gameMode()].itemUse.cookie.verb1 : roleText[gameMode()].itemUse.cookie.verb2),
-                    "[nick]": playersInfoArray[data.uid].login
+                    "[VERB]": ((playersInfoArray[data.uid].sex === 1) ? roleText[gameMode()].itemUse.cookie.verb1 : roleText[gameMode()].itemUse.cookie.verb2),
+                    "[nick]": '<b class="nickname" data-id="' + data.uid + '">' + playersInfoArray[data.uid].login + "</b>"
                 }
             }, false, true));
         }
@@ -9786,7 +9851,7 @@ game.buyAnswer = function(data) {
         if (data["item" + el]) {
             u["item" + el] = data["item" + el];
             game.items[el]++;
-            if (el == 2) {
+            if (el === 2) {
                 game.item2++;
             }
         }
@@ -9872,6 +9937,25 @@ var snowball = {
     time: 0,
     timer: 0
 }
+  , battleWords = {
+    100: {
+        nodefend: "Выберите свою позицию - в первых рядах или позади?",
+        noattack: "Выберите тип броска - на точность или на силу?",
+        notarget: "Выберите соперника, в которого хотите бросить снежком",
+        killed: "Вас забросали снегом :(<br/> Вам удастся продолжить борьбу, если ваша команда выиграет этот раунд и &quot;откопает&quot; Вас",
+        shot: "../battle/snowball/shot.gif"
+    },
+    101: {
+        nodefend: "Решайтесь! В атаку или в укрытие?",
+        noattack: "Как будем стрелять?",
+        notarget: "В кого будем стрелять?",
+        killed: "Вы не в силах продолжить сражение :(<br/> Если Ваша команда выиграет, Вы сможете принять участие в следующем раунде",
+        shot: "../battle/shot.gif"
+    }
+}
+  , battleType = function() {
+    return (snowball.type === 100) ? "snow" : "battle";
+}
   , battleDiv = $(".battleDiv")
   , snowPlayList1 = battleDiv.find(".playerlist").eq(0)
   , snowPlayList2 = battleDiv.find(".playerlist").eq(1)
@@ -9880,26 +9964,30 @@ var snowball = {
 battleDiv.find(".playerlist").bind("dblclick touchmove", function(e) {
     var event = e || window.event;
     var target = event.target || event.srcElement;
-    if (target.tagName != "DIV" || target.className == "playerlist") {
+    if (target.tagName !== "DIV" || target.className === "playerlist") {
         return;
     }
     $("#adresat-id").val(target.id);
     $("#adresat").val(target.dataset.nick);
 });
-$("#snowball-domove").click(function() {
-    var defend = battleDiv.find("input[name=snowball-def]:checked").val()
-      , attack = battleDiv.find("input[name=snowball-att]:checked").val()
-      , target = battleDiv.find("#snowball-target").val();
+$(".snowball-domove").click(function() {
+    var defend = battleMain.find("input[name=snowball-def]:checked").val()
+      , attack = battleMain.find("input[name=snowball-att]:checked").val()
+      , target = snowSelect.val();
     if (!defend) {
-        showMessage("Выберите свою позицию - в первых рядах или позади?");
+        showMessage(battleWords[snowball.type].nodefend);
         return;
     }
+    if (snowball.type === 101 && defend === "2") {
+        attack = "1";
+        target = u._id;
+    }
     if (!attack) {
-        showMessage("Выберите тип броска - на точность или на силу?");
+        showMessage(battleWords[snowball.type].noattack);
         return;
     }
     if (!target) {
-        showMessage("Выберите соперника, в которого хотите бросить снежком");
+        showMessage(battleWords[snowball.type].notarget);
         return;
     }
     sendToSocket({
@@ -9909,6 +9997,11 @@ $("#snowball-domove").click(function() {
         target: target
     });
     battleMain.addClass("battlewait");
+});
+$(".battle101").find("input[name=snowball-def]").change(function() {
+    $(this).parent().next("div").css({
+        display: ($("#battle-def2").prop("checked") ? "none" : "block")
+    });
 });
 snowball.action = function(data) {
     if (!data.action) {
@@ -9932,6 +10025,11 @@ snowball.action = function(data) {
 ;
 snowball.start = function(data) {
     container.addClass("battle");
+    $(".battlemain").hide();
+    battleMain = $(".battlemain.battle" + data.gtype);
+    battleMain.show();
+    snowball.type = data.gtype;
+    snowSelect = data.gtype === 100 ? $("#snowball-target") : $("#battle-target");
     playersInfoArray = data.players;
     messagesList.html("");
     mW.hide();
@@ -9968,11 +10066,11 @@ snowball.setRound = function(data) {
         snowSelect.append('<option value="' + el[1] + '">' + el[0] + "</option>");
     });
     showNewDiv('<br/><div class="important">' + snowball.roundName[data.round] + "</div>");
-    if (data.sides[1].indexOf(u._id) == -1 && data.sides[2].indexOf(u._id) == -1) {
-        battleMain.addClass("insnow");
+    if (data.sides[1].indexOf(u._id) === -1 && data.sides[2].indexOf(u._id) === -1) {
+        battleMain.addClass("killed");
         snowball.active = false;
     } else {
-        battleMain.removeClass("insnow");
+        battleMain.removeClass("killed");
         snowball.active = true;
     }
     snowball.time = 0;
@@ -10001,7 +10099,7 @@ snowball.playerList = function(ids, playlist) {
                 newPl.addClass("red");
             }
             newPl.find("b").addClass("status" + el.icon);
-            $('<span class="snowblock"></span>').appendTo(newPl);
+            $('<span class="' + battleType() + 'block"></span>').appendTo(newPl);
         }
     });
     var str = [];
@@ -10029,10 +10127,10 @@ snowball.newMove = function(data) {
     game.writeText(text);
     if (data.del) {
         data.del.forEach(function(el) {
-            if (el == u._id) {
-                showWall("//loday.ru/images/snowball/shot.gif", true);
-                battleMain.addClass("insnow");
-                showMessage("Вас забросали снегом :(<br/> Вам удастся продолжить борьбу, если ваша команда выиграет этот раунд и &quot;откопает&quot; Вас");
+            if (el === u._id) {
+                showWall(battleWords[snowball.type].shot);
+                battleMain.addClass("killed");
+                showMessage(battleWords[snowball.type].killed);
                 snowball.active = false;
             }
             battleDiv.find("#" + el).addClass("snowman");
@@ -10042,8 +10140,8 @@ snowball.newMove = function(data) {
     if (data.pl) {
         for (var i in data.pl) {
             if (data.pl.hasOwnProperty(i)) {
-                var plDiv = battleDiv.find("#" + i).find(".snowblock");
-                plDiv.css("width", parseInt(plDiv.css("height")) * data.pl[i] + "px");
+                var plDiv = battleDiv.find("#" + i).find("." + battleType() + "block");
+                plDiv.css("width", snowball.type === 100 ? parseInt(plDiv.css("height")) * data.pl[i] + "px" : 20 * (5 - data.pl[i]) + "%");
             }
         }
     }
@@ -10532,10 +10630,10 @@ playersList.on("contextmenu", function(e) {
     return menu(true, e);
 });
 $("output").on("contextmenu", function(e) {
-    if ((e.target.nodeName == "B" || e.target.nodeName == "STRONG") && e.target.getAttribute("data-id")) {
+    if ((e.target.nodeName === "B" || e.target.nodeName === "STRONG") && e.target.getAttribute("data-id")) {
         var uid = e.target.getAttribute("data-id");
-        if (e.target.textContent && uid != u._id) {
-            var addIs = (reds.indexOf(uid) == -1);
+        if (e.target.textContent && uid !== u._id) {
+            var addIs = (reds.indexOf(uid) === -1);
             modalWindow("Хотите " + (addIs ? "игнорировать" : "видеть") + " сообщения игрока " + e.target.textContent + "?", function() {
                 addRed(e.target.getAttribute("data-id"), addIs);
             });
@@ -10544,26 +10642,31 @@ $("output").on("contextmenu", function(e) {
     }
     return true;
 });
+$(document).on("mousemove touchmove", "[data-title]", function(e) {
+    tooltip(e, $(this).attr("data-title"), true);
+}).on("mouseleave touchleave", "[data-title]", function(e) {
+    tooltip(e, "", false);
+});
 function hotkey(event) {
-    if (room.length < 3 && event.ctrlKey && event.keyCode == 192) {
+    if (room.length < 3 && event.ctrlKey && event.keyCode === 192) {
         closewindow();
         randomGame();
     }
-    if (event.keyCode == 27) {
+    if (event.keyCode === 27) {
         closewindow();
     }
 }
 function keyDown(event) {
-    if (event.which == 112) {
+    if (event.which === 112) {
         event.preventDefault();
         helper.start();
         return false;
     } else {
-        if (event.which == 122) {
+        if (event.which === 122) {
             fullScreenToggle();
             return false;
         } else {
-            if (event.keyCode == 8 && (event.target.tagName != "INPUT" || event.target.readOnly) && event.target.tagName != "TEXTAREA" && !event.target.getAttribute("contenteditable")) {
+            if (event.keyCode === 8 && (event.target.tagName !== "INPUT" || event.target.readOnly) && event.target.tagName !== "TEXTAREA" && !event.target.getAttribute("contenteditable")) {
                 event.preventDefault();
                 return false;
             } else {
@@ -10573,7 +10676,7 @@ function keyDown(event) {
     }
 }
 inputField.keydown(function(event) {
-    if (event.which == 38 && !inputField.val()) {
+    if (event.which === 38 && !inputField.val()) {
         event.preventDefault();
         inputField.val(lastMsg);
         return false;
@@ -10587,7 +10690,7 @@ function Unloader() {
     var o = this;
     this.unload = function(evt) {
         var message = "Вы уверены, что хотите покинуть игру?";
-        if (typeof evt == "undefined") {
+        if (typeof evt === "undefined") {
             evt = window.event;
         }
         if (evt) {
@@ -10911,3 +11014,17 @@ function socketConnect(retry) {
     }
     ws.onmessage = socketEvent;
 }
+(function() {
+    var cm2018cities = ["Москва", "Калининград", "Санкт-Петербург", "Нижний Новгород", "Волгоград", "Казань", "Самара", "Саранск", "Ростов-на-Дону", "Сочи", "Екатеринбург"]
+      , cssStr = ""
+      , selCity = "Город"
+      , selectedCities = [];
+    for (var i = 0; i <= 6; i++) {
+        do {
+            selCity = cm2018cities.randomValue();
+        } while (selectedCities.indexOf(selCity) > -1);selectedCities.push(selCity);
+        cssStr += ".hall" + i + ':before{content:"' + selCity + '" !important}';
+        b.append("<style>" + cssStr + "</style>");
+    }
+}
+)();
