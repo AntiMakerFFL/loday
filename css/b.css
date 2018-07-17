@@ -811,8 +811,8 @@ nav>h2 {
 }
 
 .maffia nav>h2 {
-    -webkit-filter: brightness(50%);
-    filter: brightness(50%)
+    -webkit-filter: brightness(50%)!important;
+    filter: brightness(50%)!important
 }
 
 .hall1,.greenroom1>b {
@@ -3306,7 +3306,8 @@ label {
     height: 100%;
     display: none;
     padding: 10px;
-    box-sizing: border-box
+    box-sizing: border-box;
+    overflow-y: auto
 }
 
 .info>div:before,section.bonus-ring:before {
@@ -3747,6 +3748,10 @@ button:active,.button:active {
     background: url(/images/maffia/shop/item1-1.png) center/contain no-repeat
 }
 
+.gamemsg:before {
+    background: url(/images/roll_arrow.png) center/contain no-repeat
+}
+
 .ingame .message {
     border-bottom: 1px outset rgba(66,33,33,0.1);
     margin: 3px 1px
@@ -4122,7 +4127,7 @@ button:active,.button:active {
     height: 50%
 }
 
-.gameoptions>#gamePanel label {
+.gameoptions>#gamePanel label,#gamePanel>#gametype1_4 {
     display: block;
     float: left;
     box-sizing: border-box;
@@ -4143,7 +4148,7 @@ button:active,.button:active {
     display: none
 }
 
-#gamePanel>label:before {
+#gamePanel>label:before,#gamePanel>#gametype1_4:before {
     display: block!important;
     position: absolute;
     top: 0;
@@ -4169,25 +4174,25 @@ button:active,.button:active {
     display: block
 }
 
-#gamePanel>label:nth-of-type(1):before {
+#gamePanel>#gametype1_4:before {
     content: 'Cокращенная'
 }
 
-#gamePanel>label:nth-of-type(2):before {
+#gamePanel>label:nth-of-type(1):before {
     content: 'Обычная'
 }
 
-#gamePanel>label:nth-of-type(3):before {
+#gamePanel>label:nth-of-type(2):before {
     content: 'Расширенная'
 }
 
-#gamePanel input:checked+label,.gameoptions>#gamePanel>label.checkedGameType {
+#gamePanel input:checked+label,.gameoptions>#gamePanel>#gametype1_4.checkedGameType {
     background-image: url(/images/new/block.png);
     -webkit-filter: contrast(1.5);
     filter: contrast(1.5)
 }
 
-.maffia #gamePanel input:checked+label,.maffia .gameoptions>#gamePanel>label.checkedGameType {
+.maffia #gamePanel input:checked+label,.maffia .gameoptions>#gamePanel>#gametype1_4.checkedGameType {
     background: rgba(255,5,5,0.4);
     box-shadow: inset 5px 5px 3px rgba(255,55,5,0.5),inset -5px -5px 3px rgba(255,55,5,0.5);
     color: #fff;
@@ -4206,7 +4211,7 @@ button:active,.button:active {
     text-align: center
 }
 
-#gamePanel>label:nth-of-type(1)>.gametypeinfo>span {
+#gametype1_4>.gametypeinfo>span {
     display: block
 }
 
@@ -4216,7 +4221,6 @@ button:active,.button:active {
     width: 40%;
     height: 49%;
     font: 500 1.2em/1em Ubuntu,Arial,san-serif;
-    box-shadow: inset 5px 5px 300px rgba(255,255,205,0.7),inset -5px -5px 300px rgba(255,255,205,0.7);
     border-radius: 10px;
     padding: 10px;
     box-sizing: border-box;
@@ -4334,6 +4338,11 @@ button.usergame {
     clear: both;
     margin: 20px auto;
     max-width: 400px
+}
+
+#UGTemplates>label {
+    display: inline;
+    margin-right: 5px
 }
 
 #UGsaves {
@@ -4554,7 +4563,8 @@ button.usergame {
     font-size: 1.2em;
     background: #006;
     padding: 6px 10px;
-    box-shadow: 0 0 10px 6px #008
+    box-shadow: 0 0 10px 6px #008;
+    margin: 10px 10px 5px
 }
 
 .support>textarea,.support>button {
@@ -4588,6 +4598,123 @@ button.usergame {
     margin-top: 15px;
     width: 200px;
     max-width: 100%
+}
+
+#container>.window.clanwin {
+    background: #6fadff
+}
+
+.maffia #container>.window.clanwin {
+    background: #101070
+}
+
+#container>.window.clanwin:before {
+    display: none
+}
+
+.clan-window {
+    background: none 0 30px no-repeat;
+    padding: 25px 10px 30px 210px!important
+}
+
+.clan-window:before {
+    content: 'Информация о клане'
+}
+
+.maffia .clan-window {
+    color: #fff
+}
+
+.clan-window>div:before {
+    display: block;
+    font: 700 14px Ubuntu,sans-serif;
+    text-align: center
+}
+
+.clan-window strong {
+    cursor: pointer
+}
+
+.clan-window strong:hover {
+    text-decoration: underline
+}
+
+.clan-window>button {
+    display: block;
+    margin: 5px auto;
+    padding: 3px 10px
+}
+
+.clan-name {
+    font: italic 700 24px Georgia,serif;
+    text-align: center;
+    color: #e0eff2;
+    text-shadow: -2px 3px 0 #3a50d9,-1px 1px 0 #0a0e27
+}
+
+.clan-slogan {
+    text-align: right;
+    font: 700 16px 'Bad Script',cursive;
+    padding: 10px 20px
+}
+
+.clan-info {
+    margin: 10px;
+    padding: 0 20px 10px;
+    border: 3px ridge #961;
+    border-radius: 9px;
+    font: 16px/24px Lora,serif
+}
+
+.clan-info:before {
+    content: 'Информация о клане'
+}
+
+.clan-info>mark {
+    display: block;
+    text-align: right;
+    color: #cfcfcf;
+    font: 700 12px Ubuntu,sans-serif
+}
+
+.clan-leader {
+    position: absolute;
+    top: 300px;
+    left: 15px;
+    width: 200px;
+    text-align: center
+}
+
+.clan-leader:before {
+    content: 'Глава клана:'
+}
+
+.clan-members {
+    margin: 10px;
+    border: 1px solid #c93;
+    padding: 2px 10px 15px
+}
+
+.clan-members:empty {
+    display: none
+}
+
+.clan-members:before {
+    content: 'Участники клана';
+    text-align: center;
+    border-bottom: 1px dashed #999;
+    margin-bottom: 5px
+}
+
+.clan-members>strong {
+    display: block;
+    margin: 5px 10px
+}
+
+.clan-members>span {
+    margin: 3px 10px;
+    cursor: pointer;
+    text-decoration: underline
 }
 
 #container>.window.buyboxwin {
@@ -5096,8 +5223,8 @@ button.usergame {
     max-width: 520px
 }
 
-.heart,.total,.curgames,.auction,.tournaments,.quiztop,.pay,.shop,.donatoptions,.collect,.aboutgame,.stat,.playerInfoBlock,.inventory,.userGame,.myprogress,.lottery {
-    overflow-y: auto
+.newgame,.areamap,.roll,.giftshop {
+    overflow: hidden!important
 }
 
 .heart:before {
@@ -7537,6 +7664,18 @@ button.usergame {
     right: 0
 }
 
+.clanPlayer:after {
+    display: none
+}
+
+.clanPlayer>.clan-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20px;
+    height: 20px
+}
+
 .blank:before {
     content: 'Анкета'
 }
@@ -7853,6 +7992,23 @@ button.usergame {
 .lastvisit:before {
     content: 'Последний визит:';
     display: block
+}
+
+.playerInfoBlock .clan-status {
+    padding-left: 25px;
+    text-align: left;
+    height: 24px;
+    line-height: 22px;
+    background-repeat: no-repeat;
+    border-top: 1px dashed #fcc;
+    border-bottom: 1px dashed #fcc;
+    margin-top: 10px;
+    cursor: pointer
+}
+
+.playerInfoBlock .clan-status:hover {
+    text-decoration: underline;
+    border-color: transparent
 }
 
 .playerInfo-stat>.nick {
@@ -8348,6 +8504,11 @@ button.usergame {
     content: 'Вы - снеговик!'
 }
 
+.battle101:after {
+    background: 0;
+    color: #fff
+}
+
 .battle101.killed {
     background: #000;
     background: rgba(0,0,0,0.5)
@@ -8355,8 +8516,6 @@ button.usergame {
 
 .battle101.killed:after {
     content: 'Вы - убиты!';
-    background: 0;
-    color: #fff;
     top: 0
 }
 
@@ -8548,7 +8707,7 @@ input[type="checkbox"],input[type="radio"] {
     z-index: 3333
 }
 
-#container>.warningWindow p,#modalWindow p,#optionsWindow p {
+#container>.warningWindow .modal2,#modalWindow .modal2,#optionsWindow .modal2 {
     text-align: center;
     border: 5px ridge #2312ff;
     border-radius: 10px 10px 0 0;
@@ -8561,7 +8720,7 @@ input[type="checkbox"],input[type="radio"] {
     font-weight: 700
 }
 
-#container>.warningWindow p:before,#modalWindow p:before,#optionsWindow p:before {
+#container>.warningWindow .modal2:before,#modalWindow .modal2:before,#optionsWindow .modal2:before {
     content: 'Ищи удачи в следующей игре!';
     display: block;
     text-align: center;
@@ -8576,31 +8735,31 @@ input[type="checkbox"],input[type="radio"] {
     text-shadow: 1px 1px 1px #999,-1px -1px 1px #999,1px -1px 1px #999,-1px 1px 1px #999
 }
 
-.maffia #container>.warningWindow p:before,.maffia #modalWindow p:before,.maffia #optionsWindow p:before {
+.maffia #container>.warningWindow .modal2:before,.maffia #modalWindow .modal2:before,.maffia #optionsWindow .modal2:before {
     text-shadow: none
 }
 
-#container>.warningWindow p:before {
+#container>.warningWindow .modal2:before {
     content: none;
     display: none;
     color: #00f
 }
 
-#optionsWindow p:before {
+#optionsWindow .modal2:before {
     content: 'Настройки';
     color: #90c
 }
 
-.maffia #optionsWindow p:before {
+.maffia #optionsWindow .modal2:before {
     color: #fff
 }
 
-#container>.warningWindow.win p {
+#container>.warningWindow.win .modal2 {
     padding-top: 200px;
     background: #f4f5f1
 }
 
-#container>.warningWindow.win p:before {
+#container>.warningWindow.win .modal2:before {
     content: url(/images/win.jpg);
     display: block;
     width: 100%;
@@ -8655,11 +8814,11 @@ input[type="checkbox"],input[type="radio"] {
     opacity: 1
 }
 
-#container>.warningWindow.menwin p,#container>.warningWindow.womenwin p {
+#container>.warningWindow.menwin .modal2,#container>.warningWindow.womenwin .modal2 {
     padding-top: 200px
 }
 
-#container>.warningWindow.menwin p:before,#container>.warningWindow.womenwin p:before {
+#container>.warningWindow.menwin .modal2:before,#container>.warningWindow.womenwin .modal2:before {
     content: '';
     display: block;
     width: 100%;
@@ -8667,15 +8826,15 @@ input[type="checkbox"],input[type="radio"] {
     height: 200px
 }
 
-#container>.warningWindow.menwin p:before {
+#container>.warningWindow.menwin .modal2:before {
     content: url(/images/win-men.png)!important
 }
 
-#container>.warningWindow.womenwin p:before {
+#container>.warningWindow.womenwin .modal2:before {
     content: url(/images/win-women.png)!important
 }
 
-#modalWindow p:before {
+#modalWindow .modal2:before {
     content: 'Cделай выбор!'!important
 }
 
@@ -8972,15 +9131,14 @@ input[type=range]::-ms-thumb {
 }
 
 #optionsWindow label#fontOptions {
-    height: auto;
+    height: auto
+}
+
+#fontOptions+div {
     margin-bottom: 5px
 }
 
-#fontOptions>span {
-    display: block
-}
-
-#fontOptions label {
+#fontOptions+div>label {
     display: inline-block
 }
 
@@ -9145,8 +9303,9 @@ input[type=range]::-ms-thumb {
     cursor: default
 }
 
-.modal>p {
-    margin: 0
+.modal>.modal2>.modal3 {
+    word-break: normal;
+    word-wrap: break-word
 }
 
 .modal blockquote {
@@ -9160,12 +9319,7 @@ input[type=range]::-ms-thumb {
     font-family: Ubuntu,sans-serif
 }
 
-.modal>p>span {
-    word-break: normal;
-    word-wrap: break-word
-}
-
-#infomessage p {
+#infomessage .modal2 {
     background-color: rgba(255,255,235,0.7);
     border: 1px solid #329;
     border-radius: 3px;
@@ -9176,7 +9330,7 @@ input[type=range]::-ms-thumb {
     white-space: normal
 }
 
-#infomessage p:after {
+#infomessage .modal2:after {
     content: 'Ясно';
     display: block;
     margin: 0 auto;
@@ -9244,7 +9398,7 @@ body {
     transform: rotateX(0deg)
 }
 
-#cash p {
+#cash .modal2 {
     text-align: center;
     box-sizing: border-box;
     padding: 30px 20px 60px 20px;
@@ -9256,7 +9410,7 @@ body {
     background: rgba(255,255,240,0.9)
 }
 
-.maffia #cash p {
+.maffia #cash .modal2 {
     position: absolute;
     top: 20%;
     left: 10%;
@@ -9271,59 +9425,59 @@ body {
     text-shadow: 0 0 3px #009
 }
 
-.maffia #cash p .gamemoney {
+.maffia #cash .modal2 .gamemoney {
     display: block;
     font: 40px/42px 'LED',sans-serif
 }
 
-#cash p:before {
+#cash .modal2:before {
     content: '';
     display: block;
     height: 150px;
     background: none center top no-repeat
 }
 
-#cash.cash0 p:before {
+#cash.cash0 .modal2:before {
     background-image: url(/images/cash/00.png)
 }
 
-#cash.cash1 p:before {
+#cash.cash1 .modal2:before {
     background-image: url(/images/cash/01.png)
 }
 
-#cash.cash2 p:before {
+#cash.cash2 .modal2:before {
     background-image: url(/images/cash/02.png)
 }
 
-#cash.cash3 p:before {
+#cash.cash3 .modal2:before {
     background-image: url(/images/cash/03.png)
 }
 
-#cash.cash4 p:before {
+#cash.cash4 .modal2:before {
     background-image: url(/images/cash/04.png)
 }
 
-#cash.cash5 p:before {
+#cash.cash5 .modal2:before {
     background-image: url(/images/cash/05.png)
 }
 
-#cash.cash6 p:before {
+#cash.cash6 .modal2:before {
     background-image: url(/images/cash/06.png)
 }
 
-#cash.cash7 p:before {
+#cash.cash7 .modal2:before {
     background-image: url(/images/cash/07.png)
 }
 
-#cash.cash8 p:before {
+#cash.cash8 .modal2:before {
     background-image: url(/images/cash/08.png)
 }
 
-#cash.cash9 p:before {
+#cash.cash9 .modal2:before {
     background-image: url(/images/cash/09.png)
 }
 
-#cash p:after {
+#cash .modal2:after {
     content: 'Cпасибо!';
     display: block;
     margin: 20px auto 0;
@@ -9335,7 +9489,7 @@ body {
     cursor: pointer
 }
 
-.maffia #cash p:before,.maffia #cash p:after {
+.maffia #cash .modal2:before,.maffia #cash .modal2:after {
     display: none
 }
 
@@ -9892,6 +10046,8 @@ body {
 }
 
 .areamap>object {
+    width: 100%;
+    height: 100%;
     padding: 1% 10% 1% 10%!important;
     background: url(/images/map/back.png) no-repeat;
     background-size: 100% 100%;
@@ -10002,23 +10158,6 @@ body {
 
 #left-panel>div:hover {
     border-left: 5px solid #827c99
-}
-
-.show-left-panel {
-    font-size: 30px;
-    text-align: center
-}
-
-.show-left-panel:before {
-    display: none
-}
-
-#left-panel>.show-left-panel~div {
-    display: none
-}
-
-#left-panel>.show-left-panel.active-left-panel~div {
-    display: block
 }
 
 #container #left-panel>div {
@@ -10335,7 +10474,7 @@ body {
     text-align: right
 }
 
-.items-7,.items-12,.items-13,.items-18 {
+.items-7,.items-12,.items-13,.items-18,.items-24 {
     cursor: auto!important
 }
 
@@ -11248,11 +11387,11 @@ section.bonus-ring:before {
     background-image: url(/images/maffia/roll.png)
 }
 
-.maffia #container>.warningWindow.win p {
+.maffia #container>.warningWindow.win .modal2 {
     padding-top: 100px
 }
 
-.maffia #container>.warningWindow.win p:before {
+.maffia #container>.warningWindow.win .modal2:before {
     content: url(/images/maffia/gamelogo.png)
 }
 
@@ -11305,7 +11444,7 @@ section.bonus-ring:before {
     box-shadow: none
 }
 
-.maffia #container>.warningWindow p,.maffia #modalWindow p,.maffia #optionsWindow p {
+.maffia #container>.warningWindow .modal2,.maffia #modalWindow .modal2,.maffia #optionsWindow .modal2 {
     color: #fff;
     background: #122722;
     border: 5px solid #1c5a65;
@@ -11808,13 +11947,32 @@ button {
 
 #curatorWindow.hide {
     top: auto;
+    width: 30px;
     height: 30px;
     padding: 0;
     cursor: pointer
 }
 
+#curatorWindow.hide:before {
+    display: none
+}
+
 #curatorWindow.hide>.curatorHide:before {
-    content: '..'
+    content: '?';
+    line-height: 18px;
+    color: #003
+}
+
+#curatorWindow.hide:hover {
+    width: 200px
+}
+
+#curatorWindow.hide:hover:before {
+    display: block
+}
+
+#curatorWindow.hide:hover>.curatorHide:before {
+    color: #fff
 }
 
 #curatorWindow.hide>div.output,#curatorWindow.hide>input {
@@ -12154,7 +12312,7 @@ button {
     }
 
     .panel-top,.panel-bottom {
-        margin-right: 0
+        margin-right: 35px
     }
 
     #smiles>label {
@@ -12164,18 +12322,39 @@ button {
     #smiles>label:after {
         display: none
     }
-}
-
-@media(max-width: 600px) and (min-width:400px) {
-    #nick,#image,#indicator {
-        display:none
-    }
 
     #container>header>h3 {
         margin: 2px;
         font-size: 14px;
         height: 20px;
         padding: 1px 2px
+    }
+
+    #shareButton {
+        padding: 3px
+    }
+
+    #curatorWindow.hide {
+        width: 25px;
+        height: 20px
+    }
+
+    #curatorWindow.hide:before {
+        display: none
+    }
+
+    #curatorWindow>.curatorHide {
+        top: 0;
+        height: 18px;
+        border: 1px solid #fff;
+        font-size: 18px;
+        color: #000
+    }
+}
+
+@media(max-width: 600px) and (min-width:400px) {
+    #nick,#image,#indicator {
+        display:none
     }
 
     header {
@@ -12216,7 +12395,7 @@ button {
     }
 }
 
-@media(max-width: 400px) {
+@media(max-width: 430px) {
     html,body {
         overflow-x:auto;
         width: 601px

@@ -52,6 +52,10 @@ var domain = document.location.hostname
     g5: 1
 }
   , testMode = false
+  , clanView = {
+    id: false,
+    info: false
+}
   , specialDay = false
   , server2 = (typeof (server2) !== "undefined")
   , lastMsg = ""
@@ -2099,11 +2103,11 @@ function escapeHtml(text) {
 function warningWindow(text, callback, buttext, win, specialclass) {
     var newWW = wW.clone();
     newWW.appendTo(container);
-    newWW.find("span").html(text);
+    newWW.find(".modal3").html(text);
     if (buttext === "Выйти из игры") {
         $("<div/>").addClass("button").html("Посмотреть игру").click(newWW, function(e) {
             e.data.remove();
-        }).appendTo(newWW.find("p>span"));
+        }).appendTo(newWW.find(".modal3"));
     }
     newWW.show();
     var wb = newWW.find("button");
@@ -2146,7 +2150,7 @@ mW.hide = oW.hide = function() {
 ;
 function modalWindow(text, callback, callback2) {
     mW.find(".modal").removeAttr("style");
-    mW.find("span").html(text);
+    mW.find(".modal3").html(text);
     mW.find("button").eq(0).unbind("click").one("click", function() {
         mW.hide();
         if (callback) {
@@ -2163,7 +2167,7 @@ function modalWindow(text, callback, callback2) {
 }
 function showCash(text) {
     var cW = $("#cash")
-      , p = cW.find("p");
+      , p = cW.find(".modal2");
     cW.removeClass().addClass("cash" + Math.floor(Math.random() * 9));
     p.html(text);
     p.unbind("click");
@@ -2557,6 +2561,17 @@ function sendMessage() {
             friendQuery("friend-question", adresat);
         }
         break;
+    case "бах":
+        if (adresat.length > 0 && u.items[24]) {
+            sendToSocket({
+                type: "items",
+                action: "24",
+                login: $("#adresat").val(),
+                uid: adresat
+            });
+            needsend = false;
+        }
+        break;
     case "я хочу":
         showWall("other/fallstar.gif");
         break;
@@ -2726,9 +2741,10 @@ function editPlayerList(user, leave, multi) {
         }
     } else {
         playersInfoArray[user._id] = user;
-        var newPl = $('<div id="' + user._id + '"><b></b>' + user.login + "</div>");
+        var newPl = $("<div/>", {
+            id: user._id
+        }).html("<b></b>" + user.login);
         newPl.attr("data-nick", user.login);
-        newPl.appendTo(playersList);
         newPl.mouseenter(function() {
             showPlayerInfo(true, $(this).attr("id"));
             return false;
@@ -2742,11 +2758,20 @@ function editPlayerList(user, leave, multi) {
         if (user.vip) {
             newPl.addClass("vipPlayer");
         }
-        if (room.length < 3) {
-            newPl.addClass("mode" + user.mode);
-        }
         if (user.curator) {
             newPl.addClass("curatorPlayer");
+        } else {
+            if (user.clan) {
+                newPl.addClass("clanPlayer");
+                $("<span/>", {
+                    "data-id": user.clan,
+                    "class": "clan-icon"
+                }).css("background", "url(/images/clans/" + user.clan + "/icon.png)").appendTo(newPl);
+            } else {
+                if (room.length < 3) {
+                    newPl.addClass("mode" + user.mode);
+                }
+            }
         }
         if (reds.indexOf(user._id) > -1) {
             newPl.addClass("red");
@@ -2757,6 +2782,7 @@ function editPlayerList(user, leave, multi) {
         if (user.marked === 1) {
             newPl.addClass("marked");
         }
+        newPl.appendTo(playersList);
         if (!multi && room.length > 2 && !container.hasClass("current")) {
             userGoEvent(user, leave);
             if (!closedgame) {
@@ -2775,6 +2801,39 @@ function editPlayerList(user, leave, multi) {
     playersList.html();
     $.each(str, function() {
         playersList.append(this[1]);
+    });
+}
+function clanProfile(target) {
+    var clan = target.attr("data-id");
+    if (clan > 0) {
+        clanView.id = clan;
+        sendToSocket({
+            type: "clan",
+            action: "info",
+            id: clanView.id
+        });
+    }
+}
+function joinToClan() {
+    if (clanView.id) {
+        modalWindow("Уверены, что хотите подать заявку на вступление в клан " + clanView.info.name + "? В настоящий момент опция выхода из клана неактивна.", function() {
+            sendToSocket({
+                type: "clan",
+                action: "join",
+                id: clanView.id
+            });
+        });
+    }
+}
+function acceptToClan(target) {
+    var isTake = (target.attr("data-param") !== "no");
+    modalWindow((isTake ? "Принять игрока" : "Отказать игроку во вступлении") + " в клан?", function() {
+        sendToSocket({
+            type: "clan",
+            action: "accept",
+            uid: target.attr("data-uid"),
+            take: isTake
+        });
     });
 }
 var zTimers = {}
@@ -3479,6 +3538,10 @@ function socketEvent(message) {
         break;
     case "updateInfo":
         delete event.type;
+        if (event.msg) {
+            showMessage(event.msg);
+            delete event.msg;
+        }
         updateInterface(event);
         break;
     case "profile":
@@ -3754,6 +3817,12 @@ function socketEvent(message) {
             showMessage('На ёлке совершенно случайно Вы заметили фрагмент Новогодней коллекции <div class="collect' + event.data.collect + " collect-element collect-element" + event.data.element + '"><div>');
         }
         break;
+    case "clan":
+        if (event.info) {
+            clanView.info = event.info;
+            showWindow("clan-window");
+        }
+        break;
     case "tree":
         enableTree(event.data);
         break;
@@ -4002,11 +4071,15 @@ playersList.bind("dblclick touchmove", function(e) {
     }
 }).bind("click", function(e) {
     showPlayerInfo("", false);
+    var event = e || window.event
+      , target = event.target || event.srcElement;
+    if (target.tagName === "SPAN" && target.dataset.id) {
+        clanProfile($(target));
+        return;
+    }
     if (!container.hasClass("ingame")) {
         return;
     }
-    var event = e || window.event;
-    var target = event.target || event.srcElement;
     if (target.tagName === "B" && container.hasClass("current")) {
         game.notePlayer(target.parentElement.id);
     } else {
@@ -4519,6 +4592,48 @@ function showWindow(buttonClass) {
             svgobject.onload = mapOnLoad;
         }
         break;
+    case "clan-window":
+        if (clanView.info) {
+            var clanWin = $(".clan-window");
+            clanWin.css("backgroundImage", "url(/images/clans/" + clanView.info.id + "/logo.jpg)");
+            clanWin.find(".clan-name").html(clanView.info.name);
+            clanWin.find(".clan-slogan").html(clanView.info.slogan);
+            clanWin.find(".clan-info").html("<mark>Клан создан: " + rusDate(clanView.info.date) + "</mark>" + clanView.info.info);
+            var clanMembers = clanWin.find(".clan-members");
+            clanMembers.html("");
+            $.each(clanView.info.members, function(ind, el) {
+                if (ind === clanView.info.leader) {
+                    clanWin.find(".clan-leader").html('<strong data-id="' + ind + '">' + el + "</strong>");
+                } else {
+                    $("<strong/>", {
+                        "data-id": ind
+                    }).html(el).appendTo(clanMembers);
+                }
+            });
+            if (clanView.info.wishes) {
+                clanMembers.append("<hr/><p>Кандидаты в клан:</p>");
+                $.each(clanView.info.wishes, function(ind, el) {
+                    $("<strong/>", {
+                        "data-id": ind
+                    }).html(el).appendTo(clanMembers);
+                    $("<span/>", {
+                        "data-action": "acceptToClan",
+                        "data-uid": ind
+                    }).html("Принять в клан").appendTo(clanMembers);
+                    $("<span/>", {
+                        "data-action": "acceptToClan",
+                        "data-uid": ind,
+                        "data-param": "no"
+                    }).html("Отказать").appendTo(clanMembers);
+                });
+            }
+            if (u.clan) {
+                clanWin.find("button").hide();
+            } else {
+                clanWin.find("button").show();
+            }
+        }
+        break;
     case "tree":
         if (u.items && u.items.nytoys) {
             var toysDiv = win.find(".toybox");
@@ -4564,6 +4679,7 @@ function showWindow(buttonClass) {
         }
     };
     specialClassSet("stat", "statwin");
+    specialClassSet("clan-window", "clanwin");
     specialClassSet("tree", "treewin");
     specialClassSet("f14Win", "blackwin");
     specialClassSet("playerInfoBlock", "profileWindow");
@@ -4694,7 +4810,7 @@ function execDataAction(e) {
     var $this = $(e.target)
       , action = $this.attr("data-action");
     if (action && window[action]) {
-        window[action]();
+        window[action]($this);
     }
 }
 win.click(execDataAction);
@@ -4939,11 +5055,11 @@ function showPlayerInfoBlock(cu) {
     }
     wb.find(".playerInfo-cups").html(cups);
     var dateInfo = (cu.date) ? rusDate(cu.date) : "До 14 июня 2015 года";
-    if (cu.room && cu.room != "0") {
+    if (cu.room && cu.room !== "0") {
         if (cu.room.length > 2) {
             dateInfo += '<div class="green">В игре</div>';
         } else {
-            dateInfo += '<div class="hall' + cu.room.substring(0, 1) + '">' + (cu.room.indexOf("s") == 1 ? "*" : "") + "</div>";
+            dateInfo += '<div class="hall' + cu.room.substring(0, 1) + '">' + (cu.room.indexOf("s") === 1 ? "*" : "") + "</div>";
         }
     } else {
         dateInfo += '<div class="red">Вне игры</div>';
@@ -4953,6 +5069,9 @@ function showPlayerInfoBlock(cu) {
     }
     if (cu.vip && cu.vip > datenow()) {
         dateInfo += '<div class="vipPlayer">VIP-статус до ' + showDate(cu.vip, true) + "</div>";
+    }
+    if (cu.clan) {
+        dateInfo += '<div data-action="clanProfile" data-id="' + cu.clan + '" class="clan-status" style="background-image:url(/images/clans/' + cu.clan + '/icon.png)">Состоит в клане</div>';
     }
     $("#regdate").html(dateInfo);
     anketaInfo.html("");
@@ -6455,9 +6574,6 @@ function showStatistics(data) {
             $.each(data.params.news, function(ind, el) {
                 showNewDiv('<div class="news specialnews">' + el.text + "<sup>" + rusDate(ind) + "</sup></div>");
             });
-            if (!isAppVK) {
-                showNewDiv('<div class="news">Присоединяйся к нам в <a href="https://t.me/joinchat/HmvAhBCL8vCkPu7EEv_-kA" target="_blank">Telegram</a></div>');
-            }
         }
     }
     var div100p = function(v1, v2, text) {
@@ -6513,7 +6629,7 @@ var itemsArray = {
         maffia: "Морковка снеговика (+25% к шансу стать маньяком)"
     },
     "23": "Шапка снегурочки (+40% к интуиции)",
-    "24": "*",
+    "24": "Для активации отправьте кому-то в личном сообщении слово &quot;бах&quot;",
     "2018": "Элемент Новогодней Коллекции 2018"
 };
 var getItemsArray = function(i) {
@@ -6537,7 +6653,7 @@ function showBox(data) {
 function itemAction(e) {
     var i = e.data.item;
     if (i) {
-        if (["7", "12", "13", "18"].indexOf(i) >= 0) {
+        if (["7", "12", "13", "18", "24"].indexOf(i) >= 0) {
             showMessage("Этот предмет пригодится Вам в соответствующей локации");
         } else {
             modalWindow("Активировать предмет?", function() {
@@ -7801,8 +7917,8 @@ function checkOptions() {
     st.html(newGame.stavka);
 }
 function setGame(gtype) {
-    newGame.type = (gtype) ? parseInt(gtype) : $("#gamePanel").find("input:checked + label").attr("data-gametype");
-    if (newGame.type == 1 || newGame.type == 4) {
+    newGame.type = gtype ? parseInt(gtype) : parseInt($("#gamePanel").find("input:checked + label").attr("data-gametype"));
+    if (newGame.type === 1 || newGame.type === 4) {
         $("#gametype1_4").addClass("checkedGameType");
     } else {
         $("#gametype1_4").removeClass("checkedGameType");
@@ -8828,7 +8944,7 @@ function editPlayer(user, leave) {
         if (user.bot) {
             newPl.addClass("bot");
         }
-        if (game.style.style && game.style.style == 4 && user.sex) {
+        if (game.style.style && game.style.style === 4 && user.sex) {
             newPl.addClass("sex" + user.sex);
         }
         newPl.appendTo("#players");
@@ -8851,7 +8967,7 @@ function editPlayer(user, leave) {
     aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")");
 }
 game.isRobber = function(role) {
-    return (role == 2 || role == 3);
+    return (role === 2 || role === 3);
 }
 ;
 game.setRole = function(user) {
@@ -8877,36 +8993,40 @@ game.writeText = function(text, udata, important, noreplace) {
     var root = document.createElement("div");
     root.className = "message";
     if (udata) {
-        if (udata === "radio") {
-            root.className += " poh-radio";
+        if (udata === "anonim") {
+            root.className += " gamemsg";
         } else {
-            if (udata.role) {
-                root.className += " roleicon roleicon" + udata.role;
+            if (udata === "radio") {
+                root.className += " poh-radio";
             } else {
-                if (udata.bonus) {
-                    root.className += " roleicon bonusicon-" + udata.bonus;
+                if (udata.role) {
+                    root.className += " roleicon roleicon" + udata.role;
                 } else {
-                    if (!udata.id) {
-                        udata.id = udata._id;
-                    }
-                    if (!udata.image && playersInfoArray[udata.id]) {
-                        udata.sex = playersInfoArray[udata.id].sex;
-                        udata.image = playersInfoArray[udata.id].image;
-                    }
-                    if (game.intuition) {
-                        udata.image = false;
-                    }
-                    if (udata.image) {
-                        if (udata.image.length > 2) {
-                            root.className += " userimage";
-                            var uIm = document.createElement("div");
-                            uIm.className = "selfimg";
-                            uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
-                            root.appendChild(uIm);
-                        } else {
-                            var nclass = (udata.sex === 1) ? "w" : "m";
-                            nclass = (udata.image) ? nclass + udata.image : "";
-                            root.className += " " + nclass;
+                    if (udata.bonus) {
+                        root.className += " roleicon bonusicon-" + udata.bonus;
+                    } else {
+                        if (!udata.id) {
+                            udata.id = udata._id;
+                        }
+                        if (!udata.image && playersInfoArray[udata.id]) {
+                            udata.sex = playersInfoArray[udata.id].sex;
+                            udata.image = playersInfoArray[udata.id].image;
+                        }
+                        if (game.intuition) {
+                            udata.image = false;
+                        }
+                        if (udata.image) {
+                            if (udata.image.length > 2) {
+                                root.className += " userimage";
+                                var uIm = document.createElement("div");
+                                uIm.className = "selfimg";
+                                uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
+                                root.appendChild(uIm);
+                            } else {
+                                var nclass = (udata.sex === 1) ? "w" : "m";
+                                nclass = (udata.image) ? nclass + udata.image : "";
+                                root.className += " " + nclass;
+                            }
                         }
                     }
                 }
@@ -8964,7 +9084,7 @@ game.event = function(data, datafrom, needReturn) {
         for (var key in data.replacedata) {
             if (data.replacedata.hasOwnProperty(key)) {
                 var val = data.replacedata[key];
-                if (val == "[ROLE2]") {
+                if (val === "[ROLE2]") {
                     val = roles(2).name;
                 }
                 if (data.text == "stat") {
@@ -9051,7 +9171,7 @@ game.event = function(data, datafrom, needReturn) {
 game.kick = function(param) {
     sendToSocket({
         type: "kick",
-        "boolean": param
+        iskick: param
     });
 }
 ;
@@ -9341,7 +9461,7 @@ game.vote = function(data) {
     }
     addVote(data.target, true);
     if (!data.event) {
-        data.event = (game.special) ? {
+        data.event = game.special ? {
             text: "all:greenVote"
         } : {
             text: "mainvote:simpleVote"
@@ -9357,7 +9477,7 @@ game.vote = function(data) {
         }
         game.writeText(game.event(data.event, false, true), data.from);
     } else {
-        game.event(data.event, data.from || null);
+        game.event(data.event, data.from || "anonim");
     }
     if (data.from && data.from.id && !game.intuition) {
         $("#" + data.from.id).addClass("voted");
@@ -9742,6 +9862,9 @@ game.start = function(data) {
 game.finished = function() {
     game.finish = true;
     clearInterval(min10);
+    if (typeof hideHint === "function") {
+        hideHint();
+    }
 }
 ;
 function updateGameitems() {
@@ -11014,17 +11137,3 @@ function socketConnect(retry) {
     }
     ws.onmessage = socketEvent;
 }
-(function() {
-    var cm2018cities = ["Москва", "Калининград", "Санкт-Петербург", "Нижний Новгород", "Волгоград", "Казань", "Самара", "Саранск", "Ростов-на-Дону", "Сочи", "Екатеринбург"]
-      , cssStr = ""
-      , selCity = "Город"
-      , selectedCities = [];
-    for (var i = 0; i <= 6; i++) {
-        do {
-            selCity = cm2018cities.randomValue();
-        } while (selectedCities.indexOf(selCity) > -1);selectedCities.push(selCity);
-        cssStr += ".hall" + i + ':before{content:"' + selCity + '" !important}';
-        b.append("<style>" + cssStr + "</style>");
-    }
-}
-)();
