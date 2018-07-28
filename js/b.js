@@ -52,6 +52,7 @@ var domain = document.location.hostname
     g5: 1
 }
   , testMode = false
+  , myclan = false
   , clanView = {
     id: false,
     info: false
@@ -2248,6 +2249,18 @@ function updateInterface(udata) {
         }
         $("#shop" + i).find("div:nth-of-type(2)").html(v);
     }
+    if (u.items) {
+        var s = "";
+        slotArray.forEach(function(v) {
+            if (u.items[v]) {
+                s += '<input type="radio" name="slots" id="slot-bet' + v + '" value="' + v + '"/><label data-count="' + u.items[v] + '" class="items items-' + v + '" for="slot-bet' + v + '"></label>';
+            }
+        });
+        if (!s) {
+            s = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате.";
+        }
+        $("#slot-bet").html(s);
+    }
     if (win.find(".inventory").is(":visible")) {
         showInventory();
     }
@@ -2558,7 +2571,7 @@ function sendMessage() {
         break;
     case "давай дружить":
         if (adresat.length > 0) {
-            friendQuery("friend-question", adresat);
+            friendQuery("question", adresat);
         }
         break;
     case "бах":
@@ -2836,6 +2849,16 @@ function acceptToClan(target) {
         });
     });
 }
+function leaveClan() {
+    if (u.clan) {
+        modalWindow("Уверены, что хотите выйти из клана?", function() {
+            sendToSocket({
+                type: "clan",
+                action: "exit"
+            });
+        });
+    }
+}
 var zTimers = {}
   , zayavkaTimer = function(gid) {
     var curtimer = $("#" + gid).find(".timer");
@@ -2862,6 +2885,8 @@ var zTimers = {}
         } else {
             clearInterval(zTimers[gid]);
             delete zTimers[gid];
+            curtimer.attr("data-lost", "");
+            curtimer.html("");
         }
     }
 };
@@ -2910,7 +2935,8 @@ var greenUpdateButton = $("#greenRefresh");
 greenUpdateButton.click(function() {
     greenUpdateButton.removeClass("show");
     sendToSocket({
-        type: "getGreens"
+        type: "friends",
+        action: "online"
     });
     setTimeout(function() {
         greenUpdateButton.addClass("show");
@@ -3368,6 +3394,12 @@ function socketEvent(message) {
             } else {
                 lotteryTimerStart();
             }
+            if (u.slottime) {
+                var slotLost = u.slottime + slotInterval * 1000 - datenow();
+                if (slotLost > 0) {
+                    slotTimerStart(Math.round(slotLost / 1000));
+                }
+            }
             if (u.rolldate && isToday(u.rolldate)) {
                 $("#roll-start").addClass("rolling-was");
             }
@@ -3555,9 +3587,9 @@ function socketEvent(message) {
             if (reds.indexOf(data.fromId) === -1 && !u.server2) {
                 showConvert(function() {
                     modalWindow(data.from + " хочет добавить вас в друзья. Вы согласны?", function() {
-                        friendQuery("friend-answer", data.fromId, true);
+                        friendQuery("answer", data.fromId, true);
                     }, function() {
-                        friendQuery("friend-answer", data.fromId, false);
+                        friendQuery("answer", data.fromId, false);
                     });
                 });
             }
@@ -3819,9 +3851,38 @@ function socketEvent(message) {
         break;
     case "clan":
         if (event.info) {
-            clanView.info = event.info;
-            showWindow("clan-window");
+            if (event.my) {
+                myclan = event.info;
+                if (myclan.leader === u._id) {
+                    $(".clan").find(".clan-slogan,.clan-info").bind("dblclick touchmove", function() {
+                        $(this).attr("contentEditable", true);
+                    }).blur(function() {
+                        $(this).attr("contentEditable", false);
+                        var curField = $(this).attr("class").replace("clan-", "")
+                          , curText = $(this).text();
+                        if (myclan.hasOwnProperty(curField) && curText !== myclan[curField]) {
+                            myclan[curField] = curText;
+                            var clanEvent = {
+                                type: "clan",
+                                action: "edit"
+                            };
+                            clanEvent[curField] = curText;
+                            sendToSocket(clanEvent);
+                        }
+                    });
+                }
+                showWindow("clan");
+            } else {
+                clanView.info = event.info;
+                showWindow("clan-window");
+            }
         }
+        break;
+    case "slot":
+        slotAction(event);
+        break;
+    case "friends":
+        friendsTable(event.list);
         break;
     case "tree":
         enableTree(event.data);
@@ -4157,7 +4218,7 @@ var graphicCheckbox = $("#graphic")
   , hintsCheckBox = $("#showHints")
   , maffiaCheckbox = $("#maffiaMode")
   , fontCheckbox = $("#setFont")
-  , fontOptions = $("#fontOptions").find("span")
+  , fontOptions = $("#fontOptions").next("div")
   , fontSize = $("#fontSize")
   , fontWeight = $("#fontWeight")
   , fontSelect = $("#selectFont");
@@ -4592,17 +4653,20 @@ function showWindow(buttonClass) {
             svgobject.onload = mapOnLoad;
         }
         break;
+    case "clan":
     case "clan-window":
-        if (clanView.info) {
-            var clanWin = $(".clan-window");
-            clanWin.css("backgroundImage", "url(/images/clans/" + clanView.info.id + "/logo.jpg)");
-            clanWin.find(".clan-name").html(clanView.info.name);
-            clanWin.find(".clan-slogan").html(clanView.info.slogan);
-            clanWin.find(".clan-info").html("<mark>Клан создан: " + rusDate(clanView.info.date) + "</mark>" + clanView.info.info);
+        var ismyClan = (buttonClass === "clan")
+          , clanData = ismyClan ? myclan : clanView.info;
+        if (clanData) {
+            var clanWin = $("." + buttonClass);
+            clanWin.css("backgroundImage", "url(/images/clans/" + clanData.id + "/logo.jpg)");
+            clanWin.find(".clan-name").html(clanData.name);
+            clanWin.find(".clan-slogan").html(clanData.slogan);
+            clanWin.find(".clan-info").html((ismyClan ? "" : "<mark>Клан создан: " + rusDate(clanData.date) + "</mark>") + clanData.info);
             var clanMembers = clanWin.find(".clan-members");
             clanMembers.html("");
-            $.each(clanView.info.members, function(ind, el) {
-                if (ind === clanView.info.leader) {
+            $.each(clanData.members, function(ind, el) {
+                if (ind === clanData.leader) {
                     clanWin.find(".clan-leader").html('<strong data-id="' + ind + '">' + el + "</strong>");
                 } else {
                     $("<strong/>", {
@@ -4610,27 +4674,35 @@ function showWindow(buttonClass) {
                     }).html(el).appendTo(clanMembers);
                 }
             });
-            if (clanView.info.wishes) {
-                clanMembers.append("<hr/><p>Кандидаты в клан:</p>");
-                $.each(clanView.info.wishes, function(ind, el) {
-                    $("<strong/>", {
-                        "data-id": ind
-                    }).html(el).appendTo(clanMembers);
-                    $("<span/>", {
-                        "data-action": "acceptToClan",
-                        "data-uid": ind
-                    }).html("Принять в клан").appendTo(clanMembers);
-                    $("<span/>", {
-                        "data-action": "acceptToClan",
-                        "data-uid": ind,
-                        "data-param": "no"
-                    }).html("Отказать").appendTo(clanMembers);
-                });
-            }
-            if (u.clan) {
-                clanWin.find("button").hide();
+            if (ismyClan) {
+                if (clanData.wishes) {
+                    clanMembers.append("<hr/><p>Кандидаты в клан:</p>");
+                    $.each(clanData.wishes, function(ind, el) {
+                        $("<strong/>", {
+                            "data-id": ind
+                        }).html(el).appendTo(clanMembers);
+                        $("<span/>", {
+                            "data-action": "acceptToClan",
+                            "data-uid": ind
+                        }).html("Принять в клан").appendTo(clanMembers);
+                        $("<span/>", {
+                            "data-action": "acceptToClan",
+                            "data-uid": ind,
+                            "data-param": "no"
+                        }).html("Отказать").appendTo(clanMembers);
+                    });
+                }
+                if (!u.clan) {
+                    clanWin.find("button").hide();
+                } else {
+                    clanWin.find("button").show();
+                }
             } else {
-                clanWin.find("button").show();
+                if (u.clan) {
+                    clanWin.find("button").hide();
+                } else {
+                    clanWin.find("button").show();
+                }
             }
         }
         break;
@@ -4678,12 +4750,9 @@ function showWindow(buttonClass) {
             win.removeClass(winclass);
         }
     };
-    specialClassSet("stat", "statwin");
-    specialClassSet("clan-window", "clanwin");
-    specialClassSet("tree", "treewin");
-    specialClassSet("f14Win", "blackwin");
-    specialClassSet("playerInfoBlock", "profileWindow");
-    specialClassSet("buyGifts", "buyboxwin");
+    [["stat", "statwin"], ["clan", "myclanwin"], ["clan-window", "clanwin"], ["slotmachine", "slotwin"], ["tree", "treewin"], ["f14Win", "blackwin"], ["playerInfoBlock", "profileWindow"], ["buyGifts", "buyboxwin"]].forEach(function(el) {
+        specialClassSet(el[0], el[1]);
+    });
 }
 $(".moneyblock").find("b").click(function() {
     sumChange();
@@ -4753,7 +4822,7 @@ var showWindowClick = function() {
         return;
     }
     var fullClass = $(this).attr("class").replace("nobackground", "");
-    if (fullClass == "button-edit") {
+    if (fullClass === "button-edit") {
         editProfile(true);
         return;
     }
@@ -4790,6 +4859,21 @@ var showWindowClick = function() {
                     type: "progress-list"
                 });
             }
+            break;
+        case "clan":
+            if (!myclan) {
+                sendToSocket({
+                    type: "clan",
+                    action: "my"
+                });
+                return;
+            }
+            break;
+        case "allfriends":
+            sendToSocket({
+                type: "friends",
+                action: "list"
+            });
             break;
         }
         showWindow(buttonClass);
@@ -6757,6 +6841,94 @@ function showInventory() {
         }
     }
 }
+var slotArray = [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+  , slotCount = slotArray.length
+  , slotInterval = 600
+  , slotsRotating = 0
+  , slotActive = false;
+function slotStart() {
+    if (!slotActive) {
+        var selItem = parseInt($("#slot-bet").find("input[name=slots]:checked").val()) || 0;
+        if (zTimers.slots) {
+            showMessage("Следующую попытку можно сделать только после остановки таймера.");
+            return;
+        }
+        if (selItem) {
+            setTimeout(function() {
+                $("#slot-handler").attr("src", "/images/slot-handle.gif").css({
+                    cursor: "wait"
+                });
+            });
+            slotActive = true;
+            sendToSocket({
+                type: "slot",
+                item: selItem
+            });
+            u.items[selItem]--;
+        } else {
+            showMessage("Сначала выберите предмет из Вашего инвентаря, который Вы хотите использовать как ставку.");
+        }
+    }
+}
+function slotTimerStart(secs) {
+    $("#timer-slots").attr("data-lost", secs);
+    zayavkaInTimer("slots");
+    zTimers.slots = setInterval(function() {
+        zayavkaInTimer("slots");
+    }, 3000);
+}
+function slotAction(data) {
+    var items = data.items;
+    slotTimerStart(slotInterval);
+    slotsRotating = 3;
+    for (var i = 1; i < 4; i++) {
+        var curslot = $("#slot" + i)
+          , curTop = parseInt(curslot.css("top")) || 0
+          , newTop = -slotArray.indexOf(items[i - 1]) * 60 - curTop + slotCount * 60 * 3 + 60;
+        slotMotion(curslot, newTop, curTop);
+    }
+    if (data.win) {
+        $.each(data.win, function(key, val) {
+            if (!u.items[key]) {
+                u.items[key] = 0;
+            }
+            u.items[key] += val;
+        });
+        slotActive = data.win;
+    }
+}
+function slotMotion(obj, top, curtop) {
+    if (top > 0) {
+        if (curtop > 0) {
+            curtop += -slotCount * 60;
+        }
+        var step = Math.floor(top / 500) + 1;
+        top -= step;
+        curtop += step;
+        obj.css({
+            top: curtop + "px"
+        });
+        var sec = top > 500 ? 10 : 10 - Math.ceil(top / 50);
+        setTimeout(slotMotion, sec, obj, top, curtop);
+    } else {
+        slotsRotating--;
+        if (slotsRotating <= 0) {
+            $("#slot-handler").attr("src", "/images/slot-handle.png").css({
+                cursor: "pointer"
+            });
+            if (slotActive === true) {
+                showMessage("Вам немного не повезло. Следующая попытка должна быть удачной!");
+            } else {
+                showBox({
+                    box: slotActive,
+                    text: "Вы выиграли"
+                });
+            }
+            updateInterface();
+            slotActive = false;
+        }
+    }
+}
 function areaAttack() {
     var areaNum = $(this).attr("data-area");
     if (areaNum && u.money >= 2000) {
@@ -7701,9 +7873,25 @@ $(document).ready(function() {
             showWindow("roll");
         });
     } else {
-        outside.append('<img src="/images/calendar.png" alt="Расписание специальных партий"/>');
+        var sgtable = "<p>Ежедневно</p>";
+        $.each(specGamesTime, function(time, v) {
+            sgtable += "<div><time>" + time + "</time> " + (v.link ? '<a href="' + v.link + '" target="_blank">' + v.name + "</a>" : v.name) + "</div>";
+        });
+        outside.append('<div id="calendar">' + sgtable + "<sup>* московское время</sup></div>");
     }
     loadImageFiles();
+    var slotText = "";
+    slotArray.forEach(function(el) {
+        slotText += '<div class="itembox items-' + el + '"></div>';
+    });
+    slotText += '<div class="itembox items-' + slotArray[0] + '"></div><div class="itembox items-' + slotArray[1] + '"></div>';
+    $(".slots").html('<div id="slot1" class="slot">' + slotText + '</div><div id="slot2" class="slot">' + slotText + '</div><div id="slot3" class="slot">' + slotText + "</div>");
+    $(".slot").css({
+        top: "-360px"
+    });
+    $("#slot2").css({
+        top: "-480px"
+    });
     if (!islocalStorage) {
         showNewDiv('<div class="important">В вашем браузере запрещено сохранение данных от веб-сайтов, поэтому некоторые настройки и функции будут недоступны</div>');
     }
@@ -10456,21 +10644,23 @@ function showConvert(callback) {
     });
 }
 function friendQuery(type, fid, success) {
-    if (fid == u._id) {
+    if (fid === u._id) {
         showMessage("Вам грустно и одиноко? Но это не повод зацикливаться на себе! Поглядите вокруг..");
         if (u.friends.indexOf(fid) > -1) {
             sendToSocket({
-                type: "friend-del",
+                type: "friends",
+                action: "del",
                 fid: fid
             });
         }
         return;
     }
-    if (type == "friend-answer" && success) {
+    if (type === "answer" && success) {
         addFriend(fid, true);
     }
     var out = {
-        type: type,
+        type: "friends",
+        action: type,
         fid: fid
     };
     if (success) {
@@ -10479,9 +10669,6 @@ function friendQuery(type, fid, success) {
     sendToSocket(out);
 }
 function addFriend(fid, add) {
-    if (!u.friends) {
-        u.friends = [];
-    }
     if (add) {
         u.friends.push(fid);
         playersList.find("#" + fid).addClass("green");
@@ -10500,6 +10687,35 @@ function addRed(fid, add) {
     }
     lStorage.setItem("reds", reds);
 }
+function deleteFriendFromTable() {
+    var curfr = $(this);
+    modalWindow("Хотите удалить <b>" + curfr.attr("data-login") + "</b> из друзей?", function() {
+        curfr.parents("tr").remove();
+        addFriend(curfr.attr("data-uid"), false);
+        sendToSocket({
+            type: "friends",
+            action: "del",
+            fid: curfr.attr("data-uid")
+        });
+    });
+}
+function friendsTable(list) {
+    var table = $("#friends-table")
+      , s = ""
+      , friendsObj = {};
+    list.forEach(function(el) {
+        friendsObj[el._id] = el;
+    });
+    u.friends.forEach(function(el, ind) {
+        var curel = friendsObj[el] || {
+            login: "*удаленный персонаж*",
+            sex: 2
+        };
+        s += "<tr><td>" + (ind + 1) + "</td><td>" + (curel.last ? '<strong data-id="' + el + '">' + curel.login + "</strong>" : curel.login + " (бот)") + '</td><td class="sex' + curel.sex + '">' + (curel.sex === 1 ? "♀" : "♂") + '</td><td><button data-uid="' + el + '" data-login="' + curel.login + '" class="button">Удалить</button></td><td>' + (curel.last ? rusDate(curel.last, true, true) : "Всегда в игре") + "</td></tr>";
+    });
+    table.html(s);
+    table.find("button").on("click", deleteFriendFromTable);
+}
 function getProfile(uid) {
     sendToSocket({
         type: "profile",
@@ -10512,15 +10728,15 @@ plMenu.find("span").eq(0).click(function() {
 });
 plMenu.find("span").eq(1).click(function() {
     var fid = $(this).parent().attr("data-id");
-    if (fid && fid.indexOf("testplayer") == -1) {
-        friendQuery("friend-question", fid);
+    if (fid && fid.indexOf("testplayer") === -1) {
+        friendQuery("question", fid);
     }
 });
 plMenu.find("span").eq(2).click(function() {
     var fid = $(this).parent().attr("data-id");
     if (fid) {
         addFriend(fid, false);
-        friendQuery("friend-del", fid);
+        friendQuery("del", fid);
     }
 });
 plMenu.find("span").eq(3).click(function() {
@@ -10861,7 +11077,7 @@ var parseQueryString = function(strQuery) {
     return objRes;
 };
 function showGroupWidget() {
-    if (typeof VK == "undefined") {
+    if (typeof VK === "undefined") {
         console.log("not VK");
         return;
     }
@@ -10871,13 +11087,13 @@ function showGroupWidget() {
         mode: 0,
         width: "200",
         height: "216",
-        color1: isMaffia ? "000000" : "fbd7c5",
-        color2: isMaffia ? "000000" : "FFFFFF",
+        color1: isMaffia ? "000000" : "fcf9f9",
+        color2: isMaffia ? "FFFFFF" : "000000",
         color3: isMaffia ? "5E81A8" : "827c99"
     }, groupId);
 }
 function appSocialButton() {
-    if (typeof VK == "undefined") {
+    if (typeof VK === "undefined") {
         return;
     }
     var groupId = isMaffia ? 109864615 : 39094155
@@ -11137,3 +11353,39 @@ function socketConnect(retry) {
     }
     ws.onmessage = socketEvent;
 }
+var specGamesTime = {
+    "17:00": {
+        name: "Супермикс",
+        link: "http://maffia-online.ru/games/supermix.html"
+    },
+    "19:00": {
+        name: "Сотня",
+        link: "http://maffia-online.ru/games/sotnya.html"
+    },
+    "20:00": {
+        name: "Супермикс",
+        link: "http://maffia-online.ru/games/supermix.html"
+    },
+    "20:30": {
+        name: "Интуиция",
+        link: "http://maffia-online.ru/games/intuition.html"
+    },
+    "21:00": {
+        name: "Камикадзе",
+        link: "http://maffia-online.ru/games/kamikadze.html"
+    },
+    "21:30": {
+        name: "Битва полов",
+        link: "http://maffia-online.ru/games/bitva-polov.html"
+    },
+    "22:00": {
+        name: "Последний герой",
+        link: "http://maffia-online.ru/games/poslednij-geroj.html"
+    },
+    "22:30": {
+        name: "Перестрелка"
+    },
+    "00:05": {
+        name: "Классическая мафия (каждый час)"
+    }
+};

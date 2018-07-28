@@ -61,6 +61,18 @@
     font-style: normal
 }
 
+html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-variant-ligatures: none;
+    -webkit-font-variant-ligatures: none;
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: grayscale;
+    font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+    text-shadow: rgba(0,0,0,.01) 0 0 1px
+}
+
 html,body {
     font: 400 14px Ubuntu,Arial,'PT Sans',SegoeUi,sans-serif;
     width: 100%;
@@ -4558,7 +4570,7 @@ button.usergame {
     content: 'Внимание! Конкурс!'
 }
 
-.support>p,.f14Win>p,.menu-editor p {
+.support>p,.f14Win>p,.menu-editor p,.slotmachine>p {
     color: #fff;
     font-size: 1.2em;
     background: #006;
@@ -4600,46 +4612,54 @@ button.usergame {
     max-width: 100%
 }
 
-#container>.window.clanwin {
+.window.myclanwin,.window.clanwin {
     background: #6fadff
 }
 
-.maffia #container>.window.clanwin {
+.maffia .window.myclanwin {
+    background: #1f1f5f
+}
+
+.maffia .window.clanwin {
     background: #101070
 }
 
-#container>.window.clanwin:before {
+.window.myclanwin:before,.window.clanwin:before {
     display: none
 }
 
-.clan-window {
-    background: none 0 30px no-repeat;
+.clan,.clan-window {
+    background: none 10px 30px no-repeat;
     padding: 25px 10px 30px 210px!important
+}
+
+.clan:before {
+    content: 'Клан'
 }
 
 .clan-window:before {
     content: 'Информация о клане'
 }
 
-.maffia .clan-window {
+.maffia .clan,.maffia .clan-window {
     color: #fff
 }
 
-.clan-window>div:before {
+.clan>div:before,.clan-window>div:before {
     display: block;
     font: 700 14px Ubuntu,sans-serif;
     text-align: center
 }
 
-.clan-window strong {
+.clan strong,.clan-window strong {
     cursor: pointer
 }
 
-.clan-window strong:hover {
+.clan strong:hover,.clan-window strong:hover {
     text-decoration: underline
 }
 
-.clan-window>button {
+.clan>button,.clan-window>button {
     display: block;
     margin: 5px auto;
     padding: 3px 10px
@@ -4717,11 +4737,11 @@ button.usergame {
     text-decoration: underline
 }
 
-#container>.window.buyboxwin {
+.window.buyboxwin {
     background: url(/images/full/buybox.jpg) center/contain no-repeat #000!important
 }
 
-#container>.window.buyboxwin:before {
+.window.buyboxwin:before {
     display: none
 }
 
@@ -5223,10 +5243,6 @@ button.usergame {
     max-width: 520px
 }
 
-.newgame,.areamap,.roll,.giftshop {
-    overflow: hidden!important
-}
-
 .heart:before {
     content: 'Виды аккаунтов'
 }
@@ -5465,7 +5481,10 @@ button.usergame {
 }
 
 .tournaments>blockquote {
-    text-shadow: 1px 1px 2px #fff,1px -1px 2px #fff,-1px 1px 2px #fff,-1px -1px 2px #fff;
+    color: #fff
+}
+
+.maffia .tournaments>blockquote {
     color: #f00
 }
 
@@ -7836,6 +7855,11 @@ button.usergame {
     text-align: center
 }
 
+.noeffect #playerInfo-stat>span.nick {
+    white-space: pre-wrap;
+    height: auto
+}
+
 #playerInfo-stat>span.rating {
     border-bottom: 1px solid #333;
     height: auto;
@@ -8653,7 +8677,7 @@ input[type="checkbox"],input[type="radio"] {
     vertical-align: top
 }
 
-.maffia .closedgame #players>div:before,.maffia .check+label:before {
+.maffia .closedgame #players>div:before,.maffia .gameForm .check+label:before,.maffia .ingame .check+label:before,.maffia #optionsWindow .check+label:before {
     background-image: url(/images/maffia/checkbox.png)
 }
 
@@ -8690,7 +8714,7 @@ input[type="checkbox"],input[type="radio"] {
     height: 100%;
     box-sizing: border-box;
     background-color: rgba(0,0,255,0.5);
-    font: 500 1.2em/2em Lora,'Times New Roman',serif;
+    font: 400 18px/32px Lora,'Times New Roman',serif;
     text-align: center;
     white-space: nowrap
 }
@@ -8717,7 +8741,7 @@ input[type="checkbox"],input[type="radio"] {
     white-space: normal;
     position: relative;
     min-width: 350px;
-    font-weight: 700
+    letter-spacing: 1px
 }
 
 #container>.warningWindow .modal2:before,#modalWindow .modal2:before,#optionsWindow .modal2:before {
@@ -8979,14 +9003,18 @@ input[type="checkbox"],input[type="radio"] {
     -moz-transition: all .3s;
     transition: all .3s;
     max-width: 300px;
-    background: #c9c9c9;
-    color: #000;
-    padding: 10px 30px;
     background: #dceefe;
     background: rgba(220,238,254,0.8);
     color: #000;
     padding: 10px 30px;
     box-shadow: 0 0 3px #313ef9
+}
+
+#infomessage>.modal:after {
+    content: '* отключить подсказки можно в настройках';
+    display: block;
+    text-align: right;
+    font-size: 10px
 }
 
 .maffia #infomessage>.modal {
@@ -9986,15 +10014,15 @@ body {
     color: #fff!important
 }
 
-#container>.window.blackwin:before {
+.window.blackwin:before {
     background: #000!important
 }
 
-#container>.window.statwin {
+.window.statwin {
     background: url(/images/statback.jpg) center/100% 100%!important
 }
 
-#container>.window.statwin:before {
+.window.statwin:before {
     display: none
 }
 
@@ -10153,7 +10181,7 @@ body {
 }
 
 #submenu>div>div:before {
-    background-image: url(/images/panel.png?2205)
+    background-image: url(/images/panel.png?200718)
 }
 
 #left-panel>div:hover {
@@ -10199,7 +10227,7 @@ body {
 }
 
 #left-panel>.button-giftshop~div:before {
-    background-image: url(/images/panel.png?2205);
+    background-image: url(/images/panel.png?200718);
     left: 4px;
     top: 4px;
     right: 4px;
@@ -10256,6 +10284,18 @@ body {
 
 .button-areamap:before {
     background-position: -168px -42px
+}
+
+.button-clan:before {
+    background-position: -210px -42px
+}
+
+.button-slotmachine:before {
+    background-position: -252px -42px
+}
+
+.button-allfriends:before {
+    background-position: -294px -42px
 }
 
 .locked {
@@ -10424,7 +10464,7 @@ body {
     line-height: 0
 }
 
-.box>div,.inventory div {
+.box>div,.inventory div,.itembox {
     display: inline-block;
     position: relative;
     width: 60px;
@@ -10462,7 +10502,7 @@ body {
     content: attr(data-count);
     position: absolute;
     font: 700 20px Arial,sans-serif;
-    width: 26px;
+    min-width: 26px;
     height: 20px;
     bottom: 0;
     right: 0;
@@ -10597,9 +10637,143 @@ body {
     background-position: -180px -120px
 }
 
-div.items-24 {
+div.items-24,label.items-24 {
     background: url(/images/walls/other/bah.gif) center no-repeat;
     background-size: contain
+}
+
+.itembox {
+    display: block;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: inset 5px 5px 10px 2px rgba(205,55,55,0.3),inset -5px -5px 10px 2px rgba(205,55,55,0.3)
+}
+
+.window.slotwin {
+    background: #0f4f0f
+}
+
+.window.slotwin:before {
+    display: none
+}
+
+.slotmachine:before {
+    content: 'Игровой автомат'
+}
+
+.slot-automat {
+    background: url(/images/roll_arrow.png) left center no-repeat;
+    width: 400px;
+    height: 204px;
+    margin: 5px auto;
+    position: relative
+}
+
+.slots {
+    width: 220px;
+    height: 190px;
+    padding: 0 10px 0 5px;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin: 10px auto;
+    position: relative;
+    background: #fff;
+    border: 5px ridge #fff;
+    box-shadow: 0 0 20px 2px #060
+}
+
+.slots:before,.slots:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0,0,0,0.5);
+    z-index: 10
+}
+
+.slots:before {
+    top: 0;
+    background: -moz-linear-gradient(top,#000 20%,rgba(0,0,0,0.1) 100%);
+    background: -webkit-linear-gradient(top,#000 20%,rgba(0,0,0,0.1) 100%);
+    background: linear-gradient(to bottom,#000 20%,rgba(0,0,0,0.1) 100%)
+}
+
+.slots:after {
+    bottom: 0;
+    background: -moz-linear-gradient(top,rgba(0,0,0,0.1) 20%,#000 100%);
+    background: -webkit-linear-gradient(top,rgba(0,0,0,0.1) 20%,#000 100%);
+    background: linear-gradient(to bottom,rgba(0,0,0,0.1) 20%,#000 100%)
+}
+
+.slot {
+    position: absolute;
+    width: 60px
+}
+
+#slot1 {
+    left: 10px
+}
+
+#slot2 {
+    left: 75px
+}
+
+#slot3 {
+    left: 140px
+}
+
+#slot-handler {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 30px;
+    width: 60px;
+    cursor: pointer
+}
+
+#timer-slots {
+    color: #fff;
+    font: 28px 'LED',sans-serif;
+    text-shadow: #363 1px 1px,#363 -1px 1px,#363 1px -1px,#363 -1px -1px
+}
+
+#timer-slots:empty:before {
+    content: 'Сделай ставку и крути ручку автомата!'
+}
+
+#timer-slots:before {
+    content: 'До следующей попытки - ';
+    font: 16px Ubuntu,sans-serif
+}
+
+#slot-bet {
+    width: 100%;
+    max-width: 500px;
+    margin: 5px auto
+}
+
+#slot-bet:before {
+    content: 'Ваши предметы для ставки';
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px
+}
+
+#slot-bet>label {
+    float: left
+}
+
+#slot-bet>label {
+    border: 3px groove #a9a9a9;
+    cursor: pointer!important
+}
+
+#slot-bet>input:checked+label {
+    background-color: #bf0f0f!important;
+    border: 3px outset #00f
 }
 
 .progress {
@@ -10910,6 +11084,80 @@ section.bonus-ring:before {
 
 .item5-icon:before {
     background-position: -84px 0!important
+}
+
+.allfriends:before {
+    content: 'Список друзей'
+}
+
+.allfriends>div {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-sizing: border-box
+}
+
+.allfriends-header {
+    height: 32px
+}
+
+.allfriends-header>table {
+    height: 30px;
+    border-bottom: 1px solid #336
+}
+
+.allfriends-content {
+    height: 100%;
+    overflow-x: auto
+}
+
+.allfriends table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0
+}
+
+#friends-table {
+    margin-bottom: 30px
+}
+
+.allfriends th:nth-of-type(1),.allfriends td:nth-of-type(1) {
+    text-align: right;
+    font-weight: 700;
+    width: 30px;
+    padding-right: 10px
+}
+
+.allfriends th:nth-of-type(2),.allfriends td:nth-of-type(2) {
+    width: 250px
+}
+
+.allfriends th:nth-of-type(3),.allfriends td:nth-of-type(3) {
+    width: 20px;
+    text-align: center;
+    padding-right: 10px
+}
+
+.allfriends td:nth-of-type(3) {
+    font: 700 24px Marmelad,sans-serif
+}
+
+.allfriends th:nth-of-type(4),.allfriends td:nth-of-type(4) {
+    width: 120px
+}
+
+#friends-table strong {
+    cursor: pointer
+}
+
+#friends-table strong:hover {
+    text-decoration: underline
+}
+
+.newgame,.areamap,.roll,.giftshop,.allfriends {
+    overflow: hidden!important
 }
 
 .marquee {
@@ -11448,7 +11696,8 @@ section.bonus-ring:before {
     color: #fff;
     background: #122722;
     border: 5px solid #1c5a65;
-    border-radius: 8px
+    border-radius: 8px;
+    font-weight: 700
 }
 
 .maffia .moneyblock {
@@ -11749,12 +11998,6 @@ button {
     overflow-y: auto;
     z-index: 100;
     padding-bottom: 45px
-}
-
-#vk_groups>iframe {
-    border-left: 1px outset #999;
-    border-bottom: 1px outset #999;
-    border-radius: 0 0 0 20px
 }
 
 #outside>img {
@@ -12226,6 +12469,49 @@ button {
 
 .nytoy20 {
     background-image: url(/images/toys/20.png)
+}
+
+#calendar,#calendar a {
+    color: #fff;
+    font: 400 16px Lora,serif;
+    text-shadow: 1px 1px 2px #790404,1px -1px 2px #790404,-1px 1px 2px #790404,-1px -1px 2px #790404
+}
+
+#calendar>p {
+    font-size: 24px;
+    text-align: center;
+    margin: 0
+}
+
+#calendar>div {
+    margin: 3px
+}
+
+#calendar a {
+    text-decoration: none;
+    display: inline-block;
+    vertical-align: top
+}
+
+#calendar a:after {
+    background: #fff;
+    background: -moz-linear-gradient(top,#790404 0,#fff 50%,#790404 100%);
+    background: -webkit-linear-gradient(top,#790404 0,#fff 50%,#790404 100%);
+    background: linear-gradient(to bottom,#790404 0,#fff 50%,#790404 100%);
+    content: '';
+    display: block;
+    height: 2px;
+    width: 100%
+}
+
+#calendar time {
+    font: 400 16px 'LED',sans-serif
+}
+
+#calendar>sup {
+    display: block;
+    text-shadow: none;
+    text-align: right
 }
 
 @media(min-width: 1200px) {
