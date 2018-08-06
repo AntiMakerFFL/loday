@@ -1683,6 +1683,7 @@ var domain = document.location.hostname
 var logs = [];
 window.onerror = function(error, url, line) {
     logs.push("ERR:" + error + " URL:" + url + " L:" + line);
+    return true;
 }
 ;
 if (typeof mobile === "undefined") {
@@ -3532,6 +3533,9 @@ function socketEvent(message) {
             break;
         case "hiddenprofile":
             showMessage('Профиль игрока скрыт.<br/> Хочешь также? Приобретай <span class="pseudolink" data-action="windowByName" data-param="donatoptions">VIP-статус</span>.');
+            break;
+        case "nocommonchat":
+            showMessage("Сейчас Вы не можете отправлять сообщения в общий чат");
             break;
         }
         break;
@@ -8688,10 +8692,6 @@ var textRoles = {
 };
 function roles(roleId) {
     var fflRoles = {
-        none: {
-            name: "[роль недоступна]",
-            button: []
-        },
         0: {
             name: "Наблюдатель",
             button: []
@@ -8743,10 +8743,6 @@ function roles(roleId) {
         }
     }
       , maffiaRoles = {
-        none: {
-            name: "[роль недоступна]",
-            button: []
-        },
         0: {
             name: "Свидетель",
             button: []
@@ -8798,6 +8794,10 @@ function roles(roleId) {
         }
     }
       , allRoles = {
+        none: {
+            name: "[роль недоступна]",
+            button: []
+        },
         10: {
             name: "Палач",
             icon: "roleblock roleblock10",
@@ -9325,7 +9325,7 @@ game.event = function(data, datafrom, needReturn) {
                     text = text.replace(key, f.someThing(val, someForms[0], someForms[1], someForms[2]));
                 } else {
                     text = (key === "[role]") ? text.replace(key, roleReplace(roles(val).name)) : text.replace(key, val);
-                    if (data.text === "mainvote:result1" && key === "[role]" && lastKickVote) {
+                    if (game.active && data.text === "mainvote:result1" && key === "[role]" && lastKickVote) {
                         var isDark = val === 2 || val === 3 || (game.man && val === 6)
                           , kickMarkText = (isDark && lastKickVote === 1) || (!isDark && lastKickVote === 2) ? "Вы были правы!" : "Вы ошиблись...";
                         showNewDiv("<blockquote>" + kickMarkText + "</blockquote>");
@@ -9441,6 +9441,9 @@ game.updateInfoGame = function(text) {
     $("#nick").html(nickText);
     $(".gamemakerinfo").html("<span>День " + game.day + "</span> ➣ <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
     showTime();
+    if (game.period === 4) {
+        lastKickVote = 0;
+    }
     if (game.active && !game.closed) {
         switch (game.period) {
         case 1:
@@ -9455,7 +9458,6 @@ game.updateInfoGame = function(text) {
             break;
         case 4:
             game.actions = [];
-            lastKickVote = 0;
             if (text) {
                 modalWindow(text, function() {
                     game.kick(true);
