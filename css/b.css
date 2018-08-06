@@ -1840,7 +1840,8 @@ article {
     display: inline-block;
     width: 20px;
     height: 20px;
-    vertical-align: bottom
+    vertical-align: bottom;
+    background: url(/images/question.png) center/contain no-repeat
 }
 
 .role0 {
@@ -2988,7 +2989,7 @@ label {
     white-space: nowrap
 }
 
-.stud:before,.duty:before,.assis:before,.sleep:before,.jeal:before,.robb:before,.hrobb:before,.cat:before,.law:before {
+.stud:before,.duty:before,.assis:before,.sleep:before,.jeal:before,.robb:before,.hrobb:before,.cat:before,.law:before,.roleblock:before {
     content: '';
     display: inline-block;
     width: 20px;
@@ -2997,7 +2998,7 @@ label {
     vertical-align: middle
 }
 
-.stud:after,.duty:after,.assis:after,.sleep:after,.jeal:after,.robb:after,.hrobb:after,.cat:after,.law:after {
+.stud:after,.duty:after,.assis:after,.sleep:after,.jeal:after,.robb:after,.hrobb:after,.cat:after,.law:after,.roleblock:after {
     line-height: 22px
 }
 
@@ -3115,6 +3116,23 @@ label {
 
 .maffia .law:after {
     content: 'Адвокат'
+}
+
+.roleblock10:before,.roleblock10target:before {
+    background: url(/images/question.png) center no-repeat;
+    background-size: contain
+}
+
+.maffia .roleblock10:before,.maffia .roleblock10target:before {
+    background-image: url(/images/maffia/gamelogo.png)
+}
+
+.roleblock10:after {
+    content: 'Палач'
+}
+
+.roleblock10target:after {
+    content: 'Жертва'
 }
 
 .moneyblock {
@@ -3464,8 +3482,7 @@ button:active,.button:active {
 }
 
 .roleicon:before {
-    background-position: center center;
-    background-size: contain
+    background: url(/images/question.png) center/contain no-repeat
 }
 
 .roleicon1:before {
@@ -3502,6 +3519,10 @@ button:active,.button:active {
 
 .roleicon9:before {
     background-image: url(/images/tickets/9.png)
+}
+
+.roleicon10:before {
+    background-image: url(/images/question.png)
 }
 
 .maffia .roleicon1:before {
@@ -5220,7 +5241,7 @@ button.usergame {
     content: ' ₽'
 }
 
-#pay-button,.blank>button,.giftForm>button,.playerInfo-gifts>button,.stat>button,.adpanel button.extend {
+#pay-button,.blank>button,.giftForm>button,.playerInfo-cups>button,.stat>button,.adpanel button.extend {
     display: block;
     text-decoration: none;
     width: 80%;
@@ -8091,6 +8112,14 @@ button.usergame {
     margin-left: 30px
 }
 
+.roles-stat {
+    padding-left: 25px
+}
+
+.roles-stat:before {
+    content: attr(data-text)
+}
+
 .playerInfo-stat>span.gamecount:before {
     content: 'Вcего игр '
 }
@@ -8128,8 +8157,7 @@ button.usergame {
 }
 
 .playerInfo-cups {
-    width: 100%;
-    height: 30px
+    width: 100%
 }
 
 .playerInfo-cups:empty {
@@ -8144,36 +8172,67 @@ button.usergame {
     float: left
 }
 
-.playerInfoBlock>blockquote:empty:before {
-    content: 'Игрок не заполнил данные о себе';
+.playerInfo-cups>button {
+    display: block;
+    line-height: 28px;
+    width: auto;
+    padding: 0 20px;
+    margin: 10px;
+    float: left;
+    height: 34px
+}
+
+.playerInfo-cups>button:nth-of-type(1) {
+    clear: both
+}
+
+.playerInfo-cups>button:nth-of-type(2):before {
+    float: left
+}
+
+.playerInfoBlock .anketaInfo {
+    overflow: hidden;
+    margin: 10px 0
+}
+
+.playerInfoBlock .anketaInfo:before {
+    content: 'Анкета';
     display: block;
     text-align: center
 }
 
-.playerInfoBlock>blockquote>p {
-    color: #00f;
-    clear: left
+.playerInfoBlock .anketaInfo:empty:before {
+    content: 'Игрок не заполнил данные о себе'
 }
 
-.playerInfoBlock>blockquote>p:nth-of-type(1):before {
+.playerInfoBlock .anketaInfo>p {
+    color: #00f;
+    clear: left;
+    margin: 5px 0;
+    font-size: 13px;
+    overflow: hidden
+}
+
+.playerInfoBlock .anketaInfo>p:nth-of-type(1):before {
     content: 'Город'
 }
 
-.playerInfoBlock>blockquote>p:nth-of-type(2):before {
+.playerInfoBlock .anketaInfo>p:nth-of-type(2):before {
     content: 'День рождения'
 }
 
-.playerInfoBlock>blockquote>p:nth-of-type(3):before {
+.playerInfoBlock .anketaInfo>p:nth-of-type(3):before {
     content: 'Контакты'
 }
 
-.playerInfoBlock>blockquote>p:before {
+.playerInfoBlock .anketaInfo>p:before {
     display: block;
     float: left;
-    width: 30%;
+    width: 35%;
     color: #000;
     text-align: right;
-    padding-right: 5%
+    padding-right: 5%;
+    font-size: 12px
 }
 
 .playerInfo-gifts {
@@ -8208,24 +8267,6 @@ button.usergame {
     display: block;
     width: 100px;
     height: 100px
-}
-
-.playerInfo-gifts>button {
-    display: block;
-    line-height: 28px;
-    width: auto;
-    padding: 0 20px;
-    margin: 10px;
-    float: left;
-    height: 34px
-}
-
-.playerInfo-gifts>button:nth-of-type(1) {
-    clear: both
-}
-
-.playerInfo-gifts>button:nth-of-type(2):before {
-    float: left
 }
 
 .myProfile .playerInfo-gifts>div {
@@ -9673,7 +9714,6 @@ body {
     -webkit-transform: rotateY(180deg);
     transform: rotateY(180deg);
     border: 1px solid #000;
-    background-color: #fff;
     word-wrap: break-word
 }
 
@@ -9719,44 +9759,80 @@ body {
 }
 
 .ticket1 {
-    background: url(/images/tickets/1.png) center no-repeat #fff!important
+    background: url(/images/tickets/1.png) center no-repeat #fff
 }
 
 .ticket2 {
-    background: url(/images/tickets/2.png) center no-repeat #999!important
+    background: url(/images/tickets/2.png) center no-repeat #999
 }
 
 .ticket3 {
-    background: url(/images/tickets/3.png) center no-repeat #666!important
+    background: url(/images/tickets/3.png) center no-repeat #666
 }
 
 .ticket4 {
-    background: url(/images/tickets/4.png) center no-repeat #cfc!important
+    background: url(/images/tickets/4.png) center no-repeat #cfc
 }
 
 .ticket5 {
-    background: url(/images/tickets/5.png) center no-repeat #dfd!important
+    background: url(/images/tickets/5.png) center no-repeat #dfd
 }
 
 .ticket6 {
-    background: url(/images/tickets/6.png) center no-repeat #fcc!important
+    background: url(/images/tickets/6.png) center no-repeat #fcc
 }
 
 .ticket7 {
-    background: url(/images/tickets/7.png) center no-repeat #ffc!important
+    background: url(/images/tickets/7.png) center no-repeat #ffc
 }
 
 .ticket8 {
-    background: url(/images/cat.png) center no-repeat #fff!important;
-    background-size: contain!important
+    background: url(/images/cat.png) center no-repeat #fff;
+    background-size: contain
 }
 
 .ticket9 {
-    background: url(/images/tickets/9.png) center no-repeat #ccc!important
+    background: url(/images/tickets/9.png) center no-repeat #ccc
+}
+
+.ticket10 {
+    background: url(/images/question.png) center/contain no-repeat #ccf
+}
+
+.maffia .ticket1 {
+    background: url(/images/maffia/tickets/1.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket2 {
+    background: url(/images/maffia/tickets/2.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket3 {
+    background: url(/images/maffia/tickets/3.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket4 {
+    background: url(/images/maffia/tickets/4.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket5 {
+    background: url(/images/maffia/tickets/5.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket6 {
+    background: url(/images/maffia/tickets/6.png) center no-repeat rgba(0,0,0,0.8)
+}
+
+.maffia .ticket7 {
+    background: url(/images/maffia/tickets/7.png) center no-repeat rgba(0,0,0,0.8)
 }
 
 .maffia .ticket8 {
-    background-color: #000!important
+    background-color: #000
+}
+
+.maffia .ticket9 {
+    background: url(/images/maffia/tickets/9.png) center no-repeat rgba(0,0,0,0.8)
 }
 
 @-webkit-keyframes hideTicket1 {
@@ -11156,6 +11232,31 @@ section.bonus-ring:before {
     text-decoration: underline
 }
 
+.hidden-commands {
+    width: 100%;
+    border-collapse: collapse
+}
+
+.hidden-commands td {
+    border: 1px solid black;
+    font: 400 14px Ubuntu,Arial,sans-serif
+}
+
+.hidden-commands td:nth-of-type(1) {
+    white-space: nowrap;
+    padding: 0 10px;
+    font-weight: 700
+}
+
+.hidden-commands td:nth-of-type(2) {
+    text-align: left
+}
+
+.hidden-commands ul {
+    margin: 0;
+    list-style-type: circle
+}
+
 .newgame,.areamap,.roll,.giftshop,.allfriends {
     overflow: hidden!important
 }
@@ -11226,13 +11327,13 @@ section.bonus-ring:before {
     -webkit-user-select: none
 }
 
-.playerInfo-about,.playerInfoBlock>blockquote>p,.nick {
+.playerInfo-about,.playerInfoBlock .anketaInfo>p,.nick {
     user-select: all;
     -moz-user-select: all;
     -webkit-user-select: all
 }
 
-.maffia a {
+.maffia a,.maffia .pseudolink {
     color: #39f
 }
 
@@ -11450,38 +11551,6 @@ section.bonus-ring:before {
 
 .maffia .studTicket:before {
     background: url(/images/maffia/probitka.png) center no-repeat!important
-}
-
-.maffia .ticket1 {
-    background: url(/images/maffia/tickets/1.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket2 {
-    background: url(/images/maffia/tickets/2.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket3 {
-    background: url(/images/maffia/tickets/3.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket4 {
-    background: url(/images/maffia/tickets/4.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket5 {
-    background: url(/images/maffia/tickets/5.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket6 {
-    background: url(/images/maffia/tickets/6.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket7 {
-    background: url(/images/maffia/tickets/7.png) center no-repeat rgba(0,0,0,0.8)!important
-}
-
-.maffia .ticket9 {
-    background: url(/images/maffia/tickets/9.png) center no-repeat rgba(0,0,0,0.8)!important
 }
 
 .maffia .stud:after {
@@ -12928,4 +12997,9 @@ ul::-webkit-scrollbar-track {
 
 .hiddenclass {
     display: none!important
+}
+
+.pseudolink {
+    text-decoration: underline;
+    cursor: pointer
 }

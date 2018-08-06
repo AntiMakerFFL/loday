@@ -2462,7 +2462,7 @@ function showNewMessage(event) {
                 if (!container.hasClass("ingame") && pluhTime < datenow() - 10000) {
                     switch (event.message) {
                     case "плюх":
-                        showWall("//loday.ru/images/snowball/shot.gif", true);
+                        showWall("/images/snowball/shot.gif", true);
                         pluhTime = datenow();
                         break;
                     case "целую":
@@ -2639,9 +2639,6 @@ function sendMessage() {
             break;
         case "киндер-сюрприз":
             maffiaNEW();
-            if (!isAppVK) {
-                showNewDiv('<div class="important">Если Вам не нравятся шоколадные яйца, можно воспользоваться прямой ссылкой <a href="//loday.ru/main-maffia.html">loday.ru/main-maffia.html</a></div>');
-            }
             break;
         }
     }
@@ -3009,24 +3006,24 @@ function goToRoom(roomStr) {
     if (room === "testgame" && helper.helpGameTimer) {
         helper.helpGameStop();
     }
-    var r = (roomStr) ? roomStr : roomInHall;
+    var r = roomStr || roomInHall;
     if (ws.readyState === 3) {
         return;
     }
     if (helper && helper.enabled()) {
         helper.stop();
     }
-    if (r === 6 && !u.club) {
+    if (parseInt(r) === 6 && !u.club) {
         showMessage('Только для членов Клуба <u class="clubname"></u>!');
     } else {
         showNewMessage({
             message: "Переходим..."
         });
+        sendToSocket({
+            type: "go",
+            room: r.toString()
+        });
     }
-    sendToSocket({
-        type: "go",
-        room: r.toString()
-    });
 }
 function randomGame() {
     var games = gamesList.find("li");
@@ -3528,7 +3525,15 @@ function socketEvent(message) {
         }
         break;
     case "standart":
-        f.notEnough(event);
+        switch (event.action) {
+        case "money":
+        case "money2":
+            f.notEnough(event);
+            break;
+        case "hiddenprofile":
+            showMessage('Профиль игрока скрыт.<br/> Хочешь также? Приобретай <span class="pseudolink" data-action="windowByName" data-param="donatoptions">VIP-статус</span>.');
+            break;
+        }
         break;
     case "inform":
         editPlayerList(event.user, event.leave);
@@ -4361,6 +4366,8 @@ if (lStorage.getItem("font")) {
     fontCheckbox.prop("checked", true);
     fontOptions.find("select,input").prop("disabled", false);
     setFontParams();
+} else {
+    fontOptions.css("opacity", "0.3");
 }
 graphicCheckbox.click(function() {
     var is = graphicCheckbox.prop("checked");
@@ -4447,10 +4454,12 @@ fontCheckbox.click(function() {
     var is = $(this).prop("checked")
       , fontEls = fontOptions.find("select,input");
     if (is) {
+        fontOptions.css("opacity", "");
         fontEls.prop("disabled", false);
         lStorage.setItem("font", true);
         setFontParams();
     } else {
+        fontOptions.css("opacity", "0.3");
         fontEls.prop("disabled", true);
         lStorage.removeItem("font");
         fontsOff();
@@ -4534,6 +4543,10 @@ function NYtoyAdd(e) {
             delete u.items.nytoys[curid];
         }, returnToy);
     });
+}
+function windowByName(target) {
+    $(target).parents(".warningWindow").fadeOut(400);
+    showWindow($(target).attr("data-param"));
 }
 function showWindow(buttonClass) {
     if (mobile) {
@@ -4788,7 +4801,7 @@ $("h3").click(function() {
         return;
     }
     var buttonClass = $(this).attr("class").substr(7);
-    if (buttonClass == "newgame") {
+    if (buttonClass === "newgame") {
         checkGame();
     }
     switch (buttonClass) {
@@ -4897,7 +4910,7 @@ function execDataAction(e) {
         window[action]($this);
     }
 }
-win.click(execDataAction);
+win.on("click", execDataAction);
 function gamesListener(e, callback, args) {
     if (e.target.nodeName === "UL") {
         return;
@@ -4972,18 +4985,6 @@ function tooltip(e, text, show) {
         tp.hide();
     }
 }
-function playerGamesCount(cu) {
-    var gamescount = cu.lun0 + cu.lun1 + cu.rev0 + cu.rev1 + cu.dej0 + cu.dej1 + cu.poh0 + cu.poh1 + cu.stud0 + cu.stud1;
-    ["cat", "adv"].forEach(function(el) {
-        if (cu[el + "0"]) {
-            gamescount += cu[el + "0"];
-        }
-        if (cu[el + "1"]) {
-            gamescount += cu[el + "1"];
-        }
-    });
-    return gamescount;
-}
 function checkMarried(cu, block) {
     if (cu.married === true) {
         block.addClass("married");
@@ -4993,7 +4994,7 @@ function checkMarried(cu, block) {
             if (!cu.cups) {
                 cu.cups = {};
             }
-            cu.cups["wed" + cu.married.replace("-", "") + "-png"] = cu.married == "women-item" ? "Завидная невеста" : "Завидный жених";
+            cu.cups["wed" + cu.married.replace("-", "") + "-png"] = cu.married === "women-item" ? "Завидная невеста" : "Завидный жених";
         }
     }
 }
@@ -5034,8 +5035,8 @@ function showPlayerInfo(show, uid) {
             ptp.removeClass("vipProfile");
         }
         var cuNick = cu.login || "***"
-          , cuRate = (cu.hide) ? (cu._id === u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
-          , gamescount = (!cu.hasOwnProperty("stud0")) ? (cu.hide ? "-" : "∞") : playerGamesCount(cu);
+          , cuRate = cu.hide ? (cu._id === u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
+          , gamescount = cu.hasOwnProperty("gamescount") ? cu.gamescount : (cu.hide ? "-" : "∞");
         stat.find(".nick").html(cuNick);
         stat.find(".rating").html(cuRate);
         stat.find(".cat").html(statEcho(cu, "cat"));
@@ -5087,9 +5088,8 @@ function showPlayerInfo(show, uid) {
 function showPlayerInfoBlock(cu) {
     var wb = $(".info").find(".playerInfoBlock")
       , stat = wb.find(".playerInfo-stat")
-      , anketaInfo = wb.find("blockquote")
       , giftInfo = wb.find(".playerInfo-gifts")
-      , myprofile = (cu._id == u._id)
+      , myprofile = (cu._id === u._id)
       , statEcho = function(obj, role) {
         var win = (obj[role + "1"] === undefined) ? "0" : obj[role + "1"]
           , lose = (obj[role + "0"] === undefined) ? "0" : obj[role + "0"];
@@ -5106,7 +5106,7 @@ function showPlayerInfoBlock(cu) {
             "background-size": "contain"
         });
     } else {
-        wb.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + ((cu.sex == 1) ? "w" : "m") + cu.image);
+        wb.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + ((cu.sex === 1) ? "w" : "m") + cu.image);
     }
     if (cu.club) {
         wb.addClass("club");
@@ -5115,8 +5115,7 @@ function showPlayerInfoBlock(cu) {
     }
     checkMarried(cu, wb);
     var cuNick = cu.login || "***"
-      , cuRate = cu.rating || "0"
-      , gamescount = (!cu.hasOwnProperty("stud0")) ? "∞" : playerGamesCount(cu);
+      , cuRate = cu.rating || "0";
     stat.find(".nick").html(cuNick);
     stat.find(".rating").html(cuRate);
     stat.find(".cat").html(statEcho(cu, "cat"));
@@ -5125,8 +5124,15 @@ function showPlayerInfoBlock(cu) {
     stat.find(".duty").html(statEcho(cu, "dej"));
     stat.find(".robb").html(statEcho(cu, "poh"));
     stat.find(".stud").html(statEcho(cu, "stud"));
-    stat.find(".law").html(statEcho(cu, "adv"));
-    stat.find(".gamecount").html(gamescount);
+    var lawRole = stat.find(".law");
+    lawRole.html(statEcho(cu, "adv"));
+    stat.find(".roles-stat").remove();
+    if (cu.roles) {
+        $.each(cu.roles, function(key, v) {
+            $('<span class="roles-stat" data-text="' + roles(key).name + '">' + (v["1"] || "0") + " / " + (v["0"] || "0") + "</span>").insertAfter(lawRole);
+        });
+    }
+    stat.find(".gamecount").html(cu.gamescount);
     wb.find(".player-status").removeClass().addClass("player-status status" + cu.icon).html(cu.status || "");
     wb.find(".playerInfo-about").html(cu.about || "");
     var cups = "";
@@ -5154,18 +5160,59 @@ function showPlayerInfoBlock(cu) {
     if (cu.vip && cu.vip > datenow()) {
         dateInfo += '<div class="vipPlayer">VIP-статус до ' + showDate(cu.vip, true) + "</div>";
     }
+    if (cu.blank) {
+        var anketaInfo = '<div class="anketaInfo">';
+        for (var i in cu.blank) {
+            if (cu.blank.hasOwnProperty(i)) {
+                var curv = (i == 1 && cu.blank[i]) ? rusDate(cu.blank[i], true) : cu.blank[i];
+                if (curv) {
+                    isVal = true;
+                }
+                anketaInfo += "<p>" + curv + "</p>";
+            }
+        }
+        dateInfo += anketaInfo + "</div>";
+    }
     if (cu.clan) {
         dateInfo += '<div data-action="clanProfile" data-id="' + cu.clan + '" class="clan-status" style="background-image:url(/images/clans/' + cu.clan + '/icon.png)">Состоит в клане</div>';
     }
     $("#regdate").html(dateInfo);
-    anketaInfo.html("");
-    if (cu.blank) {
-        for (var i in cu.blank) {
-            if (cu.blank.hasOwnProperty(i)) {
-                var curv = (i == 1 && cu.blank[i]) ? rusDate(cu.blank[i], true) : cu.blank[i];
-                $("<p>" + curv + "</p>").appendTo(anketaInfo);
-            }
+    if (myprofile) {
+        if (u.vip) {
+            $("<button>" + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").click(function() {
+                $(this).hide();
+                sendToSocket({
+                    type: "anketa",
+                    data: {
+                        hide: !u.hide
+                    }
+                });
+            }).appendTo(wb.find(".playerInfo-cups"));
         }
+    } else {
+        $("<button>Сделать подарок</button>").click(function() {
+            giftShop.find('input[type="text"]').eq(0).val(cu.login);
+            showWindow("giftshop");
+        }).appendTo(wb.find(".playerInfo-cups"));
+    }
+    if (u.stat && u.stat.pay) {
+        var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
+        $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
+            if (u.money2 >= needVipSum) {
+                modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
+                    sendToSocket({
+                        type: "donat",
+                        action: "vip",
+                        other: cu._id
+                    });
+                });
+            } else {
+                f.notEnough({
+                    action: "money2",
+                    message: 'Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету."
+                });
+            }
+        }).appendTo(wb.find(".playerInfo-cups"));
     }
     giftInfo.html("");
     if (cu.gifts) {
@@ -5190,43 +5237,6 @@ function showPlayerInfoBlock(cu) {
             }
         }
         giftInfo.append('<br class="clearfix"/>');
-    }
-    if (myprofile) {
-        if (u.vip) {
-            $("<button>" + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").click(function() {
-                $(this).hide();
-                sendToSocket({
-                    type: "anketa",
-                    data: {
-                        hide: !u.hide
-                    }
-                });
-            }).appendTo(giftInfo);
-        }
-    } else {
-        $("<button>Сделать подарок</button>").click(function() {
-            giftShop.find('input[type="text"]').eq(0).val(cu.login);
-            showWindow("giftshop");
-        }).appendTo(giftInfo);
-    }
-    if (u.stat && u.stat.pay) {
-        var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
-        $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
-            if (u.money2 >= needVipSum) {
-                modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
-                    sendToSocket({
-                        type: "donat",
-                        action: "vip",
-                        other: cu._id
-                    });
-                });
-            } else {
-                f.notEnough({
-                    action: "money2",
-                    message: 'Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету."
-                });
-            }
-        }).appendTo(giftInfo);
     }
     showWindow("playerInfoBlock");
 }
@@ -6833,6 +6843,14 @@ function showInventory() {
                             cursor: "auto"
                         }).html("<span>+40%</span>").appendTo(bonusBox);
                     }
+                    if (u.tempbonus.intuit100) {
+                        $("<div/>", {
+                            "class": "items-23",
+                            "data-title": "100% бонус интуиции (до " + showDate(u.tempbonus.intuit100, true) + ")"
+                        }).css({
+                            cursor: "auto"
+                        }).html("<span>+100%</span>").appendTo(bonusBox);
+                    }
                 }
                 bonusBox.appendTo(inventar);
             }
@@ -6899,12 +6917,12 @@ function slotAction(data) {
 }
 function slotMotion(obj, top, curtop) {
     if (top > 0) {
-        if (curtop > 0) {
-            curtop += -slotCount * 60;
-        }
-        var step = Math.floor(top / 500) + 1;
+        var step = b.hasClass("noeffect") ? top : Math.floor(top / 500) + 1;
         top -= step;
         curtop += step;
+        while (curtop > 0) {
+            curtop += -slotCount * 60;
+        }
         obj.css({
             top: curtop + "px"
         });
@@ -7799,7 +7817,7 @@ roulette.click(function() {
 var zastavka;
 showWall(isMaffia ? "maffia/start.jpg" : "start.jpg");
 function loadImageFiles() {
-    for (var k = 0; k <= 9; k++) {
+    for (var k = 0; k <= 10; k++) {
         new Image().src = "/images/walls/" + ((k === 0) ? "0.gif" : k + ".jpg");
     }
     for (var mk = 1; mk <= 9; mk++) {
@@ -8223,6 +8241,7 @@ function ticketClick() {
     }
 }
 function showTickets(count, noactive) {
+    sound("notify");
     var curDiv, w = container.width() - 40, h = container.height() - 40, k = (h / w) * ticketK, y = Math.ceil(Math.sqrt(count * k)), ticketHeight = Math.floor(h / y), ticketWidth = Math.floor(ticketHeight * ticketK), ticketSide = false;
     if (ticketWidth > 70) {
         ticketWidth = 70;
@@ -8249,10 +8268,10 @@ function showTickets(count, noactive) {
             newTicket.addClass("studTicket");
         }
         curDiv.append(newTicket);
-        if (ticketSide && i == ticketSide - 1) {
+        if (ticketSide && i === ticketSide - 1) {
             curDiv = ticketBlock.find("section").eq(1);
         }
-        if (ticketSide && i == ticketSide + 9) {
+        if (ticketSide && i === ticketSide + 9) {
             curDiv = ticketBlock.find("section").eq(2);
         }
     }
@@ -8656,7 +8675,18 @@ UG.find("#UGsaves").change(function() {
         });
     }
 });
-var roles = function(roleId) {
+var textRoles = {
+    1: "stud",
+    2: "poh",
+    3: "poh",
+    4: "dej",
+    5: "dej",
+    6: "rev",
+    7: "lun",
+    8: "cat",
+    9: "law"
+};
+function roles(roleId) {
     var fflRoles = {
         none: {
             name: "[роль недоступна]",
@@ -8711,8 +8741,8 @@ var roles = function(roleId) {
             icon: "law",
             button: ["Оправдывать"]
         }
-    };
-    var maffiaRoles = {
+    }
+      , maffiaRoles = {
         none: {
             name: "[роль недоступна]",
             button: []
@@ -8766,9 +8796,21 @@ var roles = function(roleId) {
             icon: "law",
             button: ["Защищать"]
         }
+    }
+      , allRoles = {
+        10: {
+            name: "Палач",
+            icon: "roleblock roleblock10",
+            button: []
+        },
+        10.5: {
+            name: "Жертва",
+            icon: "roleblock roleblock10target",
+            button: []
+        }
     };
-    return isMaffia ? maffiaRoles[roleId] : fflRoles[roleId];
-};
+    return +roleId < 10 ? (isMaffia ? maffiaRoles[roleId] : fflRoles[roleId]) : allRoles[roleId];
+}
 var gameMode = function() {
     return isMaffia ? "maffia" : "ffl";
 };
@@ -8784,7 +8826,8 @@ var roleText = {
             "6": "Вы - ревнивый студент.<br/> Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
             "7": "Вы - лунатик.<br/> Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
             "8": "Вы - котик.<br/> Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
-            "9": "Вы - вахтер.<br/> Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "9": "Вы - вахтер.<br/> Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
+            "10": "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
         },
         nightActions: {
             "1": "Студент спокойно спит.",
@@ -8919,7 +8962,8 @@ var roleText = {
             "6": "Вы - Mаньяк!<br/> Вы выиграете, убив всех мафиози. Ночью с помощью кнопки <b>Убить</b> Вы расправляетесь с ненавистными персонажами. Днем голосуете против них с помощью кнопки <b>Голосовать</b>.",
             "7": "Вы - Доктор!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью с помощью кнопки <b>Лечить</b> Вы можете спасти одного из граждан.",
             "8": "Вы - кот!<br/> Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
-            "9": "Вы - адвокат!<br/> Вы играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд."
+            "9": "Вы - адвокат!<br/> Вы играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
+            "10": "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
         },
         nightActions: {
             "1": "",
@@ -9074,6 +9118,7 @@ var startHours = {
     3: 17,
     4: 19
 }
+  , lastKickVote = 0
   , game = {
     active: false,
     closed: false,
@@ -9096,7 +9141,7 @@ var startHours = {
     hisvote: {},
     votes: {}
 };
-var min10, replaceLogins = {}, randomNicks = ["Египет", "Марокко", "Нигерия", "Сенегал", "Тунис", "Австралия", "Иран", "Саудовская Аравия", "Южная Корея", "Япония", "Англия", "Бельгия", "Германия", "Дания", "Исландия", "Испания", "Польша", "Португалия", "Россия", "Сербия", "Франция", "Хорватия", "Швейцария", "Швеция", "Коста-Рика", "Мексика", "Панама", "Аргентина", "Бразилия", "Колумбия", "Уругвай", "Перу"];
+var min10, replaceLogins = {}, randomNicks = ["Аберто", "Авада Кедавра", "Авис", "Авифорс", "Агуаменти", "Адское пламя", "Аква Эрукто", "Акцио", "Аларте Аскендаре", "Алохомора", "Анапнео", "Апарекиум", "Араниа экзэми", "Аресто моментум", "Асцендио", "Баубиллиус ", "Бомбардо", "Бомбардо Максима", "Брахиабиндо", "Брахиам Эмендо", "Ваддивази", "Вердимилиус", "Верминкулюс", "Веселящие чары", "Взрывающее заклятие", "Вингардиум Левиоса", "Випера Эванеско", "Воздвигнись", "Вомитаре Виридис", "Воющие чары", "Вспыхни", "Вулнера санентур", "Гармония Нектере Пасус", "Гербивикус", "Гибель воров", "Глаз крысы, струна арфы, пусть вода превратится в ром", "Глиссео", "Глациус", "Гоменум ревелио", "Гомункуловы чары", "Губрайтов огонь", "Даклифорс", "Дантисимус", "Дезиллюминационное заклинание", "Делетриус", "Депримо", "Депульсо", "Десцендо", "Дефодио", "Джеминио", "Диминуендо", "Диссендиум", "Диффиндо", "Драконифорс", "Дуро", "Жалящее заклинание", "Ешь слизней", "Заклинание вечного приклеивания", "Заклинание головного пузыря", "Заклинание для очистки картофеля", "Заклинание замедленного падения", "Заклинание заметания следов", "Заклинание невидимого хлыста", "Заклятие ненаносимости", "Заклятие Неразбиваемости", "Заклинание Обращения", "Заклинание открытия дверей", "Заклинание пальцекусания", "Заклятие Пылающей руки", "Заклинание против списывания", "Заклинание роста ногтей на ногах", "Запирающие заклинания", "Затмись", "Зелёные искры", "Зелёное специальное заклинание", "Иммобулюс", "Импедимента", "Импервиус", "Империус", "Инаниматус Коньюрус", "Инкарцеро", "Инсендио", "Инфлэтус", "Информус", "Инкарсифорс", "Каве инимикум", "Калворио", "Кантис", "Капациус экстремис", "Карпе Ретрактум", "Квиетус", "Кишечно-опорожнительное заклятие", "Коллопортус", "Коллошио", "Колорум", "Конфундус", "Коньюнктивитус", "Круциатус", "Лакарнум Инфламаре", "Лапифорс", "Левикорпус", "Левиосо", "Легилименс", "Летучемышиный сглаз", "Либеракорпус", "Локомотор", "Пиертотум Локомотор", "Локомотор Мортис", "Локомотор Виббли", "Люмос", "Люмос Максима", "Люмос Солем", "Люмос Дуо", "Магикус экстримус", "Мелофорс", "Метео реканто", "Мимбл Вимбл", "Мобилиарбус", "Мобиликорпус", "Морсмордре", "Мукус Ад Нозем", "Мутацио Скулус", "Направление", "Нокс", "Обезъяз", "Облегчающие чары", "Обливиэйт", "Оглохни", "Оживи", "Окулус Репаро", "Оппуньо", "Орбис", "Орхидеус", "Остолбеней", "Остолбеней Дуо", "Остолбеней Триа", "Отключись", "Партис Темпорус", "Парящие чары", "Патентованные чары — грёзы наяву", "Перрикуллум", "Петрификус Тоталус", "Пескипикси Пестерноми", "Портоберто", "Портус", "Приори Инкантатем", "Проклятие воришки", "Протеевы чары", "Протего", "Протего Дуо", "Протего максима", "Протего тоталум", "Протего хоррибилис", "Пуллус", "Пэк", "Ревелио", "Редактум Скулус", "Редукто", "Редуцио", "Релашио", "Репарифарго", "Репаро", "Репелло Инимикум", "Репелло маглетум", "Ридикулус", "Риктусемпра", "Сальвио гексиа", "Сезам откройся", "Сектумсемпра", "Серпенсортиа", "Силенцио", "Синие искры", "Систем Аперио", "Сито из котла", "Скрибблифорс", "Скурж", "Снаффлифорс", "Сонорус", "Соппоро", "Спанджифай", "Стилклоу", "Таранталлегра", "Тергео", "Титилландо", "Тормозящие чары Хортона-Кейтча", "Трансмогрифианская Пытка", "Фианто Дури", "Финита", "Фините Инкантатем", "Фенестрам", "Фера Верто", "Ферула", "Флагрейт", "Флиппендо", "Флиппендо Дуо", "Флиппендо Триа", "Фульгари", "Фумос", "Фумос Дуо", "Фурункулус", "Хватательное заклинание", "Хербифорс", "Чары высушивания", "Чары подчинения", "Чары рессорной подушки", "Эбублио", "Эванеско", "Эверте Статум", "Экскуро", "Экспекто патронум", "Экспеллиармус", "Экспеллимеллиус", "Эктоматис", "Экспульсо", "Эманципаре", "Энгоргио", "Энгоргио Скулус", "Энтоморфиум", "Эпискеи", "Ябеда"];
 var showTime = function() {
     var h = game.time.h
       , m = game.time.m;
@@ -9261,7 +9306,7 @@ game.event = function(data, datafrom, needReturn) {
     }
     if (data.replacedata) {
         if (data.replacedata["[mans]"]) {
-            if (data.replacedata["[mans]"] == data.replacedata["[students]"]) {
+            if (data.replacedata["[mans]"] === data.replacedata["[students]"]) {
                 text = text.replace("[students],", "");
             } else {
                 data.replacedata["[students]"] -= data.replacedata["[mans]"];
@@ -9275,11 +9320,16 @@ game.event = function(data, datafrom, needReturn) {
                 if (val === "[ROLE2]") {
                     val = roles(2).name;
                 }
-                if (data.text == "stat") {
+                if (data.text === "stat") {
                     var someForms = roleText[gameMode()].statCount[key];
                     text = text.replace(key, f.someThing(val, someForms[0], someForms[1], someForms[2]));
                 } else {
-                    text = (key == "[role]") ? text.replace(key, roleReplace(roles(val).name)) : text.replace(key, val);
+                    text = (key === "[role]") ? text.replace(key, roleReplace(roles(val).name)) : text.replace(key, val);
+                    if (data.text === "mainvote:result1" && key === "[role]" && lastKickVote) {
+                        var isDark = val === 2 || val === 3 || (game.man && val === 6)
+                          , kickMarkText = (isDark && lastKickVote === 1) || (!isDark && lastKickVote === 2) ? "Вы были правы!" : "Вы ошиблись...";
+                        showNewDiv("<blockquote>" + kickMarkText + "</blockquote>");
+                    }
                 }
             }
         }
@@ -9356,10 +9406,11 @@ game.event = function(data, datafrom, needReturn) {
     }
 }
 ;
-game.kick = function(param) {
+game.kick = function(isKick) {
+    lastKickVote = isKick ? 1 : 2;
     sendToSocket({
         type: "kick",
-        iskick: param
+        iskick: isKick
     });
 }
 ;
@@ -9404,6 +9455,7 @@ game.updateInfoGame = function(text) {
             break;
         case 4:
             game.actions = [];
+            lastKickVote = 0;
             if (text) {
                 modalWindow(text, function() {
                     game.kick(true);
@@ -9417,7 +9469,7 @@ game.updateInfoGame = function(text) {
     } else {
         actionButton.html("");
     }
-    if (game.role > 0) {
+    if (game.role > 0 && game.period !== 3) {
         game.setRole({
             id: u._id,
             login: u.login,
@@ -9722,7 +9774,7 @@ var finalMsg = function(data, end) {
         if (data.roles) {
             str += "<strong>Роли исполняли:</strong> <blockquote>";
             data.roles.forEach(function(el, index) {
-                if (el == "finish") {
+                if (el === "finish") {
                     if (index < data.roles.length - 1) {
                         str += "<b>Изменившиеся роли:</b><br/>";
                     }
@@ -9766,7 +9818,7 @@ game.newRole = function(obj) {
     }
     alarm("Теперь ты - " + roles(obj.role).name + "!");
     if (obj.child) {
-        var parentSex = (playersInfoArray[obj.child] && playersInfoArray[obj.child].sex == 1) ? "mother" : "father";
+        var parentSex = (playersInfoArray[obj.child] && playersInfoArray[obj.child].sex === 1) ? "mother" : "father";
         game.writeText(u.login + roleText[gameMode()]["bossChild-" + parentSex], false, true);
     }
     if (obj.hasOwnProperty("bonus") && !obj.bonus) {
@@ -9856,15 +9908,6 @@ game.recalculateBanks = function(banks) {
     animateNumber("winBank", banks[3] || 0);
 }
 ;
-var textRoles = {
-    1: "stud",
-    2: "poh",
-    3: "poh",
-    4: "dej",
-    5: "dej",
-    6: "rev",
-    7: "lun"
-};
 game.start = function(data) {
     hideTickets();
     messagesList.html("");
@@ -9892,11 +9935,8 @@ game.start = function(data) {
         if (data.married) {
             showWall((data.role) ? "wedding" + (data.role === 2 ? "2" : "1") + ".jpg" : "0.gif");
         } else {
-            if (isMaffia) {
-                showWall((data.role) ? "maffia/" + data.role + ".jpg" : "0.gif");
-            } else {
-                showWall((data.role) ? data.role + ".jpg" : "0.gif");
-            }
+            var roleWall = !data.role ? "0.gif" : (isMaffia && data.role < 10) ? "maffia/" + data.role + ".jpg" : data.role + ".jpg";
+            showWall(roleWall);
         }
     }
     game.active = true;
@@ -10038,15 +10078,35 @@ game.start = function(data) {
         game.setTime();
     }, 1000);
     if (game.role) {
-        var statRole = textRoles[game.role];
         helper.hint("start");
-        if (u[statRole + "0"] + u[statRole + "1"] < 1) {
+        if (getStatForRole(u, game.role) < 1) {
             helper.hint("Это твоя первая роль " + roles(game.role).name + ".<br/> Посмотрим, сможешь ли ты с ней справиться!", true);
         }
         u.money -= game.sum;
     }
 }
 ;
+function getStatForRole(user, roleNum) {
+    var result = 0;
+    if (roleNum < 10) {
+        if (user[textRoles[roleNum] + "0"]) {
+            result += user[textRoles[roleNum] + "0"];
+        }
+        if (user[textRoles[roleNum] + "1"]) {
+            result += user[textRoles[roleNum] + "1"];
+        }
+    } else {
+        if (user.roles) {
+            if (user.roles[roleNum]["0"]) {
+                result += user.roles[roleNum]["0"];
+            }
+            if (user.roles[roleNum]["1"]) {
+                result += user.roles[roleNum]["1"];
+            }
+        }
+    }
+    return result;
+}
 game.finished = function() {
     game.finish = true;
     clearInterval(min10);
@@ -10495,7 +10555,7 @@ curatorWindow.find("div.curatorHide").on("click", function(e) {
     return false;
 });
 curatorWindow.find("input").keydown(function(e) {
-    if (e.which == 13) {
+    if (e.which === 13) {
         var text = $(this).val().trim();
         if (curator.qid) {
             sendToSocket({
@@ -10563,7 +10623,7 @@ curator.takeQid = function(qid) {
 curator.answer = function(data) {
     var thisQ = curatorWindow.find(".curator-qid" + data.qid);
     thisQ.find("button").remove();
-    if (data.uid == u._id) {
+    if (data.uid === u._id) {
         thisQ.css({
             background: "#cfc"
         });
@@ -10768,8 +10828,69 @@ function defPosition(event) {
         y: y
     };
 }
+var hiddenCommands = [{
+    name: "help",
+    about: "помощь по игре"
+}, {
+    name: "очистить чат",
+    about: "очистить полностью общий чат"
+}, {
+    name: "редактор меню",
+    about: "пользовательская настройка главного меню и блоков подменю"
+}, {
+    name: "давай дружить",
+    about: "отправить конверт адресату"
+}, {
+    name: "я хочу",
+    about: "загадать желание"
+}, {
+    name: "конверт-",
+    about: "отключить анимацию движения информационных конвертов"
+}, {
+    name: "викторина-",
+    about: "отключение викторины в чате"
+}, {
+    name: "салют-",
+    about: "отключить анимацию фейерверков"
+}, {
+    name: "хочу чп",
+    about: "вызов окна создания ЧП на 8 игроков"
+}, {
+    name: "хочу стенку",
+    about: 'вызов окна создания классической "стенки" 8 на 8'
+}, {
+    name: "не надо снега",
+    about: "отключение анимации снегопада (для новогодних праздников)"
+}, {
+    name: "хочу снега",
+    about: "включение анимации снегопада"
+}, {
+    name: "ёлка-",
+    about: "отключение новогодней ёлки"
+}, {
+    animate: true
+}, {
+    name: "плюх",
+    about: "запустить снежком в адреса сообщения"
+}, {
+    name: "целую",
+    about: "отправить воздушный поцелуй адресату"
+}, {
+    name: "люблю",
+    about: "отправить признание в любви адресу.<br/> Также действуют команды <ul><li>чмок</li><li>:-*</li></ul>"
+}, {
+    name: "мяу",
+    about: "отправить анимацию котиков адресату"
+}, {
+    name: "ауау",
+    about: "отправить анимацию тюленя адресату"
+}];
 function showHiddenCommands() {
-    showMessage("&quot;help&quot; - помощь по игре<br/>&quot;очистить чат&quot; - очистить полностью общий чат<br/>&quot;редактор меню&quot; - пользовательская настройка главного меню и блоков подменю<br/>&quot;давай дружить&quot; - отправить конверт адресату<br/>&quot;я хочу&quot; - загадать желание<br/>&quot;конверт-&quot; - отключить анимацию движения информационных конвертов<br/>&quot;викторина-&quot; - отключение викторины в чате<br/>&quot;салют-&quot; - отключить анимацию фейерверков<br/>&quot;хочу чп&quot; - вызов окна создания ЧП на 8 игроков<br/><hr/>Наберите выбранную команду в чат (без кавычек)");
+    var text = '<table class="hidden-commands"><tr><th>команда</th><th>описание</th></tr>';
+    hiddenCommands.forEach(function(el) {
+        text += el.animate ? '<tr><td colspan="2" style="padding-top:10px">Команды для отправки анимации (не чаще, чем 1 раз в 10 секунд)</td></tr>' : "<tr><td>" + el.name + "</td><td>" + el.about + "</td></tr> ";
+    });
+    showMessage(text + "</table><hr/> Наберите выбранную команду в чат");
 }
 var menuedit = {
     submenuElements: {},
@@ -10955,13 +11076,13 @@ addHandler(document, "contextmenu", function() {
 });
 addHandler(document, "click", function(e) {
     document.getElementById("contextMenu").style.display = "none";
-    if (e.which != 3 || !e.target || !e.target.parentElement || !e.target.parentElement.id || e.target.parentElement.id !== "players") {
+    if (e.which !== 3 || !e.target || !e.target.parentElement || !e.target.parentElement.id || e.target.parentElement.id !== "players") {
         plMenu.hide();
     }
     tp.hide();
     ptp.hide();
 });
-$(document).on("click", "strong[data-id]", showProfile);
+$(document).on("click", "strong[data-id]", showProfile).on("click", ".warningWindow", execDataAction);
 header.on("contextmenu touchcancel", function(e) {
     return menu(false, e);
 });
@@ -11235,6 +11356,7 @@ function authFalse(event) {
             if (mobile) {
                 showMessage("Пожалуйста, пройдите авторизацию повторно.");
             } else {
+                createCookie("sid", "", -1);
                 warningWindow("Ошибка авторизации", function() {
                     $(window).off("beforeunload", Unloader.unload);
                     window.location.href = "/";
@@ -11248,7 +11370,7 @@ var ws;
 function socketConnect(retry) {
     try {
         console.log("connecting...");
-        ws = new WebSocket("ws" + ((window.location.protocol == "https:") ? "s://" + domain + ":909" + (domain == "maffia-online.ru" ? "1" : "0") : "://" + domain + ":9000"));
+        ws = new WebSocket("ws" + ((window.location.protocol === "https:") ? "s://" + domain + ":909" + (domain === "maffia-online.ru" ? "1" : "0") : "://" + domain + ":9000"));
         if (!retry) {
             ws.onerror = function(event) {
                 errorText("Произошла ошибка при установке соединения " + (event.target ? event.target.url : "no target") + ". Проверьте настройки браузера, фаервола и интернет-соединения. Отключите, если используете, сервис VPN или прокси-сервер.");
@@ -11300,8 +11422,8 @@ function socketConnect(retry) {
                 color: "#ff0000",
                 from: "[server]"
             };
-            if (event.wasClean && event.code != 1006) {
-                if (event.code == 4000 || event.code == 4001) {
+            if (event.wasClean && event.code !== 1006) {
+                if (event.code === 4000 || event.code === 4001) {
                     modalWindow(obj.message, function() {
                         errorText(closeText);
                     });
