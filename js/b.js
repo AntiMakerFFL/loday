@@ -1,10 +1,5 @@
 var domain = document.location.hostname
-  , room = 1
-  , roomInHall = 1
-  , u = {}
-  , mapAreas = false
-  , gamesInfoArray = {}
-  , playersInfoArray = {}
+  , html = $("html")
   , b = $("body")
   , container = $("#container")
   , charDiv = $("#char")
@@ -21,13 +16,14 @@ var domain = document.location.hostname
   , gamesList = mainDiv.find("ul")
   , gametitle = $("#gametitle")
   , leftPanel = $("#left-panel")
+  , wallpaper = $("#wallpaper")
   , win = $(".window")
+  , winInfo = win.find(".info")
   , tp = $("#tooltip")
   , ptp = $("#playerInfo")
   , gameptp = $("#playerGameInfo")
   , wW = $(".warningWindow")
   , mW = $("#modalWindow")
-  , w = $("#infomessage")
   , oW = $("#optionsWindow")
   , actionButton = $("#playersButton")
   , inputField = $("#input")
@@ -51,21 +47,6 @@ var domain = document.location.hostname
     s5: 1,
     g5: 1
 }
-  , testMode = false
-  , myclan = false
-  , clanView = {
-    id: false,
-    info: false
-}
-  , specialDay = false
-  , server2 = (typeof (server2) !== "undefined")
-  , lastMsg = ""
-  , closedgame = false
-  , quizEnable = true
-  , fireworkEnable = true
-  , noconvert = false
-  , colNum = 1
-  , sortType = 1
   , gameStyle = {
     0: "Простая игра",
     1: "Игра без ботов",
@@ -82,65 +63,3066 @@ var domain = document.location.hostname
 }
   , roleSmiles = ["", "stud", "poh", "glava", "dej", "pom", "rev", "lun", "cat", "adv"]
   , mafroleSmiles = ["", "gr", "maf", "boss", "kom", "ped", "man", "doc", "cat", "adv"]
-  , gifts = {
+  , room = 1
+  , roomInHall = 1
+  , zastavka = !1
+  , mapAreas = !1
+  , u = {}
+  , gamesInfoArray = {}
+  , playersInfoArray = {}
+  , testMode = !1
+  , lastMsg = ""
+  , closedgame = !1
+  , quizEnable = !0
+  , fireworkEnable = !0
+  , noconvert = !1
+  , invitesToGame = !0
+  , colNum = 1
+  , sortType = 1
+  , logs = [];
+window.onerror = function(e, a, o, t, i) {
+    return logs.push("ERR:" + i.stack + " URL:" + a + " L:" + o),
+    console.error(i),
+    sendToSocket({
+        type: "error",
+        data: {
+            error: {
+                text: e + "\n" + i.stack,
+                url: a,
+                line: o + "x" + t
+            },
+            browser: navigator.userAgent,
+            page: document.location.href
+        }
+    }),
+    !0
+}
+,
+window.global_options || (window.global_options = {});
+var mobile = global_options.mobile
+  , isAppVK = global_options.isAppVK
+  , mafApp = global_options.mafApp
+  , server2 = global_options.server2
+  , authDiv = global_options.authDiv
+  , islocalStorage = function() {
+    var e = "test";
+    try {
+        return localStorage.setItem(e, e),
+        localStorage.removeItem(e),
+        !0
+    } catch (e) {
+        return !1
+    }
+}()
+  , lStorage = {
+    setItem: function(e, a) {
+        islocalStorage && (localStorage.setItem(e, a),
+        this[e] = a)
+    },
+    getItem: function(e) {
+        return !!islocalStorage && localStorage.getItem(e)
+    },
+    removeItem: function(e) {
+        islocalStorage && localStorage.removeItem(e)
+    }
+}
+  , reds = islocalStorage && localStorage.reds ? localStorage.reds.split(",") : []
+  , smileBlock = $("#smiles")
+  , smilesArr = ["mm", "sweat", "toivo", "wave", "evilgrin", "happy", "inlove", "S", "flex", "tmi", "smirk", "headbang", "bug", "chukle", "drink", "angel", "yawn", "star", "good", "h", "u", "handshake", "talk", "makeup", "bow", "nod", "blush", "dance", "rofl", "bandit", "angry", "puke", "heidy", "doh", "X", "fubar", "call", "emo", "drunk", "swear", "beer", "rain", "cash", "y", "kiss", "speechless", "phone", "cry", "sun", "rock", "bad", "music", "hug", "cake", "O", "mig", "whew", "sleep", "pizza", "clap", "P", "think", "movie", "n", "flower", "envy", "D", "punch", "shake", "coffee", "finger", "devil", "poolparty", "cool", "ninja", "wait", "smoking", "mooning", "time", "wasntme", "party", "facepalm", "laughcry", "dull", "wondering"]
+  , textSmiles = {
+    good: ":)",
+    D: ":D",
+    bad: ":(",
+    cool: "8-)",
+    O: ":O",
+    mig: ";)",
+    kiss: ":*",
+    P: ":P",
+    X: ":x"
+}
+  , hallTitles = ["", "Страну грёз", "Город любви", "Апельсиновый рай", "Солнечную аллею", "Парк друзей", "Обитель мрака"]
+  , scrollCheck = $("#scrolling")
+  , messagesDOM = document.getElementById("messages")
+  , mymessagesDOM = document.getElementById("mymessages");
+function doScroll() {
+    scrollCheck.is(":checked") || (messagesDOM.scrollTop = messagesDOM.scrollHeight,
+    mymessagesDOM.scrollTop = mymessagesDOM.scrollHeight)
+}
+function checkMarried(e, a) {
+    !0 === e.married ? a.addClass("married") : (a.removeClass("married"),
+    e.married && (e.cups || (e.cups = {}),
+    e.cups["wed" + e.married.replace("-", "") + "-png"] = "women-item" === e.married ? "Завидная невеста" : "Завидный жених"))
+}
+var prices = {
+    i1: 2e3,
+    ir1: 1,
+    i2: 3e3,
+    ir2: 5,
+    i3: 3e4,
+    ir3: 150,
+    i4: 1e3,
+    ir4: 3,
+    i5: 5e3,
+    ir5: 10,
+    i6: 3e5,
+    ir6: 1e3
+}
+  , itemsArray = {
+    7: "Сертификат на бесплатное объявление",
+    8: "Элемент Коллекции Активист",
+    9: "Элемент Клубной Коллекции",
+    10: "Новогодняя игрушка",
+    11: "VIP-абонемент на 1 день",
+    12: "Сертификат на бесплатную суперигру",
+    13: "Билет на Барабан чудес",
+    14: "Кошелек с монетами (16 000)",
+    15: "Купон на заказ праздничного салюта (не чаще 1 раза в 20 секунд)",
+    16: "Сертификат на быструю суперигру",
+    17: "Элемент Новогодней Коллекции 2017",
+    18: "Снежинка",
+    19: "Сертификат на создание СуперМикса",
+    20: "Скидочная карта -50% на покупки в игровой партии",
+    21: "Шубка деда мороза (+20% к бессмертию)",
+    22: {
+        ffl: "Морковка снеговика (+25% к шансу стать ревнивым студентом)",
+        maffia: "Морковка снеговика (+25% к шансу стать маньяком)"
+    },
+    23: "Шапка снегурочки (+40% к интуиции)",
+    24: "Для активации отправьте кому-то в личном сообщении слово &quot;бах&quot;",
+    2018: "Элемент Новогодней Коллекции 2018"
+};
+function getItemsArray(e) {
+    return "object" == typeof itemsArray[e] ? isMaffia ? itemsArray[e].maffia : itemsArray[e].ffl : itemsArray[e]
+}
+var specGamesTime = {
+    "17:00": {
+        name: "Супермикс",
+        link: "http://maffia-online.ru/games/supermix.html"
+    },
+    "19:00": {
+        name: "Сотня",
+        link: "http://maffia-online.ru/games/sotnya.html"
+    },
+    "20:00": {
+        name: "Супермикс",
+        link: "http://maffia-online.ru/games/supermix.html"
+    },
+    "20:30": {
+        name: "Интуиция",
+        link: "http://maffia-online.ru/games/intuition.html"
+    },
+    "21:00": {
+        name: "Камикадзе",
+        link: "http://maffia-online.ru/games/kamikadze.html"
+    },
+    "21:30": {
+        name: "Битва полов",
+        link: "http://maffia-online.ru/games/bitva-polov.html"
+    },
+    "22:00": {
+        name: "Последний герой",
+        link: "http://maffia-online.ru/games/poslednij-geroj.html"
+    },
+    "22:30": {
+        name: "Перестрелка"
+    },
+    "00:05": {
+        name: "Классическая мафия (каждый час)"
+    }
+};
+function authorizeDone(i) {
+    i.pingtime && 1e4 < i.pingtime && setInterval(function() {
+        sendToSocket({
+            type: "ping"
+        })
+    }, i.pingtime),
+    date.diff = i.datenow - Date.now(),
+    b.removeClass("unauthorized"),
+    charDiv.removeClass("charEdit"),
+    wallpaper.on("click", wallhide),
+    u = i.user,
+    u.items || (u.items = {}),
+    u.rating < 4 && $("#roll-start").hide(),
+    updateInterface(),
+    room = i.room,
+    showPlayersList(i.online, i.room),
+    showGamesList(i.games),
+    i.greens && showGreenList(i.greens),
+    showTopLists(i),
+    i.stip && "no" !== i.stip && showConvert(function() {
+        var t = "Вам начислена " + (isMaffia ? "зарплата" : "стипендия") + ' в размере <span class="gamemoney">' + f.over1000(i.stip) + "</span>";
+        if (u.vip) {
+            var e = Math.ceil((u.vip - date.now()) / 864e5);
+            0 < e && (t += '<br/><b class="red">Ещё ' + f.someThing(e, "день", "дня", "дней") + " VIP-статуса</b>")
+        }
+        showCash(t)
+    }),
+    setStatus();
+    var a = !1;
+    if (i.birthdays) {
+        var t = '<div class="birthdays"> Сегодня отмечают свой день рождения следующие игроки: <ul> ';
+        t = i.birthdays.reduce(function(t, e) {
+            return e._id === u._id && (a = !0),
+            t + '<li><strong data-id="' + e._id + '">' + e.login + "</strong></li>"
+        }, t) + " </ul> <blockquote>Не забудьте поздравить!</blockquote></div>",
+        showNewDiv(t)
+    }
+    if (f.onlineCount(i.onlineCount),
+    i.statistics && showStatistics(i.statistics),
+    u.dj && $('<script type="text/javascript" src="/js/dj.js"><\/script>').appendTo(b),
+    (u.moder || u.moder2 && server2) && ($('<script type="text/javascript" src="/js/moder.js?050718"><\/script>').appendTo(b),
+    i.statistics && i.statistics.valentin && b.append("<style>.ad-valentin{display:block !important}</style>")),
+    shareMaffia(),
+    i.regplayers) {
+        var e = '<div class="news">Последние 10 новичков: '
+          , s = ""
+          , o = 0
+          , n = 0;
+        i.regplayers.forEach(function(t) {
+            n = new Date(t.date).getDate(),
+            o !== n ? (o = n,
+            s += "<br/> " + date.rusDate(t.date, !1, "short") + ": ") : s += ", ",
+            s += '<strong data-id="' + t._id + '">' + t.login + "</strong>"
+        }),
+        showNewDiv(e += s + "</div>")
+    }
+    if (i.was && showNewDiv('<div class="wastoday">Сегодня были в игре (' + i.was.length + '):<input type="checkbox" class="spoiler" id="showwasingame"/><label for="showwasingame"></label><div>' + i.was.map(function(t) {
+        return '<strong data-id="' + t._id + '">' + t.login + "</strong>"
+    }).join(", ") + "</div></div>"),
+    a && showNewDiv('<div class="birthdays mybirthday">Администрация игры поздравляет Вас с днём рождения и желает, чтобы в жизни было как можно больше приятных минут! <blockquote><span class="imageLoader" data-title="Посмотреть открытку" onclick="showWall(\'card.gif\',{nohide:true})"></span></blockquote></div>'),
+    !u.lottery || u.lottery < i.datenow ? lotteryDiv.find("button").fadeIn() : lotteryTimerStart(),
+    u.slottime) {
+        var r = u.slottime + 1e3 * slotInterval - date.now();
+        0 < r && slotTimerStart(Math.round(r / 1e3))
+    }
+    u.rolldate && date.isToday(u.rolldate) && $("#roll-start").addClass("rolling-was"),
+    helper.hideLocation(),
+    u.rating < 100 && "0" !== lStorage.getItem("hints") && (hintsCheckBox.prop("checked", !0),
+    hintsNeed = !0),
+    !mobile && !isAppVK && 1200 < b.outerWidth() && gameWidth.prepend('<option value="default">оптимально</option>'),
+    u.rating < 10 && helper.start(),
+    (hintsNeed || u.curator) && curatorWindow.addClass("hide").show(),
+    f.radioIframe()
+}
+function showStatistics(t) {
+    var e = this
+      , i = t.params;
+    if (i) {
+        if (i.banner && (showWall(i.banner, {
+            external: !0
+        }),
+        zastavka = i.banner),
+        i.bestplayer && !server2 && showNewDiv('<div class="alarm">Лучший игрок месяца - <strong data-id="' + i.bestplayer._id + '">' + i.bestplayer.login + "</strong></div>"),
+        i.maxonline && onlineCounter.after('<div id="maxonline">' + i.maxonline.count + " (" + date.showDate(i.maxonline.time) + ")</div>"),
+        i.support) {
+            $("<div></div>", {
+                class: "supportButton"
+            }).html("Конкурс к Новому году").on("click", function() {
+                return showWindow("support")
+            }).insertBefore("#lottery");
+            var a = winInfo.find(".support");
+            a.find("button").on("click", function() {
+                sendToSocket({
+                    type: "support",
+                    text: a.find("textarea").val().substring(0, 1e3)
+                }),
+                closewindow()
+            })
+        }
+        if (i.gifts) {
+            var s = $("<div></div>", {
+                class: "buyGifts"
+            }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="Малый подарок"/><figcaption data-type="1">7 снежинок</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="Средний подарок"/><figcaption data-type="2">18 снежинок</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Большой подарок"/><figcaption data-type="3">33 снежинки</figcaption></figure></div>');
+            winInfo.append(s),
+            $("<div></div>", {
+                class: "buyGiftsButton"
+            }).html("Новогодняя Распродажа").on("click", function() {
+                return showWindow("buyGifts")
+            }).insertBefore("#lottery"),
+            s.find("figcaption").on("click", function() {
+                return sendToSocket({
+                    type: "buyGifts",
+                    box: $(e).attr("data-type")
+                })
+            })
+        }
+        if (i.vkpoll && i.vkpoll.title && i.vkpoll.code && "undefined" != typeof VK && (messagesList.append('<div class="news"><em>' + i.vkpoll.title + '</em> <input type="checkbox" class="spoiler" id="showvkpoll"/><label for="showvkpoll"></label><div id="vk_poll" style="overflow:hidden"></div></div>'),
+        VK.Widgets.Poll("vk_poll", {}, i.vkpoll.code)),
+        date.isToday("14.2.2018")) {
+            $("<div></div>", {
+                class: "supportButton"
+            }).css({
+                width: "200px",
+                height: "102px",
+                background: "url(/images/holidays/f14send.png) center no-repeat",
+                margin: 0,
+                border: 0,
+                "box-shadow": "none"
+            }).attr("title", "Сделать анонимное признание...").on("click", function() {
+                return showWindow("f14Win")
+            }).insertBefore("#lottery");
+            var o = $("<div></div>", {
+                class: "f14Win"
+            }).html('<p>Только 14 февраля у Вас есть уникальная возможность анонимно признаться кому-то в любви или просто поздравитьс Днем всех влюбленных!</p><textarea placeholder="Я люблю..." maxlength="1000"></textarea><button class="button">Отправить</button>').appendTo(winInfo);
+            o.find("button").on("click", function() {
+                var t = o.find("textarea");
+                sendToSocket({
+                    type: "f14msg",
+                    text: t.val().substring(0, 1e3)
+                }),
+                t.val(""),
+                closewindow()
+            }),
+            $.cachedScript("/js/hearts.js").done(function() {
+                window.fall && !b.hasClass("noeffect") && fall()
+            })
+        }
+        i.news && Object.forEach(i.news, function(t, e) {
+            return showNewDiv('<div class="news specialnews">' + t.text + "<sup>" + date.rusDate(e) + "</sup></div>")
+        })
+    }
+    var n = function(t, e, i) {
+        var a = $("<div></div>").addClass("percent")
+          , s = $("<div></div>")
+          , o = t + e
+          , n = Math.round(100 * t / o)
+          , r = Math.round(100 * e / o);
+        return $("<em></em>").html(i).appendTo(a),
+        $("<span></span>").html(t).css("width", n + "%").appendTo(s),
+        $("<span></span>").html(e).css("width", r + "%").appendTo(s),
+        s.appendTo(a),
+        a
+    }
+      , r = t["game-bot"]
+      , l = t["game-all"];
+    statDiv.append("<div>Cтатистика игровых партий: " + f.over1000(l.count) + "</div><hr/>"),
+    n(r.pl, r.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv),
+    n(l.win.stud, l.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv),
+    t.map && (mapAreas = t.map.areas),
+    t.roulette && rouletteInfo(t.roulette),
+    t.tree && !0 === t.tree && !server2 && sendToSocket({
+        type: "tree"
+    }),
+    $("<div></div>", {
+        id: "indicator"
+    }).attr("data-title", "Индикатор сети").appendTo($(".panel-top"))
+}
+var charObj = {
+    sex: 2,
+    image: 1,
+    about: ""
+}
+  , imageChar = $("#imageChar");
+function editProfileSize() {
+    var a = .685
+      , e = b.outerWidth()
+      , r = b.outerHeight();
+    if (r / e < a) {
+        var i = Math.round((e - r / a) / 2);
+        charDiv.css({
+            top: 0,
+            bottom: 0,
+            left: i,
+            right: i
+        })
+    } else {
+        var c = Math.round((r - e * a) / 2);
+        charDiv.css({
+            top: c,
+            bottom: c,
+            left: 0,
+            right: 0
+        })
+    }
+}
+function editProfile(a) {
+    a ? (editProfileSize(),
+    1 === u.sex ? $("#sex2").prop("checked", !0) : $("#sex1").prop("checked", !0),
+    charObj.sex = u.sex,
+    charObj.image = u.image,
+    charObj.about = u.about,
+    u.charNum ? u.chars[u.charNum - 1] = {
+        sex: charObj.sex,
+        image: charObj.image,
+        about: charObj.about
+    } : u.mainChar && (u.mainChar = {
+        sex: charObj.sex,
+        image: charObj.image,
+        about: charObj.about
+    }),
+    charObj.changeChar(),
+    "addChar" === a ? (charDiv.addClass("addChar"),
+    $("#charAbout").val("")) : $("#charAbout").val(u.about),
+    charDiv.addClass("charEdit")) : charDiv.removeClass(),
+    closewindow()
+}
+charDiv.find('input[type="radio"]').change(function() {
+    charObj.sex = parseInt($(this).val()),
+    charObj.changeChar()
+}),
+imageChar.find("span").on("click", function() {
+    (!charObj.image || 2 < charObj.image.length) && (charObj.image = 0),
+    charObj.image += "nextChar" === $(this).attr("id") ? 1 : -1,
+    charObj.image < 1 && (charObj.image = 24),
+    24 < charObj.image && (charObj.image = 1),
+    charObj.changeChar()
+}),
+charObj.changeChar = function() {
+    if (2 < charObj.image.length)
+        imageChar.css({
+            background: "url(/files/" + u._id + u.image + ") center center no-repeat",
+            "background-size": "contain"
+        });
+    else {
+        imageChar.removeAttr("style");
+        var a = 1
+          , e = 1 === charObj.sex ? -1 : -4;
+        if (8 < charObj.image) {
+            var r = Math.floor((charObj.image - 1) / 8);
+            e -= r,
+            a -= charObj.image - 8 * r
+        } else
+            a -= charObj.image;
+        imageChar.css("background-position", (a ? 200 * a + "px " : "0 ") + 260 * e + "px")
+    }
+}
+,
+regButton.on("click", function() {
+    var a = $("#login").val().trim()
+      , e = $("#charAbout").val().trim()
+      , r = {}
+      , i = !0
+      , c = !0;
+    if (charDiv.hasClass("addChar")) {
+        if (a.length < 4)
+            return void showMessage("Минимальная длина НикНейма 4 символа");
+        r = {
+            type: "char",
+            action: "create",
+            login: a,
+            sex: charObj.sex,
+            image: charObj.image,
+            about: e
+        }
+    } else if (u.login) {
+        var h = !1;
+        if (u.sex !== charObj.sex && (u.sex = charObj.sex,
+        playersInfoArray[u._id] && (playersInfoArray[u._id].sex = charObj.sex),
+        r.sex = charObj.sex,
+        h = !0),
+        u.image !== charObj.image && (u.image = charObj.image,
+        playersInfoArray[u._id] && (playersInfoArray[u._id].image = charObj.image),
+        r.image = charObj.image,
+        h = !0),
+        u.about !== e && (u.about = e,
+        playersInfoArray[u._id] && (playersInfoArray[u._id].about = e),
+        r.about = e,
+        h = !0),
+        !h)
+            return c = !1,
+            void alarm("Профиль не был изменен.");
+        updateInterface(),
+        r.type = "edit"
+    } else {
+        if (a.length < 4)
+            return void showMessage("Минимальная длина НикНейма 4 символа");
+        r = {
+            type: "authorize",
+            login: a,
+            sex: charObj.sex,
+            image: charObj.image,
+            about: e
+        };
+        var t = getCookie("invite")
+          , n = getCookie("invite-vk");
+        void 0 !== t && 24 === t.length && (r.invite = t),
+        n && (r["invite-vk"] = n),
+        regButton.prop("disabled", !0),
+        i = !1
+    }
+    c && sendToSocket(r),
+    i && editProfile(!1)
+}),
+$("#cancel").on("click", function() {
+    editProfile(!1)
+}),
+$("#datablank").on("click", function() {
+    editProfile(!1),
+    showBlank()
+}),
+$("#selectChar").on("click", function() {
+    editProfile(!1),
+    showSelectChar()
+});
+var selectCharDiv = $(".selectChar");
+function showCharImage(a) {
+    return "<span " + (2 < a.image.length ? 'style="background:url(/files/' + u._id + a.image + ") center center no-repeat;background-size:contain;" : 'class="i' + (1 === a.sex ? "w" : "m") + a.image) + '"></span>'
+}
+function showSelectChar() {
+    var i = "";
+    u.mainChar ? (i += '<input type="radio" name="selectedChar" id="selectedChar0" value="0"',
+    u.charNum || (i += ' checked="checked"'),
+    i += '/><label for="selectedChar0">' + showCharImage(u.mainChar) + u.mainChar.login + "</label>") : i += '<input type="radio" name="selectedChar" id="selectedChar0" value="0" checked="checked"/><label for="selectedChar0"><span class="i' + (1 === u.sex ? "w" : "m") + u.image + '"></span>' + u.login + "</label>",
+    u.chars && u.chars.forEach(function(a, e) {
+        var r = e + 1;
+        i += '<input type="radio" name="selectedChar" id="selectedChar' + r + '" value="' + r + '"',
+        u.charNum && u.charNum === r && (i += ' checked="checked"'),
+        i += '/><label for="selectedChar' + r + '">' + showCharImage(a) + a.login + "</label>"
+    }),
+    selectCharDiv.find("div").html(i),
+    selectCharDiv.find("input").change(function() {
+        u.charNum = parseInt($(this).val()),
+        sendToSocket({
+            type: "char",
+            action: "select",
+            char: u.charNum
+        })
+    }),
+    showWindow("selectChar")
+}
+$("#char-back").on("click", function() {
+    editProfile(!0),
+    closewindow()
+}),
+$("#char-create").on("click", function() {
+    u.club || u.vip ? !u.vip && u.chars && 0 < u.chars.length ? showMessage("Для создания более 1 дополнительного персонажа нужно иметь VIP аккаунт") : u.chars && 4 < u.chars.length ? showMessage("Нельзя создать больше 5 дополнительных аккаунтов") : editProfile("addChar") : showMessage("Для создания дополнительных персонажей нужно состоять в клубе или иметь VIP аккаунт")
+}),
+$("#char-delete").on("click", function() {
+    var a = selectCharDiv.find("input[name=selectedChar]:checked").val();
+    "0" !== a ? a && u.chars[a - 1] && modalWindow("Вы действительно хотите удалить персонажа " + u.chars[a - 1].login + "?", function() {
+        u.chars.splice(a - 1, 1),
+        sendToSocket({
+            type: "char",
+            action: "delete",
+            char: a
+        }),
+        closewindow()
+    }) : showMessage("Нельзя удалить основной персонаж. Для смены ника воспользуйтесь разделом VIP")
+});
+var blankForm = $(".blank");
+function showBlank() {
+    u.blank && Object.forEach(u.blank, function(a, e) {
+        a && $("#blank" + e).val(a)
+    }),
+    showWindow("blank")
+}
+blankForm.find("button").on("click", function() {
+    var e = {};
+    blankForm.find("input").each(function(a) {
+        1 === a && date.isWrongDate($(this).val()) && $(this).val(""),
+        e[a] = $(this).val()
+    }),
+    sendToSocket({
+        type: "anketa",
+        data: e
+    }),
+    closewindow()
+});
+var clan = {
+    myclan: !1,
+    clanView: {
+        id: !1,
+        info: !1
+    }
+};
+function clanProfile(n) {
+    var a = n.attr("data-id");
+    0 < a && (clan.clanView.id = a,
+    sendToSocket({
+        type: "clan",
+        action: "info",
+        id: clan.clanView.id
+    }))
+}
+function joinToClan() {
+    clan.clanView.id && modalWindow("Уверены, что хотите подать заявку на вступление в клан " + clan.clanView.info.name + "? В настоящий момент опция выхода из клана неактивна.", function() {
+        sendToSocket({
+            type: "clan",
+            action: "join",
+            id: clan.clanView.id
+        })
+    })
+}
+function acceptToClan(n) {
+    var a = "no" !== n.attr("data-param");
+    modalWindow((a ? "Принять игрока" : "Отказать игроку во вступлении") + " в клан?", function() {
+        sendToSocket({
+            type: "clan",
+            action: "accept",
+            uid: n.attr("data-uid"),
+            take: a
+        })
+    })
+}
+function leaveClan() {
+    u.clan && modalWindow("Уверены, что хотите выйти из клана?", function() {
+        sendToSocket({
+            type: "clan",
+            action: "exit"
+        })
+    })
+}
+clan.openWindow = function(n) {
+    var a = "clan" === n
+      , t = a ? clan.myclan : clan.clanView.info;
+    if (t) {
+        var i = $("." + n);
+        i.css("backgroundImage", "url(/images/clans/" + t.id + "/logo.jpg)"),
+        i.find(".clan-name").html(t.name),
+        i.find(".clan-slogan").html(t.slogan),
+        i.find(".clan-info").html((a ? "" : "<mark>Клан создан: " + date.rusDate(t.date) + "</mark>") + t.info);
+        var c = i.find(".clan-members");
+        c.empty(),
+        $.each(t.members, function(n, a) {
+            n === t.leader ? i.find(".clan-leader").html('<strong data-id="' + n + '">' + a + "</strong>") : $("<strong/>", {
+                "data-id": n
+            }).html(a).appendTo(c)
+        }),
+        a ? (t.wishes && (c.append("<hr/><p>Кандидаты в клан:</p>"),
+        $.each(t.wishes, function(n, a) {
+            $("<strong/>", {
+                "data-id": n
+            }).html(a).appendTo(c),
+            $("<span/>", {
+                "data-action": "acceptToClan",
+                "data-uid": n
+            }).html("Принять в клан").appendTo(c),
+            $("<span/>", {
+                "data-action": "acceptToClan",
+                "data-uid": n,
+                "data-param": "no"
+            }).html("Отказать").appendTo(c)
+        })),
+        u.clan ? i.find("button").show() : i.find("button").hide()) : u.clan ? i.find("button").hide() : i.find("button").show()
+    }
+}
+,
+clan.showWindow = function(n) {
+    n.info ? n.my ? (clan.myclan = n.info,
+    clan.myclan.leader === u._id && $(".clan").find(".clan-slogan,.clan-info").bind("dblclick touchmove", function() {
+        $(this).attr("contentEditable", !0)
+    }).blur(function() {
+        $(this).attr("contentEditable", !1);
+        var n = $(this).attr("class").replace("clan-", "")
+          , a = $(this).text();
+        if (clan.myclan.hasOwnProperty(n) && a !== clan.myclan[n]) {
+            clan.myclan[n] = a;
+            var t = {
+                type: "clan",
+                action: "edit"
+            };
+            t[n] = a,
+            sendToSocket(t)
+        }
+    }),
+    showWindow("clan")) : (clan.clanView.info = n.info,
+    showWindow("clan-window")) : n.list && (windowTable("clanlist", n.list),
+    showWindow("clanlist"))
+}
+;
+function currentDomainUrl() {
+    return document.location.protocol + "//" + domain
+}
+function serverPort(e) {
+    var t = e ? document.location.protocol + "//loday.ru:" : "";
+    return t += "https:" === document.location.protocol ? "808" + ("maffia-online.ru" === domain ? "2" : "1") : "8080"
+}
+function insertToInput(e) {
+    var t = inputField.val();
+    inputField.val(t + " [" + e + "]"),
+    $("#showSmiles").prop("checked", !1),
+    inputField.focus()
+}
+function createCookie(e, t, a) {
+    var n;
+    if (a) {
+        var s = new Date;
+        s.setTime(s.getTime() + 24 * a * 60 * 60 * 1e3),
+        n = "; expires=" + s.toGMTString()
+    } else
+        n = "";
+    document.cookie = e + "=" + t + n + "; path=/"
+}
+function getCookie(e) {
+    var t = document.cookie.match(new RegExp("(?:^|; )" + e.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"));
+    return t ? decodeURIComponent(t[1]) : void 0
+}
+var socketTry = 0
+  , lastSocketMsg = 0
+  , socketStack = []
+  , checkSocketStack = function e() {
+    var t = socketStack[0];
+    if (t) {
+        if (socketTry++,
+        1 === ws.readyState && lastSocketMsg + 100 < Date.now()) {
+            lastSocketMsg = Date.now();
+            try {
+                ws.send(JSON.stringify(t))
+            } catch (e) {
+                showNewMessage({
+                    message: "Ошибка: сбой инициализации сокета. Не удалось соединиться с сервером.",
+                    color: "#ff0000"
+                })
+            }
+        }
+        2 < socketTry && $("#indicator").addClass("offline"),
+        setTimeout(e, 1e3 * socketTry)
+    }
+};
+function sendToSocket(e) {
+    e.timestamp = Date.now(),
+    socketStack.push(e),
+    1 === socketStack.length && checkSocketStack()
+}
+function changeNumberHtml(e, t, a) {
+    var n = $("#" + e)
+      , s = n.html()
+      , i = a ? t : parseInt(s) + t;
+    n.html(i.toString())
+}
+function roleReplace(a) {
+    if (a) {
+        a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = (a = a.replace(/(^|\s)(рев|ревнивый студент|ман|маньяк)(\s|$)/gi, ' <span class="jeal"></span> ')).replace(/(^|\s)(студ|студент|гр|гражданин)(\s|$)/gi, ' <span class="stud"></span> ')).replace(/(^|\s)(лун|лунатик|док|доктор)(\s|$)/gi, ' <span class="sleep"></span> ')).replace(/(^|\s)(деж|дежурный|коп|комиссар)(\s|$)/gi, ' <span class="duty"></span> ')).replace(/(^|\s)(пом|помощник дежурного|серж|сержант)(\s|$)/gi, ' <span class="assis"></span> ')).replace(/(^|\s)(пох|похититель|маф|мафиози)(\s|$)/gi, ' <span class="robb"></span> ')).replace(/(^|\s)(глава похитителей|босс мафии|босс)(\s|$)/gi, ' <span class="hrobb"></span> ')).replace(/(^|\s)котик(\s|$)/gi, ' <span class="cat catm"></span> ')).replace(/(^|\s)кот(\s|$)/gi, ' <span class="cat"></span> ')).replace(/(^|\s)(вахтер|адвокат)(\s|$)/gi, ' <span class="law"></span> ')).replace(/\[(stud|gr)\]/gi, ' <span class="rolesmile role1"></span> ')).replace(/\[(poh|maf)\]/gi, ' <span class="rolesmile role2"></span> ')).replace(/\[(glava|boss)\]/gi, ' <span class="rolesmile role3"></span> ')).replace(/\[(dej|kom)\]/gi, ' <span class="rolesmile role4"></span> ')).replace(/\[(pom|ped)\]/gi, ' <span class="rolesmile role5"></span> ')).replace(/\[(rev|man)\]/gi, ' <span class="rolesmile role6"></span> ')).replace(/\[(lun|doc)\]/gi, ' <span class="rolesmile role7"></span> ')).replace(/\[cat\]/gi, ' <span class="rolesmile role8"></span> ')).replace(/\[adv\]/gi, ' <span class="rolesmile role9"></span> ');
+        for (var e = 0, t = smilesArr.length; e < t; e++)
+            a = a.split("[" + smilesArr[e] + "]").join(' <img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + smilesArr[e] + '.gif"/> ');
+        Object.forEach(textSmiles, function(e, t) {
+            a = a.split(e).join(' <img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + t + '.gif"/> ')
+        })
+    }
+    return a
+}
+function matFilter(e) {
+    var t = " [ой] ";
+    return e = (e = e.replace(/(^|\s)(хуй|хуя|бля)/gi, t)).replace(/пизд|нахуй|похуй|уеб|хуй|хуе|хyй|хyе|xуй|xуе|аеб|(^|\s)еба|е6|((^|\s)манда(\s|$))|пидор/gi, t)
+}
+function searchImg(e) {
+    return e = (e = e.replace(/(^|\s)http(\S)*(.jpg|.jpeg|.png|.gif)(\s|$)/gi, ' <span class="imageLoader" data-title="Посмотреть изображение" onclick="showWall(\'$&\',{external:true,nohide:true})"></span> ')).replace(/\{([a-z]{2})\}/gi, ' <span class="flag"><span style="background-image:url(/images/flags/$1.png)"></span></span> ')
+}
+function specials_in(e) {
+    var t = e.from && !e.nofilter ? escapeHtml(e.message) : e.message;
+    if (t) {
+        if (-1 < t.indexOf("*time*") || -1 < t.indexOf("[date]")) {
+            var a = e.time ? new Date(e.time) : new Date
+              , n = a.getSeconds()
+              , s = a.getMinutes()
+              , i = a.getHours()
+              , o = a.getDate()
+              , l = a.getMonth() + 1
+              , r = a.getFullYear()
+              , c = {
+                time: (i < 10 ? "0" + i : i) + (s < 10 ? ":0" + s : ":" + s) + (n < 10 ? ":0" + n : ":" + n),
+                date: (o < 10 ? "0" + o : o) + (l < 10 ? ".0" + l + "." + r : ":" + l + "." + r)
+            };
+            t = (t = t.replace(/\*time\*/gim, c.time)).replace(/\[date\]/gim, c.date)
+        }
+        t = searchImg(t = matFilter(t = roleReplace(t = t.replace(/(^|\s)FFL($|\s)/gim, "Friends For Love"))))
+    }
+    return t
+}
+function specials_out(e) {
+    return e.replace(/\s*\/me\s/, " " + u.login + " ")
+}
+function escapeHtml(e) {
+    var t = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+    };
+    return e.replace(/[&<>"']/g, function(e) {
+        return t[e]
+    })
+}
+function warningWindow(e, t, a, n, s) {
+    var i = wW.clone();
+    i.appendTo(container),
+    i.find(".modal3").html(e),
+    "Выйти из игры" === a && $("<div/>").addClass("button gameView").html("Посмотреть игру").click(i, function(e) {
+        e.data.remove()
+    }).appendTo(i.find(".modal3")),
+    i.show();
+    var o = i.find("button");
+    if (a ? o.css({
+        padding: "0 10px"
+    }).html(a) : o.html("ОК"),
+    o.one("click", function() {
+        $(this).parents(".warningWindow").fadeOut(400),
+        t && t(),
+        setTimeout(function(e) {
+            e.remove()
+        }, 1e3, $(this).parents(".warningWindow"))
+    }),
+    void 0 !== n && game.style && 4 === game.style.style && container.hasClass("current")) {
+        var l = n ? 1 === u.sex ? "women" : "men" : 1 === u.sex ? "men" : "women";
+        i.addClass(l + "win")
+    } else
+        n && 430 < $(window).height() && i.addClass("win");
+    s ? (i.addClass(s),
+    setTimeout(function(e) {
+        e.addClass("showWindow")
+    }, 500, i)) : i.addClass("showWindow")
+}
+function modalWindow(e, t, a) {
+    mW.find(".modal").removeAttr("style"),
+    mW.find(".modal3").html(e),
+    mW.find("button").eq(0).unbind("click").one("click", function() {
+        mW.hide(),
+        t && t()
+    }),
+    mW.find("button").eq(1).unbind("click").one("click", function() {
+        mW.hide(),
+        a && a()
+    }),
+    mW.addClass("showWindow")
+}
+function showCash(e) {
+    var t = $("#cash")
+      , a = t.find(".modal2");
+    t.removeClass().addClass("cash" + Math.floor(9 * Math.random())),
+    a.html(e),
+    a.unbind("click"),
+    t.addClass("showCash"),
+    a.on("click", function() {
+        t.removeClass("showCash")
+    })
+}
+function isset(e) {
+    return !(void 0 === e || null === typeof e)
+}
+function updateInterface(e) {
+    if (e) {
+        if (e.inc)
+            return void e.inc.forEach(function(e) {
+                e.collection ? (u.collections || (u.collections = {}),
+                u.collections[e.collection] || (u.collections[e.collection] = 0),
+                u.collections[e.collection][e.item] || (u.collections[e.collection][e.item] = 0),
+                u.collections[e.collection][e.item] += e.value) : (u.items || (u.items = {}),
+                u.items[e.item] || (u.items[e.item] = 0),
+                u.items[e.item] += e.value)
+            });
+        Object.update(u, e)
+    } else
+        e = u;
+    e.login && $("#nick").html(e.login),
+    e.image && e.sex && (2 < e.image.length ? $("#image").removeClass().css({
+        background: "url(/files/" + u._id + e.image + ") center center no-repeat",
+        "background-size": "contain"
+    }) : $("#image").removeClass().removeAttr("style").addClass((1 === e.sex ? "iw" : "im") + e.image)),
+    isset(e.money) && (animateNumber("gamemoney", e.money, !0),
+    shop.find("p").find(".gamemoney").html(f.over1000(e.money))),
+    isset(e.money2) && (animateNumber("money", e.money2, !0),
+    shop.find("p").find(".money").html(f.over1000(e.money2)));
+    for (var t = 1; t < 7; t++)
+        if (e.hasOwnProperty("item" + t)) {
+            var a, n = e["item" + t] || 0;
+            if (t % 3 == 0) {
+                var s = n - Date.now();
+                a = !s || s < 1 ? 0 : Math.ceil(s / 36e5),
+                6 === t && 0 < a && ($("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(a, "час", "часа", "часов")),
+                a = Math.ceil(a / 24))
+            } else
+                a = n + "/" + (n >= items["s" + t] ? "0" : (items["s" + t] - n).toString());
+            $("#shop" + t).find("div:nth-of-type(2)").html(a)
+        }
+    if (u.items) {
+        var i = "";
+        slotArray.forEach(function(e) {
+            u.items[e] && (i += '<input type="radio" name="slots" id="slot-bet' + e + '" value="' + e + '"/><label data-count="' + u.items[e] + '" class="items items-' + e + '" for="slot-bet' + e + '"></label>')
+        }),
+        i || (i = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате."),
+        $("#slot-bet").html(i)
+    }
+    win.find(".inventory").is(":visible") && showInventory(),
+    Boolean(u.vip) !== updateInterface.vip && (u.vip && u.vip > Date.now() ? (b.removeClass("noVip"),
+    updateInterface.vip = !0) : (b.addClass("noVip"),
+    updateInterface.vip = !1)),
+    helper.changeRate && helper.changeRate()
+}
+function showMessage(e) {
+    warningWindow(e)
+}
+function wallhide() {
+    wallpaper.attr("style", ""),
+    wallpaper.hide()
+}
+function showWall(e, t) {
+    var a = void 0 === t ? {} : t
+      , n = a.external
+      , s = void 0 !== n && n
+      , i = a.nohide
+      , o = void 0 !== i && i
+      , l = a.transparent
+      , r = void 0 !== l && l
+      , c = s ? e : "/images/walls/" + e;
+    wallpaper.removeAttr("style"),
+    wallpaper.css(r ? {
+        background: "url(" + c + ") center no-repeat",
+        "background-size": "contain"
+    } : {
+        "background-image": "url(" + c + ")"
+    }),
+    wallpaper.show(),
+    o || setTimeout(function() {
+        wallpaper.fadeOut(3e3, wallhide)
+    }, 2e3)
+}
+function showWindow(t) {
+    switch (win.attr("class", "window"),
+    mobile && $("#showHeaderPanel").prop("checked", !1),
+    win.find(".info>div").hide(),
+    submenu.hide(),
+    -1 < ["tournaments", "aboutgame"].indexOf(t) && win.find(".info ." + t).load("/html/" + t + ("aboutgame" === t && isMaffia ? "-maffia" : "") + ".html"),
+    winInfo.find("." + t).show(),
+    container.addClass("back"),
+    win.addClass("openWindow"),
+    t) {
+    case "newgame":
+        isAppVK || $("#about").focus();
+        break;
+    case "shop":
+        [3, 6].forEach(function(e) {
+            u.hasOwnProperty("item" + e) || (u["item" + e] = 0);
+            var t = (u["item" + e] || 0) - date.now()
+              , a = 3 === e ? 36e5 : 864e5
+              , n = !t || t < 1 ? 0 : Math.ceil(t / a);
+            $("#shop" + e).find("div:nth-of-type(2)").html(n),
+            6 === e && $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(Math.ceil(t / 36e5), "час", "часа", "часов"))
+        });
+        break;
+    case "donatoptions":
+        if (u.vip) {
+            var e = u.vip - Date.now();
+            0 < e && ($("#donat-vip").find(".money").html("2000"),
+            vipButton.html("Продлить VIP-статус (ост. " + Math.round(e / 864e5) + " дн.)"),
+            $("#donat-foto").find(".money").hide())
+        }
+        var a = u.items[7] ? f.someThing(u.items[7], "рупор", "рупора", "рупоров") : "Рассказать";
+        $("#donat-allmessage").find("button").html(a);
+        var n = u.items[12] ? f.someThing(u.items[12], "сертификат", "сертификата", "сертификатов") : "Создать";
+        $("#donat-biggame").find("button").html(n);
+        break;
+    case "collect":
+        collectRadio.attr("checked", !1),
+        collectionWin.find("p").empty(),
+        collectionWin.find("div").empty();
+        break;
+    case "inventory":
+        showInventory();
+        break;
+    case "areamap":
+        if (mapAreas) {
+            var s = document.getElementById("citymap")
+              , i = function(e) {
+                var t = e.data
+                  , a = $("#areaData");
+                if (a.empty(),
+                $("<h2>" + t.title + "</h2>").appendTo(a),
+                t.own && (a.append("Контролируют: " + ("bots" === t.own ? "боты" : "игроки")),
+                "bots" === t.own && $("<button/>", {
+                    class: "button",
+                    "data-area": t.num
+                }).html("Захватить").on("click", areaAttack).appendTo(a),
+                "players" === t.own && $("<button/>", {
+                    class: "button",
+                    "data-area": t.num
+                }).html("Оборонять").on("click", areaAttack).appendTo(a)),
+                t.win) {
+                    var n = '<table><tr><th colspan="2">Статистика битв</th></tr>';
+                    t.win.players && (n += "<tr><td>Победы игроков</td><td>" + t.win.players + "</td></tr>"),
+                    t.win.bots && (n += "<tr><td>Победы ботов</td><td>" + t.win.bots + "</td></tr>"),
+                    t.win.draw && (n += "<tr><td>Ничейные партии</td><td>" + t.win.draw + "</td></tr>"),
+                    n += "</table>",
+                    a.append(n)
+                }
+            }
+              , o = function() {
+                if ("contentDocument"in s)
+                    for (var e = $(s.contentDocument), t = 1; t <= 8; t++) {
+                        var a = $("#area" + t, e)
+                          , n = mapAreas[t];
+                        a.html("<title>" + n.title + "</title>"),
+                        n.own && "bots" === n.own && a.attr("class", a.attr("class") + " " + n.own),
+                        n.num = t,
+                        a.click(n, i)
+                    }
+            };
+            o(),
+            s.onload = o
+        }
+        break;
+    case "clan":
+    case "clan-window":
+        clan.openWindow(t);
+        break;
+    case "tree":
+        if (u.items && u.items.nytoys) {
+            var l = win.find(".toybox");
+            l.empty(),
+            $.each(u.items.nytoys, function(e, t) {
+                $('<span class="nytoy' + t + '" data-id="' + e + '"></span>').mousedown(NYtoyAdd).appendTo(l)
+            })
+        }
+        break;
+    case "lottery":
+        var r = "";
+        lotteryQuery = !1,
+        lotteryWin.empty();
+        for (var c = 1; c <= 100; c++)
+            r += "<span>" + c + "</span>",
+            c % 10 == 0 && (r += "<br/>");
+        $("<div/>").html(r).appendTo(lotteryWin),
+        lotteryWin.find("div>span").on("click", function() {
+            lotteryQuery || (lotteryDiv.find("button").hide(),
+            lotteryQuery = !0,
+            sendToSocket({
+                type: "lottery",
+                num: $(this).html()
+            }),
+            $(this).addClass("selectLottery"))
+        });
+        break;
+    case "menu-editor":
+        menuedit.window()
+    }
+    [["stat", "statwin", !0], ["clan", "myclanwin", !0], ["clan-window", "clanwin", !0], ["slotmachine", "slotwin", !0], ["tree", "treewin"], ["f14Win", "blackwin"], ["playerInfoBlock", "profileWindow"], ["buyGifts", "buyboxwin", !0], ["pay", "info_pay", !0]].forEach(function(e) {
+        e[0] === t && (e[2] && win.addClass("nobefore"),
+        win.addClass(e[1]))
+    })
+}
+function closewindow() {
+    win.removeClass("openWindow"),
+    container.removeClass("back")
+}
+function showTooltip(e, t) {
+    if (t) {
+        var a = t.split("|")
+          , n = parseInt(a[0])
+          , s = parseInt(a[1])
+          , i = html.width();
+        n < i / 2 ? tp.css("left", n + "px") : (tp.css("left", ""),
+        tp.css("right", i - n + "px")),
+        tp.css("top", s + 10 + "px"),
+        tp.html(gamesInfoArray[e]).show()
+    } else
+        tp.hide()
+}
+function tooltip(e, t, a) {
+    var n = $(".tooltip")
+      , s = isAppVK || kinderMode || mobile ? b : container;
+    if (a) {
+        var i = e.pageX - s.offset().left
+          , o = e.pageY - s.offset().top
+          , l = s.outerWidth()
+          , r = s.outerHeight();
+        i < l / 2 ? (n.css("left", i + "px"),
+        n.css("right", "")) : (n.css("left", ""),
+        n.css("right", l - i + "px")),
+        r < o + 40 ? (n.css("top", ""),
+        n.css("bottom", r - o + "px")) : (n.css("bottom", ""),
+        n.css("top", o + 10 + "px")),
+        0 < t.indexOf("|") && (t = e.target.hasAttribute("data-club") ? t.split("|")[u.club ? 1 : 0] : t.split("|")[isMaffia ? 1 : 0]),
+        n.html(t.replace("<!", "&lt;!")).show()
+    } else
+        n.hide()
+}
+function showBox(e) {
+    var n = '<div class="box">';
+    Object.forEach(e.box, function(e, t) {
+        var a = 0 < t && t < 7 ? roleText[gameMode()].items[t] : getItemsArray(t);
+        n += '<div data-title="' + a + '" class="items-' + t + '">',
+        1 < e && (n += "<span>" + e + "</span>"),
+        n += "</div>"
+    }),
+    n += "</div>",
+    warningWindow(e.text + ":<br/>" + n)
+}
+function windowByName(e) {
+    $(e).parents(".warningWindow").fadeOut(400),
+    showWindow($(e).attr("data-param"))
+}
+function plSort(e, t) {
+    return e[0] > t[0] ? 1 : e[0] < t[0] ? -1 : 0
+}
+function sSort(e, t) {
+    return e[colNum] > t[colNum] ? sortType : e[colNum] < t[colNum] ? -1 * sortType : 0
+}
+function iSort(e, t) {
+    var a = parseInt(e[colNum])
+      , n = parseInt(t[colNum]);
+    return n < a ? sortType : a < n ? -1 * sortType : 0
+}
+function sortTable(e) {
+    e ? (sound("shuffle"),
+    colNum === e && (sortType *= -1),
+    colNum = e) : e = colNum;
+    var t = [];
+    gamesList.find("li").each(function() {
+        var e = [[$(this).attr("id"), $(this).attr("class")]];
+        $(this).children("span").each(function() {
+            e.push($(this).html())
+        }),
+        t.push(e)
+    }),
+    1 === e || 4 === e ? t.sort(sSort) : t.sort(iSort),
+    t.forEach(function(e) {
+        var t = e[0][0]
+          , a = e[0][1];
+        $("#" + t).remove();
+        var n = document.createElement("li");
+        n.id = t,
+        a && (n.className = a),
+        n.innerHTML = e.slice(1).map(function(e, t) {
+            return '<span class="row' + (t + 1) + '">' + e + "</span>"
+        }).join(""),
+        gamesList.append(n)
+    })
+}
+function showNewDiv(e) {
+    messagesList.append(e),
+    doScroll()
+}
+function inviteFriends() {
+    isAppVK ? isset(VK) && VK.callMethod("showInviteBox") : warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a id="shareVkLink" target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(!0) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ')
+}
+function windowTable(e, t) {
+    var a = winInfo.find("." + e).find(".wintable-content>table")
+      , n = "";
+    switch (e) {
+    case "allfriends":
+        var s = {};
+        t.forEach(function(e) {
+            s[e._id] = e
+        }),
+        u.friends.forEach(function(e, t) {
+            var a = s[e] || {
+                login: "*удаленный персонаж*",
+                sex: 2
+            };
+            n += "<tr><td>" + (t + 1) + "</td><td>" + (a.last ? '<strong data-id="' + e + '">' + a.login + "</strong>" : a.login + " (бот)") + '</td><td class="sex' + a.sex + '">' + (1 === a.sex ? "♀" : "♂") + '</td><td><button data-uid="' + e + '" data-login="' + a.login + '" class="button">Удалить</button></td><td>' + (a.last ? date.rusDate(a.last, !0, !0) : "Всегда в игре") + "</td></tr>"
+        });
+        break;
+    case "clanlist":
+        t.forEach(function(e) {
+            n += "<tr><td>" + e.id + '</td><td class="pseudolink" data-action="clanProfile" data-id="' + e.id + '">' + e.name + '</td><td style="background:url(/images/clans/' + e.id + '/icon.png) center no-repeat"> </td><td>' + e.slogan + "</td><td>" + date.rusDate(e.date) + "</td></tr>"
+        })
+    }
+    a.html(n)
+}
+function getProfile(e) {
+    sendToSocket({
+        type: "profile",
+        uid: e
+    })
+}
+updateInterface.vip = !0;
+var date = {
+    diff: 0,
+    pluhTime: 0,
+    now: function() {
+        return Date.now() + date.diff
+    },
+    countdown: function(t) {
+        var e = ""
+          , n = Math.floor(t / 3600)
+          , a = t % 3600
+          , r = Math.floor(a / 60)
+          , o = a % 60;
+        return 0 < n && (e += n + ":"),
+        e += (9 < r ? "" : "0") + r + ":" + (9 < o ? "" : "0") + o
+    },
+    showDate: function(t, e) {
+        var n, a = (t = new Date(parseInt(t))).getDate(), r = t.getMonth() + 1;
+        if (a < 10 && (a = "0" + a),
+        r < 10 && (r = "0" + r),
+        n = a + "." + r + "." + t.getFullYear(),
+        e) {
+            var o = t.getHours();
+            o < 10 && (o = "0" + o);
+            var u = t.getMinutes();
+            u < 10 && (u = "0" + u),
+            n += " " + o + ":" + u
+        }
+        return n
+    },
+    rusDate: function(t, e, n) {
+        var a, r;
+        return e ? !0 === n ? (r = t.split("."),
+        a = new Date(r[2],+r[1] - 1,r[0])) : (r = t.split("-"),
+        a = new Date(r[0],+r[1] - 1,r[2])) : a = new Date(parseInt(t)),
+        "Invalid Date" === a.toString() ? "Неверная дата" : a.getDate() + " " + ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"][a.getMonth()] + ("short" === n ? "" : " " + a.getFullYear() + " (" + ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"][a.getDay()] + ")")
+    },
+    isToday: function(t) {
+        var e = new Date(date.now() + 108e5);
+        return t === (e.getUTCDate() + "." + (e.getUTCMonth() + 1) + "." + e.getUTCFullYear()).toString()
+    },
+    curTime: function() {
+        var t, e, n = new Date;
+        return (t = n.getHours()) < 10 && (t = "0" + t),
+        (e = n.getMinutes()) < 10 && (e = "0" + e),
+        t + ":" + e
+    },
+    isWrongDate: function(t) {
+        return "Invalid Date" === new Date(t).toString()
+    }
+};
+var payDiv = $(".pay")
+  , donatInput = payDiv.find("input")
+  , minDonatSum = function() {
+    return 1 <= parseInt(donatInput.val()) / 10 || (showMessage("Минимальная сумма - 1 рубль"),
+    !1)
+};
+payDiv.find("#payeer-button").on("click", minDonatSum),
+payDiv.find("#pay-button").on("click", minDonatSum);
+var sumChange = function() {
+    var n = parseInt(donatInput.val()) / 10;
+    1 <= n ? (payDiv.find("#pay-rouble").html(f.someThing(n, "рубль", "рубля", "рублей")),
+    payDiv.find("#payeer-button").attr("href", serverPort(!0) + "/billing/?uid=" + u._id + "&sum=" + n.toFixed(2)),
+    payDiv.find("#pay-button").attr("href", serverPort(!0) + "/billing/form?id=" + u._id + "&sum=" + n.toFixed(0))) : (payDiv.find("#pay-rouble").empty(),
+    payDiv.find("#payeer-button").attr("href", "#"),
+    payDiv.find("#pay-button").attr("href", "#"))
+};
+donatInput.change(sumChange).keyup(sumChange);
+var vipButton = $("#donat-vip").find("button");
+$("#showDonat").on("click", function() {
+    showWindow("donatoptions")
+}),
+vipButton.on("click", function() {
+    u.vip && 2e3 <= u.money2 || 3e3 <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "vip"
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    })
+});
+var donatNick = $("#donat-nick");
+donatNick.find("button").on("click", function() {
+    var n = donatNick.find("input").val().trim();
+    4 <= n.length ? 100 <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "nick",
+        login: n
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    }) : showMessage("Минимальная длина НикНейма 4 символа")
+});
+var donatChange = $("#donat-change")
+  , donatChangeInput = donatChange.find("input")
+  , changeChange = function() {
+    var n = 300 * parseInt(donatChangeInput.val());
+    300 <= n ? donatChange.find("span").eq(1).html(f.over1000(n)) : donatChangeInput.val(100)
+};
+donatChangeInput.change(changeChange).keyup(changeChange),
+donatChange.find("button").on("click", function() {
+    var n = parseInt(donatChangeInput.val());
+    0 < n && n <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "moneychange",
+        money: n
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    })
+});
+var donatNickColor = $("#donat-nickcolor");
+donatNickColor.find("button").on("click", function() {
+    var n = donatNickColor.find("input").val();
+    500 <= u.money2 ? modalWindow('Уверены, что хотите установить цвет ника таким?<br/><div style="background:#000;padding:10px;"><b style="color:' + n + '">' + u.login + '</b> в режиме Мафии</div><div style="background:#fff;padding:10px;color:#000"><b style="color:' + n + '">' + u.login + "</b> в режиме День Любви</div>", function() {
+        sendToSocket({
+            type: "donat",
+            action: "nickcolor",
+            color: n
+        }),
+        closewindow()
+    }) : f.notEnough({
+        action: "money2"
+    })
+});
+var donatAllMsg = $("#donat-allmessage")
+  , sendToAllMsg = function(n) {
+    u.items[7] ? (u.items[7] -= 1,
+    sendToSocket({
+        type: "items",
+        action: "7",
+        text: n
+    }),
+    closewindow()) : 200 <= u.money2 ? (sendToSocket({
+        type: "toAll",
+        action: "msgToAll",
+        text: n
+    }),
+    closewindow()) : showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(')
+};
+donatAllMsg.find("button").on("click", function() {
+    sendToAllMsg(donatAllMsg.find("input").val().trim().substring(0, 300))
+}),
+$("#speaker").on("click", function() {
+    modalWindow("Для отправки сообщения всем присутствующим в игре " + (u.items[7] ? "будет использован 1 сертификат на бесплатное объявление" : 'с вашего счета будет списано <span class="money">200</span>') + ". Хотите продолжить?", function() {
+        sendToAllMsg(inputField.val().trim().substring(0, 300)),
+        inputField.val("")
+    })
+});
+var donatFoto = $("#donat-foto")
+  , donatFotoFile = donatFoto.find("input")[0]
+  , donatFotoFileImage = !1;
+$(donatFotoFile).change(function() {
+    if (window.FileReader) {
+        if (this.files && this.files[0]) {
+            var n = new FileReader;
+            n.onload = function(n) {
+                donatFotoFileImage = n.target.result
+            }
+            ,
+            n.readAsDataURL(this.files[0])
+        }
+    } else
+        showMessage("К сожалению, в вашем браузере не поддерживается предпросмотр загружаемых файлов.<br/> Если хотите посмотреть как будет выглядеть ваша аватарка перед загрузкой, воспользуйтесь другим браузером.")
+}),
+donatFoto.find("button").on("click", function() {
+    if (!u.vip && u.money2 < 1e3)
+        f.notEnough({
+            action: "money2"
+        });
+    else if (donatFotoFile.files && donatFotoFile.files[0]) {
+        var o = donatFotoFile.files[0];
+        if (307200 < o.size)
+            showMessage("Размер файла превышает 300 КБ");
+        else {
+            var n = function() {
+                var n = new FormData;
+                n.append("uploadFile", o),
+                $.ajax({
+                    url: currentDomainUrl() + ":" + serverPort(!1) + "/upload",
+                    data: n,
+                    cache: !1,
+                    contentType: !1,
+                    processData: !1,
+                    type: "POST",
+                    success: function(n) {
+                        "ok" === n.status ? showMessage(n.text) : showMessage("Не удалось установить аватар:<br/> " + n.errors)
+                    },
+                    xhrFields: {
+                        withCredentials: !0
+                    }
+                }),
+                closewindow()
+            };
+            if (donatFotoFileImage) {
+                var t = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
+                modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img src="' + donatFotoFileImage + '" ' + t + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img src="' + donatFotoFileImage + '" ' + t + '/><br/> в режиме День Любви</div><br class="clearfix"/>', n)
+            } else
+                n()
+        }
+    } else
+        showMessage("Не выбран файл для загрузки")
+});
+var donatBotnick = $("#donat-botnick");
+donatBotnick.find("button").on("click", function() {
+    var n = donatBotnick.find("input[type=text]").val().trim().substring(0, 20)
+      , o = $("#botnick-sex").prop("checked") ? 1 : 2;
+    200 <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "botnick",
+        login: n,
+        sex: o
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    })
+});
+var donatBotwords = $("#donat-botwords");
+donatBotwords.find("button").on("click", function() {
+    var n = donatBotwords.find("input").val().trim().substring(0, 150);
+    100 <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "botwords",
+        text: n
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    })
+});
+var donatBigGame = $("#donat-biggame");
+donatBigGame.find("button").on("click", function() {
+    var n = donatBigGame.find("input").val().trim().substring(0, 100);
+    u.items[12] ? (u.items[12] -= 1,
+    sendToSocket({
+        type: "items",
+        action: "12",
+        title: n
+    }),
+    closewindow()) : 50 <= u.money2 ? (sendToSocket({
+        type: "donat",
+        action: "biggame",
+        title: n
+    }),
+    closewindow()) : f.notEnough({
+        action: "money2"
+    })
+});
+$.cachedScript = function(e, t) {
+    return t = $.extend(t || {}, {
+        dataType: "script",
+        cache: !0,
+        url: e
+    }),
+    $.ajax(t)
+}
+,
+Object.size = function(e) {
+    return Object.keys(e).length
+}
+,
+Object.update = function(o, e) {
+    Object.forEach(e, function(e, t) {
+        o[t] = e
+    })
+}
+,
+Object.forEach = function(e, t) {
+    if (e)
+        for (var o = Object.keys(e), r = o.length, n = 0; n < r; n++)
+            t(e[o[n]], o[n])
+}
+,
+Array.prototype.randomValue = function() {
+    return this[Math.floor(Math.random() * this.length)]
+}
+,
+Array.prototype.shuffle = function() {
+    for (var e = this.length - 1; 0 < e; e--) {
+        var t = Math.floor(Math.random() * (e + 1))
+          , o = this[t];
+        this[t] = this[e],
+        this[e] = o
+    }
+    return this
+}
+;
+var f = {
+    randomInt: function(e) {
+        return Math.floor(1 + Math.random() * e)
+    },
+    roundTwo: function(e) {
+        return Math.round(100 * e) / 100
+    },
+    timeLost: function(e) {
+        var t = (e - date.now()) / 864e5
+          , o = f.someThing(Math.floor(t), "день", "дня", "дней");
+        return t < 1 && (o = f.someThing(Math.floor(24 * t), "час", "часа", "часов")),
+        o
+    },
+    onlineCount: function(e, t) {
+        0 < e && onlineCounter.html(e),
+        t && (t.text += "join" === t.action ? " входит в игру" : " покидает игру",
+        t.text += " (" + e + ")",
+        alarm(t.text, !0))
+    },
+    radioIframe: function(e) {
+        isAppVK || (e ? ($("#enableRadioStream").remove(),
+        $("<div/>", {
+            id: "disableRadioStream"
+        }).html("Закрыть радио").on("click", function() {
+            f.radioIframe(!1),
+            lStorage.removeItem("radiostream"),
+            $("#vk_groups").show()
+        }).insertBefore(onlineCounter),
+        onlineCounter.before('<iframe id="radioStream" src="/html/radio.html?' + encodeURIComponent(u.login) + '" frameborder="0" scrolling="no" style="width:200px;height:200px"></iframe>')) : !1 === e ? ($("#radioStream").remove(),
+        $("#disableRadioStream").remove(),
+        $("<div/>", {
+            id: "enableRadioStream"
+        }).html("Слушать радио").on("click", function() {
+            f.radioIframe(!0),
+            lStorage.setItem("radiostream", !0),
+            $("#vk_groups").hide()
+        }).insertBefore(onlineCounter)) : f.radioIframe(!!lStorage.getItem("radiostream")))
+    },
+    someThing: function(e, t, o, r) {
+        var n, a = e % 100;
+        if (10 < a && a < 20)
+            n = e + " " + r;
+        else
+            switch (e % 10) {
+            case 1:
+                n = e + " " + t;
+                break;
+            case 2:
+            case 3:
+            case 4:
+                n = e + " " + o;
+                break;
+            default:
+                n = e + " " + r
+            }
+        return n
+    },
+    notEnough: function(e) {
+        var t = 'Недостаточно <span class="' + ("money2" === e.action ? "money" : "gamemoney") + '">средств</span> для выполнения этой операции. ';
+        e.message && (t = e.message),
+        "money2" === e.action ? (t += "<br/>Хотите пополнить счёт?",
+        modalWindow(t, function() {
+            showWindow("pay")
+        })) : showMessage(t)
+    },
+    over1000: function(e) {
+        if (!e)
+            return 0;
+        var t = e.toString();
+        if (0 < t.length) {
+            e = "";
+            for (var o = 1, r = t.length - 1; 0 <= r; r--,
+            o++)
+                o % 3 == 1 && (e = " " + e),
+                e = t[r] + e
+        } else
+            e = t;
+        return e
+    },
+    playerNick: function(e, t) {
+        if (t) {
+            var o = 1 === e.sex ? "♀ " + e.login : e.login + " ♂";
+            return '<strong class="sex' + e.sex + '" data-id="' + e._id + '">' + o + "</strong>"
+        }
+        return '<strong data-id="' + e._id + '">' + e.login + "</strong>"
+    }
+};
+var textRoles = {
+    1: "stud",
+    2: "poh",
+    3: "poh",
+    4: "dej",
+    5: "dej",
+    6: "rev",
+    7: "lun",
+    8: "cat",
+    9: "law"
+};
+function roles(e) {
+    return +e < 10 ? isMaffia ? {
+        0: {
+            name: "Свидетель",
+            button: []
+        },
+        1: {
+            name: "Гражданин",
+            icon: "stud",
+            button: []
+        },
+        2: {
+            name: "Мафиози",
+            icon: "robb",
+            button: ["Убить"]
+        },
+        3: {
+            name: "Босс мафии",
+            icon: "hrobb",
+            button: ["Заморозить", "Убить"]
+        },
+        4: {
+            name: "Комиссар",
+            icon: "duty",
+            button: ["Проверить"]
+        },
+        5: {
+            name: "Сержант",
+            icon: "assis",
+            button: []
+        },
+        6: {
+            name: "Маньяк",
+            icon: "jeal",
+            button: ["Зарезать"]
+        },
+        7: {
+            name: "Доктор",
+            icon: "sleep",
+            button: ["Лечить"]
+        },
+        8: {
+            name: "Кот",
+            icon: "cat",
+            button: ["Поиграть"]
+        },
+        9: {
+            name: "Адвокат",
+            icon: "law",
+            button: ["Защищать"]
+        }
+    }[e] : {
+        0: {
+            name: "Наблюдатель",
+            button: []
+        },
+        1: {
+            name: "Студент",
+            icon: "stud",
+            button: []
+        },
+        2: {
+            name: "Похититель",
+            icon: "robb",
+            button: ["Похитить"]
+        },
+        3: {
+            name: "Глава похитителей",
+            icon: "hrobb",
+            button: ["Запереть", "Похитить"]
+        },
+        4: {
+            name: "Дежурный",
+            icon: "duty",
+            button: ["Проверить"]
+        },
+        5: {
+            name: "Помощник дежурного",
+            icon: "assis",
+            button: []
+        },
+        6: {
+            name: "Ревнивый студент",
+            icon: "jeal",
+            button: ["Испортить подарок"]
+        },
+        7: {
+            name: "Лунатик",
+            icon: "sleep",
+            button: ["Лунатить"]
+        },
+        8: {
+            name: "Котик",
+            icon: "cat",
+            button: ["Поиграть"]
+        },
+        9: {
+            name: "Вахтёр",
+            icon: "law",
+            button: ["Оправдывать"]
+        }
+    }[e] : {
+        none: {
+            name: "[роль недоступна]",
+            button: []
+        },
+        10: {
+            name: "Палач",
+            icon: "roleblock roleblock10",
+            button: []
+        },
+        10.5: {
+            name: "Жертва",
+            icon: "roleblock roleblock10target",
+            button: []
+        }
+    }[e]
+}
+var min10, gameMode = function() {
+    return isMaffia ? "maffia" : "ffl"
+}, roleText = {
+    ffl: {
+        roleinfo: {
+            0: "Вы - наблюдатель, поэтому не мешайте играть участникам.",
+            1: "Вы - студент.<br/> Днём голосуйте против похитителей, а ночью старайтесь не привлекать их внимания своим храпом.",
+            2: "Вы - похититель.<br/> Чтобы выиграть, вам нужно сорвать День Любви, оставив студентов без подарков.",
+            3: "Вы - глава похитителей.<br/> Вы выиграйте, оставив студентов без подарков к празднику. У вас есть уникальная возможность совершать 2 действия за 1 ночь.",
+            4: "Вы - дежурный.<br/> Ночью ищите похителей, а днём подвергайте их справедливому изгнанию из общежития.",
+            5: "Вы - помощник дежурного.<br/> Чтобы победить, вам нужно изгнать всех похитителей. Ждите своего часа, а пока... делайте вид, что активно помогаете дежурному.",
+            6: "Вы - ревнивый студент.<br/> Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
+            7: "Вы - лунатик.<br/> Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
+            8: "Вы - котик.<br/> Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
+            9: "Вы - вахтер.<br/> Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
+            10: "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
+        },
+        nightActions: {
+            1: "Студент спокойно спит.",
+            2: "Похититель выбрал подходящую комнату для ограбления.",
+            3: "Глава похитителей закрыл кого-то в комнате",
+            4: "Дежурный решил проверить подозрительную комнату.",
+            5: "Помощник дежурного спокойно спит.",
+            6: "Ревнивый студент в порыве ревности ворвался в чью-то комнату.",
+            7: "Лунатик отправился на ночную прогулку в известном только одному ему направлении.",
+            8: "Неутомимый котик опять решил с кем-то поиграть.",
+            9: "Вахтёр решил обеспечить кому-то из студентов алиби.",
+            robbers: {
+                msg: "[nick] хочет украсть подарок у студента [target]",
+                self: "Похититель [nick] - альтруист.",
+                his: "Похититель [nick] хочет украсть подарок у своего подельника. Как говорится, грабь награбленное!"
+            }
+        },
+        morningInfo: {
+            1: "Студент отлично выспался.",
+            2: "Ночью [nick] - [role] - не сберег подарка.",
+            3: "Глава похитителей запер на сутки игрока [nick] в своей комнате.",
+            4: "Ночью дежурный проверил комнату игрока [nick]. Кем же оказался подозреваемый?",
+            5: "Помощник дежурного всю ночь делал вид, что помогает дежурному.",
+            6: "[role] [nick] попал под раздачу ревнивого студента.",
+            7: "Всю ночь лунатик провел возле комнаты студента [nick].",
+            8: "Из-за милого котика студент [nick] всю ночь не сомкнул глаз.",
+            "4x": "Дежурный спугнул ночного гостя из комнаты студента [nick].",
+            "7x": "Ночью лунатик лунатил не зря, не дав проникнуть злоумышленнику в комнату студента [nick].",
+            "8x": "[role] - [nick], заигравшись с другом, не уберег своего подарка.",
+            9: "[nick] получает иммунитет на следующие сутки.",
+            "9x": "Студенту [nick] удалось сохранить свой подарок, благодаря полученному иммунитету.",
+            lock: "Замок преградил путь ночному гостю в комнату одного из cтудентов",
+            mylock: '<div class="green">Ваш замок был испорчен таинственным ночным посетителем!</div>'
+        },
+        periodStart: {
+            1: "Наступила ночь. Студентам пора спать, тем временем похитители замышляют недоброе.",
+            2: "Наступил день. Для студентов утро добрым не бывает...",
+            3: "Последнее слово подозреваемому! Что же было на самом деле?",
+            4: "Наступило время голосования! Пора принимать решение!"
+        },
+        mainvote: {
+            simpleVote: '<span class="votemsg">[nick] подозревает в чём-то cтудента [target]</span>',
+            no: "Сегодня студенты были очень нерешительны...",
+            eq: "Сегодня студенты так и не определились...",
+            protect: "Вахтёру удалось оправдать студента своими показаниями!",
+            before: "Большинство игроков (из проголосовавших) считает, что [nick] причастен к похищениям подарков.",
+            question: "Вы считаете, что cтудент [nick]<br/> способен на преступление?",
+            "kick-yes": '[nick] считает, что во всем виноват <b class="nickname">[target]</b>',
+            "kick-no": '[nick] думает, что <b class="nickname">[target]</b> не брал чужого',
+            "result-sub": "<b>[YESVOTE]</b> проголосовал[YESs] за изгнание, <b>[NOVOTE]</b> посчитал[NOs], что cтудент обвинен напрасно.",
+            "result-stat": "Результаты голосования: [count1] назвали подозреваемого преступником, [count0] посчитали, что [nick] не виноват.",
+            result1: "[nick] - [role] - был признан виновным. Игра продолжится без него",
+            result0: "[nick] был оправдан. Поздравляем."
+        },
+        itemUse: {
+            5: "[nick] - [role] - не выдержал тяжелых студенческих будней и пустился во все тяжкие. А может просто жадность погубила?<br/>",
+            cookieResult: {
+                true: {
+                    1: " почему-то не спала сегодня ночью. Может она принимала участие в краже?",
+                    2: " почему-то не спал сегодня ночью. Может он принимал участие в краже?"
+                },
+                false: {
+                    1: " сегодня отлично выспалась!",
+                    2: " сегодня отлично выспался!"
+                },
+                no: {
+                    1: " полакомилась своим печеньем",
+                    2: " полакомился своим печеньем"
+                }
+            },
+            cookie: {
+                text: "Утром вы узнаете, [VERB] ли [nick] вашим угощением",
+                verb1: "полакомилась",
+                verb2: "полакомился"
+            },
+            cookieNo: "У Вас не осталось печенья :(",
+            cookieNan: "Выберите игрока из списка, которому хотите подложить печенюшку",
+            cookieDelete: "Ночью кто-то подбросил Вам печенье. К счастью, Вы утолили голод собственными запасами.",
+            tour: "Утром борьба за подарки продолжится без вашего участия.",
+            tourNo: "У Вас нет образца заявления на академический отпуск. Не получится написать его без ошибок :("
+        },
+        startText: "Борьба за праздник началась.",
+        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Похитители голосуют против дежурного, его помощника и лунатика, а студенты - против похитителей.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для студентов: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для похитителей: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
+        newDuty: "Место дежурного занимает его помощник. Новый дежурный уж точно не оставит похитителям никаких шансов!",
+        bossChild: "Место главы похитителей занимает его незаконно рожденный ребенок!",
+        "bossChild-father": ", ваш отец возглавлял группу похитителей подарков. Теперь вы должны отомстить за него и сорвать праздник любви!",
+        "bossChild-mother": ", ваша мать возглавляла группу похитителей подарков. Теперь вы должны отомстить за нее и сорвать праздник любви!",
+        stealGift: "К сожалению, вы остались без подарка.",
+        afterItem5: "С довольной ухмылкой Вы ушли в академический отпуск!",
+        stat: "В игре осталось [students], [mans] и [robbers].",
+        statCount: {
+            "[students]": ["студент", "студента", "студентов"],
+            "[robbers]": ["похититель", "похитителя", "похитителей"],
+            "[mans]": ["ревнивый студент", "ревнивых студента", "ревнивых студентов"]
+        },
+        end: {
+            studwin: "Победили cтуденты!",
+            robwin: "Победили похитители",
+            manwin: "Победила ревность",
+            menwin: "Победили мальчики",
+            womenwin: "Победили девочки",
+            drawwin: "Победила дружба"
+        },
+        reward: {
+            1: 'Даже простым студентом вы не теряете самообладания и жажды победы.<br/> За помощь в проведении праздника Дня Любви профком наградил вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
+            2: 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит вам прекрасную возможность отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
+            3: 'Вам это удалось!<br/> Вы успешно сорвали праздник, доказав, кто здесь главный.<br/> Теперь Вы можете отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
+            4: 'Прекрасная работа, дежурный!<br/> У похитителей не было шансов.<br/> Находить злоумышленников вдвое быстрее вам помогут вкусные <em>печеньки</em> <div class="shop-item4"></div>',
+            5: 'Вы - отличный помощник дежурного!<br/> Без вас этот праздник Любви мог и не состояться.<br/> <em>Печеньки</em> помогут вам и в следующий раз отыскать похитителей <div class="shop-item4"></div>',
+            6: 'Ваша несдержанность помогла студентам нарушить коварный замысел похитителей!<br/> Но в следующей игре постарайтесь держать свою ревность под <em>замком</em> <div class="shop-item2"></div>',
+            7: 'Не зря вы не высыпались все эти дни!<br/> Праздник Любви состоится!<br/> Что об этом думают похитители?<br/> это вам подскажет чудо техники - <em>веб-камера</em>! <div class="shop-item1"></div>',
+            8: 'Как иногда внешность бывает обманчива!<br/> Милому котику удалось остановить банду похитителей подарков.<br/> Чтобы их месть не настигла Вас, закройтесь на оба <em>замка</em> <div class="shop-item2">2</div>',
+            9: 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит Вам тройку <em>замков</em> для вашей защиты <div class="shop-item2">3</div>'
+        },
+        items: {
+            1: "Веб-камера в упаковке",
+            2: "Замок в коробке",
+            3: "Абонемент Активная роль на 1 час",
+            4: "Пачка печенья",
+            5: "Чистый бланк для академического отпуска",
+            6: "Пропуск в Клуб ФФЛ на 1 день"
+        }
+    },
+    maffia: {
+        roleinfo: {
+            0: "Вы - свидетель, поэтому не мешайте другим участникам.",
+            1: "Вы - Честный гражданин!<br/> Вы выиграете, казнив всех мафиози. Днем с помощью кнопки <b>Голосовать</b> голосуйте против тех, кого подозреваете.",
+            2: "Вы - Мафиози!<br/> Вы победите, убив всех граждан, а также маньяка. Ночью убивайте выбранную жертву с помощью кнопки <b>Убить</b>. Днем притворяйтесь гражданином и голосуйте против неугодных вам с помощью кнопки <b>Голосовать</b>.",
+            3: "Вы - Босс мафии!<br/>  Вы победите, убив всех граждан, а также маньяка. Ночью кнопкой <b>Заморозить</b> Вы лишаете кого-то действий на сутки. И кнопкой <b>Убить</b> кого-то убивайте. Днем притворяйтесь гражданином и голосуйте против неугодных вам кнопкой <b>Голосовать</b>.",
+            4: "Вы - Комиссар!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью вы можете узнать роль персонажа с помощью кнопки <b>Проверить</b>.",
+            5: "Вы - Сержант!<br/> Сотрудничайте с комиссаром. Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Если комиссара убьют, его место займете Вы.",
+            6: "Вы - Mаньяк!<br/> Вы выиграете, убив всех мафиози. Ночью с помощью кнопки <b>Убить</b> Вы расправляетесь с ненавистными персонажами. Днем голосуете против них с помощью кнопки <b>Голосовать</b>.",
+            7: "Вы - Доктор!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью с помощью кнопки <b>Лечить</b> Вы можете спасти одного из граждан.",
+            8: "Вы - кот!<br/> Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
+            9: "Вы - адвокат!<br/> Вы играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
+            10: "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
+        },
+        nightActions: {
+            1: "",
+            2: "Один из мафиози выбрал гражданина для убийства.",
+            3: "Босс мафии выбрал, кого заморозить.",
+            4: "Комиссар выбрал, кому из граждан нанести визит. Надеемся, что он разоблачит мафиози или маньяка.",
+            5: "",
+            6: "Маньяк выбрал жертву. Ни сна ни отдыха измученной душе...",
+            7: "Доктор выехал на вызов.",
+            8: "Спокойно и вальяжно, как ему и подобает, кот направился к одному из граждан.",
+            9: "Адвокат взял под свою защиту кого-то из граждан.",
+            robbers: {
+                msg: "[nick]: Надо убить [target]",
+                self: "Мафиози [nick] - самоубийца.",
+                his: "Бегемот [nick], зачем ты бьешь своего?"
+            }
+        },
+        morningInfo: {
+            1: "",
+            2: "Ночью мафиози убили персонажа [nick] - [role].",
+            3: "Ночью боссом мафии был заморожен на 1 сутки [nick]. Нам будет не хватать его мнения.",
+            4: "Персонаж [nick] был проверен комиссаром. Кем же оказался проверяемый?",
+            5: "",
+            6: "Персонаж [nick] - [role] убит маньяком.",
+            7: "Доктор посетил персонажа [nick]. Он оказался совершенно здоровым.",
+            8: "Кот не давал спать всю ночь игроку [nick].",
+            "4x": "Комиссар спугнул преступника, который хотел убить персонажа [nick].",
+            "7x": "Ночью действиями реанимационной бригады был спасен от гибели персонаж [nick].",
+            "8x": "Рядом с телом жертвы был обнаружен мёртвый [role] - [nick]",
+            9: "[nick] благодаря своему адвокату получил неприкосновенность на следующие сутки.",
+            "9x": "Благодаря адвокату и его работе [nick] сегодня остался жив.",
+            lock: "В один из домов было произведено нелегальное проникновение. К счастью, персонажа спасла маскировка.",
+            mylock: '<div class="green">Ваша маскировка была использована.</div>'
+        },
+        periodStart: {
+            1: "Наступила ночь. Честные граждане спят. Всем остальным пора действовать.",
+            2: "Наступил день. Честные граждане проснулись. Не дадим мафии прибрать к рукам наш город!",
+            3: "Последнее слово - подозреваемому и его защитникам! А вы, уважаемые горожане, решайте - обвинить его или отпустить с миром. Будьте внимательны, подозреваемый может ввести вас в заблуждение!",
+            4: "Наступило время голосования! Пора принимать решение!"
+        },
+        mainvote: {
+            simpleVote: '<span class="votemsg">[nick] голосует против [target]</span>',
+            no: "Сегодня горожане не нашли виновного...",
+            eq: "Сегодня горожане так и не определились, кого следует казнить.",
+            protect: "Адвокату удалось доказать невиновность своего подзащитного!",
+            before: "[nick] подозревается в пособничестве мафии!",
+            question: "Вы считаете, что [nick]<br/> нужно казнить?",
+            "kick-yes": '[nick] считает, что <b class="nickname">[target]</b> следует казнить',
+            "kick-no": '[nick] считает, что <b class="nickname">[target]</b> следует помиловать',
+            "result-sub": "Казнить - <b>[YESVOTE]</b> голосов,  помиловать - <b>[NOVOTE]</b> голосов",
+            "result-stat": "Результаты голосования: [count1] предложили казнить обвиняемого, [count0] посчитали, что [nick] должен быть оправдан.",
+            result1: "Горожанами был казнен персонаж [nick] - [role].",
+            result0: "Гражданин [nick] был оправдан."
+        },
+        itemUse: {
+            5: "Ночью на машине покинул город [nick] - [role]. Осторожней на поворотах!<br/>",
+            cookieResult: {
+                true: {
+                    1: " почему-то не спала сегодня ночью. Может она мафиози?",
+                    2: " почему-то не спал сегодня ночью. Может он мафиози?"
+                },
+                false: {
+                    1: " целую ночь провела дома.",
+                    2: " целую ночь провел дома."
+                },
+                no: {
+                    1: " смогла обнаружить Ваш жучок.",
+                    2: " смог обнаружить Ваш жучок."
+                }
+            },
+            cookie: {
+                text: "Вы воспользовались жучком против [VERB] [nick]. Результат вы узнаете на следующее утро.",
+                verb1: "синьоры",
+                verb2: "синьора"
+            },
+            cookieNo: "Нет жучков",
+            cookieNan: "Выберите игрока из списка, которому хотите подбросить жучок",
+            cookieDelete: "Ночью Вам был подброшен жучок. К счастью, Вам удалось его обнаружить.",
+            tour: "Утром вы покинете город на машине",
+            tourNo: "У вас нет автомобиля"
+        },
+        startText: "Борьба за город началась.",
+        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Мафиози голосуют против граждан, а мирные жители - против мафии.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для мирных: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для мафии: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
+        newDuty: "Место комиссара занял сержант. Мы верим в нашего нового комиссара!",
+        bossChild: "Место босса мафии занимает его внебрачный ребенок!",
+        "bossChild-father": ", ваш отец был боссом мафии и был убит. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
+        "bossChild-mother": ", ваша мать была боссом мафии и была убита. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
+        stealGift: "К сожалению, Вас убили.",
+        afterItem5: "Вы покинули город на машине!",
+        stat: "В игре осталось [students], [mans] и [robbers].",
+        statCount: {
+            "[students]": ["гражданин", "гражданина", "граждан"],
+            "[robbers]": ["мафиози", "мафиози", "мафиози"],
+            "[mans]": ["маньяк", "маньяка", "маньяков"]
+        },
+        end: {
+            studwin: "Победили мирные граждане!",
+            robwin: "Победила мафия!",
+            manwin: "Победил маньяк!",
+            menwin: "Мужчины показали, кто здесь главный!",
+            womenwin: "Дамы были как всегда на высоте!",
+            drawwin: "Ничья"
+        },
+        reward: {
+            1: 'Вы порядочный гражданин, и городу повезло, что Вы живете в нем.<br/> Мэр города за ваше участие в борьбе с мафией наградил Вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
+            2: 'Мафия бессмертна!<br/> Вы в очередной раз это доказали,<br/> за это мафиозный клан подарил Вам <em>Автомобиль</em> <div class="shop-item5"></div>',
+            3: 'Мафия бессмертна!<br/> В знак почтения члены клана преподнесли<br/> своему боссу новенький <em>Автомобиль</em> <div class="shop-item5"></div>',
+            4: 'Городу повезло, что у него есть такой комиссар!<br/> Вам удалось сорвать коварные планы мафиозного клана по захвату города.<br/> Для борьбы с мафией используйте новейшие достижения технического прогресса. <div class="shop-item4"></div>',
+            5: 'Славная работа, сержант!<br/> Город счастлив, что в полиции работают такие смелые люди.<br/> В вашем нелегком труде помогут <em>жучки</em>,<br/> которые сообщат Вам обо всех перемещениях злоумышленника <div class="shop-item4"></div>',
+            6: 'Кто бы мог подумать?!<br/> Маньяк спас город от мафии.<br/> Однако, учитывая вашу репутацию, <em>маскировка</em> Вам не помешает <div class="shop-item2"></div>',
+            7: 'За спасение жителей города от неминуемой смерти<br/> мэрия наградила Вас <em>личной рацией</em>, чтобы Вы всегда могли быстро прийти на выручку <div class="shop-item1"></div>',
+            8: 'Мафии не удалось захватить город благодаря коту!<br/> Известие об этом быстро разнеслось по округе.<br/> Смелому животному пока лучше <em>замаскироваться</em>, да получше. <div class="shop-item2">2</div>',
+            9: 'Благодаря Вам мафии удалось прибрать к рукам этот город!<br/> Помимо гонорара Вам пригодятся эти <em>маскировочные костюмы</em>, чтобы скрыться от правосудия. <div class="shop-item2">3</div>'
+        },
+        items: {
+            1: "Рация в коробке",
+            2: "Маскировочный набор",
+            3: "Абонемент Активная роль на 1 час",
+            4: "Жучок в упаковке",
+            5: "Сертификат на покупку автомобиля",
+            6: "Пропуск в Клуб Мафии на 1 день"
+        }
+    },
+    all: {
+        bonus: {
+            intuit: '<div class="red">Интуиция подсказывает Вам, что [nick] - [role]!</div>',
+            nokill: "[nick] использовал бонус бессмертия и остался в игре!",
+            rev: "Бонус светлого кольца наделяет Вас новой ролью - [role]",
+            poh: "Бонус тёмного кольца наделяет Вас новой ролью - [role]"
+        },
+        "startText-sex": "В принципиальном поединке сошлись 2 непримиримых соперника: добро и зло, свет и тьма... И сторону здесь никто не выбирает.",
+        sex1: "Чтобы победить в Битве Полов, нужно расправиться со всей мужской половиной игроков.",
+        sex2: "Если хотите выиграть в Битве Полов, нужно дружно мужским коллективом выбить из игры всю прекрасную половину.",
+        rewardToy: "За проявленные успехи в игровой партии вы получаете замечательную новогоднюю игрушку!",
+        snowflake: "В этой суматохе Ваше внимание неожиданно привлекла прекрасная снежинка, которую в новогодние праздники можно будет обменять на подарки!",
+        greenVote: "[nick] подмигивает игроку [target]",
+        intuitVote: "Кто-то бросил косой взгляд в сторону одного из присутствующих",
+        leave1: "вышла из себя и из игры",
+        leave2: "вышел из себя и из игры",
+        zayavka: 'Играй чаще за роли <span class="robb"></span>, <span class="duty"></span> или <span class="jeal"></span> с помощью услуги Активная роль (ищи её в магазине)!'
+    }
+}, periodNames = {
+    1: "Ночь",
+    2: "День",
+    3: "Вечер",
+    4: "Голосование"
+}, startHours = {
+    1: 21,
+    2: 9,
+    3: 17,
+    4: 19
+}, lastKickVote = 0, game = {
+    active: !1,
+    closed: !1,
+    finish: !1,
+    style: {},
+    botwall: !1,
+    day: 0,
+    period: 1,
+    time: {
+        h: 21,
+        m: 0
+    },
+    role: 1,
+    item2: 0,
+    actions: [],
+    kickVotes: {
+        yes: 0,
+        no: 0
+    },
+    hisvote: {},
+    votes: {}
+}, replaceLogins = {}, randomNicks = ["Аберто", "Авада Кедавра", "Авис", "Авифорс", "Агуаменти", "Адское пламя", "Аква Эрукто", "Акцио", "Аларте Аскендаре", "Алохомора", "Анапнео", "Апарекиум", "Араниа экзэми", "Аресто моментум", "Асцендио", "Баубиллиус ", "Бомбардо", "Бомбардо Максима", "Брахиабиндо", "Брахиам Эмендо", "Ваддивази", "Вердимилиус", "Верминкулюс", "Веселящие чары", "Взрывающее заклятие", "Вингардиум Левиоса", "Випера Эванеско", "Воздвигнись", "Вомитаре Виридис", "Воющие чары", "Вспыхни", "Вулнера санентур", "Гармония Нектере Пасус", "Гербивикус", "Гибель воров", "Глаз крысы, струна арфы, пусть вода превратится в ром", "Глиссео", "Глациус", "Гоменум ревелио", "Гомункуловы чары", "Губрайтов огонь", "Даклифорс", "Дантисимус", "Дезиллюминационное заклинание", "Делетриус", "Депримо", "Депульсо", "Десцендо", "Дефодио", "Джеминио", "Диминуендо", "Диссендиум", "Диффиндо", "Драконифорс", "Дуро", "Жалящее заклинание", "Ешь слизней", "Заклинание вечного приклеивания", "Заклинание головного пузыря", "Заклинание для очистки картофеля", "Заклинание замедленного падения", "Заклинание заметания следов", "Заклинание невидимого хлыста", "Заклятие ненаносимости", "Заклятие Неразбиваемости", "Заклинание Обращения", "Заклинание открытия дверей", "Заклинание пальцекусания", "Заклятие Пылающей руки", "Заклинание против списывания", "Заклинание роста ногтей на ногах", "Запирающие заклинания", "Затмись", "Зелёные искры", "Зелёное специальное заклинание", "Иммобулюс", "Импедимента", "Импервиус", "Империус", "Инаниматус Коньюрус", "Инкарцеро", "Инсендио", "Инфлэтус", "Информус", "Инкарсифорс", "Каве инимикум", "Калворио", "Кантис", "Капациус экстремис", "Карпе Ретрактум", "Квиетус", "Кишечно-опорожнительное заклятие", "Коллопортус", "Коллошио", "Колорум", "Конфундус", "Коньюнктивитус", "Круциатус", "Лакарнум Инфламаре", "Лапифорс", "Левикорпус", "Левиосо", "Легилименс", "Летучемышиный сглаз", "Либеракорпус", "Локомотор", "Пиертотум Локомотор", "Локомотор Мортис", "Локомотор Виббли", "Люмос", "Люмос Максима", "Люмос Солем", "Люмос Дуо", "Магикус экстримус", "Мелофорс", "Метео реканто", "Мимбл Вимбл", "Мобилиарбус", "Мобиликорпус", "Морсмордре", "Мукус Ад Нозем", "Мутацио Скулус", "Направление", "Нокс", "Обезъяз", "Облегчающие чары", "Обливиэйт", "Оглохни", "Оживи", "Окулус Репаро", "Оппуньо", "Орбис", "Орхидеус", "Остолбеней", "Остолбеней Дуо", "Остолбеней Триа", "Отключись", "Партис Темпорус", "Парящие чары", "Патентованные чары — грёзы наяву", "Перрикуллум", "Петрификус Тоталус", "Пескипикси Пестерноми", "Портоберто", "Портус", "Приори Инкантатем", "Проклятие воришки", "Протеевы чары", "Протего", "Протего Дуо", "Протего максима", "Протего тоталум", "Протего хоррибилис", "Пуллус", "Пэк", "Ревелио", "Редактум Скулус", "Редукто", "Редуцио", "Релашио", "Репарифарго", "Репаро", "Репелло Инимикум", "Репелло маглетум", "Ридикулус", "Риктусемпра", "Сальвио гексиа", "Сезам откройся", "Сектумсемпра", "Серпенсортиа", "Силенцио", "Синие искры", "Систем Аперио", "Сито из котла", "Скрибблифорс", "Скурж", "Снаффлифорс", "Сонорус", "Соппоро", "Спанджифай", "Стилклоу", "Таранталлегра", "Тергео", "Титилландо", "Тормозящие чары Хортона-Кейтча", "Трансмогрифианская Пытка", "Фианто Дури", "Финита", "Фините Инкантатем", "Фенестрам", "Фера Верто", "Ферула", "Флагрейт", "Флиппендо", "Флиппендо Дуо", "Флиппендо Триа", "Фульгари", "Фумос", "Фумос Дуо", "Фурункулус", "Хватательное заклинание", "Хербифорс", "Чары высушивания", "Чары подчинения", "Чары рессорной подушки", "Эбублио", "Эванеско", "Эверте Статум", "Экскуро", "Экспекто патронум", "Экспеллиармус", "Экспеллимеллиус", "Эктоматис", "Экспульсо", "Эманципаре", "Энгоргио", "Энгоргио Скулус", "Энтоморфиум", "Эпискеи", "Ябеда"], showTime = function() {
+    var e = game.time.h
+      , a = game.time.m;
+    e = e < 10 ? "0" + e : e,
+    a = a < 10 ? "0" + a : a,
+    $("#gametime").html(e + ":" + a)
+}, truncate = function(e, a) {
+    return e && e.length > a ? e.substring(0, a) + "…" : e
+}, addVote = function(e, a) {
+    var t = $("#" + e);
+    if (t) {
+        var i = parseInt(t.find("b").html()) || 0
+          , n = a ? i + 1 : i - 1;
+        t.find("b").html(n.toString())
+    }
+};
+function editPlayer(e, a) {
+    if (playersList.find("#" + e._id).remove(),
+    a)
+        playersInfoArray[e._id] && (playersInfoArray[e._id].killed = !0);
+    else {
+        playersInfoArray[e._id] = e;
+        var t = $('<div id="' + e._id + '"><b></b>' + (e.role ? truncate(e.login, 10) : e.login) + (e.role ? '<span class="visiblerole"> - <i class="' + roles(e.role).icon + '"></i></span>' : "") + "</div>");
+        t.attr("data-nick", e.login),
+        e.bot && t.addClass("bot"),
+        game.style.style && 4 === game.style.style && e.sex && t.addClass("sex" + e.sex),
+        t.appendTo("#players"),
+        game.intuition || (t.mouseenter(function() {
+            return showPlayerInfo(!0, $(this).attr("id")),
+            !1
+        }).mouseleave(function() {
+            return showPlayerInfo(!1),
+            !1
+        }),
+        u.friends && -1 < u.friends.indexOf(e._id) && t.addClass("green"),
+        -1 < reds.indexOf(e._id) && t.addClass("red"))
+    }
+    aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")")
+}
+function changeAction() {
+    var e = "";
+    0 < game.actions.length && (e = game.actions.shift()),
+    actionButton.html(e)
+}
+game.isRobber = function(e) {
+    return 2 === e || 3 === e
+}
+,
+game.setRole = function(e) {
+    game.intuition && playersInfoArray[e.id] && (e.login = playersInfoArray[e.id].login),
+    playersList.find("#" + e.id).html("<b></b>" + (e.role ? truncate(e.login, 10) : e.login) + (e.role ? '<span class="visiblerole"> - <i class="' + roles(e.role).icon + '"></i></span>' : "")),
+    playersInfoArray[e.id] && (playersInfoArray[e.id].role = e.role)
+}
+,
+game.writeText = function(e, a, t, i) {
+    var n = document.createElement("div")
+      , s = document.createElement("div")
+      , o = document.createElement("div");
+    if (o.className = "message",
+    a) {
+        if ("anonim" === a)
+            o.className += " gamemsg";
+        else if ("radio" === a)
+            o.className += " poh-radio";
+        else if (a.role)
+            o.className += " roleicon roleicon" + a.role;
+        else if (a.bonus)
+            o.className += " roleicon bonusicon-" + a.bonus;
+        else if (a.id || (a.id = a._id),
+        !a.image && playersInfoArray[a.id] && (a.sex = playersInfoArray[a.id].sex,
+        a.image = playersInfoArray[a.id].image),
+        game.intuition && (a.image = !1),
+        a.image)
+            if (2 < a.image.length) {
+                o.className += " userimage";
+                var l = document.createElement("div");
+                l.className = "selfimg",
+                l.style.backgroundImage = "url(/files/" + a.id + a.image + ")",
+                o.appendChild(l)
+            } else {
+                var r = 1 === a.sex ? "w" : "m";
+                r = a.image ? r + a.image : "",
+                o.className += " " + r
+            }
+    } else
+        o.className += " noimage";
+    n.innerHTML = "",
+    i || (e = roleReplace(e)),
+    s.innerHTML = t ? '<div class="delimiter"></div><div class="important">' + e + '</div><div class="delimiter"></div>' : e,
+    o.appendChild(n),
+    o.appendChild(s),
+    messagesDOM.appendChild(o),
+    doScroll()
+}
+,
+game.event = function(n, e, a) {
+    var s = " " + function(e, a) {
+        var t = {}
+          , i = a.split(":");
+        if ("all" === i[0] && (i.shift(),
+        e = roleText.all),
+        1 < i.length) {
+            t = e;
+            for (var n = 0; n < i.length; n++)
+                t = t[i[n]]
+        } else
+            t = e[i.shift()];
+        return t
+    }(roleText[gameMode()], n.text);
+    switch (n.p && (game.intuition && n.p.id && playersInfoArray[n.p.id] && (n.p.nick = playersInfoArray[n.p.id].login),
+    s = s.replace("[nick]", '<b class="nickname"' + (n.p.id ? ' data-id="' + n.p.id + '"' : "") + ">" + n.p.nick + "</b>")),
+    n.replacedata && (n.replacedata["[mans]"] ? n.replacedata["[mans]"] === n.replacedata["[students]"] ? s = s.replace("[students],", "") : n.replacedata["[students]"] -= n.replacedata["[mans]"] : s = s.replace(", [mans]", ""),
+    Object.forEach(n.replacedata, function(e, a) {
+        if ("[ROLE2]" === e && (e = roles(2).name),
+        "stat" === n.text) {
+            var t = roleText[gameMode()].statCount[a];
+            s = s.replace(a, f.someThing(e, t[0], t[1], t[2]))
+        } else if (s = "[role]" === a ? s.replace(a, roleReplace(roles(e).name)) : s.replace(a, e),
+        game.active && "mainvote:result1" === n.text && "[role]" === a && lastKickVote) {
+            var i = 2 === e || 3 === e || game.man && 6 === e;
+            showNewDiv("<blockquote>" + (i && 1 === lastKickVote || !i && 2 === lastKickVote ? "Вы были правы!" : "Вы ошиблись...") + "</blockquote>")
+        }
+    })),
+    n.text) {
+    case "nightActions:2":
+        sound("role2", !0),
+        e = {
+            role: 2
+        };
+        break;
+    case "nightActions:3":
+        sound("role3", !0),
+        e = {
+            role: 3
+        };
+        break;
+    case "nightActions:4":
+        sound("role4", !0),
+        e = {
+            role: 4
+        };
+        break;
+    case "nightActions:6":
+        sound("role6", !0),
+        e = {
+            role: 6
+        };
+        break;
+    case "nightActions:7":
+        sound("role7", !0),
+        e = {
+            role: 7
+        };
+        break;
+    case "nightActions:8":
+        sound("role8", !0),
+        e = {
+            role: 8
+        };
+        break;
+    case "nightActions:9":
+        sound("role9", !0),
+        e = {
+            role: 9
+        };
+        break;
+    case "all:bonus:intuit":
+        e = {
+            bonus: "intuit"
+        };
+        break;
+    case "all:bonus:nokill":
+        e = {
+            bonus: "nokill"
+        };
+        break;
+    case "all:bonus:rev":
+        e = {
+            bonus: "rev"
+        };
+        break;
+    case "all:bonus:poh":
+        e = {
+            bonus: "poh"
+        }
+    }
+    return a ? s : (game.writeText('<div class="periodMsg"> ' + s + " </div>", e, !1, !0),
+    !0)
+}
+,
+game.kick = function(e) {
+    lastKickVote = e ? 1 : 2,
+    sendToSocket({
+        type: "kick",
+        iskick: e
+    })
+}
+,
+game.showPlaylist = function(e) {
+    playersInfoArray = {},
+    playersList.empty(),
+    Object.forEach(e, function(e) {
+        editPlayer(e, !1)
+    }),
+    container.removeClass("closedgame").addClass("current");
+    var a = [];
+    playersList.find("div").each(function() {
+        var e = [$(this).html(), $(this)];
+        a.push(e)
+    }),
+    a.sort(plSort),
+    a.forEach(function(e) {
+        playersList.append(e[1])
+    })
+}
+,
+game.updateInfoGame = function(e) {
+    var a = u.login;
+    if (a += $("div").is(".nickblock") ? "<br/>" : " - ",
+    a += '<span class="rolesmile role' + game.role + '"></span>' + roles(game.role).name,
+    $("#nick").html(a),
+    $(".gamemakerinfo").html("<span>День " + game.day + "</span> ➣ <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title"),
+    showTime(),
+    4 === game.period && (lastKickVote = 0),
+    game.active && !game.closed) {
+        switch (game.period) {
+        case 1:
+            mW.hide(),
+            game.actions = roles(game.role).button.slice();
+            break;
+        case 2:
+            game.actions = ["Голосовать", "Переголосовать"];
+            break;
+        case 3:
+            game.actions = [];
+            break;
+        case 4:
+            game.actions = [],
+            e && modalWindow(e, function() {
+                game.kick(!0)
+            }, function() {
+                game.kick(!1)
+            })
+        }
+        changeAction()
+    } else
+        actionButton.empty();
+    0 < game.role && 3 !== game.period && game.setRole({
+        id: u._id,
+        login: u.login,
+        role: game.role
+    })
+}
+;
+var sortPoints = function(e) {
+    var t = [];
+    return Object.forEach(e, function(e, a) {
+        t.push({
+            id: a,
+            points: e
+        })
+    }),
+    t.sort(function(e, a) {
+        return a.points - e.points
+    }),
+    t
+};
+game.setPeriod = function(a) {
+    if (a.resultInfo) {
+        if (a.resultInfo.points && a.resultInfo.logins) {
+            var t = "Набрано баллов:<br/>";
+            sortPoints(a.resultInfo.points).forEach(function(e) {
+                a.resultInfo.logins[e.id] && (t += '<b class="nickname" data-id="' + e.id + '">' + a.resultInfo.logins[e.id] + "</b> - " + e.points + " , ")
+            }),
+            game.writeText(t.substring(0, t.length - 2), !1, !0)
+        }
+    } else {
+        playersList.find("div").removeClass("voted"),
+        2 === a.period ? sound("day", !0) : 1 === a.period ? sound("night", !0) : sound("notify", !0),
+        3 !== a.period && playersList.find("b").empty(),
+        game.day = a.day,
+        game.period = a.period,
+        game.time = {
+            h: startHours[game.period],
+            m: 0
+        },
+        game.hisvote = {},
+        game.votes = {};
+        var e = "";
+        if (a.msgArray && 0 < a.msgArray.length) {
+            var i = a.msgArray;
+            if (4 === game.period)
+                e = i[0] !== u._id && game.event(i[1], !1, !0);
+            else {
+                var n = "";
+                i.forEach(function(e) {
+                    n += game.event(e, !1, !0) + "<br/>"
+                }),
+                game.writeText(n, !1, 2 === game.period, !0)
+            }
+        }
+        if (a.addInfo) {
+            if (a.addInfo.roles) {
+                var s = "";
+                Object.forEach(a.addInfo.roles, function(e, a) {
+                    s += '<b class="nickname" data-id="' + a + '">' + playersInfoArray[a].login + "</b> - " + roles(e).name + " , "
+                }),
+                game.writeText(s.substring(0, s.length - 2), !1, !0)
+            }
+            if (a.addInfo.points) {
+                var o = "Набрано баллов:<br/>";
+                if (sortPoints(a.addInfo.points).forEach(function(e) {
+                    playersInfoArray[e.id] && (o += '<b class="nickname" data-id="' + e.id + '">' + (game.intuition ? replaceLogins[e.id] : playersInfoArray[e.id].login) + "</b> - " + e.points + " , ")
+                }),
+                game.writeText(o.substring(0, o.length - 2), !1, !0),
+                game.intuition) {
+                    var l = randomNicks.slice(0);
+                    l.shuffle(),
+                    playersList.empty(),
+                    Object.forEach(playersInfoArray, function(e, a) {
+                        e.login = l.shift(),
+                        delete e.role,
+                        playersInfoArray[a].killed || editPlayer(e, !1)
+                    });
+                    var r = [];
+                    playersList.find("div").each(function() {
+                        var e = [$(this).html(), $(this)];
+                        r.push(e)
+                    }),
+                    r.sort(plSort),
+                    r.forEach(function(e) {
+                        playersList.append(e[1])
+                    })
+                }
+            }
+        }
+        switch (game.period) {
+        case 1:
+            game.kickVotes = {
+                yes: 0,
+                no: 0
+            },
+            container.addClass("nightPeriod"),
+            game.active && helper.hint("night" + game.role);
+            break;
+        case 2:
+            game.closed = !(!a.closed || a.closed !== u._id),
+            container.removeClass("nightPeriod"),
+            game.active && helper.hint("day-side" + (game.isRobber(game.role) ? "2" : "1"));
+            break;
+        case 3:
+            game.active && helper.hint(a.msgArray && a.msgArray[0] && a.msgArray[0].p && a.msgArray[0].p.id && a.msgArray[0].p.id === u._id ? "voteme" : "vote")
+        }
+        a.del && 0 < a.del.length && a.del.forEach(function(e) {
+            editPlayer({
+                _id: e
+            }, !0)
+        }),
+        game.updateInfoGame(e),
+        game.writeText('<div class="delimiter"></div><div class="periodMsg">' + roleText[gameMode()].periodStart[game.period] + '</div><div class="delimiter"></div> '),
+        a.banks && game.recalculateBanks(a.banks)
+    }
+}
+,
+game.setTime = function() {
+    game.time.m += game.botwall || game.fast ? 10 : 5,
+    59 < game.time.m && (game.time.m = 0,
+    game.time.h += 1),
+    23 < game.time.h && (game.time.h = 0),
+    showTime()
+}
+,
+game.action = function() {
+    if (game.active && actionButton.html())
+        if (playersList.find("div").is(".select")) {
+            var e = playersList.find("div.select");
+            if ("testgame" === room) {
+                var a = e.attr("id");
+                return game.vote({
+                    target: helper.helpGamePlayers[a]._id,
+                    from: helper.helpGamePlayerIL(0),
+                    targetLogin: helper.helpGamePlayers[a].login
+                }),
+                changeAction(),
+                void sound("click", !0)
+            }
+            1 === game.period ? modalWindow("Уверены, что хотите это сделать?", function() {
+                sendToSocket({
+                    type: "game-action",
+                    target: e.attr("id")
+                }),
+                changeAction()
+            }) : (sendToSocket({
+                type: "game-action",
+                target: e.attr("id")
+            }),
+            changeAction()),
+            sound("click", !0)
+        } else
+            showMessage("Сначала необходимо выбрать в списке одного из участников партии")
+}
+,
+game.vote = function(e) {
+    if (!(2 < game.period)) {
+        if (game.votes[e.target] || (game.votes[e.target] = []),
+        game.intuition && (playersInfoArray[e.from.id] && (e.from.login = playersInfoArray[e.from.id].login),
+        e.target && playersInfoArray[e.target] && (e.targetLogin = playersInfoArray[e.target].login,
+        e.event && e.event.replacedata && (e.event.replacedata["[target]"] = e.targetLogin))),
+        game.votes[e.target].push(e.from.login),
+        game.hisvote[e.from.id] = e.targetLogin,
+        e.oldTarget && (addVote(e.oldTarget, !1),
+        game.votes[e.oldTarget])) {
+            var a = game.votes[e.oldTarget];
+            a.splice(a.indexOf(e.from.login), 1)
+        }
+        addVote(e.target, !0),
+        e.event ? game.event(e.event, e.from || "anonim") : (e.event = game.special ? {
+            text: "all:greenVote"
+        } : {
+            text: "mainvote:simpleVote"
+        },
+        e.event.replacedata = {
+            "[nick]": '<b class="nickname"' + (e.from.id ? ' data-id="' + e.from.id + '"' : "") + ">" + e.from.login + "</b>",
+            "[target]": '<b class="nickname" data-id="' + e.target + '">' + e.targetLogin + "</b>"
+        },
+        game.intuition && (e.event = {
+            text: "all:intuitVote"
+        }),
+        game.writeText(game.event(e.event, !1, !0), e.from)),
+        e.from && e.from.id && !game.intuition && $("#" + e.from.id).addClass("voted")
+    }
+}
+,
+game.kickVote = function(e) {
+    "1" === e.kick ? game.kickVotes.yes++ : game.kickVotes.no++;
+    var a = game.event({
+        text: "mainvote:result-sub",
+        replacedata: {
+            "[YESVOTE]": game.kickVotes.yes,
+            "[NOVOTE]": game.kickVotes.no,
+            "[YESs]": 1 === game.kickVotes.yes ? "" : "и",
+            "[NOs]": 1 === game.kickVotes.no ? "" : "и"
+        }
+    }, !1, !0);
+    game.writeText('<span class="important">' + game.event(e.event, !1, !0) + "</span><br/>" + a, e.event.p)
+}
+;
+var finalMsg = function(t, e) {
+    actionButton.empty();
+    var i = ""
+      , n = ""
+      , a = t.item5 ? "afterItem5" : "stealGift";
+    if (t.winners ? i += "Победа оказалась на стороне: <br><b>" + t.winners.join("</b><br/><b>") + "</b>" : i += t.event ? game.event(t.event, !1, !0) : roleText[gameMode()][a],
+    i += "<br/> ",
+    game.role && (t.days && (i += (e ? "Партия длилась " : "Вы продержались ") + f.someThing(t.days, "день", "дня", "дней") + "<br/> "),
+    t.money && (i += 'Вы получили <span class="gamemoney">' + f.over1000(t.money) + "</span><br/> "),
+    t.rate && (i += "<b>Рейтинг +" + t.rate + "</b><br/> ")),
+    t.points ? (i += "<strong>Итоговые баллы:</strong> <blockquote>",
+    sortPoints(t.points).forEach(function(e) {
+        i += e.id + " - " + e.points + "<br/>"
+    }),
+    i += "</blockquote>") : t.roles && (i += "<strong>Роли исполняли:</strong> <blockquote>",
+    t.roles.forEach(function(e, a) {
+        "finish" === e ? a < t.roles.length - 1 && (i += "<b>Изменившиеся роли:</b><br/>") : (i += e[1] + " - " + roles(e[0]).name + "<br/>",
+        n += e[1] + "-" + roles(e[0]).name + ",")
+    }),
+    i += "</blockquote>"),
+    t.win) {
+        sound("win", !0);
+        var s = isMaffia ? "maffia/tickets/" + game.role + ".png" : "tickets/" + game.role + ".jpg";
+        isAppVK || (i += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(!0) + "&amp;title=Мне удалось заработать " + f.over1000(t.money) + " за " + f.someThing(t.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + n + "&amp;image=http://loday.ru/images/" + s + '&amp;noparse=true">Сохранить игру</a><br/>')
+    }
+    return i += e ? "" : "Хотите досмотреть игру до конца?"
+};
+game.killed = function(e) {
+    game.active = !1,
+    modalWindow(finalMsg(e, !1), function() {
+        container.addClass("nogift")
+    }, goToRoom)
+}
+,
+game.newRole = function(e) {
+    if (e.role) {
+        if (game.role = e.role,
+        e.bonus && game.event({
+            text: "all:bonus:" + e.bonus,
+            replacedata: {
+                "[role]": e.role
+            }
+        }, !1),
+        alarm("Теперь ты - " + roles(e.role).name + "!"),
+        e.child) {
+            var a = playersInfoArray[e.child] && 1 === playersInfoArray[e.child].sex ? "mother" : "father";
+            game.writeText(u.login + roleText[gameMode()]["bossChild-" + a], !1, !0)
+        }
+        e.hasOwnProperty("bonus") && !e.bonus && (playersList.find(".visiblerole").remove(),
+        Object.forEach(playersInfoArray, function(e, a) {
+            a !== u._id && delete e.role
+        })),
+        e.roles && Object.forEach(e.roles, function(e, a) {
+            game.setRole({
+                id: a,
+                login: playersInfoArray[a].login,
+                role: e
+            })
+        }),
+        game.updateInfoGame()
+    }
+}
+;
+var checksList = function(e) {
+    var a = "";
+    return Object.forEach(e, function(e) {
+        a && (a += ", "),
+        a += e[1] + " - " + roles(e[0]).name
+    }),
+    a
+};
+game.dejInfo = function(e) {
+    var a = "Я - " + roles(e.role).name + "!";
+    e.checks && 0 < Object.size(e.checks) && (a += " Мне стало известно, что " + checksList(e.checks) + " !");
+    var t = {
+        id: e.id,
+        login: playersInfoArray[e.id].login,
+        sex: playersInfoArray[e.id].sex,
+        image: playersInfoArray[e.id].image,
+        color: "#f00"
+    };
+    setTimeout(function() {
+        showNewMessage({
+            type: "message",
+            message: a,
+            msgType: "private",
+            from: t,
+            to: u._id,
+            toName: u.login
+        })
+    }, 2e3)
+}
+;
+var animateNumber = function(e, a, t) {
+    var i;
+    "gamemoney" === e ? (i = gamemoney,
+    gamemoney.html() && gamemoney.html() !== f.over1000(a) && sound("money")) : i = $("#" + e),
+    i.animate({
+        num: a
+    }, {
+        duration: 2e3,
+        step: function(e) {
+            this.innerHTML = t ? f.over1000(e.toFixed()) : e.toFixed()
+        }
+    })
+};
+function getStatForRole(e, a) {
+    var t = 0;
+    return a < 10 ? (e[textRoles[a] + "0"] && (t += e[textRoles[a] + "0"]),
+    e[textRoles[a] + "1"] && (t += e[textRoles[a] + "1"])) : e.roles && (e.roles[a][0] && (t += e.roles[a][0]),
+    e.roles[a][1] && (t += e.roles[a][1])),
+    t
+}
+function updateGameitems() {
+    [1, 2, 4, 5].forEach(function(e) {
+        var a = parseInt(game.items[e])
+          , t = $("div.gameitem" + e + ">b", itemPanel);
+        t.removeClass(),
+        (!u["item" + e] || u["item" + e] < 0) && (u["item" + e] = 0);
+        var i = 2 === e ? game.item2 : u["item" + e]
+          , n = 2 === e ? game.item2limit : items["g" + e];
+        i || t.addClass("noitem"),
+        t.html(i + "/" + (n <= a ? "0" : (n - a).toString()))
+    })
+}
+function doItem(e) {
+    if (e)
+        if (game.active) {
+            if (game.style.style2)
+                showMessage("Игра без предметов");
+            else if (u["item" + e])
+                switch (e) {
+                case 4:
+                    var a = playersList.find("div.select").attr("id");
+                    a ? 0 < u.item4 ? sendToSocket({
+                        type: "gameitem",
+                        item: e,
+                        target: a
+                    }) : showMessage(roleText[gameMode()].itemUse.cookieNo) : showMessage(roleText[gameMode()].itemUse.cookieNan);
+                    break;
+                case 5:
+                    0 < u.item5 ? modalWindow("Воспользовавшись этим предметом вы покинете игру, забрав с собой часть игрового банка. Хотите продолжить?", function() {
+                        sendToSocket({
+                            type: "gameitem",
+                            item: e
+                        })
+                    }) : showMessage(roleText[gameMode()].itemUse.tourNo)
+                }
+        } else
+            showMessage("Для Вас эта игровая партия уже завершена. Вы не можете повлиять на нее.")
+}
+function buyItem(e) {
+    e && -1 < ["1", "2", "4", "5"].indexOf(e) && sendToSocket({
+        type: "buy",
+        item: e,
+        money: 1
+    })
+}
+game.recalculateBanks = function(e) {
+    e && (animateNumber("studBank", e[0] || 0),
+    animateNumber("robbBank", e[1] || 0),
+    animateNumber("allBank", e[2] || 0),
+    animateNumber("winBank", e[3] || 0))
+}
+,
+game.start = function(a) {
+    if (hideTickets(),
+    messagesList.empty(),
+    document.getElementById("playersButton").className = "my",
+    mW.hide(),
+    closewindow(),
+    "undefined" != typeof specialDay) {
+        if ("february23" === specialDay) {
+            var e = f.randomInt(13)
+              , t = "jpg";
+            10 < e ? (e -= 10,
+            t = "gif") : 10 === e && (t = "png"),
+            showWall("february23/" + e + "." + t)
+        }
+        "march8" === specialDay && showWall("/images/holidays/march8/back.jpg", {
+            external: !0
+        })
+    } else if (a.married)
+        showWall(a.role ? "wedding" + (2 === a.role ? "2" : "1") + ".jpg" : "0.gif");
+    else {
+        var i = a.role ? isMaffia && a.role < 10 ? "maffia/" + a.role + ".jpg" : a.role + ".jpg" : "0.gif";
+        showWall(i)
+    }
+    game.active = !0,
+    game.closed = !1,
+    game.finish = !1,
+    game.day = 0,
+    game.period = 1,
+    game.count = a.count,
+    game.botwall = a.botwall,
+    game.fast = a.fast,
+    game.special = a.special,
+    game.man = a.man,
+    game.intuition = a.intuition,
+    game.hisvote = {},
+    game.votes = {},
+    game.kickVotes = {
+        yes: 0,
+        no: 0
+    },
+    game.style = a.gamestyle,
+    game.items = {
+        1: u.item1,
+        2: u.item2,
+        4: u.item4,
+        5: u.item5
+    },
+    game.item2limit = u.item2 && 2 < u.item2 ? 3 : 2,
+    itemPanel.removeClass(),
+    itemPanel.find("div").removeClass("itemoff");
+    var n = ""
+      , s = "";
+    if (a.caption && (n = a.caption),
+    a.gameinfo && (room = a.gameinfo._id,
+    game.count = a.gameinfo.count,
+    closedgame = 2 === a.gameinfo.style,
+    gametitle.html("<span>" + gameStyle[a.gameinfo.style] + " на " + a.gameinfo.count + " игроков</span>"),
+    showPlayersList({}, room),
+    a.banks = a.gameinfo.banks,
+    game.day = a.gameinfo.day,
+    game.period = a.gameinfo.period,
+    game.botwall = a.gameinfo.botwall,
+    game.fast = a.gameinfo.fast,
+    game.special = a.gameinfo.special,
+    game.style.style2 = !0,
+    game.active = !1,
+    game.time = {
+        h: startHours[game.period],
+        m: 0
+    },
+    header.find(".gamestyle").find("span").each(function(e) {
+        $(this).removeClass(),
+        a.gameinfo["style" + (e + 1).toString()] && $(this).addClass("enabledoption")
+    }),
+    game.intuition = a.gameinfo.intuition),
+    game.style.style2 && itemPanel.addClass("noactive"),
+    a.params && (a.params.noitem4 && itemPanel.find(".gameitem4").addClass("itemoff"),
+    a.params.hasOwnProperty("item2") && (game.item2limit = a.params.item2,
+    0 === game.item2limit && itemPanel.find(".gameitem2").addClass("itemoff"))),
+    game.item2 = u.item2 ? u.item2 > game.item2limit ? game.item2limit : u.item2 : 0,
+    game.intuition && a.players) {
+        var o = randomNicks.slice(0);
+        o.shuffle(),
+        replaceLogins = {},
+        Object.forEach(a.players, function(e, a) {
+            replaceLogins[a] = e.login,
+            e.login = o.shift()
+        })
+    }
+    if (game.role = a.role,
+    game.updateInfoGame(),
+    gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>'),
+    game.recalculateBanks(a.banks),
+    a.married ? s += "Занимайте места поудобнее. Свадебная церемония начнется днем..." : a.intuition ? s += '<div class="important">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(a.intuition, "день", "дня", "дней") + "!</div>" : (s += '<div class="startText">',
+    s += 4 === game.style.style ? roleText.all["startText-sex"] : roleText[gameMode()].startText,
+    s += '</div><div class="message noimage">',
+    s += 4 === game.style.style ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role],
+    s += "</div>"),
+    game.man && (s += '<div class="important">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>"),
+    ("пб" === n.substring(0, 2).toLowerCase() || game.botwall) && (s += '<div class="important">Внимание! Это партия против ботов!</div>'),
+    isMaffia || $("#gift").show(),
+    updateGameitems(),
+    a.roles) {
+        var l = "В этой партии присутствуют следующие роли: ";
+        a.roles.forEach(function(e) {
+            l += '<span class="rolesmile role' + e + '"></span>'
+        }),
+        s += "<div>" + l + "</div"
+    }
+    if (u.invite && playersInfoArray[u.invite] && (s += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>"),
+    u.invited) {
+        var r = [];
+        Object.forEach(playersInfoArray, function(e) {
+            e.invite && e.invite === u._id && r.push(e.login)
+        }),
+        0 < r.length && (s += '<div class="red">В этой партии находятся ваши ученики: ' + r.join(", ") + "</div>")
+    }
+    showNewDiv('<div class="startgame">' + s + "</div>"),
+    game.showPlaylist(a.players),
+    clearInterval(min10),
+    min10 = setInterval(function() {
+        game.setTime()
+    }, 1e3),
+    game.role && (helper.hint("start"),
+    getStatForRole(u, game.role) < 1 && helper.hint("Это твоя первая роль " + roles(game.role).name + ".<br/> Посмотрим, сможешь ли ты с ней справиться!", !0),
+    u.money -= game.sum)
+}
+,
+game.finished = function() {
+    game.finish = !0,
+    clearInterval(min10),
+    "function" == typeof hideHint && hideHint()
+}
+,
+game.itemUse = function(e) {
+    if (e.item)
+        switch (e.item) {
+        case 4:
+            u.item4 -= 1,
+            updateGameitems(),
+            e.uid && playersInfoArray[e.uid] && game.writeText(game.event({
+                text: "itemUse:cookie:text",
+                replacedata: {
+                    "[VERB]": 1 === playersInfoArray[e.uid].sex ? roleText[gameMode()].itemUse.cookie.verb1 : roleText[gameMode()].itemUse.cookie.verb2,
+                    "[nick]": '<b class="nickname" data-id="' + e.uid + '">' + playersInfoArray[e.uid].login + "</b>"
+                }
+            }, !1, !0)),
+            sound("item4", !0);
+            break;
+        case 5:
+            u.item5 -= 1,
+            updateGameitems(),
+            game.writeText('<div class="green">' + roleText[gameMode()].itemUse.tour + "</div>"),
+            sound("item5", !0)
+        }
+}
+,
+game.buyAnswer = function(a) {
+    [1, 2, 4, 5].forEach(function(e) {
+        a["item" + e] && (u["item" + e] = a["item" + e],
+        game.items[e]++,
+        2 === e && game.item2++)
+    }),
+    a.price && (u.money -= a.price,
+    gamemoney.html(f.over1000(u.money))),
+    updateGameitems()
+}
+;
+var itemPanel = $("#items");
+$("div.gameitem4>div", itemPanel).click(function() {
+    doItem(4)
+}),
+$("div.gameitem5>div", itemPanel).click(function() {
+    doItem(5)
+}),
+$("div>span", itemPanel).click(function() {
+    buyItem($(this).parent().attr("class").substring(8))
+}),
+game.deleteLock = function() {
+    u.item2 && (u.item2 -= 1),
+    game.item2--,
+    updateGameitems(),
+    game.event({
+        text: "morningInfo:mylock"
+    })
+}
+,
+game.cookieResult = function(e) {
+    if (e.result && Object.forEach(e.result, function(e, a) {
+        var t = playersInfoArray[a];
+        t && game.writeText('<div class="green"><b data-id="' + a + '">' + t.login + "</b>" + roleText[gameMode()].itemUse.cookieResult[e][t.sex] + "</div>")
+    }),
+    e.msg)
+        for (var a = 0; a < parseInt(e.msg); a++)
+            game.writeText('<div class="green">' + roleText[gameMode()].itemUse.cookieDelete + "</div>")
+}
+;
+var snowball = {
+    myside: 1,
+    sides: {},
+    active: !(game.notePlayer = function(n) {
+        if (n && playersInfoArray[n]) {
+            var s = playersList.find("#" + n);
+            if (s) {
+                for (var e = '<br/><label>Роль <select id="note-role"><option selected="selected"></option>', a = 1; a <= 9; a++)
+                    e += '<option value="' + a + '">' + roles(a).name + "</option>";
+                e += '</select></label><br/><label>Метка <input type="text" placeholder="Например, АКТИВ" id="note-text"/></label>',
+                modalWindow("Заметка об игроке " + playersInfoArray[n].login + e, function() {
+                    var e = $("#note-role")
+                      , a = $("#note-text")
+                      , t = s.find("b")
+                      , i = "";
+                    e && e.val() && (i += '<span class="rolesmile role' + e.val() + '"></span> '),
+                    a && a.val() && (i += a.val()),
+                    i && s.html(t[0].outerHTML + i + " " + playersInfoArray[n].login + (playersInfoArray[n].role ? '<span class="visiblerole"> - <i class="' + roles(playersInfoArray[n].role).icon + '"></i></span>' : ""))
+                })
+            }
+        }
+    }
+    ),
+    time: 0,
+    timer: 0
+}
+  , battleWords = {
+    100: {
+        nodefend: "Выберите свою позицию - в первых рядах или позади?",
+        noattack: "Выберите тип броска - на точность или на силу?",
+        notarget: "Выберите соперника, в которого хотите бросить снежком",
+        killed: "Вас забросали снегом :(<br/> Вам удастся продолжить борьбу, если ваша команда выиграет этот раунд и &quot;откопает&quot; Вас",
+        shot: "../battle/snowball/shot.gif"
+    },
+    101: {
+        nodefend: "Решайтесь! В атаку или в укрытие?",
+        noattack: "Как будем стрелять?",
+        notarget: "В кого будем стрелять?",
+        killed: "Вы не в силах продолжить сражение :(<br/> Если Ваша команда выиграет, Вы сможете принять участие в следующем раунде",
+        shot: "../battle/shot.gif"
+    }
+}
+  , battleType = function() {
+    return 100 === snowball.type ? "snow" : "battle"
+}
+  , battleDiv = $(".battleDiv")
+  , snowPlayList1 = battleDiv.find(".playerlist").eq(0)
+  , snowPlayList2 = battleDiv.find(".playerlist").eq(1)
+  , battleMain = battleDiv.find(".battlemain")
+  , snowSelect = $("#snowball-target");
+battleDiv.find(".playerlist").bind("dblclick touchmove", function(e) {
+    var a = e || window.event
+      , t = a.target || a.srcElement;
+    "DIV" === t.tagName && "playerlist" !== t.className && ($("#adresat-id").val(t.id),
+    $("#adresat").val(t.getAttribute("data-nick")))
+}),
+$(".snowball-domove").click(function() {
+    var e = battleMain.find("input[name=snowball-def]:checked").val()
+      , a = battleMain.find("input[name=snowball-att]:checked").val()
+      , t = snowSelect.val();
+    e ? (101 === snowball.type && "2" === e && (a = "1",
+    t = u._id),
+    a ? t ? (sendToSocket({
+        type: "snowball",
+        defend: e,
+        attack: a,
+        target: t
+    }),
+    battleMain.addClass("battlewait")) : showMessage(battleWords[snowball.type].notarget) : showMessage(battleWords[snowball.type].noattack)) : showMessage(battleWords[snowball.type].nodefend)
+}),
+$(".battle101").find("input[name=snowball-def]").change(function() {
+    $(this).parent().next("div").css({
+        display: $("#battle-def2").prop("checked") ? "none" : "block"
+    })
+}),
+snowball.action = function(e) {
+    if (e.action)
+        switch (e.action) {
+        case "start":
+            snowball.start(e);
+            break;
+        case "round":
+            snowball.setRound(e);
+            break;
+        case "move":
+            snowball.newMove(e);
+            break;
+        case "end":
+            snowball.end(e.msg)
+        }
+}
+,
+snowball.start = function(e) {
+    container.addClass("battle"),
+    $(".battlemain").hide(),
+    (battleMain = $(".battlemain.battle" + e.gtype)).show(),
+    snowball.type = e.gtype,
+    snowSelect = 100 === e.gtype ? $("#snowball-target") : $("#battle-target"),
+    playersInfoArray = e.players,
+    messagesList.empty(),
+    mW.hide(),
+    snowball.active = !0,
+    snowball.timer = setInterval(function() {
+        snowball.setTime()
+    }, 1e3)
+}
+,
+snowball.setRound = function(e) {
+    if (e.round) {
+        var a = "snows" + (e.round + 4);
+        snowPlayList1.removeClass().addClass("playerlist " + a),
+        snowPlayList2.removeClass().addClass("playerlist " + a)
+    }
+    -1 < e.sides[1].indexOf(u._id) ? (snowball.myside = 1,
+    snowball.sides.we = e.sides[1],
+    snowball.sides.they = e.sides[2]) : (snowball.myside = 2,
+    snowball.sides.we = e.sides[2],
+    snowball.sides.they = e.sides[1]),
+    snowball.playerList(snowball.sides.we, snowPlayList1),
+    snowball.playerList(snowball.sides.they, snowPlayList2);
+    var t = [];
+    snowSelect.empty(),
+    snowball.sides.they.forEach(function(e) {
+        t.push([playersInfoArray[e].login || "***", e])
+    }),
+    t.sort(plSort),
+    t.forEach(function(e) {
+        snowSelect.append('<option value="' + e[1] + '">' + e[0] + "</option>")
+    }),
+    showNewDiv('<br/><div class="important">' + snowball.roundName[e.round] + "</div>"),
+    -1 === e.sides[1].indexOf(u._id) && -1 === e.sides[2].indexOf(u._id) ? (battleMain.addClass("killed"),
+    snowball.active = !1) : (battleMain.removeClass("killed"),
+    snowball.active = !0),
+    snowball.time = 0,
+    sound("notify")
+}
+,
+snowball.playerList = function(e, i) {
+    if (e) {
+        i.empty(),
+        e.forEach(function(e) {
+            if (playersInfoArray[e]) {
+                var a = playersInfoArray[e]
+                  , t = $('<div id="' + a._id + '"></div>').html("<b></b>" + a.login);
+                t.attr("data-nick", a.login),
+                t.appendTo(i),
+                t.mouseenter(function() {
+                    return showPlayerInfo(!0, $(this).attr("id")),
+                    !1
+                }).mouseleave(function() {
+                    return showPlayerInfo(!1),
+                    !1
+                }),
+                -1 < reds.indexOf(a._id) && t.addClass("red"),
+                t.find("b").addClass("status" + a.icon),
+                $('<span class="' + battleType() + 'block"></span>').appendTo(t)
+            }
+        });
+        var a = [];
+        i.find("div").each(function() {
+            var e = [$(this).attr("data-nick"), $(this)];
+            a.push(e)
+        }),
+        a.sort(plSort),
+        i.html(),
+        a.forEach(function(e) {
+            i.append(e[1])
+        })
+    }
+}
+,
+snowball.newMove = function(e) {
+    snowball.active && battleMain.removeClass("battlewait");
+    var a = "Ход " + e.step + "<hr/>";
+    e.msg && e.msg.forEach(function(e) {
+        a += e.replace(u.login, '<span class="green">' + u.login + "</span>") + "<br/>"
+    }),
+    game.writeText(a),
+    e.del && e.del.forEach(function(e) {
+        e === u._id && (showWall(battleWords[snowball.type].shot),
+        battleMain.addClass("killed"),
+        showMessage(battleWords[snowball.type].killed),
+        snowball.active = !1),
+        battleDiv.find("#" + e).addClass("snowman"),
+        snowSelect.find('option[value="' + e + '"]').remove()
+    }),
+    e.pl && Object.forEach(e.pl, function(e, a) {
+        var t = battleDiv.find("#" + a).find("." + battleType() + "block");
+        t.css("width", 100 === snowball.type ? parseInt(t.css("height")) * e + "px" : 20 * (5 - e) + "%")
+    }),
+    snowball.time = 0,
+    sound("notify")
+}
+,
+snowball.roundName = {
+    1: "1/32 финала",
+    2: "1/16 финала",
+    3: "1/8 финала",
+    4: "1/4 финала",
+    5: "Полуфинал",
+    6: "Финал"
+},
+snowball.setTime = function() {
+    snowball.time++;
+    var e = 30 - snowball.time
+      , a = "0:" + (9 < e ? e : 0 < e ? "0" + e : "00");
+    battleMain.find("b").html(a)
+}
+,
+snowball.end = function(e) {
+    clearInterval(snowball.timer),
+    warningWindow(e, goToRoom)
+}
+;
+for (var gifts = {
     1: {
         p: 12,
         t: 2
     },
     2: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     3: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     4: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     5: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     6: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     7: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     8: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     9: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     10: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     11: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     12: {
-        p: 9000,
+        p: 9e3,
         t: 1
     },
     13: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     14: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     15: {
-        p: 7000,
+        p: 7e3,
         t: 1
     },
     16: {
@@ -152,55 +3134,55 @@ var domain = document.location.hostname
         t: 1
     },
     18: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     19: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     20: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     21: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     22: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     23: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     24: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     25: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     26: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     27: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     28: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     29: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     30: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     31: {
@@ -208,35 +3190,35 @@ var domain = document.location.hostname
         t: 2
     },
     32: {
-        p: 19000,
+        p: 19e3,
         t: 1
     },
     33: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     34: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     35: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     36: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     37: {
-        p: 33000,
+        p: 33e3,
         t: 1
     },
     38: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     39: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     40: {
@@ -244,19 +3226,19 @@ var domain = document.location.hostname
         t: 1
     },
     41: {
-        p: 21000,
+        p: 21e3,
         t: 1
     },
     42: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     43: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     44: {
-        p: 33000,
+        p: 33e3,
         t: 1
     },
     45: {
@@ -264,15 +3246,15 @@ var domain = document.location.hostname
         t: 2
     },
     46: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     47: {
-        p: 3000,
+        p: 3e3,
         t: 1
     },
     48: {
-        p: 44000,
+        p: 44e3,
         t: 1
     },
     49: {
@@ -280,15 +3262,15 @@ var domain = document.location.hostname
         t: 2
     },
     50: {
-        p: 24000,
+        p: 24e3,
         t: 1
     },
     51: {
-        p: 48000,
+        p: 48e3,
         t: 1
     },
     52: {
-        p: 29000,
+        p: 29e3,
         t: 1
     },
     53: {
@@ -300,11 +3282,11 @@ var domain = document.location.hostname
         t: 2
     },
     55: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     56: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     57: {
@@ -312,7 +3294,7 @@ var domain = document.location.hostname
         t: 2
     },
     58: {
-        p: 66000,
+        p: 66e3,
         t: 1
     },
     59: {
@@ -320,11 +3302,11 @@ var domain = document.location.hostname
         t: 1
     },
     60: {
-        p: 46000,
+        p: 46e3,
         t: 1
     },
     61: {
-        p: 38000,
+        p: 38e3,
         t: 1
     },
     62: {
@@ -340,19 +3322,19 @@ var domain = document.location.hostname
         t: 2
     },
     65: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     66: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     67: {
-        p: 55000,
+        p: 55e3,
         t: 1
     },
     68: {
-        p: 60000,
+        p: 6e4,
         t: 1
     },
     69: {
@@ -360,47 +3342,47 @@ var domain = document.location.hostname
         t: 2
     },
     70: {
-        p: 61000,
+        p: 61e3,
         t: 1
     },
     71: {
-        p: 51000,
+        p: 51e3,
         t: 1
     },
     72: {
-        p: 32000,
+        p: 32e3,
         t: 1
     },
     73: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     74: {
-        p: 19000,
+        p: 19e3,
         t: 1
     },
     75: {
-        p: 28000,
+        p: 28e3,
         t: 1
     },
     76: {
-        p: 33000,
+        p: 33e3,
         t: 1
     },
     77: {
-        p: 77000,
+        p: 77e3,
         t: 1
     },
     78: {
-        p: 90000,
+        p: 9e4,
         t: 1
     },
     79: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     80: {
-        p: 31000,
+        p: 31e3,
         t: 1
     },
     81: {
@@ -412,15 +3394,15 @@ var domain = document.location.hostname
         t: 2
     },
     83: {
-        p: 46000,
+        p: 46e3,
         t: 1
     },
     84: {
-        p: 23000,
+        p: 23e3,
         t: 1
     },
     85: {
-        p: 43000,
+        p: 43e3,
         t: 1
     },
     86: {
@@ -436,27 +3418,27 @@ var domain = document.location.hostname
         t: 2
     },
     89: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     90: {
-        p: 21000,
+        p: 21e3,
         t: 1
     },
     91: {
-        p: 62000,
+        p: 62e3,
         t: 1
     },
     92: {
-        p: 21000,
+        p: 21e3,
         t: 1
     },
     93: {
-        p: 47000,
+        p: 47e3,
         t: 1
     },
     94: {
-        p: 36000,
+        p: 36e3,
         t: 1
     },
     95: {
@@ -472,11 +3454,11 @@ var domain = document.location.hostname
         t: 2
     },
     98: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     99: {
-        p: 68000,
+        p: 68e3,
         t: 1
     },
     100: {
@@ -484,7 +3466,7 @@ var domain = document.location.hostname
         t: 2
     },
     101: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     102: {
@@ -628,15 +3610,15 @@ var domain = document.location.hostname
         t: 2
     },
     137: {
-        p: 2000,
+        p: 2e3,
         t: 1
     },
     138: {
-        p: 7000,
+        p: 7e3,
         t: 1
     },
     139: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     140: {
@@ -644,55 +3626,55 @@ var domain = document.location.hostname
         t: 1
     },
     141: {
-        p: 3000,
+        p: 3e3,
         t: 1
     },
     142: {
-        p: 9000,
+        p: 9e3,
         t: 1
     },
     143: {
-        p: 20000,
+        p: 2e4,
         t: 1
     },
     144: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     145: {
-        p: 31000,
+        p: 31e3,
         t: 1
     },
     146: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     147: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     148: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     149: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     150: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     151: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     152: {
-        p: 13000,
+        p: 13e3,
         t: 1
     },
     153: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     154: {
@@ -700,27 +3682,27 @@ var domain = document.location.hostname
         t: 2
     },
     155: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     156: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     157: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     158: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     159: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     160: {
-        p: 32000,
+        p: 32e3,
         t: 1
     },
     161: {
@@ -732,55 +3714,55 @@ var domain = document.location.hostname
         t: 2
     },
     163: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     164: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     165: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     166: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     167: {
-        p: 66000,
+        p: 66e3,
         t: 1
     },
     168: {
-        p: 49000,
+        p: 49e3,
         t: 1
     },
     169: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     170: {
-        p: 42000,
+        p: 42e3,
         t: 1
     },
     171: {
-        p: 16000,
+        p: 16e3,
         t: 1
     },
     172: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     173: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     174: {
-        p: 28000,
+        p: 28e3,
         t: 1
     },
     175: {
-        p: 50000,
+        p: 5e4,
         t: 1
     },
     176: {
@@ -788,35 +3770,35 @@ var domain = document.location.hostname
         t: 2
     },
     177: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     178: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     179: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     180: {
-        p: 9000,
+        p: 9e3,
         t: 1
     },
     181: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     182: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     183: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     184: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     185: {
@@ -824,11 +3806,11 @@ var domain = document.location.hostname
         t: 2
     },
     186: {
-        p: 6000,
+        p: 6e3,
         t: 1
     },
     187: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     188: {
@@ -836,11 +3818,11 @@ var domain = document.location.hostname
         t: 2
     },
     189: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     190: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     191: {
@@ -848,7 +3830,7 @@ var domain = document.location.hostname
         t: 2
     },
     192: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     193: {
@@ -856,23 +3838,23 @@ var domain = document.location.hostname
         t: 2
     },
     194: {
-        p: 16000,
+        p: 16e3,
         t: 1
     },
     195: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     196: {
-        p: 19000,
+        p: 19e3,
         t: 1
     },
     197: {
-        p: 20000,
+        p: 2e4,
         t: 1
     },
     198: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     199: {
@@ -888,7 +3870,7 @@ var domain = document.location.hostname
         t: 2
     },
     202: {
-        p: 82000,
+        p: 82e3,
         t: 1
     },
     203: {
@@ -896,23 +3878,23 @@ var domain = document.location.hostname
         t: 2
     },
     204: {
-        p: 32000,
+        p: 32e3,
         t: 1
     },
     205: {
-        p: 33000,
+        p: 33e3,
         t: 1
     },
     206: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     207: {
-        p: 45000,
+        p: 45e3,
         t: 1
     },
     208: {
-        p: 45000,
+        p: 45e3,
         t: 1
     },
     209: {
@@ -920,27 +3902,27 @@ var domain = document.location.hostname
         t: 2
     },
     210: {
-        p: 46000,
+        p: 46e3,
         t: 1
     },
     211: {
-        p: 56000,
+        p: 56e3,
         t: 1
     },
     212: {
-        p: 60000,
+        p: 6e4,
         t: 1
     },
     213: {
-        p: 100000,
+        p: 1e5,
         t: 1
     },
     214: {
-        p: 21000,
+        p: 21e3,
         t: 1
     },
     215: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     216: {
@@ -956,7 +3938,7 @@ var domain = document.location.hostname
         t: 2
     },
     219: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     220: {
@@ -964,11 +3946,11 @@ var domain = document.location.hostname
         t: 2
     },
     221: {
-        p: 33000,
+        p: 33e3,
         t: 1
     },
     222: {
-        p: 38000,
+        p: 38e3,
         t: 1
     },
     223: {
@@ -976,19 +3958,19 @@ var domain = document.location.hostname
         t: 2
     },
     224: {
-        p: 45000,
+        p: 45e3,
         t: 1
     },
     225: {
-        p: 60000,
+        p: 6e4,
         t: 1
     },
     226: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     227: {
-        p: 3000,
+        p: 3e3,
         t: 1
     },
     228: {
@@ -1000,23 +3982,23 @@ var domain = document.location.hostname
         t: 2
     },
     230: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     231: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     232: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     233: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     234: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     235: {
@@ -1032,15 +4014,15 @@ var domain = document.location.hostname
         t: 2
     },
     238: {
-        p: 20000,
+        p: 2e4,
         t: 1
     },
     239: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     240: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     241: {
@@ -1048,39 +4030,39 @@ var domain = document.location.hostname
         t: 2
     },
     242: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     243: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     244: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     245: {
-        p: 42000,
+        p: 42e3,
         t: 1
     },
     246: {
-        p: 50000,
+        p: 5e4,
         t: 1
     },
     247: {
-        p: 75000,
+        p: 75e3,
         t: 1
     },
     248: {
-        p: 100000,
+        p: 1e5,
         t: 1
     },
     249: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     250: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     251: {
@@ -1088,11 +4070,11 @@ var domain = document.location.hostname
         t: 1
     },
     252: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     253: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     254: {
@@ -1104,7 +4086,7 @@ var domain = document.location.hostname
         t: 2
     },
     256: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     257: {
@@ -1116,7 +4098,7 @@ var domain = document.location.hostname
         t: 1
     },
     259: {
-        p: 50000,
+        p: 5e4,
         t: 1
     },
     260: {
@@ -1124,11 +4106,11 @@ var domain = document.location.hostname
         t: 2
     },
     261: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     262: {
-        p: 7000,
+        p: 7e3,
         t: 1
     },
     263: {
@@ -1136,7 +4118,7 @@ var domain = document.location.hostname
         t: 2
     },
     264: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     265: {
@@ -1160,7 +4142,7 @@ var domain = document.location.hostname
         t: 2
     },
     270: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     271: {
@@ -1172,19 +4154,19 @@ var domain = document.location.hostname
         t: 1
     },
     273: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     274: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     275: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     276: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     277: {
@@ -1208,35 +4190,35 @@ var domain = document.location.hostname
         t: 2
     },
     282: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     283: {
-        p: 28000,
+        p: 28e3,
         t: 1
     },
     284: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     285: {
-        p: 63000,
+        p: 63e3,
         t: 1
     },
     286: {
-        p: 69000,
+        p: 69e3,
         t: 1
     },
     287: {
-        p: 77000,
+        p: 77e3,
         t: 1
     },
     288: {
-        p: 80000,
+        p: 8e4,
         t: 1
     },
     289: {
-        p: 80000,
+        p: 8e4,
         t: 1
     },
     290: {
@@ -1248,11 +4230,11 @@ var domain = document.location.hostname
         t: 1
     },
     292: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     293: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     294: {
@@ -1264,7 +4246,7 @@ var domain = document.location.hostname
         t: 1
     },
     296: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     297: {
@@ -1276,43 +4258,43 @@ var domain = document.location.hostname
         t: 1
     },
     299: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     300: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     301: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     302: {
-        p: 12000,
+        p: 12e3,
         t: 1
     },
     303: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     304: {
-        p: 16000,
+        p: 16e3,
         t: 1
     },
     305: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     306: {
-        p: 23000,
+        p: 23e3,
         t: 1
     },
     307: {
-        p: 23000,
+        p: 23e3,
         t: 1
     },
     308: {
-        p: 23000,
+        p: 23e3,
         t: 1
     },
     309: {
@@ -1324,7 +4306,7 @@ var domain = document.location.hostname
         t: 2
     },
     311: {
-        p: 45000,
+        p: 45e3,
         t: 1
     },
     312: {
@@ -1332,31 +4314,31 @@ var domain = document.location.hostname
         t: 2
     },
     313: {
-        p: 47000,
+        p: 47e3,
         t: 1
     },
     314: {
-        p: 48000,
+        p: 48e3,
         t: 1
     },
     315: {
-        p: 50000,
+        p: 5e4,
         t: 1
     },
     316: {
-        p: 59000,
+        p: 59e3,
         t: 1
     },
     317: {
-        p: 60000,
+        p: 6e4,
         t: 1
     },
     318: {
-        p: 80000,
+        p: 8e4,
         t: 1
     },
     319: {
-        p: 100000,
+        p: 1e5,
         t: 1
     },
     320: {
@@ -1364,35 +4346,35 @@ var domain = document.location.hostname
         t: 2
     },
     321: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     322: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     323: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     324: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     325: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     326: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     327: {
-        p: 17000,
+        p: 17e3,
         t: 1
     },
     328: {
-        p: 19000,
+        p: 19e3,
         t: 1
     },
     329: {
@@ -1400,23 +4382,23 @@ var domain = document.location.hostname
         t: 2
     },
     330: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     331: {
-        p: 32000,
+        p: 32e3,
         t: 1
     },
     332: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     333: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     334: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     335: {
@@ -1432,15 +4414,15 @@ var domain = document.location.hostname
         t: 2
     },
     338: {
-        p: 95000,
+        p: 95e3,
         t: 1
     },
     339: {
-        p: 21000,
+        p: 21e3,
         t: 1
     },
     340: {
-        p: 100000,
+        p: 1e5,
         t: 1
     },
     341: {
@@ -1460,7 +4442,7 @@ var domain = document.location.hostname
         t: 2
     },
     345: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     346: {
@@ -1468,35 +4450,35 @@ var domain = document.location.hostname
         t: 2
     },
     347: {
-        p: 20000,
+        p: 2e4,
         t: 1
     },
     348: {
-        p: 41000,
+        p: 41e3,
         t: 1
     },
     349: {
-        p: 50000,
+        p: 5e4,
         t: 1
     },
     350: {
-        p: 48000,
+        p: 48e3,
         t: 1
     },
     351: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     352: {
-        p: 11000,
+        p: 11e3,
         t: 1
     },
     353: {
-        p: 15000,
+        p: 15e3,
         t: 1
     },
     354: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     355: {
@@ -1504,19 +4486,19 @@ var domain = document.location.hostname
         t: 2
     },
     356: {
-        p: 18000,
+        p: 18e3,
         t: 1
     },
     357: {
-        p: 7000,
+        p: 7e3,
         t: 1
     },
     358: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     359: {
-        p: 70000,
+        p: 7e4,
         t: 1
     },
     360: {
@@ -1524,7 +4506,7 @@ var domain = document.location.hostname
         t: 2
     },
     361: {
-        p: 1000,
+        p: 1e3,
         t: 1
     },
     362: {
@@ -1536,7 +4518,7 @@ var domain = document.location.hostname
         t: 2
     },
     364: {
-        p: 5000,
+        p: 5e3,
         t: 1
     },
     365: {
@@ -1548,15 +4530,15 @@ var domain = document.location.hostname
         t: 2
     },
     367: {
-        p: 25000,
+        p: 25e3,
         t: 1
     },
     368: {
-        p: 16000,
+        p: 16e3,
         t: 1
     },
     369: {
-        p: 56000,
+        p: 56e3,
         t: 1
     },
     370: {
@@ -1564,7 +4546,7 @@ var domain = document.location.hostname
         t: 2
     },
     371: {
-        p: 27000,
+        p: 27e3,
         t: 1
     },
     372: {
@@ -1572,19 +4554,19 @@ var domain = document.location.hostname
         t: 2
     },
     373: {
-        p: 7000,
+        p: 7e3,
         t: 1
     },
     374: {
-        p: 16000,
+        p: 16e3,
         t: 1
     },
     375: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     376: {
-        p: 10000,
+        p: 1e4,
         t: 1
     },
     377: {
@@ -1592,7 +4574,7 @@ var domain = document.location.hostname
         t: 2
     },
     378: {
-        p: 55000,
+        p: 55e3,
         t: 1
     },
     379: {
@@ -1604,11 +4586,11 @@ var domain = document.location.hostname
         t: 2
     },
     381: {
-        p: 32000,
+        p: 32e3,
         t: 1
     },
     382: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     383: {
@@ -1616,27 +4598,27 @@ var domain = document.location.hostname
         t: 2
     },
     384: {
-        p: 22000,
+        p: 22e3,
         t: 1
     },
     385: {
-        p: 30000,
+        p: 3e4,
         t: 1
     },
     386: {
-        p: 35000,
+        p: 35e3,
         t: 1
     },
     387: {
-        p: 3000,
+        p: 3e3,
         t: 1
     },
     388: {
-        p: 14000,
+        p: 14e3,
         t: 1
     },
     389: {
-        p: 55000,
+        p: 55e3,
         t: 1
     },
     390: {
@@ -1648,19 +4630,19 @@ var domain = document.location.hostname
         t: 2
     },
     392: {
-        p: 30000,
+        p: 3e4,
         t: 1
     },
     393: {
-        p: 8000,
+        p: 8e3,
         t: 1
     },
     394: {
-        p: 28000,
+        p: 28e3,
         t: 1
     },
     395: {
-        p: 75000,
+        p: 75e3,
         t: 1
     },
     396: {
@@ -1668,2554 +4650,302 @@ var domain = document.location.hostname
         t: 2
     },
     397: {
-        p: 52000,
+        p: 52e3,
         t: 1
     },
     398: {
-        p: 52000,
+        p: 52e3,
         t: 1
     },
     399: {
         p: 5,
         t: 2
-    }
-};
-var logs = [];
-window.onerror = function(error, url, line) {
-    logs.push("ERR:" + error + " URL:" + url + " L:" + line);
-    return true;
-}
-;
-if (typeof mobile === "undefined") {
-    var mobile = false;
-}
-if (typeof isAppVK === "undefined") {
-    var isAppVK = false;
-}
-if (typeof mafApp === "undefined") {
-    var mafApp = false;
-}
-var islocalStorage = function() {
-    var test = "test";
-    try {
-        localStorage.setItem(test, test);
-        localStorage.removeItem(test);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}()
-  , lStorage = {
-    setItem: function(key, val) {
-        if (islocalStorage) {
-            localStorage.setItem(key, val);
-            this[key] = val;
-        }
     },
-    getItem: function(key) {
-        return islocalStorage ? localStorage.getItem(key) : false;
+    400: {
+        p: 17e3,
+        t: 1
     },
-    removeItem: function(key) {
-        if (islocalStorage) {
-            localStorage.removeItem(key);
-        }
-    }
-};
-var reds = (islocalStorage && localStorage.reds) ? localStorage.reds.split(",") : [];
-var f = {
-    randomInt: function(max) {
-        return Math.floor(1 + Math.random() * max);
+    401: {
+        p: 18e3,
+        t: 1
     },
-    roundTwo: function(num) {
-        return Math.round(num * 100) / 100;
+    402: {
+        p: 16e3,
+        t: 1
     },
-    timeLost: function(timestamp) {
-        var lostdays = (timestamp - datenow()) / 86400000
-          , losttext = f.someThing(Math.floor(lostdays), "день", "дня", "дней");
-        if (lostdays < 1) {
-            losttext = f.someThing(Math.floor(lostdays * 24), "час", "часа", "часов");
-        }
-        return losttext;
+    403: {
+        p: 12e3,
+        t: 1
     },
-    onlineCount: function(count, event) {
-        if (count > 0) {
-            onlineCounter.html(count);
-        }
-        if (event) {
-            event.text += (event.action === "join") ? " входит в игру" : " покидает игру";
-            event.text += " (" + count + ")";
-            alarm(event.text, true);
-        }
+    404: {
+        p: 19e3,
+        t: 1
     },
-    radioIframe: function(enable) {
-        if (isAppVK) {
-            return;
-        }
-        if (enable) {
-            $("#enableRadioStream").remove();
-            $("<div/>", {
-                id: "disableRadioStream"
-            }).html("Закрыть радио").on("click", function() {
-                f.radioIframe(false);
-                lStorage.removeItem("radiostream");
-                $("#vk_groups").show();
-            }).insertBefore(onlineCounter);
-            onlineCounter.before('<iframe id="radioStream" src="/html/radio.html?' + encodeURIComponent(u.login) + '" frameborder="0" scrolling="no" style="width:200px;height:200px"></iframe>');
-        } else {
-            if (enable === false) {
-                $("#radioStream").remove();
-                $("#disableRadioStream").remove();
-                $("<div/>", {
-                    id: "enableRadioStream"
-                }).html("Слушать радио").on("click", function() {
-                    f.radioIframe(true);
-                    lStorage.setItem("radiostream", true);
-                    $("#vk_groups").hide();
-                }).insertBefore(onlineCounter);
-            } else {
-                f.radioIframe(!!lStorage.getItem("radiostream"));
-            }
-        }
+    405: {
+        p: 1e4,
+        t: 1
     },
-    someThing: function(count, first, some, many) {
-        var out, tmp = count % 100;
-        if (tmp > 10 && tmp < 20) {
-            out = count + " " + many;
-        } else {
-            switch (count % 10) {
-            case 1:
-                out = count + " " + first;
-                break;
-            case 2:
-            case 3:
-            case 4:
-                out = count + " " + some;
-                break;
-            default:
-                out = count + " " + many;
-                break;
-            }
-        }
-        return out;
+    406: {
+        p: 26e3,
+        t: 1
     },
-    notEnough: function(data) {
-        var standartText = 'Недостаточно <span class="' + (data.action === "money2" ? "money" : "gamemoney") + '">средств</span> для выполнения этой операции. ';
-        if (data.message) {
-            standartText = data.message;
-        }
-        if (data.action === "money2") {
-            standartText += "<br/>Хотите пополнить счёт?";
-            modalWindow(standartText, function() {
-                showWindow("pay");
-            });
-        } else {
-            showMessage(standartText);
-        }
+    407: {
+        p: 1e3,
+        t: 1
     }
-};
-function serverPort(fullUrl) {
-    var url = fullUrl ? document.location.protocol + "//loday.ru:" : "";
-    url += (document.location.protocol === "https:") ? "808" + (domain === "maffia-online.ru" ? "2" : "1") : "8080";
-    return url;
-}
-var smileBlock = $("#smiles")
-  , allSmiles = ""
-  , smilesArr = ["mm", "sweat", "toivo", "wave", "evilgrin", "happy", "inlove", "S", "flex", "tmi", "smirk", "headbang", "bug", "chukle", "drink", "angel", "yawn", "star", "good", "h", "u", "handshake", "talk", "makeup", "bow", "nod", "blush", "dance", "rofl", "bandit", "angry", "puke", "heidy", "doh", "X", "fubar", "call", "emo", "drunk", "swear", "beer", "rain", "cash", "y", "kiss", "speechless", "phone", "cry", "sun", "rock", "bad", "music", "hug", "cake", "O", "mig", "whew", "sleep", "pizza", "clap", "P", "think", "movie", "n", "flower", "envy", "D", "punch", "shake", "coffee", "finger", "devil", "poolparty", "cool", "ninja", "wait", "smoking", "mooning", "time", "wasntme", "party", "facepalm", "laughcry", "dull", "wondering"]
-  , textSmiles = {
-    good: ":)",
-    D: ":D",
-    bad: ":(",
-    cool: "8-)",
-    O: ":O",
-    mig: ";)",
-    kiss: ":*",
-    P: ":P",
-    X: ":x"
-};
-function createSmilePanel() {
-    smileBlock.find("div").html("");
-    allSmiles = "";
-    for (var role = 1; role <= 9; role++) {
-        allSmiles += '<span class="role' + role + '"></span>';
-    }
-    allSmiles += "<hr/>";
-    smilesArr.forEach(function(el) {
-        allSmiles += '<img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + el + '.gif" alt="' + el + '"/>';
-    });
-    smileBlock.find("div").html(allSmiles);
-    smileBlock.find("span").click(function() {
-        var rt = $(this).attr("class").substring(4)
-          , sm = (isMaffia) ? mafroleSmiles[rt] : roleSmiles[rt];
-        insertToInput(sm);
-    });
-    smileBlock.find("img").click(function() {
-        insertToInput($(this).attr("alt"));
-    });
-}
-function insertToInput(add) {
-    var text = inputField.val();
-    inputField.val(text + " [" + add + "]");
-    $("#showSmiles").prop("checked", false);
-    inputField.focus();
-}
-Object.size = function(obj) {
-    var size = 0;
-    for (var key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            size++;
-        }
-    }
-    return size;
-}
-;
-Object.update = function(obj, addObj) {
-    for (var key in addObj) {
-        if (addObj.hasOwnProperty(key)) {
-            obj[key] = addObj[key];
-        }
-    }
-}
-;
-Array.prototype.randomValue = function() {
-    return this[Math.floor(Math.random() * this.length)];
-}
-;
-Array.prototype.shuffle = function() {
-    for (var i = this.length - 1; i > 0; i--) {
-        var num = Math.floor(Math.random() * (i + 1))
-          , d = this[num];
-        this[num] = this[i];
-        this[i] = d;
-    }
-    return this;
-}
-;
-function createCookie(name, value, days) {
-    var expires;
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toGMTString();
-    } else {
-        expires = "";
-    }
-    document.cookie = name + "=" + value + expires + "; path=/";
-}
-function getCookie(name) {
-    var matches = document.cookie.match(new RegExp("(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, "\\$1") + "=([^;]*)"));
-    return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-var socketTry = 0
-  , lastSocketMsg = 0
-  , socketStack = []
-  , checkSocketStack = function() {
-    var obj = socketStack[0];
-    if (obj) {
-        socketTry++;
-        if (ws.readyState === 1 && lastSocketMsg + 100 < Date.now()) {
-            lastSocketMsg = Date.now();
-            try {
-                ws.send(JSON.stringify(obj));
-            } catch (e) {
-                showNewMessage({
-                    message: "Ошибка: сбой инициализации сокета. Не удалось соединиться с сервером.",
-                    color: "#ff0000"
-                });
-            }
-        }
-        if (socketTry > 2) {
-            $("#indicator").addClass("offline");
-        }
-        setTimeout(checkSocketStack, socketTry * 1000);
-    }
-};
-function sendToSocket(obj) {
-    obj.timestamp = Date.now();
-    socketStack.push(obj);
-    if (socketStack.length === 1) {
-        checkSocketStack();
-    }
-}
-function gebi(a) {
-    return document.getElementById(a);
-}
-function changeNumberHtml(id, val, doset) {
-    var obj = $("#" + id)
-      , value = obj.html()
-      , newValue = (doset) ? val : parseInt(value) + val;
-    obj.html(newValue.toString());
-}
-var datediff = 0
-  , pluhTime = 0;
-function datenow() {
-    return Date.now() + datediff;
-}
-function countdown(secs) {
-    var out = ""
-      , h = Math.floor(secs / 3600)
-      , min = secs % 3600
-      , m = Math.floor(min / 60)
-      , s = min % 60;
-    if (h > 0) {
-        out += h + ":";
-    }
-    out += (m > 9 ? "" : "0") + m + ":" + (s > 9 ? "" : "0") + s;
-    return out;
-}
-function showDate(date, time) {
-    date = new Date(parseInt(date));
-    var out, h, m, dd = date.getDate(), mm = date.getMonth() + 1, yyyy = date.getFullYear();
-    if (dd < 10) {
-        dd = "0" + dd;
-    }
-    if (mm < 10) {
-        mm = "0" + mm;
-    }
-    out = dd + "." + mm + "." + yyyy;
-    if (time) {
-        h = date.getHours();
-        if (h < 10) {
-            h = "0" + h;
-        }
-        m = date.getMinutes();
-        if (m < 10) {
-            m = "0" + m;
-        }
-        out += " " + h + ":" + m;
-    }
-    return out;
-}
-function rusDate(str, text, withpoints) {
-    var monthNames = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"], weekdays = ["воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница", "суббота"], d, dateArr;
-    if (text) {
-        if (withpoints === true) {
-            dateArr = str.toString().split(".");
-            d = new Date(dateArr[2],parseInt(dateArr[1]) - 1,dateArr[0]);
-        } else {
-            dateArr = str.toString().split("-");
-            d = new Date(dateArr[0],parseInt(dateArr[1]) - 1,dateArr[2]);
-        }
-    } else {
-        d = new Date(parseInt(str));
-    }
-    if (d == "Invalid Date") {
-        return "Неверная дата";
-    }
-    return d.getDate() + " " + monthNames[d.getMonth()] + (withpoints === "short" ? "" : " " + d.getFullYear() + " (" + weekdays[d.getDay()] + ")");
-}
-function isToday(str) {
-    var d = new Date(datenow() + 10800000);
-    return (str === (d.getUTCDate() + "." + (d.getUTCMonth() + 1) + "." + d.getUTCFullYear()).toString());
-}
-function curTime() {
-    var date = new Date(), h, m;
-    h = date.getHours();
-    if (h < 10) {
-        h = "0" + h;
-    }
-    m = date.getMinutes();
-    if (m < 10) {
-        m = "0" + m;
-    }
-    return h + ":" + m;
-}
-function roleReplace(message) {
-    if (message) {
-        message = message.replace(/(^|\s)(рев|ревнивый студент|ман|маньяк)(\s|$)/gi, ' <span class="jeal"></span> ');
-        message = message.replace(/(^|\s)(студ|студент|гр|гражданин)(\s|$)/gi, ' <span class="stud"></span> ');
-        message = message.replace(/(^|\s)(лун|лунатик|док|доктор)(\s|$)/gi, ' <span class="sleep"></span> ');
-        message = message.replace(/(^|\s)(деж|дежурный|коп|комиссар)(\s|$)/gi, ' <span class="duty"></span> ');
-        message = message.replace(/(^|\s)(пом|помощник дежурного|серж|сержант)(\s|$)/gi, ' <span class="assis"></span> ');
-        message = message.replace(/(^|\s)(пох|похититель|маф|мафиози)(\s|$)/gi, ' <span class="robb"></span> ');
-        message = message.replace(/(^|\s)(глава похитителей|босс мафии|босс)(\s|$)/gi, ' <span class="hrobb"></span> ');
-        message = message.replace(/(^|\s)котик(\s|$)/gi, ' <span class="cat catm"></span> ');
-        message = message.replace(/(^|\s)кот(\s|$)/gi, ' <span class="cat"></span> ');
-        message = message.replace(/(^|\s)(вахтер|адвокат)(\s|$)/gi, ' <span class="law"></span> ');
-        message = message.replace(/\[(stud|gr)\]/gi, ' <span class="rolesmile role1"></span> ');
-        message = message.replace(/\[(poh|maf)\]/gi, ' <span class="rolesmile role2"></span> ');
-        message = message.replace(/\[(glava|boss)\]/gi, ' <span class="rolesmile role3"></span> ');
-        message = message.replace(/\[(dej|kom)\]/gi, ' <span class="rolesmile role4"></span> ');
-        message = message.replace(/\[(pom|ped)\]/gi, ' <span class="rolesmile role5"></span> ');
-        message = message.replace(/\[(rev|man)\]/gi, ' <span class="rolesmile role6"></span> ');
-        message = message.replace(/\[(lun|doc)\]/gi, ' <span class="rolesmile role7"></span> ');
-        message = message.replace(/\[cat\]/gi, ' <span class="rolesmile role8"></span> ');
-        message = message.replace(/\[adv\]/gi, ' <span class="rolesmile role9"></span> ');
-        for (var i = 0, len = smilesArr.length; i < len; i++) {
-            message = message.split("[" + smilesArr[i] + "]").join(' <img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + smilesArr[i] + '.gif"/> ');
-        }
-        for (var sm in textSmiles) {
-            if (textSmiles.hasOwnProperty(sm)) {
-                message = message.split(textSmiles[sm]).join(' <img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + sm + '.gif"/> ');
-            }
-        }
-    }
-    return message;
-}
-function matFilter(message) {
-    var mat = " [ой] ";
-    message = message.replace(/(^|\s)(хуй|хуя|бля)/gi, mat);
-    message = message.replace(/пизд|нахуй|похуй|уеб|хуй|хуе|хyй|хyе|xуй|xуе|аеб|(^|\s)еба|е6|((^|\s)манда(\s|$))|пидор/gi, mat);
-    return message;
-}
-function searchImg(message) {
-    message = message.replace(/(^|\s)http(\S)*(.jpg|.jpeg|.png|.gif)(\s|$)/gi, ' <span class="imageLoader" data-title="Посмотреть изображение" onclick="showWall(\'$&\',true,true)"></span> ');
-    message = message.replace(/\{([a-z]{2})\}/gi, ' <span class="flag"><span style="background-image:url(/images/flags/$1.png)"></span></span> ');
-    return message;
-}
-function specials_in(event) {
-    var message = (event.from && !event.nofilter) ? escapeHtml(event.message) : event.message;
-    if (message) {
-        if (message.indexOf("*time*") > -1 || message.indexOf("[date]") > -1) {
-            var moment = event.time ? new Date(event.time) : new Date()
-              , s = moment.getSeconds()
-              , i = moment.getMinutes()
-              , h = moment.getHours()
-              , d = moment.getDate()
-              , m = moment.getMonth() + 1
-              , y = moment.getFullYear()
-              , tdreplace = {
-                time: ((h < 10) ? "0" + h : h) + ((i < 10) ? ":0" + i : ":" + i) + ((s < 10) ? ":0" + s : ":" + s),
-                date: ((d < 10) ? "0" + d : d) + ((m < 10) ? ".0" + m + "." + y : ":" + m + "." + y)
-            };
-            message = message.replace(/\*time\*/gim, tdreplace.time);
-            message = message.replace(/\[date\]/gim, tdreplace.date);
-        }
-        message = message.replace(/(^|\s)FFL($|\s)/gim, "Friends For Love");
-        message = roleReplace(message);
-        message = matFilter(message);
-        message = searchImg(message);
-    }
-    return message;
-}
-function specials_out(message) {
-    return message.replace(/\s*\/me\s/, " " + u.login + " ");
-}
-function escapeHtml(text) {
-    var map = {
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
+}, isShowGiftType1 = !0, isShowGiftType2 = !0, giftSortOrder = !1, i = 1; i < 33; i++)
+    gifts[-i] = {
+        p: 3e3,
+        t: 1,
+        card: !0
     };
-    return text.replace(/[&<>"']/g, function(m) {
-        return map[m];
-    });
+var giftShop = $(".giftshop")
+  , giftList = win.find("#giftList")
+  , sortGifts = function() {
+    var e = []
+      , p = [];
+    return Object.forEach(gifts, function(t, p) {
+        e.push([p, t])
+    }),
+    e.sort(function(t, p) {
+        return t[1].p + 1e6 * (t[1].t - 1) - (p[1].p + 1e6 * (p[1].t - 1))
+    }),
+    e.forEach(function(t) {
+        p.push(t[0])
+    }),
+    p
+}()
+  , getGiftClass = function(t) {
+    var p = 1;
+    return 344 < t ? p = 400 <= t && t <= 407 ? 2 : 5 : 272 < t ? p = 4 : 184 < t ? p = 3 : 96 < t && (p = 2),
+    "gift-group" + p + " gift" + t
 }
-function warningWindow(text, callback, buttext, win, specialclass) {
-    var newWW = wW.clone();
-    newWW.appendTo(container);
-    newWW.find(".modal3").html(text);
-    if (buttext === "Выйти из игры") {
-        $("<div/>").addClass("button").html("Посмотреть игру").click(newWW, function(e) {
-            e.data.remove();
-        }).appendTo(newWW.find(".modal3"));
-    }
-    newWW.show();
-    var wb = newWW.find("button");
-    if (buttext) {
-        wb.css({
-            padding: "0 10px"
-        }).html(buttext);
+  , addGiftOnList = function(t) {
+    if (gifts[t].card) {
+        var p = Math.abs(t);
+        isShowGiftType1 && $('<input type="radio" id="giftcard' + p + '" name="gift" value="' + p + '"/><label for="giftcard' + p + '" class="gift-cardgroup gift' + p + ' onlyvip" data-title="анимированная открытка (VIP)"><b class="gamemoney">' + f.over1000(gifts[t].p) + "</b></label>").appendTo(giftList)
     } else {
-        wb.html("ОК");
-    }
-    wb.one("click", function() {
-        $(this).parents(".warningWindow").fadeOut(400);
-        if (callback) {
-            callback();
-        }
-        setTimeout(function(newWW) {
-            newWW.remove();
-        }, 1000, $(this).parents(".warningWindow"));
-    });
-    if (win !== undefined && game.style && game.style.style === 4 && container.hasClass("current")) {
-        var whowin = (win) ? (u.sex === 1 ? "women" : "men") : (u.sex === 1 ? "men" : "women");
-        newWW.addClass(whowin + "win");
-    } else {
-        if (win && $(window).height() > 430) {
-            newWW.addClass("win");
-        }
-    }
-    if (specialclass) {
-        newWW.addClass(specialclass);
-        setTimeout(function(newWW) {
-            newWW.addClass("showWindow");
-        }, 500, newWW);
-    } else {
-        newWW.addClass("showWindow");
-    }
-}
-mW.hide = oW.hide = function() {
-    $(this).removeClass("showWindow");
-}
-;
-function modalWindow(text, callback, callback2) {
-    mW.find(".modal").removeAttr("style");
-    mW.find(".modal3").html(text);
-    mW.find("button").eq(0).unbind("click").one("click", function() {
-        mW.hide();
-        if (callback) {
-            callback();
-        }
-    });
-    mW.find("button").eq(1).unbind("click").one("click", function() {
-        mW.hide();
-        if (callback2) {
-            callback2();
-        }
-    });
-    mW.addClass("showWindow");
-}
-function showCash(text) {
-    var cW = $("#cash")
-      , p = cW.find(".modal2");
-    cW.removeClass().addClass("cash" + Math.floor(Math.random() * 9));
-    p.html(text);
-    p.unbind("click");
-    cW.addClass("showCash");
-    p.click(function() {
-        cW.removeClass("showCash");
-    });
-}
-function isset(par) {
-    return !(typeof (par) === "undefined" || typeof (par) === null);
-}
-function updateInterface(udata) {
-    if (udata) {
-        if (udata.inc) {
-            udata.inc.forEach(function(el) {
-                if (el.collection) {
-                    if (!u.collections) {
-                        u.collections = {};
-                    }
-                    if (!u.collections[el.collection]) {
-                        u.collections[el.collection] = 0;
-                    }
-                    if (!u.collections[el.collection][el.item]) {
-                        u.collections[el.collection][el.item] = 0;
-                    }
-                    u.collections[el.collection][el.item] += el.value;
-                } else {
-                    if (!u.items) {
-                        u.items = {};
-                    }
-                    if (!u.items[el.item]) {
-                        u.items[el.item] = 0;
-                    }
-                    u.items[el.item] += el.value;
-                }
-            });
+        if (t = parseInt(t),
+        -1 < [295, 308, 322, 324].indexOf(t))
             return;
-        }
-        Object.update(u, udata);
-    } else {
-        udata = u;
-    }
-    if (udata.login) {
-        $("#nick").html(udata.login);
-    }
-    if (udata.image && udata.sex) {
-        if (udata.image.length > 2) {
-            $("#image").removeClass().css({
-                background: "url(/files/" + u._id + udata.image + ") center center no-repeat",
-                "background-size": "contain"
-            });
-        } else {
-            $("#image").removeClass().removeAttr("style").addClass(((udata.sex === 1) ? "iw" : "im") + udata.image);
-        }
-    }
-    if (isset(udata.money)) {
-        animateNumber("gamemoney", udata.money, true);
-        shop.find("p").find(".gamemoney").html(over1000(udata.money));
-    }
-    if (isset(udata.money2)) {
-        animateNumber("money", udata.money2, true);
-        shop.find("p").find(".money").html(over1000(udata.money2));
-    }
-    for (var i = 1; i < 7; i++) {
-        if (!udata.hasOwnProperty("item" + i)) {
-            continue;
-        }
-        var v, cc = udata["item" + i] || 0;
-        if (i % 3 === 0) {
-            var diff = cc - Date.now();
-            v = (!diff || diff < 1) ? 0 : Math.ceil(diff / 3600000);
-            if (i === 6 && v > 0) {
-                $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(v, "час", "часа", "часов"));
-                v = Math.ceil(v / 24);
-            }
-        } else {
-            v = cc + "/" + ((cc >= items["s" + i]) ? "0" : (items["s" + i] - cc).toString());
-        }
-        $("#shop" + i).find("div:nth-of-type(2)").html(v);
-    }
-    if (u.items) {
-        var s = "";
-        slotArray.forEach(function(v) {
-            if (u.items[v]) {
-                s += '<input type="radio" name="slots" id="slot-bet' + v + '" value="' + v + '"/><label data-count="' + u.items[v] + '" class="items items-' + v + '" for="slot-bet' + v + '"></label>';
-            }
-        });
-        if (!s) {
-            s = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате.";
-        }
-        $("#slot-bet").html(s);
-    }
-    if (win.find(".inventory").is(":visible")) {
-        showInventory();
-    }
-    if (helper.changeRate) {
-        helper.changeRate();
-    }
-}
-function showPlayersList(players, roomid) {
-    playersInfoArray = {};
-    playersList.html("");
-    battleDiv.find(".playerlist").html("");
-    if (roomid.length < 3) {
-        container.removeClass().addClass("color" + parseInt(roomid));
-        roomInHall = roomid;
-        actionButton.removeClass("my");
-    } else {
-        container.removeClass().addClass("ingame");
-    }
-    for (var index in players) {
-        if (players.hasOwnProperty(index)) {
-            editPlayerList(players[index], 0, true);
-        }
-    }
-}
-function gameTypeInfo(info) {
-    var addIcon = ""
-      , styleObj = info.hasOwnProperty("style") ? (info.style.hasOwnProperty("style") ? info.style.style : info.style) : 0;
-    if (info.selecting) {
-        addIcon += '<b class="selrolgame"></b>';
-    }
-    if (info.botwall) {
-        addIcon += '<b class="botwall"></b>';
-    }
-    if (info.shortnight) {
-        addIcon += '<b class="shortnight"></b>';
-    }
-    if (info.man) {
-        addIcon += '<b class="manmode"></b>';
-    }
-    return addIcon + " " + gameStyle[styleObj] + " на " + info.count + " игроков";
-}
-function showGameInfo(info) {
-    closedgame = (info.style === 2);
-    gametitle.html("<span>" + gameTypeInfo(info) + '</span> <span id="addedToGame">' + info.add + '</span> <span id="remainForGame">' + (info.count - info.add) + "</span> <span>Cтавка " + info.sum + "</span>");
-    $("article").find(".blocktitle").find(".gamemakerinfo").html(info.creator + ": &laquo;" + info.caption + "&raquo;").attr("data-title", info.caption);
-    header.find(".gamestyle").find("span").each(function(index) {
-        $(this).removeClass();
-        if (info["style" + (index + 1).toString()]) {
-            $(this).addClass("enabledoption");
-        }
-    });
-    var sb = gebi("playersButton");
-    sb.className = "";
-    if (closedgame && info.creator === u.login) {
-        sb.className = "my";
-        sb.innerHTML = "Принять";
-    }
-    game.sum = info.sum;
-    gamemoney.html(over1000(u.money - info.sum));
-    var firstText = roleText.all.zayavka;
-    if (info.style === 3) {
-        firstText = "Это необычная игра, а битва против ботов, где Вам вместе с другими игроками предстоит противостоять команде ботов!<br/> Дождитесь союзников, соперники прибудут позже.";
-    } else {
-        if (info.married) {
-            firstText = "Добро пожаловать на свадебную церемонию!<br/> Подождите, когда все гости соберутся...";
-        }
-    }
-    showNewDiv(firstText);
-    if (info.specialRoles) {
-        var allRoles = "Создатель партии выбрал следующие роли: ";
-        info.specialRoles.forEach(function(el) {
-            allRoles += '<span class="rolesmile role' + el + '"></span>';
-        });
-        showNewDiv("<div>" + allRoles + "</div");
-    }
-    if (info.params) {
-        var gParams = [];
-        if (info.params.noitem4) {
-            gParams.push('<span class="for-ffl">без печенья</span><span class="for-maffia">без жуков</span>');
-        }
-        if (info.params.nobonus) {
-            gParams.push("без игровых бонусов");
-        }
-        if (info.params.hasOwnProperty("item2")) {
-            gParams.push('Лимит <span class="for-ffl">замков</span><span class="for-maffia">маскировок</span> - ' + info.params.item2);
-        }
-        showNewDiv("<div>В этой партии создателем установлены следующие ограничения:<ul><li>" + gParams.join("</li><li>") + "</li></ul></div>");
-    }
-    showNewDiv('<div class="blue">Скучно играть одному ☹? ' + (isAppVK ? "Пригласи друзей и знакомых" : 'Скинь друзьям ссылку<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " и играй вместе с ними ☺!</div>");
-    helper.hint("wait-players");
-    if (closedgame) {
-        container.addClass("closedgame");
-    } else {
-        container.removeClass("closedgame");
-    }
-    if (info.style1) {
-        container.addClass("noprivate");
-        privateCheck.prop("checked", false);
-    } else {
-        container.removeClass("noprivate");
-    }
-    if (info.married) {
-        container.addClass("wedding");
-        game.married = info.married;
-    } else {
-        container.removeClass("wedding");
-        game.married = false;
-    }
-    if (info.starttime) {
-        if (zTimers[info._id]) {
-            clearInterval(zTimers[info._id]);
-        }
-        var zt = $("<span/>", {
-            id: "timer-" + info._id,
-            "class": "timer",
-            "data-lost": Math.floor((info.starttime - datenow()) / 1000)
-        });
-        $("<div/>", {
-            "class": "lastwords"
-        }).html("Игра начнется через: ").append(zt).appendTo(messagesList);
-        zayavkaInTimer(info._id);
-        zTimers[info._id] = setInterval(function() {
-            zayavkaInTimer(info._id);
-        }, 3000);
-    }
-}
-function showGamesList(gamesObj) {
-    gamesInfoArray = {};
-    gamesList.html("");
-    for (var index in gamesObj) {
-        if (gamesObj.hasOwnProperty(index)) {
-            editGameList(gamesObj[index]);
-        }
-    }
-}
-function showNewMessage(event) {
-    var defaultColor = "#000022"
-      , name = document.createElement("div")
-      , body = document.createElement("div")
-      , root = document.createElement("div")
-      , udata = event.from;
-    root.className = "message";
-    name.className = "writer";
-    if (!udata && event.message === "Игра начинается") {
-        udata = "[server]";
-        $("h3.leave").css({
-            visibility: "hidden"
-        });
-        setTimeout(function() {
-            $("h3.leave").css({
-                visibility: ""
-            });
-        }, 5000);
-    }
-    if (udata) {
-        if ((udata.id && reds.indexOf(udata.id) > -1) || (server2 && !$("div").is("#" + udata.id))) {
+        if (142 === t || 252 < t && t < 273)
             return;
-        }
-        if (!udata.image && playersInfoArray[udata.id]) {
-            udata.sex = playersInfoArray[udata.id].sex;
-            udata.image = playersInfoArray[udata.id].image;
-        }
-        if (udata.image) {
-            if (udata.image.length > 2) {
-                root.className += " userimage";
-                var uIm = document.createElement("div");
-                uIm.className = "selfimg";
-                uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
-                root.appendChild(uIm);
-            } else {
-                var nclass = (udata.sex === 1) ? "w" : "m";
-                nclass = (udata.image) ? nclass + udata.image : "";
-                root.className += " " + nclass;
-            }
-        }
-        if (udata.creator && playersInfoArray[udata.creator]) {
-            event.to = udata.creator;
-            event.toName = playersInfoArray[udata.creator].login;
-        }
-    } else {
-        root.className += " noimage";
-        if (event.color) {
-            root.style = "color:" + event.color;
-        }
+        var e = 1 === gifts[t].t;
+        (isShowGiftType1 && e || isShowGiftType2 && !e) && $('<input type="radio" id="gift' + t + '" name="gift" value="' + t + '"/><label for="gift' + t + '" class="' + getGiftClass(t) + '" data-title="' + (e ? "на 30 дней" : "на память") + '"><b class="' + (e ? "game" : "") + 'money">' + f.over1000(gifts[t].p) + "</b></label>").appendTo(giftList)
     }
-    if (event.msgType === "private") {
-        root.className += " private";
-    }
-    var colorMe = (u.color && u.color !== defaultColor) ? ' style="color:' + u.color + ' !important"' : ' class="me"';
-    if (!event.target) {
-        if (event.color && event.color === "#000") {
-            event.color = defaultColor;
-        }
-        var colorClass = (event.color && event.color !== defaultColor) ? ' style="color:' + event.color + '"' : ""
-          , caption = (udata && udata.id && udata.login) ? '<b data-id="' + udata.id + '"' + colorClass + ((udata.id === u._id) ? colorMe : "") + ">" + udata.login + "</b>" + ((event.to) ? "->" : ": ") : "";
-        if (event.to && event.toName && event.toName.length > 0 && !game.intuition) {
-            caption += ' <b data-id="' + event.to + '"';
-            if (event.to === u._id) {
-                if (!container.hasClass("ingame") && pluhTime < datenow() - 10000) {
-                    switch (event.message) {
-                    case "плюх":
-                        showWall("/images/snowball/shot.gif", true);
-                        pluhTime = datenow();
-                        break;
-                    case "целую":
-                        showWall("other/bearlove.gif");
-                        pluhTime = datenow();
-                        break;
-                    case "мяу":
-                        showWall("other/cats.gif");
-                        pluhTime = datenow();
-                        break;
-                    case "ауау":
-                        showWall("other/auau.gif");
-                        pluhTime = datenow();
-                        break;
-                    case ":-*":
-                    case "чмок":
-                    case "люблю":
-                        var randLove = f.randomInt(12);
-                        if (randLove > 10) {
-                            showWall("/images/holidays/love/" + randLove + ".gif", true);
-                        } else {
-                            showPattern("/images/holidays/love/" + randLove + ".gif");
-                        }
-                        pluhTime = datenow();
-                        break;
-                    }
-                }
-                root.className += " sendme";
-                caption += colorMe;
-                sound("notify");
-            }
-            caption += ">" + event.toName + "</b>: ";
-        }
-        name.innerHTML = caption;
-        if (udata && udata === "[server]") {
-            body.style.color = "#f00";
-            body.style.fontFamily = "Ubuntu Mono, Consolas, Monaco, monospace";
-        }
-    }
-    if (event.msgStyle) {
-        body.className = event.msgStyle;
-    }
-    body.innerHTML = specials_in(event);
-    root.appendChild(name);
-    root.appendChild(body);
-    messagesList.append(root);
-    if ((udata && udata.id && udata.id === u._id) || (event.to && event.to === u._id)) {
-        mymessagesList.append($(root).clone());
-    }
-    doScroll();
 }
-function showNewDiv(text) {
-    messagesList.append(text);
-    doScroll();
-}
-var notextMsgCount = 0;
-function sendMessage() {
-    var msgStr = inputField.val().trim().substring(0, 200)
-      , strForSwitch = msgStr.toLowerCase().replace(/[.?!]/g, "").trim()
-      , nosmileStr = msgStr.replace(/\[[A-z]+\]/g, "").trim()
-      , needsend = true;
-    if (!msgStr || (container.hasClass("current") && (game.finish || game.period === 4))) {
-        return;
-    }
-    if (msgStr === "." && !u.vip) {
-        showNewMessage({
-            message: 'Не "точкай" :)',
-            color: "#ff0000",
-            from: "[server]"
-        });
-        return;
-    }
-    notextMsgCount = (nosmileStr === "") ? notextMsgCount + 1 : 0;
-    if (notextMsgCount > 3) {
-        if (!sounds.joke) {
-            sounds.joke = createAudio("/media/joke." + soundExt);
-        }
-        notextMsgCount = 0;
-        sound("joke");
-    }
-    var adresat = $("#adresat-id").val();
-    switch (strForSwitch) {
-    case "хочу снега":
-        b.addClass("snow");
-        needsend = false;
-        break;
-    case "не надо снега":
-        b.removeClass("snow");
-        needsend = false;
-        break;
-    case "ёлка+":
-        if (halltree) {
-            halltree.show();
-            needsend = false;
-        }
-        break;
-    case "ёлка-":
-        if (halltree) {
-            halltree.hide();
-            needsend = false;
-        }
-        break;
-    case "очистить чат":
-        $(".messages:visible").html("");
-        needsend = false;
-        break;
-    case "давай дружить":
-        if (adresat.length > 0) {
-            friendQuery("question", adresat);
-        }
-        break;
-    case "бах":
-        if (adresat.length > 0 && u.items[24]) {
-            sendToSocket({
-                type: "items",
-                action: "24",
-                login: $("#adresat").val(),
-                uid: adresat
-            });
-            needsend = false;
-        }
-        break;
-    case "я хочу":
-        showWall("other/fallstar.gif");
-        break;
-    case "конверт-":
-        noconvert = true;
-        showNewDiv('<div class="browm">Анимация конвертов отключена</div>');
-        needsend = false;
-        break;
-    case "конверт+":
-        noconvert = false;
-        showNewDiv('<div class="browm">Анимация конвертов включена</div>');
-        needsend = false;
-        break;
-    }
-    if (!container.hasClass("ingame")) {
-        switch (strForSwitch) {
-        case "хочу стенку":
-            setStenka();
-            needsend = false;
-            break;
-        case "хочу чп":
-            setCHP();
-            needsend = false;
-            break;
-        case "help":
-            helper.start();
-            needsend = false;
-            break;
-        case "викторина-":
-            quizEnable = false;
-            showNewDiv('<div class="browm">Викторина отключена</div>');
-            needsend = false;
-            break;
-        case "викторина+":
-            quizEnable = true;
-            showNewDiv('<div class="browm">Викторина включена</div>');
-            needsend = false;
-            break;
-        case "салют-":
-            fireworkEnable = false;
-            showNewDiv('<div class="browm">Вы решили не смотреть праздничные фейерверки</div>');
-            needsend = false;
-            break;
-        case "салют+":
-            fireworkEnable = true;
-            showNewDiv('<div class="browm">Теперь Вы тоже не пропустите праздничные фейерверки</div>');
-            needsend = false;
-            break;
-        case "редактор меню":
-            showWindow("menu-editor");
-            needsend = false;
-            break;
-        case "киндер-сюрприз":
-            maffiaNEW();
-            break;
-        }
-    }
-    if (needsend) {
-        var isPrivate = privateCheck.prop("checked");
-        if (!isPrivate && adresat.length > 0 && !($("div").is("#" + adresat))) {
-            return;
-        }
-        var adresatName = (adresat.length > 0) ? $("#adresat").val() : "";
-        if (isPrivate && adresatName === $("#nick").html()) {
-            return;
-        }
-        var msgType = (adresat.length > 0) ? ((isPrivate) ? "private" : "direct") : "public";
-        lastMsg = msgStr;
-        if (room === "testgame") {
-            if (game.period && !u.vip && !isPrivate && (game.period === 1 || game.period === 4)) {
-                showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)");
-            } else {
-                showNewMessage({
-                    message: specials_out(msgStr),
-                    from: {
-                        id: u._id,
-                        login: u.login,
-                        image: u.image,
-                        sex: u.sex
-                    },
-                    msgType: msgType,
-                    to: adresat,
-                    toName: adresatName
-                });
-            }
-        } else {
-            if (isPrivate && adresat && playersInfoArray[adresat] && playersInfoArray[adresat].bot) {
-                showNewMessage({
-                    message: specials_out(msgStr),
-                    from: {
-                        id: u._id,
-                        login: u.login,
-                        image: u.image,
-                        sex: u.sex
-                    },
-                    msgType: msgType,
-                    to: adresat,
-                    toName: adresatName
-                });
-                showNewMessage({
-                    message: specials_out("Привет, " + u.login + "! Я - бот, но мне все равно приятно твое внимание :)"),
-                    from: playersInfoArray[adresat],
-                    msgType: msgType,
-                    to: u._id,
-                    toName: u.login
-                });
-            } else {
-                sendToSocket({
-                    type: "message",
-                    msgType: msgType,
-                    to: adresat,
-                    toName: adresatName,
-                    message: specials_out(msgStr)
-                });
-            }
-        }
-    }
-    inputField.val("");
-}
-var userGoEvent = function(user, leave) {
-    if (container.hasClass("wedding")) {
-        var userText = (user.sex === 1) ? "a гостья" : " гость";
-        if (game.married && game.married.indexOf(user._id) > -1) {
-            userText = (user.sex === 1) ? 'a <span class="lastwords">невеста</span>' : ' <span class="lastwords">жених</span>';
-        }
-        if (leave) {
-            game.writeText('<div class="votemsg">Зал для свадебной церемонии покинул' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
-        } else {
-            game.writeText('<div class="votemsg">На свадьбу прибыл' + userText + ' <b data-id="' + user._id + '">' + user.login + "</b></div>", user);
-        }
-    } else {
-        game.writeText('<div class="votemsg">' + ((user.sex === 1) ? (leave ? "Отсоединилась" : "Присоединилась") : (leave ? "Отсоединился" : "Присоединился")) + ' <b data-id="' + user._id + '">' + user.login + "</b> " + (user.sex === 1 ? " ♀" : " ♂") + "</div>", user);
-    }
+  , showGiftList = function() {
+    if (giftList.empty(),
+    giftSortOrder)
+        if (1 === giftSortOrder)
+            for (var t = 0, p = sortGifts.length; t < p; t++)
+                addGiftOnList(sortGifts[t]);
+        else
+            for (var e = sortGifts.length - 1; 0 <= e; e--)
+                addGiftOnList(sortGifts[e]);
+    else
+        Object.keys(gifts).forEach(addGiftOnList)
 };
-function editPlayerList(user, leave, multi) {
-    if (!user._id) {
-        return;
-    }
-    var curgame = container.hasClass("current");
-    playersList.find("#" + user._id).remove();
-    if (leave) {
-        if (room.length > 2) {
-            if (curgame) {
-                if (playersInfoArray[user._id]) {
-                    if (user.role) {
-                        game.writeText('<div class="important"><b class="nickname" data-id="' + user._id + '">' + playersInfoArray[user._id].login + "</b> - " + roles(user.role).name + " - " + ((playersInfoArray[user._id].sex === 1) ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
-                            id: user._id
-                        });
-                        playersInfoArray[user._id].killed = true;
-                    }
-                } else {
-                    game.writeText('Кажется, <b class="nickname" data-id="' + user._id + '">кто-то</b> подглядывал за игрой', {
-                        id: user._id
-                    });
-                }
-            } else {
-                userGoEvent(playersInfoArray[user._id], leave);
-                if (!closedgame || playersInfoArray[user._id].marked) {
-                    changeNumberHtml("addedToGame", -1);
-                    changeNumberHtml("remainForGame", 1);
-                }
-                delete playersInfoArray[user._id];
-            }
-        }
-    } else {
-        playersInfoArray[user._id] = user;
-        var newPl = $("<div/>", {
-            id: user._id
-        }).html("<b></b>" + user.login);
-        newPl.attr("data-nick", user.login);
-        newPl.mouseenter(function() {
-            showPlayerInfo(true, $(this).attr("id"));
-            return false;
-        }).mouseleave(function() {
-            showPlayerInfo(false);
-            return false;
-        });
-        if (u.friends && u.friends.indexOf(user._id) > -1) {
-            newPl.addClass("green");
-        }
-        if (user.vip) {
-            newPl.addClass("vipPlayer");
-        }
-        if (user.curator) {
-            newPl.addClass("curatorPlayer");
-        } else {
-            if (user.clan) {
-                newPl.addClass("clanPlayer");
-                $("<span/>", {
-                    "data-id": user.clan,
-                    "class": "clan-icon"
-                }).css("background", "url(/images/clans/" + user.clan + "/icon.png)").appendTo(newPl);
-            } else {
-                if (room.length < 3) {
-                    newPl.addClass("mode" + user.mode);
-                }
-            }
-        }
-        if (reds.indexOf(user._id) > -1) {
-            newPl.addClass("red");
-        }
-        if (user.icon) {
-            newPl.find("b").addClass("status" + user.icon);
-        }
-        if (user.marked === 1) {
-            newPl.addClass("marked");
-        }
-        newPl.appendTo(playersList);
-        if (!multi && room.length > 2 && !container.hasClass("current")) {
-            userGoEvent(user, leave);
-            if (!closedgame) {
-                changeNumberHtml("addedToGame", 1);
-                changeNumberHtml("remainForGame", -1);
-            }
-        }
-    }
-    aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")");
-    var str = [];
-    playersList.find("div").each(function() {
-        var sustr = [$(this).attr("data-nick"), $(this)];
-        str.push(sustr);
-    });
-    str.sort(plSort);
-    playersList.html();
-    $.each(str, function() {
-        playersList.append(this[1]);
-    });
-}
-function clanProfile(target) {
-    var clan = target.attr("data-id");
-    if (clan > 0) {
-        clanView.id = clan;
-        sendToSocket({
-            type: "clan",
-            action: "info",
-            id: clanView.id
-        });
-    }
-}
-function joinToClan() {
-    if (clanView.id) {
-        modalWindow("Уверены, что хотите подать заявку на вступление в клан " + clanView.info.name + "? В настоящий момент опция выхода из клана неактивна.", function() {
-            sendToSocket({
-                type: "clan",
-                action: "join",
-                id: clanView.id
-            });
-        });
-    }
-}
-function acceptToClan(target) {
-    var isTake = (target.attr("data-param") !== "no");
-    modalWindow((isTake ? "Принять игрока" : "Отказать игроку во вступлении") + " в клан?", function() {
-        sendToSocket({
-            type: "clan",
-            action: "accept",
-            uid: target.attr("data-uid"),
-            take: isTake
-        });
-    });
-}
-function leaveClan() {
-    if (u.clan) {
-        modalWindow("Уверены, что хотите выйти из клана?", function() {
-            sendToSocket({
-                type: "clan",
-                action: "exit"
-            });
-        });
-    }
-}
-var zTimers = {}
-  , zayavkaTimer = function(gid) {
-    var curtimer = $("#" + gid).find(".timer");
-    if (curtimer) {
-        var lost = curtimer.attr("data-lost");
-        lost -= 3;
-        if (lost > 0) {
-            curtimer.attr("data-lost", lost);
-            curtimer.html(countdown(lost));
-        } else {
-            clearInterval(zTimers[gid]);
-            delete zTimers[gid];
-        }
-    }
-}
-  , zayavkaInTimer = function(gid) {
-    var curtimer = $("#timer-" + gid);
-    if (curtimer) {
-        var lost = curtimer.attr("data-lost");
-        lost -= 3;
-        if (lost > 0) {
-            curtimer.attr("data-lost", lost);
-            curtimer.html(countdown(lost));
-        } else {
-            clearInterval(zTimers[gid]);
-            delete zTimers[gid];
-            curtimer.attr("data-lost", "");
-            curtimer.html("");
-        }
-    }
-};
-function editGameList(event) {
-    $("#" + event._id).remove();
-    delete gamesInfoArray[event._id];
-    if (!event.del) {
-        var newGame = $("<li></li>");
-        if (event.special) {
-            newGame.addClass("specialgame");
-        }
-        if (event.gametype === 13) {
-            newGame.addClass("important");
-        }
-        newGame.html('<span class="row1">' + (event.cat ? "&#128008;" : "") + event.creator + '</span><span class="row2">' + event.sum + '</span><span class="row3">' + event.count + '</span><span class="row4">' + (event.selecting ? '<b class="selrolgame"></b>' : "") + (event.botwall ? '<b class="botwall"></b>' : "") + (event.shortnight ? '<b class="shortnight"></b>' : "") + (event.man ? '<b class="manmode"></b>' : "") + gameStyle[event.style] + '</span><span class="row5">' + event.add + '</span><span class="row6">' + (event.count - event.add) + "</span>");
-        newGame.attr("id", event._id);
-        var thisInfo = '<div class="gticons">';
-        for (var i = 1; i < 5; i++) {
-            var newSpan = "<span";
-            if (event["style" + i] === 1) {
-                newSpan += ' class="enabled"';
-            }
-            newSpan += "></span>";
-            thisInfo += newSpan;
-        }
-        thisInfo += '</div><div class="gtheader">' + (gameTypes[event.gametype] ? gameTypes[event.gametype] : "Нестандартная партия") + '</div><div class="gtcaption">' + event.caption + '</div><div class="gtplayers">' + (event.players ? event.players.join(", ") : "") + "</div>" + (event.bonus ? "<sub>За участие в этой игре можно получить подарок.</sub>" : "");
-        gamesInfoArray[event._id] = thisInfo;
-        gamesList.append(newGame);
-        if (event.starttime) {
-            if (zTimers[event._id]) {
-                clearInterval(zTimers[event._id]);
-            }
-            $("<b/>", {
-                "class": "timer",
-                "data-lost": Math.round((event.starttime - datenow()) / 1000)
-            }).appendTo(newGame.find(".row1"));
-            zayavkaTimer(event._id);
-            zTimers[event._id] = setInterval(function() {
-                zayavkaTimer(event._id);
-            }, 3000);
-        }
-        sortTable();
-    }
-}
-var greenUpdateButton = $("#greenRefresh");
-greenUpdateButton.click(function() {
-    greenUpdateButton.removeClass("show");
-    sendToSocket({
-        type: "friends",
-        action: "online"
-    });
-    setTimeout(function() {
-        greenUpdateButton.addClass("show");
-    }, 5000);
+Object.keys(gifts).forEach(addGiftOnList),
+$("#giftSortInc").on("change", function() {
+    giftSortOrder = 1,
+    showGiftList()
+}),
+$("#giftSortDec").on("change", function() {
+    giftSortOrder = -1,
+    showGiftList()
 });
-var greenlist = lists.find(".greenlist");
-function showGreenList(greens) {
-    greenlist.html("");
-    greens.forEach(function(el) {
-        editGreen(el, true);
-    });
+var selectGiftType = function(t) {
+    var p = t.target
+      , e = "giftSortType1" === p.id
+      , i = e ? $("#giftSortType2") : $("#giftSortType1");
+    e ? isShowGiftType1 = p.checked : isShowGiftType2 = p.checked,
+    p.checked || i.prop("checked") || (i.prop("checked", !0),
+    e ? isShowGiftType2 = !0 : isShowGiftType1 = !0),
+    showGiftList()
+};
+$("#giftSortType1").on("change", selectGiftType),
+$("#giftSortType2").on("change", selectGiftType),
+giftShop.find("button").on("click", function() {
+    var t = giftShop.find('input[type="text"]').eq(0).val().trim().substring(0, 20)
+      , p = giftShop.find("#anonimGift").prop("checked")
+      , e = giftShop.find('input[type="text"]').eq(1).val().trim().substring(0, 200)
+      , i = $("input[name=gift]:checked", "#giftList")
+      , f = i.val();
+    f && gifts[f] ? t ? u.login !== t ? (2 === gifts[f].t ? u.money2 : u.money) >= gifts[f].p ? sendToSocket({
+        type: "gift",
+        whom: t,
+        text: e,
+        num: f,
+        anonim: p,
+        card: 0 < i.attr("id").indexOf("card")
+    }) : showMessage("Недостаточно денег для такого шикарного подарка :(") : showMessage("Вы не можете подарить подарок себе, это будет не по-товарищески.") : showMessage("Вы забыли уточнить, кому хотите подарить подарок!") : showMessage("Вы забыли выбрать подарок для своего друга")
+});
+function createSmilePanel() {
+    smileBlock.find("div").empty();
+    for (var t = "", e = 1; e <= 9; e++)
+        t += '<span class="role' + e + '"></span>';
+    t += "<hr/>",
+    smilesArr.forEach(function(e) {
+        t += '<img src="/images/' + (isMaffia ? "maffia/" : "") + "smiles/" + e + '.gif" alt="' + e + '"/>'
+    }),
+    smileBlock.find("div").html(t),
+    smileBlock.find("span").on("click", function() {
+        var e = $(this).attr("class").substring(4)
+          , t = isMaffia ? mafroleSmiles[e] : roleSmiles[e];
+        insertToInput(t)
+    }),
+    smileBlock.find("img").on("click", function() {
+        insertToInput($(this).attr("alt"))
+    })
 }
-function editGreen(green, add) {
-    if (add) {
-        var roomClass = (green.room.length > 2) ? ((green.marked && green.marked === 2) ? "lock" : "open") : "greenroom" + green.room.substring(0, 1);
-        var newGreen = $('<div class="green' + green.sex + " " + roomClass + '"' + (green.marked === 2 ? "" : ' data-id="' + green._id + '"') + '><b data-room="' + green.room + '"><span class="lock2"></span></b><span>' + green.login + "</span></div>");
-        newGreen.find("span").click(function() {
-            $("#adresat-id").val(green._id);
-            $("#adresat").val(green.login);
-            privateCheck.prop("checked", true);
-        });
-        newGreen.find("b").click(function() {
-            sendToSocket({
-                type: "follow",
-                uid: green._id
-            });
-        });
-        greenlist.append(newGreen);
-    }
-}
-function showTopLists(data) {
-    var num = 0;
-    if (data.topmoney) {
-        var list1Div = lists.find(".moneylist");
-        data.topmoney.forEach(function(el) {
-            $('<div data-id="' + el._id + '"><span>' + (++num) + ".</span><span>" + el.login + "</span><span>" + over1000(el.money) + "</span></div>").appendTo(list1Div);
-        });
-    }
-    num = 0;
-    if (data.toprating) {
-        var list2Div = lists.find(".ratinglist");
-        data.toprating.forEach(function(el) {
-            $('<div data-id="' + el._id + '"><span>' + (++num) + ".</span><span>" + el.login + "</span><span>" + over1000(el.rating) + "</span></div>").appendTo(list2Div);
-        });
-    }
-    num = 0;
-    if (data.topactiv) {
-        var list3Div = lists.find(".activlist");
-        if (data.topactiv.length > 0) {
-            data.topactiv.forEach(function(el) {
-                try {
-                    el.activ = el.months[Object.keys(el.months)[0]].activity;
-                    $('<div data-id="' + el._id + '"><span>' + (++num) + ".</span><span>" + el.login + "</span><span>" + over1000(el.activ) + "</span></div>").appendTo(list3Div);
-                } catch (e) {}
-            });
-        } else {
-            $("<p>Станьте первым активным игроком этого месяца!</p>").appendTo(list3Div);
-        }
-    }
-    num = 0;
-    if (data.toprefer) {
-        var list4Div = lists.find(".referlist");
-        data.toprefer.forEach(function(el) {
-            $('<div data-id="' + el._id + '"><span>' + (++num) + ".</span><span>" + el.login + "</span><span>" + over1000(el.invited) + "</span></div>").appendTo(list4Div);
-        });
-    }
-    lists.find("div:not(.greenlist)").find("[data-id]").click(showProfile);
-}
-function goToRoom(roomStr) {
-    if (room === "testgame" && helper.helpGameTimer) {
-        helper.helpGameStop();
-    }
-    var r = roomStr || roomInHall;
-    if (ws.readyState === 3) {
-        return;
-    }
-    if (helper && helper.enabled()) {
-        helper.stop();
-    }
-    if (parseInt(r) === 6 && !u.club) {
-        showMessage('Только для членов Клуба <u class="clubname"></u>!');
-    } else {
-        showNewMessage({
-            message: "Переходим..."
-        });
-        sendToSocket({
-            type: "go",
-            room: r.toString()
-        });
-    }
-}
-function randomGame() {
-    var games = gamesList.find("li");
-    if (games.length > 0) {
-        var rNum = Math.floor(Math.random() * games.length);
-        var select = games.eq(rNum);
-        select.click();
-    } else {
-        showNewMessage({
-            message: "Игра не найдена. Нужно создать свою игру!",
-            color: "#ff0000"
-        });
-        sendToSocket({
-            type: "create",
-            count: 16,
-            sum: 1,
-            gametype: "2",
-            style: 0,
-            selectRole: true,
-            about: "Чаще создавайте игры!"
-        });
-    }
-}
-function selectPlayer(target) {
-    if (target === u._id) {
-        return;
-    }
-    playersList.find("div").removeClass("select");
-    $("#" + target).addClass("select");
-}
-function markPlayer() {
-    var selectedPl = playersList.find("div.select");
-    if (selectedPl.length > 0) {
-        sendToSocket({
-            type: "mark",
-            selected: selectedPl.attr("id"),
-            kick: (selectedPl.hasClass("marked"))
-        });
-    } else {
-        modalWindow("Вы уверены, что хотите принять в игру всех желающих?", markAll);
-    }
-}
-function markAll() {
-    var nomarked = playersList.find("div:not(.marked)");
-    if (container.hasClass("ingame") && nomarked.length > 0) {
-        var uid = nomarked.eq(0).attr("id");
-        if (uid.length !== 24 || parseInt($("#remainForGame").html()) < 2) {
-            return;
-        }
-        sendToSocket({
-            type: "mark",
-            selected: uid
-        });
-        setTimeout(markAll, 1000);
-    }
-}
-function suggestedPlayer(data) {
-    var uid = data._id, selPl = $("#" + uid), eventText;
-    if (selPl) {
-        if (data.kick) {
-            eventText = "Игрок " + selPl.html() + " исключен создателем.";
-            selPl.removeClass("marked");
-            playersInfoArray[uid].marked = 0;
-        } else {
-            eventText = "Игрок " + selPl.html() + " одобрен создателем.";
-            selPl.addClass("marked");
-            playersInfoArray[uid].marked = 1;
-        }
-        game.writeText(eventText);
-        changeNumberHtml("addedToGame", data.allmarked, true);
-        changeNumberHtml("remainForGame", (data.all - data.allmarked), true);
-    }
-}
-function showWall(pic, external, nohide) {
-    var wp = $("#wallpaper")
-      , isrc = (external) ? pic : "/images/walls/" + pic;
-    wp.removeAttr("style");
-    wp.css("background-image", "url(" + isrc + ")");
-    wp.show();
-    wp.click(function() {
-        $("#wallpaper").hide();
-    });
-    if (!nohide) {
-        setTimeout(function() {
-            $("#wallpaper").fadeOut(3000);
-        }, 2000);
-    }
-}
-function showPattern(pic) {
-    var wp = $("#wallpaper");
-    wp.css({
-        background: "url(" + pic + ") center/contain no-repeat"
-    });
-    wp.show();
-    wp.click(function() {
-        $("#wallpaper").hide();
-    });
-    setTimeout(function() {
-        $("#wallpaper").fadeOut(3000);
-    }, 2000);
-}
-function createAudio(src) {
-    var audioElement = document.createElement("audio");
-    audioElement.setAttribute("src", src);
-    audioElement.load();
-    return audioElement;
+function createAudio(e) {
+    var t = document.createElement("audio");
+    return t.setAttribute("src", e),
+    t.load(),
+    t
 }
 var sounds = {}
-  , soundExt = (document.createElement("audio").canPlayType && document.createElement("audio").canPlayType("audio/mpeg")) ? "mp3" : "ogg";
-sounds.notify = createAudio("/media/notify." + soundExt);
-sounds.signal = createAudio("/media/beep." + soundExt);
-sounds.shuffle = createAudio("/media/shuffle." + soundExt);
-sounds.money = createAudio("/media/money." + soundExt);
-sounds.roll = createAudio("/media/roll." + soundExt);
-sounds.music = createAudio("/media/music." + soundExt);
-sounds.music.setAttribute("loop", true);
-sounds.music.addEventListener("loadedmetadata", music, false);
+  , soundExt = document.createElement("audio").canPlayType && document.createElement("audio").canPlayType("audio/mpeg") ? "mp3" : "ogg";
+if (sounds.notify = createAudio("/media/notify." + soundExt),
+sounds.signal = createAudio("/media/beep." + soundExt),
+sounds.shuffle = createAudio("/media/shuffle." + soundExt),
+sounds.money = createAudio("/media/money." + soundExt),
+sounds.roll = createAudio("/media/roll." + soundExt),
+sounds.music = createAudio("/media/music." + soundExt),
+sounds.music.setAttribute("loop", !0),
+sounds.music.addEventListener("loadedmetadata", music, !1),
 sounds.all = {
     ffl: {},
     maffia: {}
-};
-["click", "day", "item4", "item5", "night", "notify", "role2", "role3", "role4", "role6", "role7", "role8", "role9", "win"].forEach(function(el) {
-    sounds.all.ffl[el] = createAudio("/media/ffl/" + el + "." + soundExt);
-    sounds.all.maffia[el] = createAudio("/media/maffia/" + el + "." + soundExt);
-});
-if (!isAppVK) {
+},
+["click", "day", "item4", "item5", "night", "notify", "role2", "role3", "role4", "role6", "role7", "role8", "role9", "win"].forEach(function(e) {
+    sounds.all.ffl[e] = createAudio("/media/ffl/" + e + "." + soundExt),
+    sounds.all.maffia[e] = createAudio("/media/maffia/" + e + "." + soundExt)
+}),
+!isAppVK) {
     sounds.radio = createAudio("");
     var radio = $("#radio");
     sounds.radio.onplay = function() {
-        radio.show();
+        radio.show()
     }
-    ;
+    ,
     sounds.radio.onerror = sounds.radio.onended = function() {
-        radio.hide();
+        radio.hide()
     }
-    ;
-    radio.click(function() {
+    ,
+    radio.on("click", function() {
         modalWindow("Выключить данную композицию?", function() {
-            sounds.radio.pause();
-            radio.hide();
-        });
-    });
+            sounds.radio.pause(),
+            radio.hide()
+        })
+    })
 }
-function sound(type, fm) {
-    if (!soundValue) {
-        return;
-    }
-    var curSound;
-    if (fm) {
-        var gmode = isMaffia ? "maffia" : "ffl";
-        curSound = sounds.all[gmode][type];
-    } else {
-        curSound = sounds[type];
-    }
-    try {
-        curSound.volume = soundValue / 100;
-        curSound.currentTime = 0;
-        curSound.play();
-    } catch (e) {
-        console.log("sound.error: " + type + " - " + e);
+function sound(t, e) {
+    if (soundValue) {
+        var a;
+        if (e) {
+            var n = isMaffia ? "maffia" : "ffl";
+            a = sounds.all[n][t]
+        } else
+            a = sounds[t];
+        try {
+            a.volume = soundValue / 100,
+            a.currentTime = 0,
+            a.play()
+        } catch (e) {
+            console.log("sound.error: " + t + " - " + e)
+        }
     }
 }
 function music() {
     try {
-        if (!musicValue) {
-            sounds.music.pause();
-        } else {
+        if (musicValue) {
             sounds.music.currentTime = 0;
-            var promise = sounds.music.play();
-            if (promise !== undefined) {
-                promise.then(function() {
-                    sounds.music.play();
-                });
-            }
-        }
+            var e = sounds.music.play();
+            void 0 !== e && e.then(function() {
+                window.removeEventListener("focus", music)
+            }, function() {
+                window.addEventListener("focus", music)
+            })
+        } else
+            sounds.music.pause()
     } catch (e) {
-        console.log("music.error: " + e);
+        console.log("music.error: " + e)
     }
 }
-function errorText(text) {
-    var errorBlock = $("#errorBlock");
-    if (!errorBlock.length) {
-        errorBlock = $("<div/>", {
-            id: "errorBlock"
-        }).css({
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 99999,
-            background: "url(/images/fail.jpg) center no-repeat #fff"
-        }).appendTo(b);
-    }
-    errorBlock.html("<h1>" + text + '</h1><p>Попробуйте перезагрузить страницу. Если проблема повторяется, <a href="https://vk.com/im?media=&sel=-' + (isMaffia ? "109864615" : "39094155") + '" title="Написать сообщение" target="_blank">сообщите нам</a></p>');
-    errorBlock.show();
+$('<button class="button usergameButton onlyvip"></button>').html("VIP-игра").on("click", function() {
+    return showWindow("userGame")
+}).appendTo(winInfo.find(".gameCreate")),
+document.getElementById("input").onkeydown = function(e) {
+    13 !== e.which || e.ctrlKey || e.shiftKey || sendMessage()
 }
-function socketEvent(message) {
-    var event = JSON.parse(message.data);
-    if (testMode) {
-        console.log(event);
-    }
-    switch (event.type) {
-    case "reply":
-        socketStack.forEach(function(val, key) {
-            if (event.time === val.timestamp) {
-                socketStack.splice(key, 1);
-            }
-        });
-        socketTry = 0;
-        $("#indicator").removeClass("offline");
-        checkSocketStack();
-        break;
-    case "logout":
-        ws.onclose = function() {}
-        ;
-        b.removeClass("unauthorized");
-        authFalse(event);
-        break;
-    case "message":
-        showNewMessage(event);
-        if (event.msgType === "exit") {
-            mW.hide();
-            warningWindow(event.message, goToRoom);
-        }
-        break;
-    case "infomessage":
-        if (event.kick) {
-            game.kickVote(event);
-        } else {
-            if (event.event) {
-                game.event(event.event, event.from);
-            } else {
-                game.writeText(event.message, event.from || null, true);
-            }
-            if (event.msgType === "exit") {
-                mW.hide();
-                game.finished();
-                var win = (event.win);
-                var msgText = event.message || finalMsg(event, true);
-                warningWindow(msgText, goToRoom, "Выйти из игры", win);
-            }
-            if (event.banks) {
-                game.recalculateBanks(event.banks);
-            }
-        }
-        break;
-    case "isban":
-        if (event.sec) {
-            var bh = Math.floor(event.sec / 3600)
-              , bmin = (event.sec % 3600)
-              , bm = Math.floor(bmin / 60)
-              , bs = bmin % 60
-              , btext = "";
-            if (bh > 0) {
-                btext += f.someThing(bh, "час", "часа", "часов") + " ";
-            }
-            if (bm > 0) {
-                btext += f.someThing(bm, "минуту", "минуты", "минут") + " ";
-            }
-            if (bs > 0) {
-                btext += f.someThing(bs, "секунду", "секунды", "секунд");
-            }
-            showNewDiv('<div class="ban">Вы не можете пользоваться чатом еще ' + btext + "</div>");
-            inputField.blur();
-        }
-        break;
-    case "authorize":
-        if (event.success) {
-            if (event.pingtime && event.pingtime > 10000) {
-                setInterval(function() {
-                    sendToSocket({
-                        type: "ping"
-                    });
-                }, event.pingtime);
-            }
-            datediff = event.datenow - Date.now();
-            b.removeClass("unauthorized");
-            charDiv.removeClass("charEdit");
-            u = event.user;
-            if (u.rating < 4) {
-                $("#roll-start").hide();
-            }
-            if (!u.items) {
-                u.items = {};
-            }
-            updateInterface();
-            room = event.room;
-            showPlayersList(event.online, event.room);
-            showGamesList(event.games);
-            if (event.greens) {
-                showGreenList(event.greens);
-            }
-            showTopLists(event);
-            if (event.stip && event.stip !== "no") {
-                showConvert(function() {
-                    var stipText = "Вам начислена " + (isMaffia ? "зарплата" : "стипендия") + ' в размере <span class="gamemoney">' + over1000(event.stip) + "</span>";
-                    if (u.vip) {
-                        var vipDays = Math.ceil((u.vip - datenow()) / 86400000);
-                        if (vipDays > 0) {
-                            stipText += '<br/><b class="red">Ещё ' + f.someThing(vipDays, "день", "дня", "дней") + " VIP-статуса</b>";
-                        }
-                    }
-                    showCash(stipText);
-                });
-            }
-            setStatus();
-            var mybirthday = false;
-            if (event.birthdays) {
-                var bdStr = '<div class="birthdays"> Сегодня отмечают свой день рождения следующие игроки: <ul> ';
-                event.birthdays.forEach(function(el) {
-                    bdStr += '<li><strong data-id="' + el._id + '">' + el.login + "</strong></li>";
-                    if (el._id === u._id) {
-                        mybirthday = true;
-                    }
-                });
-                bdStr += " </ul> <blockquote>Не забудьте поздравить!</blockquote></div>";
-                showNewDiv(bdStr);
-            }
-            f.onlineCount(event.onlineCount);
-            if (event.statistics) {
-                showStatistics(event.statistics);
-            }
-            if (u.dj) {
-                $('<script type="text/javascript" src="/js/dj.js"><\/script>').appendTo(b);
-            }
-            if (u.moder || (u.moder2 && server2)) {
-                $('<script type="text/javascript" src="/js/moder.js?050718"><\/script>').appendTo(b);
-                if (event.statistics && event.statistics.valentin) {
-                    b.append("<style>.ad-valentin{display:block !important}</style>");
-                }
-            }
-            shareMaffia();
-            if (event.regplayers && event.regplayers.length > 0) {
-                var regList = '<div class="news">Последние 10 новичков: '
-                  , lastPl = ""
-                  , dnum = 0
-                  , dcur = 0;
-                event.regplayers.forEach(function(el) {
-                    dcur = new Date(el.date).getDate();
-                    if (dnum !== dcur) {
-                        dnum = dcur;
-                        lastPl += "<br/> " + rusDate(el.date, false, "short") + ": ";
-                    } else {
-                        lastPl += ", ";
-                    }
-                    lastPl += '<strong data-id="' + el._id + '">' + el.login + "</strong>";
-                });
-                regList += lastPl + "</div>";
-                showNewDiv(regList);
-            }
-            if (event.was) {
-                var wasText = '<div class="wastoday">Сегодня были в игре (' + event.was.length + '):<input type="checkbox" class="spoiler" id="showwasingame"/><label for="showwasingame"></label><div>';
-                event.was.forEach(function(el) {
-                    wasText += '<strong data-id="' + el._id + '">' + el.login + "</strong>, ";
-                });
-                showNewDiv(wasText.substr(0, wasText.length - 2) + "</div></div>");
-            }
-            if (mybirthday) {
-                showNewDiv('<div class="birthdays mybirthday">Администрация игры поздравляет Вас с днём рождения и желает, чтобы в жизни было как можно больше приятных минут! <blockquote><span class="imageLoader" data-title="Посмотреть открытку" onclick="showWall(\'' + document.location.protocol + "//" + domain + "/images/walls/card.gif',true,true)\"></span></blockquote></div>");
-            }
-            messagesList.find("strong").click(showProfile);
-            if (!u.lottery || u.lottery < event.datenow) {
-                lotteryDiv.find("button").fadeIn();
-            } else {
-                lotteryTimerStart();
-            }
-            if (u.slottime) {
-                var slotLost = u.slottime + slotInterval * 1000 - datenow();
-                if (slotLost > 0) {
-                    slotTimerStart(Math.round(slotLost / 1000));
-                }
-            }
-            if (u.rolldate && isToday(u.rolldate)) {
-                $("#roll-start").addClass("rolling-was");
-            }
-            helper.hideLocation();
-            if (u.rating < 100 && lStorage.getItem("hints") !== "0") {
-                hintsCheckBox.prop("checked", true);
-                hintsNeed = true;
-            }
-            if (!mobile && !isAppVK && !lStorage.getItem("width") && !lStorage.getItem("recomwidth") && b.outerWidth() > 1200) {
-                var recomWidth = Math.round(1200 / b.outerWidth() * 100);
-                if (recomWidth < 95) {
-                    modalWindow("Рекомендуемая ширина игрового окна при данном разрешении - " + recomWidth + "%. Установить предполагаемые размеры?<br/> Изменить ширину игры Вы всегда сможете в настройках игры.", function() {
-                        lStorage.setItem("recomwidth", true);
-                        lStorage.setItem("width", recomWidth);
-                        setWidth(recomWidth);
-                        gameWidth.val(recomWidth);
-                        if (u.rating < 10) {
-                            helper.start();
-                        }
-                    }, function() {
-                        lStorage.setItem("recomwidth", true);
-                        if (u.rating < 10) {
-                            helper.start();
-                        }
-                    });
-                }
-            } else {
-                if (u.rating < 10) {
-                    helper.start();
-                }
-            }
-            if (hintsNeed || u.curator) {
-                curatorWindow.addClass("hide").show();
-            }
-            if (u.status && u.status.toLowerCase() === "kinder") {
-                setTimeout(maffiaNEW, 2000);
-            }
-            f.radioIframe();
-        } else {
-            editProfileSize();
-            charDiv.addClass("charEdit");
-        }
-        break;
-    case "reconnect":
-        if (event.error) {
-            $("#errorBlock").hide();
-            warningWindow("Не удалось восстановить соединение", function() {
-                window.location.reload();
-            }, "Обновить страницу");
-        } else {
-            mW.hide();
-            showNewMessage({
-                message: "Соединенис с сервером было восстановлено!",
-                color: "#ff0000"
-            });
-            $("#errorBlock").hide();
-            if (ticketBlock.is(":visible")) {
-                hideTickets();
-            }
-        }
-        break;
-    case "register":
-        regButton.prop("disabled", false);
-        if (event.result === "busy") {
-            showMessage("Этот логин уже занят, придумайте другой");
-        } else {
-            if (event.result) {
-                setTimeout(function() {
-                    sendToSocket({
-                        type: "authorize"
-                    });
-                }, 500);
-            } else {
-                errorText("Не удалось создать персонажа.");
-            }
-        }
-        break;
-    case "enter":
-        messagesList.html("");
-        room = event.room;
-        closedgame = false;
-        game.style = {};
-        game.finish = false;
-        game.intuition = false;
-        if (event.user) {
-            Object.update(u, event.user);
-        }
-        showPlayersList(event.online, event.room);
-        if (event.gameInfo) {
-            showGameInfo(event.gameInfo);
-            if (!isToday(u.rolldate)) {
-                $(".button-roll").stop().animate({
-                    rotation: 360
-                }, {
-                    duration: 3000,
-                    start: function() {
-                        $(this).addClass("nobackground");
-                    },
-                    step: function(now) {
-                        $(this).css({
-                            transform: "rotate(" + now + "deg)"
-                        });
-                    }
-                }).animate({
-                    rotation: -360
-                }, {
-                    duration: 3000,
-                    step: function(now) {
-                        $(this).css({
-                            transform: "rotate(" + now + "deg)"
-                        });
-                    },
-                    complete: function() {
-                        $(this).removeClass("nobackground").removeAttr("style");
-                    }
-                });
-            }
-        } else {
-            updateInterface();
-        }
-        if (event.games) {
-            showGamesList(event.games);
-        }
-        if (event.greens) {
-            showGreenList(event.greens);
-        }
-        break;
-    case "standart":
-        switch (event.action) {
-        case "money":
-        case "money2":
-            f.notEnough(event);
-            break;
-        case "hiddenprofile":
-            showMessage('Профиль игрока скрыт.<br/> Хочешь также? Приобретай <span class="pseudolink" data-action="windowByName" data-param="donatoptions">VIP-статус</span>.');
-            break;
-        case "nocommonchat":
-            showMessage("Сейчас Вы не можете отправлять сообщения в общий чат");
-            break;
-        }
-        break;
-    case "inform":
-        editPlayerList(event.user, event.leave);
-        break;
-    case "addgame":
-        editGameList(event);
-        break;
-    case "wasmarked":
-        suggestedPlayer(event);
-        break;
-    case "showmsg":
-        showMessage(event.message);
-        break;
-    case "alarm":
-        if (event.action) {
-            f.onlineCount(event.online, event);
-        } else {
-            if (event.text) {
-                alarm(event.text);
-            }
-        }
-        break;
-    case "area-battle":
-        if (event.winner && event.area) {
-            if (!mapAreas[event.area].win) {
-                mapAreas[event.area].win = {};
-            }
-            if (!mapAreas[event.area].win[event.winner]) {
-                mapAreas[event.area].win[event.winner] = 0;
-            }
-            mapAreas[event.area].win[event.winner] += 1;
-            var winText = {
-                bots: "Боты одержали победу!",
-                players: "Удача была на стороне игроков!",
-                draw: "Победителя выявить не удалось"
-            };
-            alarm("Завершена битва за район (" + mapAreas[event.area].title + "). " + winText[event.winner]);
-        }
-        break;
-    case "updateInfo":
-        delete event.type;
-        if (event.msg) {
-            showMessage(event.msg);
-            delete event.msg;
-        }
-        updateInterface(event);
-        break;
-    case "profile":
-        showPlayerInfoBlock(event.data);
-        break;
-    case "buyingame":
-        game.buyAnswer(event);
-        break;
-    case "friend-query":
-        var frQ = function(data) {
-            if (reds.indexOf(data.fromId) === -1 && !u.server2) {
-                showConvert(function() {
-                    modalWindow(data.from + " хочет добавить вас в друзья. Вы согласны?", function() {
-                        friendQuery("answer", data.fromId, true);
-                    }, function() {
-                        friendQuery("answer", data.fromId, false);
-                    });
-                });
-            }
-        };
-        if (event.multi) {
-            var step = 0;
-            event.from.forEach(function(el) {
-                setTimeout(function() {
-                    frQ({
-                        from: el.login,
-                        fromId: el._id
-                    });
-                }, step);
-                step += 1000;
-            });
-        } else {
-            frQ(event);
-        }
-        break;
-    case "friend-new":
-        addFriend(event.fid, event.add);
-        break;
-    case "greenlist":
-        if (event.greens) {
-            showGreenList(event.greens);
-        }
-        break;
-    case "startgame":
-        game.start(event);
-        break;
-    case "setPeriod":
-        game.setPeriod(event);
-        break;
-    case "quiz":
-        if (quizEnable) {
-            if (event.login) {
-                var quizMsg = '<div class="alarm">Игрок <b>' + event.login + "</b> дал" + (event.sex === 1 ? "а" : "") + " правильный ответ - <em>" + event.answer + "</em>";
-                if (event.rank) {
-                    quizMsg += " и достиг" + (event.sex === 1 ? "ла" : "") + " нового звания - <strong>" + event.rank + "</strong>";
-                }
-                quizMsg += "</div>";
-                showNewDiv(quizMsg);
-                mymessagesList.find(".quiz").remove();
-            } else {
-                showQuiz(event);
-            }
-        }
-        break;
-    case "vote":
-        game.vote(event);
-        break;
-    case "dej-info":
-        game.dejInfo(event);
-        break;
-    case "setrole":
-        game.setRole(event.user);
-        break;
-    case "newrole":
-        game.newRole(event);
-        break;
-    case "giftSteal":
-        game.killed(event);
-        break;
-    case "sysmsg":
-        if (event.immediate) {
-            warningWindow((event.filter) ? escapeHtml(matFilter(event.message)) : event.message);
-            inputField.blur();
-        } else {
-            showConvert(function() {
-                warningWindow(event.filter ? escapeHtml(matFilter(event.message)) : event.message);
-            });
-        }
-        break;
-    case "gameitem":
-        game.itemUse(event);
-        break;
-    case "lock-delete":
-        game.deleteLock(event.message);
-        break;
-    case "cookie":
-        game.cookieResult(event);
-        break;
-    case "showTickets":
-        showTickets(event.count, event.noactive);
-        break;
-    case "hideTicket":
-        hideTicket(event.ticket);
-        break;
-    case "isticket":
-        ticketOpen(event.ticket, event.result);
-        break;
-    case "totes":
-        showToteList(event.arr);
-        break;
-    case "curgames":
-        showCurGames(event.games);
-        break;
-    case "auctions":
-        showAuctionList(event.arr);
-        break;
-    case "gift":
-        if (event.data) {
-            if (event.data.pid && reds.indexOf(event.data.pid) > -1) {
-                modalWindow((event.data.login ? event.data.login : "Аноним") + " из вашего игнор-листа прислал Вам подарок. Хотите его удалить?", function() {
-                    sendToSocket({
-                        type: "gift-delete",
-                        gift: event.data.time
-                    });
-                });
-            } else {
-                var giftInfo = "Вам подарок от ";
-                giftInfo += (event.data.login) ? event.data.login : "неизвестного доброжелателя";
-                if (event.data.text) {
-                    giftInfo += " с пожеланиями:<br/> <em>" + escapeHtml(matFilter(event.data.text)) + "</em>";
-                }
-                giftInfo += '<div class="giftdiv ' + getGiftClass(event.data.num) + '"></div>';
-                showConvert(function() {
-                    warningWindow(giftInfo, false, false, false, "opencard");
-                });
-            }
-        }
-        break;
-    case "box":
-        updateInterface({
-            inc: event.inc,
-            items: event.items
-        });
-        showBox(event);
-        break;
-    case "rolling":
-        doRolling(event);
-        break;
-    case "quiz-list":
-        if (event.players) {
-            showQuizList(event.players);
-        }
-        break;
-    case "audio":
-        if (!isAppVK && isRadio && event.src) {
-            var src = event.src;
-            sounds.radio.volume = soundValue / 100;
-            sounds.radio.setAttribute("src", src);
-            radio.attr("data-title", event.singer + " - " + event.title);
-            sounds.radio.play();
-        }
-        break;
-    case "reward":
-        if (event.num) {
-            warningWindow('<div class="reward">' + roleText[gameMode()].reward[event.num] + "</div>", false, false, false, "newspaper");
-        }
-        if (event.toy) {
-            warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + event.toy + '"></div></div>', false, false, false, "newspaper");
-        }
-        if (event.snowflake && !server2) {
-            warningWindow('<div class="reward">' + roleText.all.snowflake + '<div class="snowflake"></div></div>', false, false, false);
-            if (u.items[18]) {
-                u.items[18]++;
-            } else {
-                u.items[18] = 1;
-            }
-        }
-        if (event.collect) {
-            warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + event.collect + " collect-element collect-element" + event.element + '"></span></div>', false, false, false, "newspaper");
-        }
-        if (event.item) {
-            warningWindow('<div>В ваш инвентарь добавлена награда: <div class="items items-' + event.item + '" data-count="' + event.count + '"></div></div>');
-            updateInterface(event.update);
-        }
-        break;
-    case "newtoy":
-        drawToy(event.toy);
-        break;
-    case "lottery":
-        if (event.itemnum) {
-            var data = {
-                text: "Ваша удача не прошла мимо",
-                box: {}
-            };
-            data.box[event.itemnum] = 1;
-            showBox(data);
-            updateInterface({
-                items: event.items
-            });
-        } else {
-            showMessage("В следующий раз Вам обязательно повезет!");
-        }
-        u.lottery = event.time;
-        lotteryTimerStart();
-        var lotteryNums = lotteryWin.find("div").find("span");
-        lotteryNums.unbind("click");
-        if (event.data) {
-            $.each(event.data, function(ind, el) {
-                lotteryNums.eq(ind - 1).html("").addClass("openLottery items-" + el);
-            });
-        }
-        break;
-    case "roulette":
-        u.money = event.money;
-        u.roulette = event.roulette;
-        rouletteDisable();
-        updateInterface();
-        showMessage("Вы сделали ставку на " + event.num + ".<br/> Возможно, завтра Вас ждет приятный сюрприз.");
-        break;
-    case "roulette-result":
-        rouletteDisable(true);
-        rouletteInfo(event, true);
-        break;
-    case "progress":
-        if (event.login) {
-            alarm(event.login + " получает достижение - " + progressRank(event.num, event.value));
-        } else {
-            var ownReward = progressReward(quests[event.num].prize[event.value]);
-            warningWindow('<div class="progress">Вы получили новое достижение - <u>' + progressRank(event.num, event.value) + "</u><br/>Ваша награда - " + ownReward + "</div>");
-            progressTime = 0;
-            var incObj = quests[event.num].prize[event.value];
-            for (var ind in incObj) {
-                if (incObj.hasOwnProperty(ind)) {
-                    u[ind] += (ind === "money") ? incObj[ind] * 1000 : incObj[ind];
-                }
-            }
-            updateInterface();
-        }
-        break;
-    case "progress-list":
-        showProgressList(event.list, event.progress, event.already);
-        break;
-    case "bonus":
-        if (event.role) {
-            switch (event.bonus) {
-            case "intuit":
-                game.event({
-                    text: "all:bonus:intuit",
-                    replacedata: {
-                        "[nick]": event.login,
-                        "[role]": event.role
-                    }
-                }, false);
-                break;
-            }
-        }
-        break;
-    case "firework":
-        game.writeText('<div class="firework-text">' + event.login + " запускает фейерверк в честь праздника!</div>", false, true);
-        if (!ticketBlock.is(":visible") && !container.hasClass("ingame") && fireworkEnable) {
-            showWall("/firework/" + [1, 2, 3, 4, 5].randomValue() + ".gif", false, true);
-        }
-        break;
-    case "gif":
-        if (!container.hasClass("ingame") && pluhTime < datenow() - 10000) {
-            pluhTime = datenow();
-            showWall("other/bah.gif");
-        }
-        break;
-    case "collect":
-        if (event.data) {
-            u.collections = event.collections;
-            showMessage('На ёлке совершенно случайно Вы заметили фрагмент Новогодней коллекции <div class="collect' + event.data.collect + " collect-element collect-element" + event.data.element + '"><div>');
-        }
-        break;
-    case "clan":
-        if (event.info) {
-            if (event.my) {
-                myclan = event.info;
-                if (myclan.leader === u._id) {
-                    $(".clan").find(".clan-slogan,.clan-info").bind("dblclick touchmove", function() {
-                        $(this).attr("contentEditable", true);
-                    }).blur(function() {
-                        $(this).attr("contentEditable", false);
-                        var curField = $(this).attr("class").replace("clan-", "")
-                          , curText = $(this).text();
-                        if (myclan.hasOwnProperty(curField) && curText !== myclan[curField]) {
-                            myclan[curField] = curText;
-                            var clanEvent = {
-                                type: "clan",
-                                action: "edit"
-                            };
-                            clanEvent[curField] = curText;
-                            sendToSocket(clanEvent);
-                        }
-                    });
-                }
-                showWindow("clan");
-            } else {
-                clanView.info = event.info;
-                showWindow("clan-window");
-            }
-        }
-        break;
-    case "slot":
-        slotAction(event);
-        break;
-    case "friends":
-        friendsTable(event.list);
-        break;
-    case "tree":
-        enableTree(event.data);
-        break;
-    case "dedmoroz":
-        if (event.hasOwnProperty("count")) {
-            alarm((event.count > 0) ? "Дед Мороз подарил " + f.someThing(event.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
-        } else {
-            var dmNum = f.randomInt(3)
-              , dedmoroz = $('<img id="dm' + dmNum + '" class="dedmoroz" src="/images/2017/dm' + dmNum + '.gif"/>').appendTo(b);
-            sound("dedMoroz");
-            dedmoroz.animate(dmAnimates[dmNum], 20000, function() {
-                $(this).remove();
-                sounds.dedMoroz.pause();
-            });
-        }
-        break;
-    case "battle":
-        snowball.action(event);
-        break;
-    case "infomoder":
-        if (typeof showInfoModer === "function") {
-            showInfoModer(event.data);
-        }
-        break;
-    case "moder":
-        if (typeof moderAnswer === "function") {
-            moderAnswer(event);
-        }
-        break;
-    case "admin":
-        var str = "";
-        for (var index in event.data) {
-            if (event.data.hasOwnProperty(index)) {
-                var el = event.data[index];
-                for (var i in el) {
-                    if (el.hasOwnProperty(i)) {
-                        str += el[i] + " ";
-                    }
-                }
-                str += "<br/>";
-            }
-        }
-        showNewMessage({
-            message: str
-        });
-        break;
-    case "draw-result":
-        if (event.sex) {
-            var weddingText = "";
-            if (event.winner) {
-                weddingText = event.sex === 1 ? 'Под восхищенные мужские взгляды <b data-id="' + event.winnerId + '">' + event.winner + "</b> изящно ловит букет, не оставив соперницам ни шанса!" : 'Ловким движением <b data-id="' + event.winnerId + '">' + event.winner + "</b> хватает подвязку своими сильными руками, что не остается без внимания присутствующих на празднике девушек!";
-            }
-            game.writeText('<img src="/images/cups/wed' + (event.sex === 1 ? "wo" : "") + 'menitem.png" alt="" style="float:left"/> ' + weddingText, false, true);
-        } else {
-            var drawText = '<div class="draw-result">' + event.moder.login + " провел" + ((event.moder.sex === 1) ? "а" : "") + " жеребьевку. Результаты представлены ниже:<br/> ";
-            if (event.count > 1) {
-                for (var k = 0, group = 0, len = event.arr.length; k < len; k++) {
-                    if (k === group * event.count) {
-                        group++;
-                        drawText += "<u>Группа " + group + "</u><br/><ol>";
-                    }
-                    drawText += "<li>" + event.arr[k] + "</li>";
-                    if (k + 1 === group * event.count || k + 1 === len) {
-                        drawText += "</ol>";
-                    }
-                }
-            } else {
-                event.arr.forEach(function(el) {
-                    drawText += el + "<br/>";
-                });
-            }
-            drawText += "</div>";
-            showNewDiv(drawText);
-        }
-        break;
-    case "css":
-        if (event.add) {
-            b.append("<style>" + event.style.replace("'", '"') + "</style>");
-        } else {
-            if (event.el) {
-                $(event.el).attr("style", event.style);
-            }
-        }
-        break;
-    case "f14pairs":
-        if (event.pairs) {
-            var amur = $('<img id="amur" src="/images/holidays/amur.gif"/>').appendTo(b);
-            if (!sounds.valentin) {
-                sounds.valentin = createAudio("/media/valentin." + soundExt);
-            }
-            sound("valentin");
-            amur.animate({
-                left: "-350px"
-            }, 10000, function() {
-                $(this).remove();
-                sounds.valentin.pause();
-                var pairsText = "Амурчик на 1 час соединил сердца следующих пар:<br/><ol>";
-                event.pairs.forEach(function(el) {
-                    if (el[1] && el[2]) {
-                        pairsText += '<li><strong class="sex1" data-id="' + el[1]._id + '">♀ ' + el[1].login + '</strong> <span class="green">+</span> <strong class="sex2" data-id="' + el[2]._id + '">' + el[2].login + " ♂</strong></li>";
-                    }
-                });
-                pairsText += "</ol>";
-                showNewDiv('<div class="february14-pairs">' + pairsText + "</div>");
-                doScroll();
-            });
-        }
-        if (event.task) {
-            setTimeout(function(event) {
-                showNewMessage({
-                    message: "Хочешь получить подарок на День святого валентина? Тогда сыграй со своей парой в игру:<br/><ul><li>" + gameStyle[event.task.style] + "</li><li>не менее чем на " + event.task.count + " игроков</li></ul>",
-                    msgType: "private",
-                    from: false,
-                    to: u._id,
-                    toName: u.login
-                });
-                $("#amur").attr("src", "/images/holidays/amur-arrow.gif");
-            }, 5000, event);
-        }
-        break;
-    case "pairs3":
-        if (event.pairs) {
-            var triple = $('<img class="tripleBD" src="/images/holidays/3/' + f.randomInt(5) + '.gif"/>').appendTo(b);
-            triple.animate({
-                left: "100%"
-            }, 5000, function() {
-                $(this).remove();
-                if (event.pairs && event.pairs.length > 0) {
-                    var pairsText = "Смотрите, какие замечательные компании друзей у нас сегодня собрались:<br/><ol>";
-                    event.pairs.forEach(function(el) {
-                        if (el[1] && el[2] && el[3]) {
-                            pairsText += '<li><strong data-id="' + el[1]._id + '">' + el[1].login + '</strong>, <strong data-id="' + el[2]._id + '">' + el[2].login + '</strong> и <strong data-id="' + el[3]._id + '">' + el[3].login + "</strong></li>";
-                        }
-                    });
-                    pairsText += "</ol>";
-                    showNewDiv('<div class="pairs3">' + pairsText + "</div>");
-                }
-            });
-        }
-        if (event.task) {
-            showNewMessage({
-                message: "Хочешь получить подарок в честь трехлетия игры? Тогда сыграй с двумя своими друзьями в игру &quot;Без ботов&quot; на <i>" + event.task.count + "</i> игроков",
-                msgType: "private",
-                from: false,
-                to: u._id,
-                toName: u.login
-            });
-        }
-        break;
-    case "curator":
-        if (event.action) {
-            switch (event.action) {
-            case "msg":
-                curator.msg(event.text, event);
-                break;
-            case "answer":
-                curator.msg(event.text, event);
-                break;
-            case "online":
-                curator.msg(event.text, event);
-                curator.msg("Кураторов онлайн: " + event.count);
-                break;
-            case "takeq":
-                curator.answer(event);
-                break;
-            case "busyq":
-                curator.msg("Вопрос уже принят другим куратором.");
-                break;
-            case "flood":
-                curator.msg("Вопросы можно задавать не чаще, чем раз в " + event.text);
-                break;
-            }
-        }
-        break;
-    case "console":
-        sendToSocket({
-            type: "console",
-            logs: logs
-        });
-        break;
-    default:
-        console.log("unknown event:", event);
-    }
-}
-$("#nick").click(function() {
-    if (u.dj) {
-        showWindow("dj");
-    }
-});
-gebi("input").onkeydown = function(e) {
-    if (e.which === 13 && !e.ctrlKey && !e.shiftKey) {
-        sendMessage();
-    }
-}
-;
-$("#sendMsg").click(sendMessage);
-var scrollCheck = $("#scrolling");
-function doScroll() {
-    if (scrollCheck.is(":checked")) {
-        return;
-    }
-    var objDiv = gebi("messages");
-    if (objDiv) {
-        objDiv.scrollTop = objDiv.scrollHeight;
-    }
-    var myobjDiv = gebi("mymessages");
-    if (myobjDiv) {
-        myobjDiv.scrollTop = myobjDiv.scrollHeight;
-    }
-}
-var hallTitles = ["", "Страну грёз", "Город любви", "Апельсиновый рай", "Солнечную аллею", "Парк друзей", "Обитель мрака"];
-$("nav>h2").click(function() {
-    var roomNum = $(this).attr("class").substring(4);
-    if (server2) {
-        roomNum += "s";
-    }
-    goToRoom(roomNum);
+,
+$("#sendMsg").on("click", sendMessage),
+$("nav>h2").on("click", function() {
+    var e = $(this).attr("class").substring(4);
+    server2 && (e += "s"),
+    goToRoom(e)
 }).bind("mouseenter", function(e) {
-    var hallNum = parseInt($(this).attr("class").substring(4))
-      , toolText = (room === hallNum) ? "Вы здесь" : "Перейти в " + hallTitles[hallNum];
-    if (hallNum === 6 && !u.club) {
-        toolText = hallTitles[hallNum] + " только для членов клуба";
-    }
-    tooltip(e, toolText, true);
+    var t = parseInt($(this).attr("class").substring(4))
+      , a = room === t ? "Вы здесь" : "Перейти в " + hallTitles[t];
+    6 !== t || u.club || (a = hallTitles[t] + " только для членов клуба"),
+    tooltip(e, a, !0)
 }).bind("mouseleave", function(e) {
-    tooltip(e, "", false);
+    tooltip(e, "", !1)
 });
-var defineTargetClick = function(target) {
-    if (target.tagName === "I") {
-        target = $(target).parent().parent()[0];
-    }
-    if (target.tagName !== "DIV") {
-        target = $(target).parent()[0];
-    }
-    return target;
+var defineTargetClick = function(e) {
+    return "I" === e.tagName && (e = $(e).parent().parent()[0]),
+    "DIV" !== e.tagName && (e = $(e).parent()[0]),
+    e
 };
 playersList.bind("dblclick touchmove", function(e) {
-    var event = e || window.event;
-    var target = event.target || event.srcElement;
-    if (target.id !== "players") {
-        target = defineTargetClick(target);
-        if (target.tagName === "DIV" && target.id) {
-            $("#adresat-id").val(target.id);
-            $("#adresat").val(target.dataset.nick);
-        }
-    }
+    var t = e || window.event
+      , a = t.target || t.srcElement;
+    "players" !== a.id && "DIV" === (a = defineTargetClick(a)).tagName && a.id && ($("#adresat-id").val(a.id),
+    $("#adresat").val(a.getAttribute("data-nick")))
 }).bind("click", function(e) {
-    showPlayerInfo("", false);
-    var event = e || window.event
-      , target = event.target || event.srcElement;
-    if (target.tagName === "SPAN" && target.dataset.id) {
-        clanProfile($(target));
-        return;
-    }
-    if (!container.hasClass("ingame")) {
-        return;
-    }
-    if (target.tagName === "B" && container.hasClass("current")) {
-        game.notePlayer(target.parentElement.id);
-    } else {
-        if (target.id !== "players") {
-            target = defineTargetClick(target);
-            if (target.tagName === "DIV" && target.id) {
-                selectPlayer(target.id);
-            }
-        }
-    }
+    showPlayerInfo("", !1);
+    var t = e || window.event
+      , a = t.target || t.srcElement;
+    "SPAN" === a.tagName && a.getAttribute("data-id") ? clanProfile($(a)) : container.hasClass("ingame") && ("B" === a.tagName && container.hasClass("current") ? game.notePlayer(a.parentElement.id) : "players" !== a.id && "DIV" === (a = defineTargetClick(a)).tagName && a.id && selectPlayer(a.id))
 }).bind("touchstart", function(e) {
-    showPlayerInfo("", false);
-    if (!container.hasClass("ingame")) {
-        return;
+    if (showPlayerInfo("", !1),
+    container.hasClass("ingame")) {
+        var t = e || window.event
+          , a = t.target || t.srcElement;
+        "DIV" === a.tagName && "players" !== a.id && selectPlayer(a.id)
     }
-    var event = e || window.event;
-    var target = event.target || event.srcElement;
-    if (target.tagName !== "DIV" || target.id === "players") {
-        return;
-    }
-    selectPlayer(target.id);
-});
-allMessagesList.click(function(e) {
-    var event = e || window.event;
-    var target = event.target || event.srcElement;
-    if (target.tagName !== "B") {
-        return;
-    }
-    if (!target.dataset.id) {
-        return;
-    }
-    $("#adresat-id").val(target.dataset.id);
-    $("#adresat").val(target.innerHTML);
-});
+}),
+allMessagesList.on("click", function(e) {
+    var t = e || window.event
+      , a = t.target || t.srcElement;
+    "B" === a.tagName && a.getAttribute("data-id") && ($("#adresat-id").val(a.getAttribute("data-id")),
+    $("#adresat").val(a.innerHTML))
+}),
 $("#label-panel").find("label").on("click", function() {
-    setTimeout(doScroll, 200);
+    setTimeout(doScroll, 200)
 });
 var lastClickTime = 0;
-actionButton.click(function() {
-    var dnow = datenow();
-    if (lastClickTime + 300 > dnow) {
-        return;
-    }
-    lastClickTime = dnow;
-    if (container.hasClass("closedgame")) {
-        markPlayer();
-    }
-    if (container.hasClass("current")) {
-        game.action();
-    }
-});
-privateCheck.change(function() {
-    if (!$("#adresat-id").val() || (game.style && game.style.style1)) {
-        $(this).prop("checked", false);
-    }
-});
 function clearAdresat() {
-    $("#adresat-id").val("");
+    $("#adresat-id").val(""),
     $("#adresat").animate({
-        opacity: -0.1
-    }, 1000, function() {
-        $("#adresat").val("Всем").css("opacity", "0.9");
-    });
-    privateCheck.prop("checked", false);
+        opacity: -.1
+    }, 1e3, function() {
+        $("#adresat").val("Всем").css("opacity", "0.9")
+    }),
+    privateCheck.prop("checked", !1)
 }
-$(".clear-adresat").click(clearAdresat);
+actionButton.on("click", function() {
+    var e = date.now();
+    e < lastClickTime + 300 || (lastClickTime = e,
+    container.hasClass("closedgame") && markPlayer(),
+    container.hasClass("current") && game.action())
+}),
+privateCheck.change(function() {
+    (!$("#adresat-id").val() || game.style && game.style.style1) && $(this).prop("checked", !1)
+}),
+$(".clear-adresat").on("click", clearAdresat);
 var graphicCheckbox = $("#graphic")
   , soundRange = $("#sound")
   , musicRange = $("#music")
@@ -4230,2030 +4960,489 @@ var graphicCheckbox = $("#graphic")
   , fontOptions = $("#fontOptions").next("div")
   , fontSize = $("#fontSize")
   , fontWeight = $("#fontWeight")
-  , fontSelect = $("#selectFont");
-var soundValue = 100
+  , fontSelect = $("#selectFont")
+  , soundValue = 100
   , musicValue = 100
-  , noAlarm = false
-  , hintsNeed = false
-  , isRadio = true
-  , isMaffia = (window.location.href.indexOf("maffia") > 0);
-if (isMaffia) {
-    lStorage.setItem("maffia", 1);
+  , noAlarm = !1
+  , hintsNeed = !1
+  , isRadio = !0
+  , isMaffia = 0 < window.location.href.indexOf("maffia");
+function changeFavicon(e) {
+    var t = $("[rel='icon']")
+      , a = t.clone();
+    a.attr("href", e),
+    t.replaceWith(a)
 }
-function changeFavicon(iconHref) {
-    var icon = $("[rel='icon']");
-    var cache = icon.clone();
-    cache.attr("href", iconHref);
-    icon.replaceWith(cache);
-}
-function getGameUrl(vk) {
-    return document.location.protocol + (vk ? "//vk.com/share.php?url=" + document.location.protocol + (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "%23" + u._id : (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "#" + u._id);
+function getGameUrl(e) {
+    return document.location.protocol + (e ? "//vk.com/share.php?url=" + document.location.protocol + (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "%23" + u._id : (isMaffia ? "//maffia-online.ru/" : "//loday.ru/") + "#" + u._id)
 }
 function shareMaffia() {
-    if (isMaffia) {
-        changeFavicon("/images/mfavicon.png");
-    } else {
-        changeFavicon("/images/favicon.png");
-    }
+    changeFavicon(isMaffia ? "/images/mfavicon.png" : "/images/favicon.png")
 }
-function setGameName(name) {
-    header.attr("data-name", name);
-    gameNameInput.val(name);
-    $("title").html(name);
+function setGameName(e) {
+    header.attr("data-name", e),
+    gameNameInput.val(e),
+    $("title").html(e)
 }
-$("#shareButton").click(function() {
-    if (isAppVK) {
-        if (isset(VK)) {
-            VK.callMethod("showInviteBox");
-        }
-    } else {
-        warningWindow('<strong>Приглашайте в игру новых игроков и<br/> получайте 50% от их платежей на свой игровой счёт!</strong><hr/><a id="shareVkLink" target="_blank" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + '">Рассказать друзьям ВКонтакте</a><br/><label>Ссылка для приглашения<br/> <input type="text" value="' + getGameUrl() + '" readonly="readonly" style="width:100%"/></label> ');
-    }
-});
-function setRange(obj) {
-    if (obj == musicRange) {
-        sounds.music.volume = musicValue / 100;
-        if (!musicValue) {
-            music();
-        }
-    } else {
-        if (sounds.radio) {
-            sounds.radio.volume = soundValue / 100;
-        }
-    }
-    var rangeWidth = 200
-      , thumb = obj.next()
-      , width = thumb.width();
-    thumb.html(obj.val());
-    thumb.css("left", obj.val() * (rangeWidth - width) / 100);
-    if (obj.val() == "0") {
-        obj.parent().css("opacity", 0.5);
-    } else {
-        obj.parent().css("opacity", "");
-    }
+function setRange(e) {
+    e === musicRange ? (sounds.music.volume = musicValue / 100,
+    musicValue || music()) : sounds.radio && (sounds.radio.volume = soundValue / 100);
+    var t = e.next()
+      , a = t.width();
+    t.html(e.val()),
+    t.css("left", e.val() * (200 - a) / 100),
+    "0" === e.val() ? e.parent().css("opacity", .5) : e.parent().css("opacity", "")
 }
-if (lStorage.getItem("nographic") == 1 || (mobile && lStorage.getItem("nographic") === null)) {
-    allMessagesList.addClass("nographic");
-    graphicCheckbox.prop("checked", false);
-}
-if (soundValue = lStorage.getItem("sound")) {
-    soundRange.val(soundValue);
-} else {
-    soundValue = 75;
-    soundRange.val(soundValue);
-}
-setRange(soundRange);
-if (musicValue = lStorage.getItem("music")) {
-    musicRange.val(musicValue);
-} else {
-    musicValue = 50;
-    musicRange.val(musicValue);
-}
-setRange(musicRange);
-if (lStorage.getItem("noalarm") == 1) {
-    noAlarm = true;
-    alarmCheckbox.prop("checked", true);
-}
-if (lStorage.getItem("noradio") == 1) {
-    isRadio = false;
-    radioCheckbox.prop("checked", false);
-}
-if (lStorage.getItem("noeffect") == 1) {
-    b.addClass("noeffect");
-    effectCheckbox.prop("checked", false);
-}
-if (isAppVK) {
-    setGameName(mafApp ? "Мафия" : "День Любви");
-    isMaffia = (mafApp);
-} else {
-    if (lStorage.getItem("maffia") == 1) {
-        isMaffia = true;
-        setGameName("Мафия");
-    }
-}
-if (isMaffia) {
-    b.addClass("maffia");
-    maffiaCheckbox.prop("checked", true);
-}
-if (lStorage.getItem("gamename")) {
-    setGameName(lStorage.getItem("gamename"));
-}
-if (!isAppVK && lStorage.getItem("invert") == 1) {
-    b.addClass("invert");
-    invertCheckbox.prop("checked", true);
-}
-if (lStorage.getItem("hints") == 1) {
-    hintsNeed = true;
-    hintsCheckBox.prop("checked", true);
-}
+isMaffia && lStorage.setItem("maffia", 1),
+$("#shareButton").on("click", inviteFriends),
+("1" === lStorage.getItem("nographic") || mobile && null === lStorage.getItem("nographic")) && (allMessagesList.addClass("nographic"),
+graphicCheckbox.prop("checked", !1)),
+(soundValue = lStorage.getItem("sound")) || (soundValue = 75),
+soundRange.val(soundValue),
+setRange(soundRange),
+(musicValue = lStorage.getItem("music")) || (musicValue = 50),
+musicRange.val(musicValue),
+setRange(musicRange),
+"1" === lStorage.getItem("noalarm") && (noAlarm = !0,
+alarmCheckbox.prop("checked", !0)),
+"1" === lStorage.getItem("noradio") && (isRadio = !1,
+radioCheckbox.prop("checked", !1)),
+"1" === lStorage.getItem("noeffect") && (b.addClass("noeffect"),
+effectCheckbox.prop("checked", !1)),
+isAppVK ? (setGameName(mafApp ? "Мафия" : "День Любви"),
+isMaffia = mafApp) : "1" === lStorage.getItem("maffia") && (isMaffia = !0,
+setGameName("Мафия")),
+isMaffia && (b.addClass("maffia"),
+maffiaCheckbox.prop("checked", !0)),
+lStorage.getItem("gamename") && setGameName(lStorage.getItem("gamename")),
+isAppVK || "1" !== lStorage.getItem("invert") || (b.addClass("invert"),
+invertCheckbox.prop("checked", !0)),
+"1" === lStorage.getItem("hints") && (hintsNeed = !0,
+hintsCheckBox.prop("checked", !0));
 var fSize = lStorage.getItem("font-size")
   , fWeight = lStorage.getItem("font-weight")
   , fFamily = lStorage.getItem("font-family")
   , setFontParams = function() {
-    fontsOff();
-    allMessagesList.addClass("font-size" + fontSize.val());
-    if (fontWeight.prop("checked")) {
-        allMessagesList.addClass("font-weight");
-    }
-    allMessagesList.addClass("font" + fontSelect.val());
+    fontsOff(),
+    allMessagesList.addClass("font-size" + fontSize.val()),
+    fontWeight.prop("checked") && allMessagesList.addClass("font-weight"),
+    allMessagesList.addClass("font" + fontSelect.val())
 };
-if (fSize) {
-    fontSize.val(fSize);
+function fontsOff(e) {
+    e || (e = "font-size12 font-size14 font-size16 font-size18 font-size20 font1 font2 font3 font4 font5 font-weight"),
+    allMessagesList.removeClass(e)
 }
-if (fWeight) {
-    fontWeight.prop("checked", true);
+function setWidth(e) {
+    isAppVK || mobile || (e ? 10 < e && e < 101 && (container.css({
+        "max-width": "",
+        width: e + "%"
+    }),
+    container.width() < 800 ? b.addClass("w800") : b.removeClass("w800"),
+    container.width() < 690 ? b.addClass("w690") : b.removeClass("w690")) : container.css({
+        "max-width": "1050px",
+        width: ""
+    }))
 }
-if (fFamily) {
-    fontSelect.val(fFamily);
-}
-if (lStorage.getItem("font")) {
-    fontCheckbox.prop("checked", true);
-    fontOptions.find("select,input").prop("disabled", false);
-    setFontParams();
-} else {
-    fontOptions.css("opacity", "0.3");
-}
-graphicCheckbox.click(function() {
-    var is = graphicCheckbox.prop("checked");
-    allMessagesList.toggleClass("nographic");
-    lStorage.setItem("nographic", (is ? 0 : 1));
-    doScroll();
-});
+fSize && fontSize.val(fSize),
+fWeight && fontWeight.prop("checked", !0),
+fFamily && fontSelect.val(fFamily),
+lStorage.getItem("font") ? (fontCheckbox.prop("checked", !0),
+fontOptions.find("select,input").prop("disabled", !1),
+setFontParams()) : fontOptions.css("opacity", "0.3"),
+graphicCheckbox.on("click", function() {
+    var e = graphicCheckbox.prop("checked");
+    allMessagesList.toggleClass("nographic"),
+    lStorage.setItem("nographic", e ? 0 : 1),
+    doScroll()
+}),
 soundRange.on("change", function() {
-    soundValue = parseInt(this.value);
-    setRange(soundRange);
-    lStorage.setItem("sound", soundValue);
-});
+    soundValue = parseInt(this.value),
+    setRange(soundRange),
+    lStorage.setItem("sound", soundValue)
+}),
 musicRange.on("change", function() {
-    var curValue = parseInt(this.value);
-    if ((musicValue && !curValue) || (!musicValue && curValue)) {
-        musicValue = curValue;
-        music();
-    } else {
-        musicValue = curValue;
-    }
-    setRange(musicRange);
-    lStorage.setItem("music", musicValue);
-});
-alarmCheckbox.click(function() {
-    var is = alarmCheckbox.prop("checked");
-    noAlarm = is;
-    lStorage.setItem("noalarm", (is ? 1 : 0));
-});
-radioCheckbox.click(function() {
-    var is = radioCheckbox.prop("checked");
-    isRadio = is;
-    if (!is) {
-        sounds.radio.pause();
-    }
-    lStorage.setItem("noradio", (is ? 0 : 1));
-});
+    var e = parseInt(this.value);
+    musicValue && !e || !musicValue && e ? (musicValue = e,
+    music()) : musicValue = e,
+    setRange(musicRange),
+    lStorage.setItem("music", musicValue)
+}),
+alarmCheckbox.on("click", function() {
+    var e = alarmCheckbox.prop("checked");
+    noAlarm = e,
+    lStorage.setItem("noalarm", e ? 1 : 0)
+}),
+radioCheckbox.on("click", function() {
+    var e = radioCheckbox.prop("checked");
+    (isRadio = e) || sounds.radio.pause(),
+    lStorage.setItem("noradio", e ? 0 : 1)
+}),
 effectCheckbox.change(function() {
-    var is = effectCheckbox.prop("checked");
-    lStorage.setItem("noeffect", (is ? 0 : 1));
-    if (is) {
-        b.removeClass("noeffect");
-    } else {
-        b.addClass("noeffect");
-    }
-});
+    var e = effectCheckbox.prop("checked");
+    lStorage.setItem("noeffect", e ? 0 : 1),
+    e ? b.removeClass("noeffect") : b.addClass("noeffect")
+}),
 gameNameInput.change(function() {
-    var name = $(this).val();
-    header.attr("data-name", name);
-    lStorage.setItem("gamename", name);
-});
-invertCheckbox.click(function() {
-    var is = invertCheckbox.prop("checked");
-    if (is) {
-        b.addClass("invert");
-    } else {
-        b.removeClass("invert");
-    }
-    lStorage.setItem("invert", (is ? 1 : 0));
-});
-hintsCheckBox.click(function() {
-    hintsNeed = hintsCheckBox.prop("checked");
-    lStorage.setItem("hints", (hintsNeed ? 1 : 0));
-});
-maffiaCheckbox.click(function() {
-    isMaffia = maffiaCheckbox.prop("checked");
-    if (isMaffia) {
-        b.addClass("maffia");
-        if (!lStorage.getItem("gamename")) {
-            header.attr("data-name", "Мафия");
-        }
-    } else {
-        b.removeClass("maffia");
-        if (!lStorage.getItem("gamename")) {
-            header.attr("data-name", "День Любви");
-        }
-    }
-    shareMaffia();
-    progressTime = 0;
-    lStorage.setItem("maffia", (isMaffia ? 1 : 0));
-    createSmilePanel();
-    showGroupWidget();
-});
-fontCheckbox.click(function() {
-    var is = $(this).prop("checked")
-      , fontEls = fontOptions.find("select,input");
-    if (is) {
-        fontOptions.css("opacity", "");
-        fontEls.prop("disabled", false);
-        lStorage.setItem("font", true);
-        setFontParams();
-    } else {
-        fontOptions.css("opacity", "0.3");
-        fontEls.prop("disabled", true);
-        lStorage.removeItem("font");
-        fontsOff();
-    }
-});
+    var e = $(this).val();
+    header.attr("data-name", e),
+    lStorage.setItem("gamename", e)
+}),
+invertCheckbox.on("click", function() {
+    var e = invertCheckbox.prop("checked");
+    e ? b.addClass("invert") : b.removeClass("invert"),
+    lStorage.setItem("invert", e ? 1 : 0)
+}),
+hintsCheckBox.on("click", function() {
+    hintsNeed = hintsCheckBox.prop("checked"),
+    lStorage.setItem("hints", hintsNeed ? 1 : 0)
+}),
+maffiaCheckbox.on("click", function() {
+    (isMaffia = maffiaCheckbox.prop("checked")) ? (b.addClass("maffia"),
+    lStorage.getItem("gamename") || header.attr("data-name", "Мафия")) : (b.removeClass("maffia"),
+    lStorage.getItem("gamename") || header.attr("data-name", "День Любви")),
+    shareMaffia(),
+    progressTime = 0,
+    lStorage.setItem("maffia", isMaffia ? 1 : 0),
+    createSmilePanel(),
+    showGroupWidget()
+}),
+fontCheckbox.on("click", function() {
+    var e = $(this).prop("checked")
+      , t = fontOptions.find("select,input");
+    e ? (fontOptions.css("opacity", ""),
+    t.prop("disabled", !1),
+    lStorage.setItem("font", !0),
+    setFontParams()) : (fontOptions.css("opacity", "0.3"),
+    t.prop("disabled", !0),
+    lStorage.removeItem("font"),
+    fontsOff())
+}),
 fontSize.change(function() {
-    var font = $(this).val();
-    fontsOff("font-size12 font-size14 font-size16 font-size18 font-size20");
-    allMessagesList.addClass("font-size" + font);
-    lStorage.setItem("font-size", font);
-});
-fontWeight.click(function() {
-    var is = $(this).prop("checked");
-    if (is) {
-        allMessagesList.addClass("font-weight");
-        lStorage.setItem("font-weight", true);
-    } else {
-        allMessagesList.removeClass("font-weight");
-        lStorage.removeItem("font-weight");
-    }
-});
+    var e = $(this).val();
+    fontsOff("font-size12 font-size14 font-size16 font-size18 font-size20"),
+    allMessagesList.addClass("font-size" + e),
+    lStorage.setItem("font-size", e)
+}),
+fontWeight.on("click", function() {
+    $(this).prop("checked") ? (allMessagesList.addClass("font-weight"),
+    lStorage.setItem("font-weight", !0)) : (allMessagesList.removeClass("font-weight"),
+    lStorage.removeItem("font-weight"))
+}),
 fontSelect.change(function() {
-    var font = $(this).val();
-    fontsOff("font1 font2 font3 font4 font5");
-    allMessagesList.addClass("font" + font);
-    lStorage.setItem("font-family", font);
+    var e = $(this).val();
+    fontsOff("font1 font2 font3 font4 font5"),
+    allMessagesList.addClass("font" + e),
+    lStorage.setItem("font-family", e)
 });
-function fontsOff(classes) {
-    if (!classes) {
-        classes = "font-size12 font-size14 font-size16 font-size18 font-size20 font1 font2 font3 font4 font5 font-weight";
-    }
-    allMessagesList.removeClass(classes);
+var gameWidth = $("#gameWidth");
+lStorage.getItem("width") ? (setWidth(lStorage.getItem("width")),
+gameWidth.val(lStorage.getItem("width"))) : (setWidth(),
+gameWidth.val("")),
+gameWidth.change(function() {
+    var e = parseInt($(this).val());
+    !e || 100 < e ? (setWidth(),
+    lStorage.removeItem("width")) : (setWidth(e),
+    lStorage.setItem("width", e))
+}),
+mW.hide = oW.hide = function() {
+    $(this).removeClass("showWindow")
 }
-function showSubmenuBlock(block) {
-    closewindow();
-    submenu.removeClass().addClass("sm-" + block).fadeIn(500);
-}
-function NYtoyAdd(e) {
-    var curtoy = $(this)
-      , treeWin = $(".tree")
-      , moveAt = function(e) {
-        var divOff = treeWin.offset();
-        curtoy.css({
-            left: (e.pageX - divOff.left + treeWin.scrollLeft() - curtoy.width() / 2),
-            top: (e.pageY - divOff.top + 1 + treeWin.scrollTop() + 50)
-        });
-    }
-      , returnToy = function() {
-        curtoy.css({
-            position: "static"
-        }).appendTo(win.find(".toybox"));
-        document.onclick = null;
-    };
-    curtoy.css({
-        position: "absolute"
-    }).appendTo(treeWin);
-    moveAt(e);
-    document.onmousemove = function(e) {
-        moveAt(e);
-    }
-    ;
-    document.onclick = returnToy;
-    nytree.click(function(e) {
-        document.onmousemove = null;
-        nytree.unbind("click");
-        document.onclick = null;
-        var offset = $(this).offset();
-        var relativeX = Math.round(e.pageX - offset.left + $(this).scrollLeft());
-        var relativeY = Math.round(e.pageY - offset.top + $(this).scrollTop());
-        modalWindow('Не забудьте указать ваше личное сообщение к игрушке<br/> <textarea placeholder="Поздравление или пожелание"></textarea><br/> Повесить игрушку?', function() {
-            var msg = mW.find("textarea").val()
-              , curid = curtoy.attr("data-id");
-            sendToSocket({
-                type: "nytoy",
-                x: relativeX,
-                y: relativeY,
-                id: curid,
-                text: msg
-            });
-            curtoy.hide();
-            delete u.items.nytoys[curid];
-        }, returnToy);
-    });
-}
-function windowByName(target) {
-    $(target).parents(".warningWindow").fadeOut(400);
-    showWindow($(target).attr("data-param"));
-}
-function showWindow(buttonClass) {
-    if (mobile) {
-        $("#showHeaderPanel").prop("checked", false);
-    }
-    win.find(".info>div").hide();
-    submenu.hide();
-    if (["tournaments", "aboutgame"].indexOf(buttonClass) > -1) {
-        win.find(".info ." + buttonClass).load("/html/" + buttonClass + ((buttonClass === "aboutgame" && isMaffia) ? "-maffia" : "") + ".html");
-    }
-    win.find(".info ." + buttonClass).show();
-    container.addClass("back");
-    win.addClass("openWindow");
-    switch (buttonClass) {
-    case "newgame":
-        if (!isAppVK) {
-            $("#about").focus();
-        }
-        if (u.vip) {
-            var ngw = win.find(".gameCreate");
-            if (!ngw.find("button").is(".usergame")) {
-                ngw.append('<button class="button usergame" onclick="showWindow(\'userGame\')" style="margin-top:5px">VIP-игра</button>');
-            }
-        }
-        break;
-    case "shop":
-        [3, 6].forEach(function(el) {
-            if (!u.hasOwnProperty("item" + el)) {
-                u["item" + el] = 0;
-            }
-            var cc = u["item" + el] || 0
-              , diff = cc - datenow()
-              , delit = (el === 3) ? 3600000 : 86400000
-              , v = (!diff || diff < 1) ? 0 : Math.ceil(diff / delit);
-            $("#shop" + el).find("div:nth-of-type(2)").html(v);
-            if (el === 6) {
-                $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(Math.ceil(diff / 3600000), "час", "часа", "часов"));
-            }
-        });
-        break;
-    case "donatoptions":
-        if (u.vip) {
-            var diff = u.vip - Date.now();
-            if (diff > 0) {
-                $("#donat-vip").find(".money").html("2000");
-                vipButton.html("Продлить VIP-статус (ост. " + Math.round(diff / 86400000) + " дн.)");
-                $("#donat-foto").find(".money").hide();
-            }
-        }
-        var ruporText = (u.items[7]) ? f.someThing(u.items[7], "рупор", "рупора", "рупоров") : "Рассказать";
-        $("#donat-allmessage").find("button").html(ruporText);
-        var biggameText = (u.items[12]) ? f.someThing(u.items[12], "сертификат", "сертификата", "сертификатов") : "Создать";
-        $("#donat-biggame").find("button").html(biggameText);
-        break;
-    case "collect":
-        collectRadio.attr("checked", false);
-        collectionWin.find("p").html("");
-        collectionWin.find("div").html("");
-        break;
-    case "inventory":
-        showInventory();
-        break;
-    case "areamap":
-        if (mapAreas) {
-            var svgobject = document.getElementById("citymap")
-              , mapAreaOpen = function(e) {
-                var curMap = e.data
-                  , areaData = $("#areaData");
-                areaData.html("");
-                $("<h2>" + curMap.title + "</h2>").appendTo(areaData);
-                if (curMap.own) {
-                    areaData.append("Контролируют: " + ((curMap.own === "bots") ? "боты" : "игроки"));
-                    if (curMap.own === "bots") {
-                        $("<button/>", {
-                            "class": "button",
-                            "data-area": curMap.num
-                        }).html("Захватить").on("click", areaAttack).appendTo(areaData);
-                    }
-                    if (curMap.own === "players") {
-                        $("<button/>", {
-                            "class": "button",
-                            "data-area": curMap.num
-                        }).html("Оборонять").on("click", areaAttack).appendTo(areaData);
-                    }
-                }
-                if (curMap.win) {
-                    var dataText = '<table><tr><th colspan="2">Статистика битв</th></tr>';
-                    if (curMap.win.players) {
-                        dataText += "<tr><td>Победы игроков</td><td>" + curMap.win.players + "</td></tr>";
-                    }
-                    if (curMap.win.bots) {
-                        dataText += "<tr><td>Победы ботов</td><td>" + curMap.win.bots + "</td></tr>";
-                    }
-                    if (curMap.win.draw) {
-                        dataText += "<tr><td>Ничейные партии</td><td>" + curMap.win.draw + "</td></tr>";
-                    }
-                    dataText += "</table>";
-                    areaData.append(dataText);
-                }
-            }
-              , mapOnLoad = function() {
-                if ("contentDocument"in svgobject) {
-                    var svgdom = $(svgobject.contentDocument);
-                    for (var i = 1; i <= 8; i++) {
-                        var curArea = $("#area" + i, svgdom)
-                          , curMap = mapAreas[i];
-                        curArea.html("<title>" + curMap.title + "</title>");
-                        if (curMap.own && curMap.own === "bots") {
-                            curArea.attr("class", curArea.attr("class") + " " + curMap.own);
-                        }
-                        curMap.num = i;
-                        curArea.click(curMap, mapAreaOpen);
-                    }
-                }
-            };
-            mapOnLoad();
-            svgobject.onload = mapOnLoad;
-        }
-        break;
-    case "clan":
-    case "clan-window":
-        var ismyClan = (buttonClass === "clan")
-          , clanData = ismyClan ? myclan : clanView.info;
-        if (clanData) {
-            var clanWin = $("." + buttonClass);
-            clanWin.css("backgroundImage", "url(/images/clans/" + clanData.id + "/logo.jpg)");
-            clanWin.find(".clan-name").html(clanData.name);
-            clanWin.find(".clan-slogan").html(clanData.slogan);
-            clanWin.find(".clan-info").html((ismyClan ? "" : "<mark>Клан создан: " + rusDate(clanData.date) + "</mark>") + clanData.info);
-            var clanMembers = clanWin.find(".clan-members");
-            clanMembers.html("");
-            $.each(clanData.members, function(ind, el) {
-                if (ind === clanData.leader) {
-                    clanWin.find(".clan-leader").html('<strong data-id="' + ind + '">' + el + "</strong>");
-                } else {
-                    $("<strong/>", {
-                        "data-id": ind
-                    }).html(el).appendTo(clanMembers);
-                }
-            });
-            if (ismyClan) {
-                if (clanData.wishes) {
-                    clanMembers.append("<hr/><p>Кандидаты в клан:</p>");
-                    $.each(clanData.wishes, function(ind, el) {
-                        $("<strong/>", {
-                            "data-id": ind
-                        }).html(el).appendTo(clanMembers);
-                        $("<span/>", {
-                            "data-action": "acceptToClan",
-                            "data-uid": ind
-                        }).html("Принять в клан").appendTo(clanMembers);
-                        $("<span/>", {
-                            "data-action": "acceptToClan",
-                            "data-uid": ind,
-                            "data-param": "no"
-                        }).html("Отказать").appendTo(clanMembers);
-                    });
-                }
-                if (!u.clan) {
-                    clanWin.find("button").hide();
-                } else {
-                    clanWin.find("button").show();
-                }
-            } else {
-                if (u.clan) {
-                    clanWin.find("button").hide();
-                } else {
-                    clanWin.find("button").show();
-                }
-            }
-        }
-        break;
-    case "tree":
-        if (u.items && u.items.nytoys) {
-            var toysDiv = win.find(".toybox");
-            toysDiv.html("");
-            $.each(u.items.nytoys, function(ind, val) {
-                $('<span class="nytoy' + val + '" data-id="' + ind + '"></span>').mousedown(NYtoyAdd).appendTo(toysDiv);
-            });
-        }
-        break;
-    case "lottery":
-        var lotteryfield = "";
-        lotteryQuery = false;
-        lotteryWin.html("");
-        for (var i = 1; i <= 100; i++) {
-            lotteryfield += "<span>" + i + "</span>";
-            if (i % 10 === 0) {
-                lotteryfield += "<br/>";
-            }
-        }
-        $("<div/>").html(lotteryfield).appendTo(lotteryWin);
-        lotteryWin.find("div>span").click(function() {
-            if (lotteryQuery) {
-                return;
-            }
-            lotteryDiv.find("button").hide();
-            lotteryQuery = true;
-            sendToSocket({
-                type: "lottery",
-                num: $(this).html()
-            });
-            $(this).addClass("selectLottery");
-        });
-        break;
-    case "menu-editor":
-        menuedit.window();
-        break;
-    }
-    var specialClassSet = function(classname, winclass) {
-        if (buttonClass === classname) {
-            win.addClass(winclass);
-        } else {
-            win.removeClass(winclass);
-        }
-    };
-    [["stat", "statwin"], ["clan", "myclanwin"], ["clan-window", "clanwin"], ["slotmachine", "slotwin"], ["tree", "treewin"], ["f14Win", "blackwin"], ["playerInfoBlock", "profileWindow"], ["buyGifts", "buyboxwin"]].forEach(function(el) {
-        specialClassSet(el[0], el[1]);
-    });
-}
-$(".moneyblock").find("b").click(function() {
-    sumChange();
-    showWindow("pay");
+;
+var greenUpdateButton = $("#greenRefresh");
+greenUpdateButton.on("click", function() {
+    greenUpdateButton.removeClass("show"),
+    sendToSocket({
+        type: "friends",
+        action: "online"
+    }),
+    setTimeout(function() {
+        greenUpdateButton.addClass("show")
+    }, 5e3)
 });
-var payDiv = $(".pay")
-  , donatInput = payDiv.find("input")
-  , minDonatSum = function() {
-    if (parseInt(donatInput.val()) / 10 >= 1) {
-        return true;
-    } else {
-        showMessage("Минимальная сумма - 1 рубль");
-        return false;
+var greenlist = lists.find(".greenlist");
+function showGreenList(e) {
+    greenlist.empty(),
+    e.forEach(function(e) {
+        editGreen(e, !0)
+    })
+}
+function editGreen(e, t) {
+    if (t) {
+        var a = 2 < e.room.length ? e.marked && 2 === e.marked ? "lock" : "open" : "greenroom" + e.room.substring(0, 1)
+          , n = $('<div class="green' + e.sex + " " + a + '"' + (2 === e.marked ? "" : ' data-id="' + e._id + '"') + '><b data-room="' + e.room + '"><span class="lock2"></span></b><span>' + e.login + "</span></div>");
+        n.find("span").on("click", function() {
+            $("#adresat-id").val(e._id),
+            $("#adresat").val(e.login),
+            privateCheck.prop("checked", !0)
+        }),
+        n.find("b").on("click", function() {
+            sendToSocket({
+                type: "follow",
+                uid: e._id
+            })
+        }),
+        greenlist.append(n)
     }
-};
-payDiv.find("#payeer-button").on("click", minDonatSum);
-payDiv.find("#pay-button").on("click", minDonatSum);
-var sumChange = function() {
-    var rSum = parseInt(donatInput.val()) / 10;
-    if (rSum >= 1) {
-        payDiv.find("#pay-rouble").html(f.someThing(rSum, "рубль", "рубля", "рублей"));
-        payDiv.find("#payeer-button").attr("href", serverPort(true) + "/billing/?uid=" + u._id + "&sum=" + rSum.toFixed(2));
-        payDiv.find("#pay-button").attr("href", serverPort(true) + "/billing/form?id=" + u._id + "&sum=" + parseInt(rSum));
-    } else {
-        payDiv.find("#pay-rouble").html("");
-        payDiv.find("#payeer-button").attr("href", "#");
-        payDiv.find("#pay-button").attr("href", "#");
+}
+function showTopLists(e) {
+    if (e.topmoney) {
+        var a = lists.find(".moneylist");
+        e.topmoney.forEach(function(e, t) {
+            $('<div data-id="' + e._id + '"><span>' + (t + 1) + ".</span><span>" + e.login + "</span><span>" + f.over1000(e.money) + "</span></div>").appendTo(a)
+        })
     }
-};
-donatInput.change(sumChange).keyup(sumChange);
-$("h3").click(function() {
-    if (helper.checkLocked && helper.checkLocked($(this))) {
-        return;
+    if (e.toprating) {
+        var n = lists.find(".ratinglist");
+        e.toprating.forEach(function(e, t) {
+            $('<div data-id="' + e._id + '"><span>' + (t + 1) + ".</span><span>" + e.login + "</span><span>" + f.over1000(e.rating) + "</span></div>").appendTo(n)
+        })
     }
-    var buttonClass = $(this).attr("class").substr(7);
-    if (buttonClass === "newgame") {
-        checkGame();
+    if (e.topactiv) {
+        var o = lists.find(".activlist");
+        0 < e.topactiv.length ? e.topactiv.forEach(function(e, t) {
+            var a = Object.keys(e.months)[0];
+            e.activ = a ? e.months[a].activity : 0,
+            $('<div data-id="' + e._id + '"><span>' + (t + 1) + ".</span><span>" + e.login + "</span><span>" + f.over1000(e.activ) + "</span></div>").appendTo(o)
+        }) : $("<p>Станьте первым активным игроком этого месяца!</p>").appendTo(o)
     }
-    switch (buttonClass) {
-    case "findgame":
-        randomGame();
-        break;
-    case "leave":
-        if (container.hasClass("current") && !game.finish) {
-            modalWindow("Вы действительно хотите покинуть игру?", goToRoom);
-        } else {
-            goToRoom();
+    if (e.toprefer) {
+        var i = lists.find(".referlist");
+        e.toprefer.forEach(function(e, t) {
+            $('<div data-id="' + e._id + '"><span>' + (t + 1) + ".</span><span>" + e.login + "</span><span>" + f.over1000(e.invited) + "</span></div>").appendTo(i)
+        })
+    }
+    lists.find("div:not(.greenlist)").find("[data-id]").on("click", showProfile)
+}
+$(".moneyblock").find("b").on("click", function() {
+    sumChange(),
+    showWindow("pay")
+}),
+$("h3").on("click", function() {
+    if (!helper.checkLocked || !helper.checkLocked($(this))) {
+        var e = $(this).attr("class").substr(7);
+        switch ("newgame" === e && checkGame(),
+        e) {
+        case "findgame":
+            randomGame();
+            break;
+        case "leave":
+            container.hasClass("current") && !game.finish ? modalWindow("Вы действительно хотите покинуть игру?", goToRoom) : goToRoom();
+            break;
+        default:
+            showWindow(e)
         }
-        break;
-    default:
-        showWindow(buttonClass);
-        break;
     }
 });
 var showWindowClick = function() {
-    if (helper.checkLocked && helper.checkLocked($(this))) {
-        return;
-    }
-    submenu.hide();
-    if ($(this).hasClass("show-left-panel")) {
-        if ($(this).hasClass("active-left-panel")) {
-            $("article").css("left", "");
-        } else {
-            $("article").css("left", "55px");
-        }
-        $(this).toggleClass("active-left-panel");
-        return;
-    }
-    var fullClass = $(this).attr("class").replace("nobackground", "");
-    if (fullClass === "button-edit") {
-        editProfile(true);
-        return;
-    }
-    if (fullClass.indexOf("block-") > -1) {
-        showSubmenuBlock(fullClass.substr(6));
-    } else {
-        var buttonClass = fullClass.substr(7);
-        switch (buttonClass) {
-        case "total":
-            sendToSocket({
-                type: "tote",
-                action: "list"
-            });
-            break;
-        case "curgames":
-            sendToSocket({
-                type: "curgames-list"
-            });
-            break;
-        case "auction":
-            sendToSocket({
-                type: "auction",
-                action: "list"
-            });
-            break;
-        case "quiztop":
-            sendToSocket({
-                type: "quiz-list"
-            });
-            break;
-        case "myprogress":
-            if (Date.now() > progressTime) {
-                sendToSocket({
-                    type: "progress-list"
-                });
-            }
-            break;
-        case "clan":
-            if (!myclan) {
-                sendToSocket({
-                    type: "clan",
-                    action: "my"
-                });
-                return;
-            }
-            break;
-        case "allfriends":
-            sendToSocket({
-                type: "friends",
-                action: "list"
-            });
-            break;
-        }
-        showWindow(buttonClass);
-    }
-};
-leftPanel.find("div").click(showWindowClick);
-submenu.click(function(e) {
-    if (e.target.id === "submenu") {
-        submenu.hide();
-    }
-});
-submenu.find("div>div").click(showWindowClick);
-function closewindow() {
-    win.removeClass("openWindow");
-    container.removeClass("back");
-}
-function execDataAction(e) {
-    var $this = $(e.target)
-      , action = $this.attr("data-action");
-    if (action && window[action]) {
-        window[action]($this);
-    }
-}
-win.on("click", execDataAction);
-function gamesListener(e, callback, args) {
-    if (e.target.nodeName === "UL") {
-        return;
-    }
-    var clicked = $(e.target)
-      , action = clicked.attr("id") || clicked.parent().attr("id") || clicked.parent().parent().attr("id")
-      , options = (args) ? e.pageX + "|" + e.pageY : "";
-    if (action) {
-        callback(action, options);
-    }
-}
-gamesList.bind("click touchstart", function(e) {
-    showTooltip("", false);
-    gamesListener(e, goToRoom, false);
-}).bind("mousemove touchmove", function(e) {
-    gamesListener(e, showTooltip, true);
-}).bind("mouseleave touchleave", function(e) {
-    gamesListener(e, showTooltip, false);
-});
-function showTooltip(elid, options) {
-    if (options) {
-        var coords = options.split("|");
-        var x = parseInt(coords[0]);
-        var y = parseInt(coords[1]);
-        var sw = $("html").width();
-        if (sw / 2 > x) {
-            tp.css("left", x + "px");
-        } else {
-            tp.css("left", "");
-            tp.css("right", (sw - x) + "px");
-        }
-        tp.css("top", (y + 10) + "px");
-        tp.html(gamesInfoArray[elid]).show();
-    } else {
-        tp.hide();
-    }
-}
-$("<div/>", {
-    "class": "tooltip"
-}).appendTo((isAppVK || mobile) ? b : container);
-function tooltip(e, text, show) {
-    var tp = $(".tooltip")
-      , rootBlock = (isAppVK || kinderMode || mobile) ? b : container;
-    if (show) {
-        var x = e.pageX - rootBlock.offset().left
-          , y = e.pageY - rootBlock.offset().top
-          , sw = rootBlock.outerWidth()
-          , sh = rootBlock.outerHeight();
-        if (sw / 2 > x) {
-            tp.css("left", x + "px");
-            tp.css("right", "");
-        } else {
-            tp.css("left", "");
-            tp.css("right", (sw - x) + "px");
-        }
-        if (y + 40 > sh) {
-            tp.css("top", "");
-            tp.css("bottom", (sh - y) + "px");
-        } else {
-            tp.css("bottom", "");
-            tp.css("top", (y + 10) + "px");
-        }
-        if (text.indexOf("|") > 0) {
-            if (e.target.hasAttribute("data-club")) {
-                text = text.split("|")[u.club ? 1 : 0];
-            } else {
-                text = text.split("|")[isMaffia ? 1 : 0];
-            }
-        }
-        tp.html(text.replace("<!", "&lt;!")).show();
-    } else {
-        tp.hide();
-    }
-}
-function checkMarried(cu, block) {
-    if (cu.married === true) {
-        block.addClass("married");
-    } else {
-        block.removeClass("married");
-        if (cu.married) {
-            if (!cu.cups) {
-                cu.cups = {};
-            }
-            cu.cups["wed" + cu.married.replace("-", "") + "-png"] = cu.married === "women-item" ? "Завидная невеста" : "Завидный жених";
-        }
-    }
-}
-function showPlayerInfo(show, uid) {
-    ptp.queue("fx", []);
-    var stat = ptp.find("#playerInfo-stat")
-      , cu = playersInfoArray[uid];
-    if (show && cu) {
-        if (cu.hide && uid === u._id) {
-            cu = u;
-        }
-        if (cu.bot && cu.creator && playersInfoArray[cu.creator]) {
-            cu.icon = 2;
-            cu.status = playersInfoArray[cu.creator].login;
-        }
-        var statEcho = function(obj, role) {
-            var win = (obj[role + "1"] === undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "1"]
-              , lose = (obj[role + "0"] === undefined) ? ((cu.bot || cu.hide) ? "-" : "0") : obj[role + "0"];
-            return win + " / " + lose;
-        };
-        if (cu.image && cu.image.length > 2) {
-            ptp.find("#playerInfo-image").removeClass().css({
-                background: "url(/files/" + uid + cu.image + ") center center no-repeat",
-                "background-size": "contain"
-            });
-        } else {
-            ptp.find("#playerInfo-image").removeClass().removeAttr("style").addClass("i" + ((cu.sex === 1) ? "w" : "m") + cu.image);
-        }
-        if (cu.club) {
-            ptp.addClass("club");
-        } else {
-            ptp.removeClass("club");
-        }
-        checkMarried(cu, ptp);
-        if (cu.vip) {
-            ptp.addClass("vipProfile");
-        } else {
-            ptp.removeClass("vipProfile");
-        }
-        var cuNick = cu.login || "***"
-          , cuRate = cu.hide ? (cu._id === u._id ? "*" + u.rating + "*" : "скрыт") : (cu.hasOwnProperty("rating") ? cu.rating : "-")
-          , gamescount = cu.hasOwnProperty("gamescount") ? cu.gamescount : (cu.hide ? "-" : "∞");
-        stat.find(".nick").html(cuNick);
-        stat.find(".rating").html(cuRate);
-        stat.find(".cat").html(statEcho(cu, "cat"));
-        stat.find(".sleep").html(statEcho(cu, "lun"));
-        stat.find(".jeal").html(statEcho(cu, "rev"));
-        stat.find(".duty").html(statEcho(cu, "dej"));
-        stat.find(".robb").html(statEcho(cu, "poh"));
-        stat.find(".stud").html(statEcho(cu, "stud"));
-        stat.find(".gamecount").html(gamescount);
-        ptp.find("#player-status").removeClass().addClass("status" + cu.icon).html(cu.status || "");
-        ptp.find("#playerInfo-about").html(cu.about || "");
-        var cups = "";
-        if (cu.cups) {
-            for (var index in cu.cups) {
-                if (cu.cups.hasOwnProperty(index)) {
-                    cups += '<span data-title="' + cu.cups[index] + '" style="background-image:url(/images/cups/' + index.replace("-", ".") + ')"></span>';
-                }
-            }
-        }
-        ptp.find("#playerInfo-cups").html(cups);
-        ptp.delay(1000).fadeTo(900, 1);
-        if (container.hasClass("current") && game.period === 2 && !game.finish) {
-            if (cu.sex === 1) {
-                gameptp.addClass("woman-gameinfo");
-            } else {
-                gameptp.removeClass("woman-gameinfo");
-            }
-            var divs = gameptp.find("div");
-            if (game.hisvote[uid]) {
-                divs.eq(0).html(game.hisvote[uid]);
-            } else {
-                divs.eq(0).html("");
-            }
-            if (game.votes[uid]) {
-                divs.eq(1).html(game.votes[uid].join(", ") + "<hr/> Голосов: " + game.votes[uid].length);
-            } else {
-                divs.eq(1).html("");
-            }
-            if (game.hisvote[uid] || game.votes[uid]) {
-                gameptp.find("strong").html(cuNick);
-                gameptp.show();
-            }
-        }
-    } else {
-        ptp.hide();
-        gameptp.hide();
-    }
-}
-function showPlayerInfoBlock(cu) {
-    var wb = $(".info").find(".playerInfoBlock")
-      , stat = wb.find(".playerInfo-stat")
-      , giftInfo = wb.find(".playerInfo-gifts")
-      , myprofile = (cu._id === u._id)
-      , statEcho = function(obj, role) {
-        var win = (obj[role + "1"] === undefined) ? "0" : obj[role + "1"]
-          , lose = (obj[role + "0"] === undefined) ? "0" : obj[role + "0"];
-        return win + " / " + lose;
-    };
-    if (myprofile) {
-        wb.addClass("myProfile");
-    } else {
-        wb.removeClass("myProfile");
-    }
-    if (cu.image.length > 2) {
-        wb.find(".playerInfo-image").removeClass().addClass("playerInfo-image").css({
-            background: "url(/files/" + cu._id + cu.image + ") center center no-repeat",
-            "background-size": "contain"
-        });
-    } else {
-        wb.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + ((cu.sex === 1) ? "w" : "m") + cu.image);
-    }
-    if (cu.club) {
-        wb.addClass("club");
-    } else {
-        wb.removeClass("club");
-    }
-    checkMarried(cu, wb);
-    var cuNick = cu.login || "***"
-      , cuRate = cu.rating || "0";
-    stat.find(".nick").html(cuNick);
-    stat.find(".rating").html(cuRate);
-    stat.find(".cat").html(statEcho(cu, "cat"));
-    stat.find(".sleep").html(statEcho(cu, "lun"));
-    stat.find(".jeal").html(statEcho(cu, "rev"));
-    stat.find(".duty").html(statEcho(cu, "dej"));
-    stat.find(".robb").html(statEcho(cu, "poh"));
-    stat.find(".stud").html(statEcho(cu, "stud"));
-    var lawRole = stat.find(".law");
-    lawRole.html(statEcho(cu, "adv"));
-    stat.find(".roles-stat").remove();
-    if (cu.roles) {
-        $.each(cu.roles, function(key, v) {
-            $('<span class="roles-stat" data-text="' + roles(key).name + '">' + (v["1"] || "0") + " / " + (v["0"] || "0") + "</span>").insertAfter(lawRole);
-        });
-    }
-    stat.find(".gamecount").html(cu.gamescount);
-    wb.find(".player-status").removeClass().addClass("player-status status" + cu.icon).html(cu.status || "");
-    wb.find(".playerInfo-about").html(cu.about || "");
-    var cups = "";
-    if (cu.cups) {
-        for (var index in cu.cups) {
-            if (cu.cups.hasOwnProperty(index)) {
-                cups += '<span data-title="' + cu.cups[index] + '" style="background-image:url(/images/cups/' + index.replace("-", ".") + ')"></span>';
-            }
-        }
-    }
-    wb.find(".playerInfo-cups").html(cups);
-    var dateInfo = (cu.date) ? rusDate(cu.date) : "До 14 июня 2015 года";
-    if (cu.room && cu.room !== "0") {
-        if (cu.room.length > 2) {
-            dateInfo += '<div class="green">В игре</div>';
-        } else {
-            dateInfo += '<div class="hall' + cu.room.substring(0, 1) + '">' + (cu.room.indexOf("s") === 1 ? "*" : "") + "</div>";
-        }
-    } else {
-        dateInfo += '<div class="red">Вне игры</div>';
-    }
-    if (cu.last) {
-        dateInfo += '<div class="lastvisit">' + ((isToday(cu.last)) ? "Сегодня" : rusDate(cu.last, true, true)) + "</div>";
-    }
-    if (cu.vip && cu.vip > datenow()) {
-        dateInfo += '<div class="vipPlayer">VIP-статус до ' + showDate(cu.vip, true) + "</div>";
-    }
-    if (cu.blank) {
-        var anketaInfo = '<div class="anketaInfo">';
-        for (var i in cu.blank) {
-            if (cu.blank.hasOwnProperty(i)) {
-                var curv = (i == 1 && cu.blank[i]) ? rusDate(cu.blank[i], true) : cu.blank[i];
-                if (curv) {
-                    isVal = true;
-                }
-                anketaInfo += "<p>" + curv + "</p>";
-            }
-        }
-        dateInfo += anketaInfo + "</div>";
-    }
-    if (cu.clan) {
-        dateInfo += '<div data-action="clanProfile" data-id="' + cu.clan + '" class="clan-status" style="background-image:url(/images/clans/' + cu.clan + '/icon.png)">Состоит в клане</div>';
-    }
-    $("#regdate").html(dateInfo);
-    if (myprofile) {
-        if (u.vip) {
-            $("<button>" + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").click(function() {
-                $(this).hide();
-                sendToSocket({
-                    type: "anketa",
-                    data: {
-                        hide: !u.hide
-                    }
-                });
-            }).appendTo(wb.find(".playerInfo-cups"));
-        }
-    } else {
-        $("<button>Сделать подарок</button>").click(function() {
-            giftShop.find('input[type="text"]').eq(0).val(cu.login);
-            showWindow("giftshop");
-        }).appendTo(wb.find(".playerInfo-cups"));
-    }
-    if (u.stat && u.stat.pay) {
-        var needVipSum = (u.vip && u.vip > datenow()) ? 2000 : 3000;
-        $('<button class="button-donatoptions money">' + (myprofile ? "Получить" : "Подарить") + " VIP (" + needVipSum + ")</button>").click(function() {
-            if (u.money2 >= needVipSum) {
-                modalWindow("Вы уверены, что хотите подарить игроку <b>" + cuNick + "</b> VIP-статус на 30 дней?", function() {
+    if (!helper.checkLocked || !helper.checkLocked($(this))) {
+        if (submenu.hide(),
+        $(this).hasClass("show-left-panel"))
+            return $(this).hasClass("active-left-panel") ? $("article").css("left", "") : $("article").css("left", "55px"),
+            void $(this).toggleClass("active-left-panel");
+        var e = $(this).attr("class").replace("nobackground", "");
+        if ("button-edit" !== e)
+            if (-1 < e.indexOf("block-"))
+                showSubmenuBlock(e.substr(6));
+            else {
+                var t = e.substr(7);
+                switch (t) {
+                case "total":
                     sendToSocket({
-                        type: "donat",
-                        action: "vip",
-                        other: cu._id
+                        type: "tote",
+                        action: "list"
                     });
-                });
-            } else {
-                f.notEnough({
-                    action: "money2",
-                    message: 'Для такого щедрого подарка у Вас должно быть <span class="money">' + needVipSum + "</span> на счету."
-                });
-            }
-        }).appendTo(wb.find(".playerInfo-cups"));
-    }
-    giftInfo.html("");
-    if (cu.gifts) {
-        var profileGiftClick = function() {
-            var thisgift = $(this);
-            modalWindow('Выбросить подарок?<br/> <div class="playerInfo-gifts singlegift"><div class="' + thisgift.attr("class") + '" data-title="' + thisgift.attr("data-title") + '"></div></div>', function() {
-                sendToSocket({
-                    type: "gift-delete",
-                    gift: thisgift.attr("data-giftid")
-                });
-                thisgift.remove();
-            });
-        };
-        for (var k in cu.gifts) {
-            if (cu.gifts.hasOwnProperty(k)) {
-                var cg = cu.gifts[k]
-                  , curgift = $('<div data-giftid="' + k + '" class="' + getGiftClass(cg.num) + '" data-title="' + (cg.login ? cg.login : "Аноним") + ": " + (cg.text ? matFilter(cg.text) : "без комментариев") + " (" + showDate(k, true) + ')"></div>');
-                if (myprofile) {
-                    curgift.on("click touchstart", profileGiftClick);
+                    break;
+                case "curgames":
+                    sendToSocket({
+                        type: "curgames-list"
+                    });
+                    break;
+                case "auction":
+                    sendToSocket({
+                        type: "auction",
+                        action: "list"
+                    });
+                    break;
+                case "quiztop":
+                    sendToSocket({
+                        type: "quiz-list"
+                    });
+                    break;
+                case "myprogress":
+                    Date.now() > progressTime && sendToSocket({
+                        type: "progress-list"
+                    });
+                    break;
+                case "clan":
+                    if (!clan.myclan)
+                        return void sendToSocket({
+                            type: "clan",
+                            action: "my"
+                        });
+                    break;
+                case "allfriends":
+                    sendToSocket({
+                        type: "friends",
+                        action: "list"
+                    })
                 }
-                curgift.appendTo(giftInfo);
+                showWindow(t)
             }
-        }
-        giftInfo.append('<br class="clearfix"/>');
+        else
+            editProfile(!0)
     }
-    showWindow("playerInfoBlock");
-}
-shop.find("[data-item]").click(function() {
-    if (!$(this).attr("data-item")) {
-        showMessage("Товар не выбран");
-        return;
-    }
-    var data = $(this).attr("data-item").split("-")
-      , item = parseInt(data[0])
-      , money = parseInt(data[1]);
-    if (item > 0 && item < 7) {
-        sendToSocket({
-            type: "buy",
-            item: item,
-            money: money
-        });
-    } else {
-        showMessage("Товара нет в наличии");
-    }
-});
-function showMessage(text) {
-    warningWindow(text);
-}
-$("#options").click(function() {
-    oW.addClass("showWindow");
-});
-oW.find("button").click(function() {
-    oW.removeClass("showWindow");
-});
-oW.find(".close").click(function() {
-    oW.removeClass("showWindow");
-});
-function plSort(i, ii) {
-    if (i[0] > ii[0]) {
-        return 1;
-    } else {
-        if (i[0] < ii[0]) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
-}
-function sSort(i, ii) {
-    if (i[colNum] > ii[colNum]) {
-        return sortType;
-    } else {
-        if (i[colNum] < ii[colNum]) {
-            return -1 * sortType;
-        } else {
-            return 0;
-        }
-    }
-}
-function iSort(i, ii) {
-    var v1 = parseInt(i[colNum]);
-    var v2 = parseInt(ii[colNum]);
-    if (v1 > v2) {
-        return sortType;
-    } else {
-        if (v1 < v2) {
-            return -1 * sortType;
-        } else {
-            return 0;
-        }
-    }
-}
-function sortTable(column) {
-    if (!column) {
-        column = colNum;
-    } else {
-        sound("shuffle");
-        if (colNum === column) {
-            sortType *= -1;
-        }
-        colNum = column;
-    }
-    var str = [];
-    gamesList.find("li").each(function() {
-        var indexA = [$(this).attr("id"), $(this).attr("class")];
-        var sustr = [indexA];
-        $(this).children("span").each(function() {
-            sustr.push($(this).html());
-        });
-        str.push(sustr);
-    });
-    if (column === 1 || column === 4) {
-        str.sort(sSort);
-    } else {
-        str.sort(iSort);
-    }
-    $.each(str, function(key, value) {
-        var curid = value[0][0];
-        $("#" + curid).remove();
-        var newGame = document.createElement("li");
-        newGame.id = curid;
-        if (value[0][1]) {
-            newGame.className = value[0][1];
-        }
-        gamesList.append(newGame);
-        $.each(value, function(key2, value2) {
-            if (key2 > 0) {
-                newGame.innerHTML += '<span class="row' + key2 + '">' + value2 + "</span>";
-            }
-        });
-    });
-}
-var prices = {
-    i1: 2000,
-    ir1: 1,
-    i2: 3000,
-    ir2: 5,
-    i3: 30000,
-    ir3: 150,
-    i4: 1000,
-    ir4: 3,
-    i5: 5000,
-    ir5: 10,
-    i6: 300000,
-    ir6: 1000
 };
-function over1000(num) {
-    if (!num) {
-        return 0;
-    }
-    var str = num.toString();
-    if (str.length > 0) {
-        num = "";
-        for (var k = 1, i = str.length - 1; i >= 0; i--,
-        k++) {
-            if (k % 3 === 1) {
-                num = " " + num;
-            }
-            num = str[i] + num;
-        }
-    } else {
-        num = str;
-    }
-    return num;
+function execDataAction(e) {
+    var t = $(e.target)
+      , a = t.attr("data-action");
+    a && window[a] && window[a](t)
 }
-var charObj = {
-    sex: 2,
-    image: 1,
-    about: ""
-}
-  , imageChar = $("#imageChar");
-charDiv.find('input[type="radio"]').change(function() {
-    charObj.sex = parseInt($(this).val());
-    charObj.changeChar();
-});
-imageChar.find("span").click(function() {
-    if (!charObj.image || charObj.image.length > 2) {
-        charObj.image = 0;
-    }
-    charObj.image += ($(this).attr("id") === "nextChar") ? 1 : -1;
-    if (charObj.image < 1) {
-        charObj.image = 24;
-    }
-    if (charObj.image > 24) {
-        charObj.image = 1;
-    }
-    charObj.changeChar();
-});
-charObj.changeChar = function() {
-    if (charObj.image.length > 2) {
-        imageChar.css({
-            background: "url(/files/" + u._id + u.image + ") center center no-repeat",
-            "background-size": "contain"
-        });
-    } else {
-        imageChar.removeAttr("style");
-        var w = 200
-          , h = 260
-          , y = (charObj.sex === 1) ? -1 : -4
-          , x = 1;
-        if (charObj.image > 8) {
-            var dy = Math.floor((charObj.image - 1) / 8);
-            y -= dy;
-            x -= charObj.image - dy * 8;
-        } else {
-            x -= charObj.image;
-        }
-        imageChar.css("background-position", (x ? x * w + "px " : "0 ") + y * h + "px");
+function gamesListener(e, t, a) {
+    if ("UL" !== e.target.nodeName) {
+        var n = $(e.target)
+          , o = n.attr("id") || n.parent().attr("id") || n.parent().parent().attr("id")
+          , i = a ? e.pageX + "|" + e.pageY : "";
+        o && t(o, i)
     }
 }
-;
-regButton.click(function() {
-    var newLogin = $("#login").val().trim()
-      , about = $("#charAbout").val().trim()
-      , outObj = {};
-    if (charDiv.hasClass("addChar")) {
-        if (newLogin.length < 4) {
-            showMessage("Минимальная длина НикНейма 4 символа");
-            return;
-        }
-        outObj = {
-            type: "char",
-            action: "create",
-            login: newLogin,
-            sex: charObj.sex,
-            image: charObj.image,
-            about: about
-        };
-        sendToSocket(outObj);
-        editProfile(false);
-        closewindow();
-        return;
-    } else {
-        if (u.login) {
-            var isChanges = false;
-            if (u.sex !== charObj.sex) {
-                u.sex = charObj.sex;
-                if (playersInfoArray[u._id]) {
-                    playersInfoArray[u._id].sex = charObj.sex;
-                }
-                outObj.sex = charObj.sex;
-                isChanges = true;
-            }
-            if (u.image !== charObj.image) {
-                u.image = charObj.image;
-                if (playersInfoArray[u._id]) {
-                    playersInfoArray[u._id].image = charObj.image;
-                }
-                outObj.image = charObj.image;
-                isChanges = true;
-            }
-            if (u.about !== about) {
-                u.about = about;
-                if (playersInfoArray[u._id]) {
-                    playersInfoArray[u._id].about = about;
-                }
-                outObj.about = about;
-                isChanges = true;
-            }
-            if (!isChanges) {
-                editProfile(false);
-                alarm("Профиль не был изменен.");
-                return;
-            } else {
-                updateInterface();
-                outObj.type = "edit";
-            }
-        } else {
-            if (newLogin.length < 4) {
-                showMessage("Минимальная длина НикНейма 4 символа");
-                return;
-            }
-            outObj = {
-                type: "authorize",
-                login: newLogin,
-                sex: charObj.sex,
-                image: charObj.image,
-                about: about
-            };
-            var invite = getCookie("invite")
-              , inviteVK = getCookie("invite-vk");
-            if (invite !== undefined && invite.length === 24) {
-                outObj.invite = invite;
-            }
-            if (inviteVK) {
-                outObj["invite-vk"] = inviteVK;
-            }
-            regButton.prop("disabled", true);
-        }
-    }
-    sendToSocket(outObj);
-    if (u.login) {
-        editProfile(false);
-    }
-});
-$("#cancel").click(function() {
-    editProfile(false);
-});
-$("#datablank").click(function() {
-    editProfile(false);
-    showBlank();
-});
-$("#selectChar").click(function() {
-    editProfile(false);
-    showSelectChar();
-});
-function editProfileSize() {
-    var propK = 0.685
-      , bw = b.outerWidth()
-      , bh = b.outerHeight();
-    if (bh / bw < propK) {
-        var marginLR = Math.round((bw - bh / propK) / 2);
-        charDiv.css({
-            top: 0,
-            bottom: 0,
-            left: marginLR,
-            right: marginLR
-        });
-    } else {
-        var marginTB = Math.round((bh - bw * propK) / 2);
-        charDiv.css({
-            top: marginTB,
-            bottom: marginTB,
-            left: 0,
-            right: 0
-        });
-    }
-}
-function editProfile(open) {
-    if (open) {
-        editProfileSize();
-        if (u.sex === 1) {
-            $("#sex2").prop("checked", true);
-        } else {
-            $("#sex1").prop("checked", true);
-        }
-        charObj.sex = u.sex;
-        charObj.image = u.image;
-        charObj.about = u.about;
-        if (u.charNum) {
-            u.chars[u.charNum - 1].sex = charObj.sex;
-            u.chars[u.charNum - 1].image = charObj.image;
-            u.chars[u.charNum - 1].about = charObj.about;
-        } else {
-            if (u.mainChar) {
-                u.mainChar.sex = charObj.sex;
-                u.mainChar.image = charObj.image;
-                u.mainChar.about = charObj.about;
-            }
-        }
-        charObj.changeChar();
-        if (open === "addChar") {
-            charDiv.addClass("addChar");
-            $("#charAbout").val("");
-        } else {
-            $("#charAbout").val(u.about);
-        }
-        charDiv.addClass("charEdit");
-    } else {
-        charDiv.removeClass();
-    }
-    closewindow();
-}
-var selectCharDiv = $(".selectChar");
-$("#char-back").click(function() {
-    editProfile(true);
-    closewindow();
-});
-$("#char-create").click(function() {
-    if (!u.club && !u.vip) {
-        showMessage("Для создания дополнительных персонажей нужно состоять в клубе или иметь VIP аккаунт");
-        return;
-    }
-    if (!u.vip && u.chars && u.chars.length > 0) {
-        showMessage("Для создания более 1 дополнительного персонажа нужно иметь VIP аккаунт");
-        return;
-    }
-    if (u.chars && u.chars.length > 4) {
-        showMessage("Нельзя создать больше 5 дополнительных аккаунтов");
-        return;
-    }
-    editProfile("addChar");
-});
-$("#char-delete").click(function() {
-    var charNum = selectCharDiv.find("input[name=selectedChar]:checked").val();
-    if (charNum === "0") {
-        showMessage("Нельзя удалить основной персонаж. Для смены ника воспользуйтесь разделом VIP");
-        return;
-    }
-    if (charNum && u.chars[charNum - 1]) {
-        modalWindow("Вы действительно хотите удалить персонажа " + u.chars[charNum - 1].login + "?", function() {
-            u.chars.splice(charNum - 1, 1);
-            sendToSocket({
-                type: "char",
-                action: "delete",
-                "char": charNum
-            });
-            closewindow();
-        });
-    }
-});
-function showCharImage(cu) {
-    return "<span " + (cu.image.length > 2 ? 'style="background:url(/files/' + u._id + cu.image + ") center center no-repeat;background-size:contain;" : 'class="i' + ((cu.sex === 1) ? "w" : "m") + cu.image) + '"></span>';
-}
-function showSelectChar() {
-    var charsData = "";
-    if (u.mainChar) {
-        charsData += '<input type="radio" name="selectedChar" id="selectedChar0" value="0"';
-        if (!u.charNum) {
-            charsData += ' checked="checked"';
-        }
-        charsData += '/><label for="selectedChar0">' + showCharImage(u.mainChar) + u.mainChar.login + "</label>";
-    } else {
-        charsData += '<input type="radio" name="selectedChar" id="selectedChar0" value="0" checked="checked"/><label for="selectedChar0"><span class="i' + ((u.sex === 1) ? "w" : "m") + u.image + '"></span>' + u.login + "</label>";
-    }
-    if (u.chars) {
-        u.chars.forEach(function(el, ind) {
-            var n = ind + 1;
-            charsData += '<input type="radio" name="selectedChar" id="selectedChar' + n + '" value="' + n + '"';
-            if (u.charNum && u.charNum === n) {
-                charsData += ' checked="checked"';
-            }
-            charsData += '/><label for="selectedChar' + n + '">' + showCharImage(el) + el.login + "</label>";
-        });
-    }
-    var chars = selectCharDiv.find("div");
-    chars.html(charsData);
-    selectCharDiv.find("input").change(function() {
-        u.charNum = parseInt($(this).val());
-        sendToSocket({
-            type: "char",
-            action: "select",
-            "char": u.charNum
-        });
-    });
-    showWindow("selectChar");
-}
-var blankForm = $(".blank");
-function showBlank() {
-    if (u.blank) {
-        for (var i in u.blank) {
-            if (u.blank.hasOwnProperty(i)) {
-                if (u.blank[i]) {
-                    $("#blank" + i).val(u.blank[i]);
-                }
-            }
-        }
-    }
-    showWindow("blank");
-}
-blankForm.find("button").click(function() {
-    var fields = {};
-    blankForm.find("input").each(function(index) {
-        if (index === 1 && new Date($(this).val()) == "Invalid Date") {
-            $(this).val("");
-        }
-        fields[index] = $(this).val();
-    });
-    sendToSocket({
-        type: "anketa",
-        data: fields
-    });
-    closewindow();
-});
-function setWidth(width) {
-    if (width > 10 && width < 101 && !isAppVK && !mobile) {
-        container.css("width", width + "%");
-        if (container.width() < 800) {
-            b.addClass("w800");
-        } else {
-            b.removeClass("w800");
-        }
-        if (container.width() < 690) {
-            b.addClass("w690");
-        } else {
-            b.removeClass("w690");
-        }
-    }
-}
-var gameWidth = $("#gameWidth");
-if (lStorage.getItem("width")) {
-    setWidth(lStorage.getItem("width"));
-    gameWidth.val(lStorage.getItem("width"));
-}
-gameWidth.change(function() {
-    var width = $(this).val();
-    setWidth(width);
-    if (width >= 100) {
-        lStorage.removeItem("width");
-    } else {
-        lStorage.setItem("width", width);
-    }
+leftPanel.find("div").on("click", showWindowClick),
+submenu.on("click", function(e) {
+    "submenu" === e.target.id && submenu.hide()
+}),
+submenu.find("div>div").on("click", showWindowClick),
+$(document).on("click", "strong[data-id]", showProfile).on("click", "[data-action]", execDataAction).on("mousemove touchmove", "[data-title]", function(e) {
+    tooltip(e, $(this).attr("data-title"), !0)
+}).on("mouseleave touchleave", "[data-title]", function(e) {
+    tooltip(e, "", !1)
+}),
+gamesList.bind("click touchstart", function(e) {
+    showTooltip("", !1),
+    gamesListener(e, goToRoom, !1)
+}).bind("mousemove touchmove", function(e) {
+    gamesListener(e, showTooltip, !0)
+}).bind("mouseleave touchleave", function(e) {
+    gamesListener(e, showTooltip, !1)
+}),
+$("<div/>", {
+    class: "tooltip"
+}).appendTo(isAppVK || mobile ? b : container),
+shop.find("[data-item]").on("click", function() {
+    if ($(this).attr("data-item")) {
+        var e = $(this).attr("data-item").split("-")
+          , t = parseInt(e[0])
+          , a = parseInt(e[1]);
+        0 < t && t < 7 ? sendToSocket({
+            type: "buy",
+            item: t,
+            money: a
+        }) : showMessage("Товара нет в наличии")
+    } else
+        showMessage("Товар не выбран")
+}),
+$("#options").on("click", function() {
+    oW.addClass("showWindow")
+}),
+oW.find("button").on("click", function() {
+    oW.removeClass("showWindow")
+}),
+oW.find(".close").on("click", function() {
+    oW.removeClass("showWindow")
 });
 var statusSelect = $(".myselect");
-statusSelect.find("li").click(function() {
-    var selClass = $(this).attr("class");
-    var selValue = $(this).html();
-    statusSelect.find("label").removeClass().addClass(selClass).html(selValue);
-    statusSelect.find('input[type="checkbox"]').prop("checked", false);
-});
 function setStatus() {
-    playersInfoArray[u._id].status = u.status;
-    playersInfoArray[u._id].icon = u.icon;
+    playersInfoArray[u._id].status = u.status,
+    playersInfoArray[u._id].icon = u.icon,
     playersList.find("#" + u._id + ">b").removeClass().addClass("status" + u.icon);
-    var selector = (u.icon) ? ".myselect li.status" + u.icon : ".myselect li:nth-of-type(1)";
-    statusSelect.find("label").removeClass().addClass("status" + u.icon).html($(selector).html());
-    $("#statusText").val(u.status);
+    var e = u.icon ? ".myselect li.status" + u.icon : ".myselect li:nth-of-type(1)";
+    statusSelect.find("label").removeClass().addClass("status" + u.icon).html($(e).html()),
+    $("#statusText").val(u.status)
 }
-$("#saveStatus").click(function() {
-    var text = $("#statusText").val()
-      , icon = statusSelect.find("label").attr("class").substring(6) || 0;
-    if (u.status === text && u.icon === icon) {
-        return;
-    }
-    u.status = text;
-    u.icon = icon;
+statusSelect.find("li").on("click", function() {
+    var e = $(this).attr("class")
+      , t = $(this).html();
+    statusSelect.find("label").removeClass().addClass(e).html(t),
+    statusSelect.find('input[type="checkbox"]').prop("checked", !1)
+}),
+$("#saveStatus").on("click", function() {
+    var e = $("#statusText").val()
+      , t = statusSelect.find("label").attr("class").substring(6) || 0;
+    u.status === e && u.icon === t || (u.status = e,
+    u.icon = t,
     sendToSocket({
         type: "status",
-        icon: icon,
-        text: text
-    });
-    setStatus();
+        icon: t,
+        text: e
+    }),
+    setStatus())
 });
-var vipButton = $("#donat-vip").find("button");
-$("#showDonat").click(function() {
-    showWindow("donatoptions");
-});
-vipButton.click(function() {
-    if ((u.vip && u.money2 >= 2000) || u.money2 >= 3000) {
-        sendToSocket({
-            type: "donat",
-            action: "vip"
-        });
-        closewindow();
-    } else {
-        f.notEnough({
-            action: "money2"
-        });
-    }
-});
-var donatNick = $("#donat-nick");
-donatNick.find("button").click(function() {
-    var newLogin = donatNick.find("input").val().trim();
-    if (newLogin.length >= 4) {
-        if (u.money2 >= 100) {
-            sendToSocket({
-                type: "donat",
-                action: "nick",
-                login: newLogin
-            });
-            closewindow();
-        } else {
-            f.notEnough({
-                action: "money2"
-            });
-        }
-    } else {
-        showMessage("Минимальная длина НикНейма 4 символа");
-    }
-});
-var donatChange = $("#donat-change")
-  , donatChangeInput = donatChange.find("input");
-var changeChange = function() {
-    var rSum = parseInt(donatChangeInput.val()) * 300;
-    if (rSum >= 300) {
-        donatChange.find("span").eq(1).html(over1000(rSum));
-    } else {
-        donatChangeInput.val(100);
+var winTableData = {
+    allfriends: {
+        fields: ["№", "Основной ник", "⚥", "Вас обидели?", "Последний визит"],
+        handler: deleteFriendFromTable
+    },
+    clanlist: {
+        fields: ["№", "Название", "*", "Девиз", "Дата создания"],
+        handler: null
     }
 };
-donatChangeInput.change(changeChange).keyup(changeChange);
-donatChange.find("button").click(function() {
-    var sumMoney = parseInt(donatChangeInput.val());
-    if (sumMoney > 0 && sumMoney <= u.money2) {
-        sendToSocket({
-            type: "donat",
-            action: "moneychange",
-            money: sumMoney
-        });
-        closewindow();
-    } else {
-        f.notEnough({
-            action: "money2"
-        });
-    }
-});
-var donatNickColor = $("#donat-nickcolor");
-donatNickColor.find("button").click(function() {
-    var selColor = donatNickColor.find("input").val();
-    if (u.money2 >= 500) {
-        modalWindow('Уверены, что хотите установить цвет ника таким?<br/><div style="background:#000;padding:10px;"><b style="color:' + selColor + '">' + u.login + '</b> в режиме Мафии</div><div style="background:#fff;padding:10px;color:#000"><b style="color:' + selColor + '">' + u.login + "</b> в режиме День Любви</div>", function() {
-            sendToSocket({
-                type: "donat",
-                action: "nickcolor",
-                color: selColor
-            });
-            closewindow();
-        });
-    } else {
-        f.notEnough({
-            action: "money2"
-        });
-    }
-});
-var donatAllMsg = $("#donat-allmessage")
-  , sendToAllMsg = function(msgText) {
-    if (u.items[7]) {
-        u.items[7] -= 1;
-        sendToSocket({
-            type: "items",
-            action: "7",
-            text: msgText
-        });
-        closewindow();
-    } else {
-        if (u.money2 >= 200) {
-            sendToSocket({
-                type: "toAll",
-                action: "msgToAll",
-                text: msgText
-            });
-            closewindow();
-        } else {
-            showMessage('Недостаточно <span class="money">баксов</span> для выполнения операции :(');
-        }
-    }
-};
-donatAllMsg.find("button").click(function() {
-    sendToAllMsg(donatAllMsg.find("input").val().trim().substring(0, 300));
-});
-$("#speaker").click(function() {
-    modalWindow("Для отправки сообщения всем присутствующим в игре " + (u.items[7] ? "будет использован 1 сертификат на бесплатное объявление" : 'с вашего счета будет списано <span class="money">200</span>') + ". Хотите продолжить?", function() {
-        sendToAllMsg(inputField.val().trim().substring(0, 300));
-        inputField.val("");
-    });
-});
-var donatFoto = $("#donat-foto")
-  , donatFotoFile = donatFoto.find("input")[0]
-  , donatFotoFileImage = false;
-$(donatFotoFile).change(function() {
-    if (window.FileReader) {
-        if (this.files && this.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                donatFotoFileImage = e.target.result;
-            }
-            ;
-            reader.readAsDataURL(this.files[0]);
-        }
-    } else {
-        showMessage("К сожалению, в вашем браузере не поддерживается предпросмотр загружаемых файлов.<br/> Если хотите посмотреть как будет выглядеть ваша аватарка перед загрузкой, воспользуйтесь другим браузером.");
-    }
-});
-donatFoto.find("button").click(function() {
-    if (!u.vip && u.money2 < 1000) {
-        f.notEnough({
-            action: "money2"
-        });
-        return;
-    }
-    if (!donatFotoFile.files || !donatFotoFile.files[0]) {
-        showMessage("Не выбран файл для загрузки");
-        return;
-    }
-    var file = donatFotoFile.files[0];
-    if (file.size > 300 * 1024) {
-        showMessage("Размер файла превышает 300 КБ");
-        return;
-    }
-    var createFotoLoading = function() {
-        var data = new FormData();
-        data.append("uploadFile", file);
-        $.ajax({
-            url: document.location.protocol + "//" + domain + ":" + serverPort(false) + "/upload",
-            data: data,
-            cache: false,
-            contentType: false,
-            processData: false,
-            type: "POST",
-            success: function(response) {
-                if (response.status === "ok") {
-                    showMessage(response.text);
-                } else {
-                    showMessage("Не удалось установить аватар:<br/> " + response.errors);
-                }
-            },
-            xhrFields: {
-                withCredentials: true
-            }
-        });
-        closewindow();
-    };
-    if (donatFotoFileImage) {
-        var imgStyle = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
-        modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img src="' + donatFotoFileImage + '" ' + imgStyle + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img src="' + donatFotoFileImage + '" ' + imgStyle + '/><br/> в режиме День Любви</div><br class="clearfix"/>', createFotoLoading);
-    } else {
-        createFotoLoading();
-    }
-});
-var donatBotnick = $("#donat-botnick");
-donatBotnick.find("button").click(function() {
-    var botnick = donatBotnick.find("input[type=text]").val().trim().substring(0, 20);
-    var botsex = ($("#botnick-sex").prop("checked")) ? 1 : 2;
-    if (u.money2 >= 200) {
-        sendToSocket({
-            type: "donat",
-            action: "botnick",
-            login: botnick,
-            sex: botsex
-        });
-        closewindow();
-    } else {
-        f.notEnough({
-            action: "money2"
-        });
-    }
-});
-var donatBotwords = $("#donat-botwords");
-donatBotwords.find("button").click(function() {
-    var botText = donatBotwords.find("input").val().trim().substring(0, 150);
-    if (u.money2 >= 100) {
-        sendToSocket({
-            type: "donat",
-            action: "botwords",
-            text: botText
-        });
-        closewindow();
-    } else {
-        f.notEnough({
-            action: "money2"
-        });
-    }
-});
-var donatBigGame = $("#donat-biggame");
-donatBigGame.find("button").click(function() {
-    var gamename = donatBigGame.find("input").val().trim().substring(0, 100);
-    if (u.items[12]) {
-        u.items[12] -= 1;
-        sendToSocket({
-            type: "items",
-            action: "12",
-            title: gamename
-        });
-        closewindow();
-    } else {
-        if (u.money2 >= 50) {
-            sendToSocket({
-                type: "donat",
-                action: "biggame",
-                title: gamename
-            });
-            closewindow();
-        } else {
-            f.notEnough({
-                action: "money2"
-            });
-        }
-    }
-});
-function showToteList(dataArr) {
-    var totalList = win.find(".total");
-    totalList.html("");
-    if (dataArr.length > 0) {
-        for (var i = 0, len = dataArr.length; i < len; i++) {
-            var curid = dataArr[i]._id;
-            var div = $('<div id="tote' + dataArr[i]._id + '"></div>');
-            $("<h5>" + dataArr[i].title + "</h5>").appendTo(div);
-            $("<p>" + dataArr[i].descr + "</p>").appendTo(div);
-            var vars = dataArr[i].variants;
-            for (var index in vars) {
-                if (vars.hasOwnProperty(index)) {
-                    var cid = "tote" + i + "_" + index;
-                    $('<input type="radio" id="' + cid + '" name="tote' + i + '" class="check" value="' + index + '"/><label for="' + cid + '" data-title="' + ((dataArr[i].bets[index].sum) ? f.someThing(dataArr[i].bets[index].count, "ставка", "ставки", "ставок") + " на общую сумму " + over1000(dataArr[i].bets[index].sum) + (dataArr[i].bets[index].mybet ? "(ваша ставка - " + over1000(dataArr[i].bets[index].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(vars[index].text + (dataArr[i].bets[index].sum ? " (" + f.roundTwo(dataArr[i].sum / dataArr[i].bets[index].sum) + ")" : "")).appendTo(div);
-                }
-            }
-            $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
-            $('<br/><label class="gamemoney">Ваша ставка <input type="text" value="10" /> 000 </label>').appendTo(div);
-            $('<button class="button">Сделать ставку</button>').appendTo(div).click({
-                toteid: curid
-            }, doBet);
-            $('<div>∑ = <span class="gamemoney">' + over1000(dataArr[i].sum) + "</span></div>").appendTo(div);
-            totalList.append(div);
-        }
-    } else {
-        totalList.html("<div><h5>В тотализаторе нет ни одного предстоящего события</h5></div>");
-    }
+function winTableCreate(e) {
+    var t = $("<div></div>", {
+        class: e
+    }).addClass("wintable").html('<div class="wintable-header"><table><tr><th>' + winTableData[e].fields.join("</th><th>") + '</th></tr></table></div><div class="wintable-content"><table></table></div>').appendTo(winInfo);
+    winTableData[e].handler && t.on("click", "button", winTableData[e].handler)
 }
-function doBet(param) {
-    var toteId = param.data.toteid;
-    var toteDiv = $("#tote" + toteId);
-    var betSum = parseInt(toteDiv.find('input[type="text"]').val());
-    if (!betSum || betSum < 1) {
-        showMessage('Минимальная ставка <span class="gamemoney">1 000</span>');
-        return;
-    }
-    if (betSum * 1000 > u.money) {
-        showMessage("Для такой ставки недостаточно денег на вашем игровом счете");
-        return;
-    }
-    var title = toteDiv.find("h5").html();
-    var selRadio = toteDiv.find('input[type="radio"]:checked');
-    if (!selRadio.val()) {
-        showMessage("Не выбран возможный вариант события для ставки");
-        return;
-    }
-    var selText = selRadio.next().html();
-    modalWindow('Уверены, что хотите сделать ставку в размере <span class="gamemoney">' + over1000(betSum * 1000) + "</span> на вариант <b>" + selText + "</b> в событии <em>" + title + "</em>?<br/> Отменить ставку будет невозможно!", function() {
-        sendToSocket({
-            type: "tote",
-            action: "add",
-            id: toteId,
-            bet: betSum,
-            variant: selRadio.val()
-        });
-    });
+function hotkey(e) {
+    room.length < 3 && e.ctrlKey && 192 === e.keyCode && (closewindow(),
+    randomGame()),
+    27 === e.keyCode && closewindow()
 }
-function showCurGames(dataArr) {
-    var curgamesList = win.find(".curgames");
-    curgamesList.html("");
-    if (dataArr.length > 0) {
-        for (var i = 0, len = dataArr.length; i < len; i++) {
-            var curid = dataArr[i]._id
-              , div = $('<div id="curgame' + dataArr[i]._id + '"></div>');
-            div.html("<time>" + showDate(dataArr[i].time, true) + "</time> <h5>" + dataArr[i].creator + "</h5><em>" + dataArr[i].caption + '</em><div class="curgame-info">' + (dataArr[i].selecting ? '<b class="selrolgame"></b>' : "") + (dataArr[i].botwall ? '<b class="botwall"></b>' : "") + (dataArr[i].shortnight ? '<b class="shortnight"></b>' : "") + (dataArr[i].man ? '<b class="manmode"></b>' : "") + gameStyle[dataArr[i].style] + ' на <span class="red">' + dataArr[i].count + '</span> игроков со ставкой <span class="brown">' + over1000(dataArr[i].sum) + "</span></div><blockquote>" + dataArr[i].players.join(", ") + "</blockquote> ");
-            $("<button>Посмотреть игру</button>").appendTo(div).click({
-                gameid: curid
-            }, enterToGame);
-            curgamesList.append(div);
-        }
-    } else {
-        curgamesList.html("<div><h5>В данный момент не проходит ни одной игры :(</h5></div>");
-    }
+function keyDown(e) {
+    return 112 === e.which ? (e.preventDefault(),
+    helper.start(),
+    !1) : 122 === e.which ? (fullScreenToggle(),
+    !1) : !(8 === e.keyCode && ("INPUT" !== e.target.tagName || e.target.readOnly) && "TEXTAREA" !== e.target.tagName && !e.target.getAttribute("contenteditable")) || (e.preventDefault(),
+    !1)
 }
-function enterToGame(param) {
-    var gameId = param.data.gameid;
-    if (!gameId) {
-        return;
+function Unloader() {
+    var e = this;
+    this.unload = function(e) {
+        var t = "Вы уверены, что хотите покинуть игру?";
+        return void 0 === e && (e = window.event),
+        e && (e.returnValue = t),
+        t
     }
-    closewindow();
-    sendToSocket({
-        type: "enter-game",
-        game: gameId
-    });
+    ,
+    this.resetUnload = function() {
+        $(window).off("beforeunload", e.unload),
+        setTimeout(function() {
+            $(window).on("beforeunload", e.unload)
+        }, 2e3)
+    }
+    ,
+    this.init = function() {
+        $(window).on("beforeunload", e.unload)
+    }
+    ,
+    this.init()
 }
-function showAuctionList(dataArr) {
-    var auctionList = win.find(".auction");
-    auctionList.html("");
-    if (dataArr.length > 0) {
-        auctionList.append('<div class="specialnews">Каждая ставка продлевает время аукциона на 3 суток. Победителем становится игрок, чья ставка продержится 72 часа. Ставки, перебитые другими участниками, возвращаются их владельцам</div>');
-        for (var i = 0, len = dataArr.length; i < len; i++) {
-            var curid = dataArr[i]._id;
-            var div = $('<div id="auction' + dataArr[i]._id + '"></div>');
-            $('<img src="/images/lots/' + dataArr[i].img + '" alt="Изображение лота"/>').appendTo(div);
-            $('<h5 class="money">' + dataArr[i].bet + "</h5>").appendTo(div);
-            $("<p>" + dataArr[i].lot + "</p>").appendTo(div);
-            $("<span>" + showDate(dataArr[i].dateto, true) + "</span>").appendTo(div);
-            $('<br/><label class="money">Ваша ставка <input type="text" value="10" /></label>').appendTo(div);
-            $("<button>Сделать ставку</button>").appendTo(div).click({
-                aucid: curid,
-                min: dataArr[i].bet
-            }, doAuctionBet);
-            if (dataArr[i].login) {
-                $("<div>Последняя ставка: " + dataArr[i].login + "</div>").appendTo(div);
-            }
-            auctionList.append(div);
-        }
-    } else {
-        auctionList.html('<div><h5 class="nobefore">Нет доступных лотов</h5></div>');
-    }
-}
-function doAuctionBet(param) {
-    var aucId = param.data.aucid
-      , min = (param.data.min + 1) || 1;
-    var toteDiv = $("#auction" + aucId);
-    var betSum = parseInt(toteDiv.find('input[type="text"]').val());
-    if (!betSum || betSum < min) {
-        showMessage('Минимальная ставка <span class="money">' + min + "</span>");
-        return;
-    }
-    if (betSum > u.money2) {
-        f.notEnough({
-            action: "money2"
-        });
-        return;
-    }
-    modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + over1000(betSum) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
-        sendToSocket({
-            type: "auction",
-            lot: aucId,
-            bet: betSum
-        });
-    });
-}
-var giftShop = $(".giftshop")
-  , giftList = win.find("#giftList")
-  , isShowGiftType1 = true
-  , isShowGiftType2 = true
-  , giftSortOrder = false
-  , sortGifts = (function() {
-    var sortable = []
-      , keyArr = [];
-    for (var key in gifts) {
-        if (gifts.hasOwnProperty(key)) {
-            sortable.push([key, gifts[key]]);
-        }
-    }
-    sortable.sort(function(a, b) {
-        var x = a[1].p + 1000000 * (a[1].t - 1)
-          , y = b[1].p + 1000000 * (b[1].t - 1);
-        return x - y;
-    });
-    sortable.forEach(function(el) {
-        keyArr.push(el[0]);
-    });
-    return keyArr;
-}
-)()
-  , getGiftClass = function(giftnum) {
-    var groupNum = 1;
-    if (giftnum > 344) {
-        groupNum = 5;
-    } else {
-        if (giftnum > 272) {
-            groupNum = 4;
-        } else {
-            if (giftnum > 184) {
-                groupNum = 3;
-            } else {
-                if (giftnum > 96) {
-                    groupNum = 2;
-                }
-            }
-        }
-    }
-    return "gift-group" + groupNum + " gift" + giftnum;
-}
-  , addGiftOnList = function(i) {
-    i = parseInt(i);
-    if ([295, 308, 322, 324].indexOf(i) > -1) {
-        return;
-    }
-    if (i === 142 || (i > 252 && i < 273)) {
-        return;
-    }
-    var gmg = (gifts[i].t === 1);
-    if ((isShowGiftType1 && gmg) || (isShowGiftType2 && !gmg)) {
-        $('<input type="radio" id="gift' + i + '" name="gift" value="' + i + '"/><label for="gift' + i + '" class="' + getGiftClass(i) + '" data-title="' + (gmg ? "на 30 дней" : "на память") + '"><b class="' + (gmg ? "game" : "") + 'money">' + over1000(gifts[i].p) + "</b></label>").appendTo(giftList);
-    }
-}
-  , showGiftList = function() {
-    giftList.html("");
-    if (giftSortOrder) {
-        if (giftSortOrder === 1) {
-            for (var i = 0, len = sortGifts.length; i < len; i++) {
-                addGiftOnList(sortGifts[i]);
-            }
-        } else {
-            for (var k = sortGifts.length - 1; k >= 0; k--) {
-                addGiftOnList(sortGifts[k]);
-            }
-        }
-    } else {
-        for (var ind in gifts) {
-            if (gifts.hasOwnProperty(ind)) {
-                addGiftOnList(ind);
-            }
-        }
-    }
-};
-for (var i in gifts) {
-    if (gifts.hasOwnProperty(i)) {
-        addGiftOnList(i);
-    }
-}
-$("#giftSortInc").click(function() {
-    giftSortOrder = 1;
-    showGiftList();
-});
-$("#giftSortDec").click(function() {
-    giftSortOrder = -1;
-    showGiftList();
-});
-function selectGiftType() {
-    var type1 = (this.id === "giftSortType1")
-      , otherCheckBox = type1 ? $("#giftSortType2") : $("#giftSortType1");
-    if (type1) {
-        isShowGiftType1 = $(this).prop("checked");
-    } else {
-        isShowGiftType2 = $(this).prop("checked");
-    }
-    if (!$(this).prop("checked") && !otherCheckBox.prop("checked")) {
-        otherCheckBox.prop("checked", true);
-        if (type1) {
-            isShowGiftType2 = true;
-        } else {
-            isShowGiftType1 = true;
-        }
-    }
-    showGiftList();
-}
-$("#giftSortType1").change(selectGiftType);
-$("#giftSortType2").change(selectGiftType);
-giftShop.find("button").click(function() {
-    var giftWhom = giftShop.find('input[type="text"]').eq(0).val().trim().substring(0, 20)
-      , giftAnonim = giftShop.find("#anonimGift").prop("checked")
-      , giftText = giftShop.find('input[type="text"]').eq(1).val().trim().substring(0, 200)
-      , selGift = $("input[name=gift]:checked", "#giftList").val();
-    if (!selGift || !gifts[selGift]) {
-        showMessage("Вы забыли выбрать подарок для своего друга");
-        return;
-    }
-    if (!giftWhom) {
-        showMessage("Вы забыли уточнить, кому хотите подарить подарок!");
-        return;
-    }
-    if (u.login === giftWhom) {
-        showMessage("Вы не можете подарить подарок себе, это будет не по-товарищески.");
-        return;
-    }
-    if (((gifts[selGift].t === 2) ? u.money2 : u.money) >= gifts[selGift].p) {
-        sendToSocket({
-            type: "gift",
-            whom: giftWhom,
-            text: giftText,
-            num: selGift,
-            anonim: giftAnonim
-        });
-    } else {
-        showMessage("Недостаточно денег для такого шикарного подарка :(");
-    }
-});
-var rolling = false
+Object.keys(winTableData).forEach(function(e) {
+    return winTableCreate(e)
+}),
+inputField.keydown(function(e) {
+    return !(38 === e.which && !inputField.val()) || (e.preventDefault(),
+    inputField.val(lastMsg),
+    !1)
+}),
+document.body.onkeyup = hotkey,
+document.body.onkeydown = keyDown;
+var curtime = Date.now();
+15357168e5 < curtime && curtime < 15359238e5 && b.append('<style type="text/css">#giftList label.onlyvip{display:block !important;}</style>');
+var rolling = !1
   , rollItem = 1
   , rollCircle = 0
-  , rollPrice = 50;
-var roll_items = function(itemId) {
-    var rollItems = {
+  , rollPrice = 50
+  , roll_items = function(t) {
+    return {
         ffl: {
             1: 'Активная роль + 2 часа <div class="shop-item3"></div>',
             2: 'Академический отпуск <div class="shop-item5"></div>',
@@ -6306,66 +5495,54 @@ var roll_items = function(itemId) {
             23: '<span class="gamemoney">+ 5 000</span>',
             24: 'Рация <div class="shop-item1"></div>'
         }
-    };
-    return rollItems[gameMode()][itemId];
+    }[gameMode()][t]
 };
+function doRolling(t) {
+    rollItem = t.item,
+    rollCircle += 2,
+    $(".roll>div").css("transform", "rotate(" + (15 * -rollItem + 7 + 360 * rollCircle) + "deg)");
+    var e = '<div class="rollmsg">' + roll_items(rollItem);
+    t.collect && (e += '<span class="collect' + t.collect.collect + " collect-element collect-element" + t.collect.element + '"></span>'),
+    e += "</div>",
+    b.hasClass("noeffect") ? (showMessage(e),
+    rolling = !1) : (sound("roll"),
+    setTimeout(function() {
+        showMessage(e),
+        rolling = !1
+    }, 11e3)),
+    $("#roll-start").addClass("rolling-was"),
+    t.updateObj && updateInterface(t.updateObj)
+}
 $(".roll>div").click(function() {
-    if (rolling) {
-        return false;
-    }
-    if (u.rolldate && isToday(u.rolldate)) {
-        if (u.items[13]) {
+    if (rolling)
+        return !1;
+    if (u.rolldate && date.isToday(u.rolldate))
+        if (u.items[13])
             modalWindow("Использовать билет на бесплатную попытку?", function() {
-                u.items[13] -= 1;
-                rolling = true;
+                u.items[13] -= 1,
+                rolling = !0,
                 sendToSocket({
                     type: "rolling"
-                });
+                })
             });
-        } else {
-            if (u.money2 < rollPrice) {
-                showMessage("Недостаточно денег для еще одной попытки");
-                return false;
-            }
+        else {
+            if (u.money2 < rollPrice)
+                return showMessage("Недостаточно денег для еще одной попытки"),
+                !1;
             modalWindow('Вы хотите испытать удачу еще раз? Стоимость последующих попыток <span class="money">50</span>', function() {
-                rolling = true;
+                rolling = !0,
                 sendToSocket({
                     type: "rolling"
-                });
-            });
+                })
+            })
         }
-    } else {
-        rolling = true;
+    else
+        rolling = !0,
         sendToSocket({
             type: "rolling"
         });
-    }
-    return false;
+    return !1
 });
-function doRolling(data) {
-    rollItem = data.item;
-    rollCircle += 2;
-    $(".roll>div").css("transform", "rotate(" + (-rollItem * 15 + 7 + rollCircle * 360) + "deg)");
-    var rollingText = '<div class="rollmsg">' + roll_items(rollItem);
-    if (data.collect) {
-        rollingText += '<span class="collect' + data.collect.collect + " collect-element collect-element" + data.collect.element + '"></span>';
-    }
-    rollingText += "</div>";
-    if (b.hasClass("noeffect")) {
-        showMessage(rollingText);
-        rolling = false;
-    } else {
-        sound("roll");
-        setTimeout(function() {
-            showMessage(rollingText);
-            rolling = false;
-        }, 11000);
-    }
-    $("#roll-start").addClass("rolling-was");
-    if (data.updateObj) {
-        updateInterface(data.updateObj);
-    }
-}
 var collectRadio, collectionsData = {
     1: {
         title: "Коллекция &quot;Активист&quot; <em>(услуга Активная роль приобретается на 30 часов)</em>",
@@ -6389,93 +5566,398 @@ var collectRadio, collectionsData = {
     },
     4: {
         title: "Коллекция &quot;Суперскорость&quot; <em>(быстрый набор суперигр на 100)</em>",
-        multi: true,
+        multi: !0,
         info: "Элементы коллекции Суперскорость можно получить за победу в игре на 100 игроков.<br/> Коллекцию можно собирать неограниченное число раз. За полный набор элементов Вы получаете награду - 30 сертификатов на создание быстрой суперигры."
     }
 };
-function showCollect(collectNum) {
-    if (!collectNum || !collectionsData[collectNum]) {
-        return;
-    }
-    var curDiv = collectionWin.find("div");
-    collectionWin.find("p").html(collectionsData[collectNum].info);
-    if (collectionsData[collectNum].multi && Object.size(u.collections[collectNum]) === 15) {
-        var fullCol = true;
-        for (var ind in u.collections[collectNum]) {
-            if (u.collections[collectNum].hasOwnProperty(ind)) {
-                if (u.collections[collectNum][ind] < 1) {
-                    fullCol = false;
-                }
-            }
-        }
-        if (fullCol) {
-            $("<button/>").css({
+function showCollect(e) {
+    if (e && collectionsData[e]) {
+        var t = collectionWin.find("div");
+        if (collectionWin.find("p").html(collectionsData[e].info),
+        collectionsData[e].multi && u.collections && u.collections[e] && 15 === Object.size(u.collections[e]))
+            Object.keys(u.collections[e]).every(function(t) {
+                return 0 < u.collections[e][t]
+            }) && $("<button/>").css({
                 display: "block",
                 margin: "3px auto"
-            }).html("Активировать коллекцию").click(function() {
-                closewindow();
+            }).html("Активировать коллекцию").on("click", function() {
+                closewindow(),
                 sendToSocket({
                     type: "collection",
-                    collect: parseInt(collectNum)
-                });
+                    collect: parseInt(e)
+                })
             }).appendTo(collectionWin.find("p"));
+        t.removeClass().addClass("collect" + e).empty();
+        for (var o = 1; o <= 15; o++) {
+            var s = $("<span></span>");
+            u.collections && u.collections[e] && u.collections[e][o] ? 1 < u.collections[e][o] && s.html(u.collections[e][o]) : s.addClass("nocollect"),
+            s.appendTo(t)
         }
-    }
-    curDiv.removeClass().addClass("collect" + collectNum).html("");
-    for (var i = 1; i <= 15; i++) {
-        var curSpan = $("<span></span>");
-        if (!u.collections || !u.collections[collectNum] || !u.collections[collectNum][i]) {
-            curSpan.addClass("nocollect");
-        } else {
-            if (u.collections[collectNum][i] > 1) {
-                curSpan.html(u.collections[collectNum][i]);
-            }
-        }
-        curSpan.appendTo(curDiv);
     }
 }
-function showQuiz(data) {
-    $(".quiz").remove();
-    var qDiv = $('<div class="quiz">' + data.text + "</div>")
-      , qP = $("<p></p>");
-    for (var i = 0; i < data.wordlen; i++) {
-        var curLet = "<span";
-        if (data.open && data.open[i] && data.open[i] === " ") {
-            curLet += ' class="spaceLetter"';
-        }
-        curLet += ">" + ((data.open && data.open[i]) ? data.open[i] : "") + "</span>";
-        $(curLet).appendTo(qP);
+function itemAction(t) {
+    var e = t.data.item;
+    e && (0 <= ["7", "12", "13", "18", "24"].indexOf(e) ? showMessage("Этот предмет пригодится Вам в соответствующей локации") : modalWindow("Активировать предмет?", function() {
+        sendToSocket({
+            type: "items",
+            action: e
+        })
+    }))
+}
+function showInventory() {
+    if (u.items) {
+        var n = win.find(".inventory");
+        if (n.empty(),
+        0 < Object.size(u.items) || u.bonus) {
+            if (Object.forEach(u.items, function(t, e) {
+                if ("nytoys" !== e && 0 < t) {
+                    var o = 0 < e && e < 7 ? roleText[gameMode()].items[e] : getItemsArray(e)
+                      , s = $("<div></div>").attr("data-title", o).addClass("items-" + e);
+                    1 < t && s.html("<span>" + t + "</span>"),
+                    s.click({
+                        item: e
+                    }, itemAction),
+                    s.appendTo(n)
+                }
+            }),
+            u.bonus || u.tempbonus) {
+                var s = $("<section/>", {
+                    class: "bonus-ring"
+                });
+                Object.forEach(u.bonus, function(t, e) {
+                    var o = (u.tempbonus && u.tempbonus.deca ? "10x" : "") + t + "%";
+                    $("<div/>", {
+                        class: "bonus-" + e,
+                        "data-title": bonusRings[e]
+                    }).css({
+                        cursor: "auto"
+                    }).html("<span>" + o + "</span>").appendTo(s)
+                }),
+                u.tempbonus && (u.tempbonus.all1 && $("<div/>", {
+                    class: "items-17",
+                    "data-title": "Новогодняя коллекция 2017 (до " + date.showDate(u.tempbonus.all1) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+1%</span>").appendTo(s),
+                u.tempbonus.anticat && $("<div/>", {
+                    class: "items-2018",
+                    "data-title": "Новогодняя коллекция 2018 (до " + date.showDate(u.tempbonus.anticat) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+10%</span>").appendTo(s),
+                u.tempbonus.discount && $("<div/>", {
+                    class: "items-20",
+                    "data-title": getItemsArray(20) + " (до " + date.showDate(u.tempbonus.discount, !0) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>-50%</span>").appendTo(s),
+                u.tempbonus.nokill20 && $("<div/>", {
+                    class: "items-21",
+                    "data-title": getItemsArray(21) + " (до " + date.showDate(u.tempbonus.nokill20, !0) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+20%</span>").appendTo(s),
+                u.tempbonus.rev25 && $("<div/>", {
+                    class: "items-22",
+                    "data-title": getItemsArray(22) + " (до " + date.showDate(u.tempbonus.rev25, !0) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+25%</span>").appendTo(s),
+                u.tempbonus.intuit40 && $("<div/>", {
+                    class: "items-23",
+                    "data-title": getItemsArray(23) + " (до " + date.showDate(u.tempbonus.intuit40, !0) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+40%</span>").appendTo(s),
+                u.tempbonus.intuit100 && $("<div/>", {
+                    class: "items-23",
+                    "data-title": "100% бонус интуиции (до " + date.showDate(u.tempbonus.intuit100, !0) + ")"
+                }).css({
+                    cursor: "auto"
+                }).html("<span>+100%</span>").appendTo(s)),
+                s.appendTo(n)
+            }
+        } else
+            n.append("<h5>У Вас пока нет ни одного полезного предмета.</h5>")
     }
-    qP.appendTo(qDiv);
-    qDiv.bind("click contextmenu selectstart", function(event) {
-        event.preventDefault();
-        return false;
-    });
+}
+var slotArray = [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
+  , slotCount = slotArray.length
+  , slotInterval = 600
+  , slotsRotating = 0
+  , slotActive = !1;
+function slotStart() {
+    if (!slotActive) {
+        var t = parseInt($("#slot-bet").find("input[name=slots]:checked").val()) || 0;
+        if (zTimers.slots)
+            return void showMessage("Следующую попытку можно сделать только после остановки таймера.");
+        t ? (setTimeout(function() {
+            $("#slot-handler").attr("src", "/images/slot-handle.gif").css({
+                cursor: "wait"
+            })
+        }),
+        slotActive = !0,
+        sendToSocket({
+            type: "slot",
+            item: t
+        }),
+        u.items[t]--) : showMessage("Сначала выберите предмет из Вашего инвентаря, который Вы хотите использовать как ставку.")
+    }
+}
+function slotTimerStart(t) {
+    $("#timer-slots").attr("data-lost", t),
+    zayavkaInTimer("slots"),
+    zTimers.slots = setInterval(function() {
+        zayavkaInTimer("slots")
+    }, 3e3)
+}
+function slotAction(t) {
+    var e = t.items;
+    slotTimerStart(slotInterval),
+    slotsRotating = 3;
+    for (var o = 1; o < 4; o++) {
+        var s = $("#slot" + o)
+          , n = parseInt(s.css("top")) || 0;
+        slotMotion(s, 60 * -slotArray.indexOf(e[o - 1]) - n + 60 * slotCount * 3 + 60, n)
+    }
+    t.win && ($.each(t.win, function(t, e) {
+        u.items[t] || (u.items[t] = 0),
+        u.items[t] += e
+    }),
+    slotActive = t.win)
+}
+function slotMotion(t, e, o) {
+    if (0 < e) {
+        var s = b.hasClass("noeffect") ? e : Math.floor(e / 500) + 1;
+        for (e -= s,
+        o += s; 0 < o; )
+            o += 60 * -slotCount;
+        t.css({
+            top: o + "px"
+        });
+        var n = 500 < e ? 10 : 10 - Math.ceil(e / 50);
+        setTimeout(slotMotion, n, t, e, o)
+    } else
+        --slotsRotating <= 0 && ($("#slot-handler").attr("src", "/images/slot-handle.png").css({
+            cursor: "pointer"
+        }),
+        !0 === slotActive ? showMessage("Вам немного не повезло. Следующая попытка должна быть удачной!") : showBox({
+            box: slotActive,
+            text: "Вы выиграли"
+        }),
+        updateInterface(),
+        slotActive = !1)
+}
+function areaAttack() {
+    var t = $(this).attr("data-area");
+    t && 2e3 <= u.money ? (sendToSocket({
+        type: "area",
+        num: t
+    }),
+    closewindow()) : showMessage("Недостаточно средств для начала битвы.")
+}
+lotteryDiv.find("button").click(function() {
+    showWindow("lottery")
+}),
+lotteryDiv.find("p").click(function() {
+    modalWindow("Скрыть обратный отсчёт до следующей лотереи?", function() {
+        clearInterval(lotteryInterval),
+        0 < u.lottery - date.now() ? (lotteryInterval = setInterval(lotteryTimer, 5e3),
+        lotteryDiv.find("p").hide()) : lotteryTimer()
+    })
+});
+var lotteryInterval, lotteryQuery = !1, lotteryTimerStart = function() {
+    lotteryTimer(),
+    lotteryDiv.find("p").fadeIn(),
+    lotteryInterval = setInterval(lotteryTimer, 5e3)
+}, lotteryTimer = function() {
+    var t = Math.round((u.lottery - date.now()) / 1e3);
+    if (0 < t) {
+        var e = Math.floor(t / 60)
+          , o = t % 60;
+        e < 10 && (e = "0" + e),
+        o < 10 && (o = "0" + o),
+        lotteryDiv.find("p").html(e + ":" + o)
+    } else
+        clearInterval(lotteryInterval),
+        lotteryDiv.find("button").show(),
+        lotteryDiv.find("p").hide()
+}, rouletteForm = $(".rouletteForm"), rouletteWas = function() {
+    return u.roulette && date.isToday(u.roulette)
+}, rouletteDisable = function(t) {
+    t ? (rouletteForm.find("label").show(),
+    rouletteForm.find("button").show(),
+    rouletteForm.hide()) : (rouletteForm.show(),
+    rouletteForm.find("label").hide(),
+    rouletteForm.find("button").hide())
+}, rouletteInfo = function(t) {
+    var e = $("#rouletteResult").find("p");
+    e.empty(),
+    t.hasOwnProperty("sum") && e.eq(0).html("Сделано ставок на общую сумму: " + t.sum),
+    t.hasOwnProperty("last") && e.eq(1).html("Результат вчерашнего розыгрыша: " + t.last),
+    t.winners && 0 < t.winners.length && e.eq(2).html("Cчастливчики: " + t.winners.join(", "))
+}, rouletteTable = function() {
+    var t = $("#rouletteTable")
+      , e = $("<tr/>")
+      , o = $("<tr/>")
+      , s = $("<tr/>");
+    e.append('<th rowspan="3">0</th>');
+    for (var n = 0; n < 12; n++)
+        $("<td/>").html(3 * n + 3).appendTo(e),
+        $("<td/>").html(3 * n + 2).appendTo(o),
+        $("<td/>").html(3 * n + 1).appendTo(s);
+    t.append(e).append(o).append(s),
+    t.click(function(t) {
+        if (rouletteWas())
+            showMessage("Можно сделать только одну ставку в день. Приходите завтра.");
+        else {
+            var e = t || window.event
+              , o = e.target || e.srcElement;
+            "TD" !== o.tagName && "TH" !== o.tagName || (rouletteForm.find("span").html(o.innerHTML),
+            rouletteForm.show())
+        }
+    })
+};
+function toteVariants(s, n, a) {
+    Object.forEach(a[s].variants, function(t, e) {
+        var o = "tote" + s + "_" + e;
+        $('<input type="radio" id="' + o + '" name="tote' + s + '" class="check" value="' + e + '"/><label for="' + o + '" data-title="' + (a[s].bets[e].sum ? f.someThing(a[s].bets[e].count, "ставка", "ставки", "ставок") + " на общую сумму " + f.over1000(a[s].bets[e].sum) + (a[s].bets[e].mybet ? "(ваша ставка - " + f.over1000(a[s].bets[e].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(t.text + (a[s].bets[e].sum ? " (" + f.roundTwo(a[s].sum / a[s].bets[e].sum) + ")" : "")).appendTo(n)
+    })
+}
+function showToteList(t) {
+    var e = win.find(".total");
+    if (e.empty(),
+    0 < t.length)
+        for (var o = 0, s = t.length; o < s; o++) {
+            var n = t[o]._id
+              , a = $('<div id="tote' + t[o]._id + '"></div>');
+            $("<h5>" + t[o].title + "</h5>").appendTo(a),
+            $("<p>" + t[o].descr + "</p>").appendTo(a),
+            toteVariants(o, a, t),
+            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(a),
+            $('<br/><label class="gamemoney">Ваша ставка <input type="text" value="10" /> 000 </label>').appendTo(a),
+            $('<button class="button">Сделать ставку</button>').appendTo(a).click({
+                toteid: n
+            }, doBet),
+            $('<div>∑ = <span class="gamemoney">' + f.over1000(t[o].sum) + "</span></div>").appendTo(a),
+            e.append(a)
+        }
+    else
+        e.html("<div><h5>В тотализаторе нет ни одного предстоящего события</h5></div>")
+}
+function doBet(t) {
+    var e = t.data.toteid
+      , o = $("#tote" + e)
+      , s = parseInt(o.find('input[type="text"]').val());
+    if (!s || s < 1)
+        showMessage('Минимальная ставка <span class="gamemoney">1 000</span>');
+    else if (1e3 * s > u.money)
+        showMessage("Для такой ставки недостаточно денег на вашем игровом счете");
+    else {
+        var n = o.find("h5").html()
+          , a = o.find('input[type="radio"]:checked');
+        if (a.val()) {
+            var i = a.next().html();
+            modalWindow('Уверены, что хотите сделать ставку в размере <span class="gamemoney">' + f.over1000(1e3 * s) + "</span> на вариант <b>" + i + "</b> в событии <em>" + n + "</em>?<br/> Отменить ставку будет невозможно!", function() {
+                sendToSocket({
+                    type: "tote",
+                    action: "add",
+                    id: e,
+                    bet: s,
+                    variant: a.val()
+                })
+            })
+        } else
+            showMessage("Не выбран возможный вариант события для ставки")
+    }
+}
+function showAuctionList(t) {
+    var e = win.find(".auction");
+    if (e.empty(),
+    0 < t.length) {
+        e.append('<div class="specialnews">Каждая ставка продлевает время аукциона на 3 суток. Победителем становится игрок, чья ставка продержится 72 часа. Ставки, перебитые другими участниками, возвращаются их владельцам</div>');
+        for (var o = 0, s = t.length; o < s; o++) {
+            var n = t[o]._id
+              , a = $('<div id="auction' + t[o]._id + '"></div>');
+            $('<img src="/images/lots/' + t[o].img + '" alt="Изображение лота"/>').appendTo(a),
+            $('<h5 class="money">' + t[o].bet + "</h5>").appendTo(a),
+            $("<p>" + t[o].lot + "</p>").appendTo(a),
+            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(a),
+            $('<br/><label class="money">Ваша ставка <input type="text" value="10" /></label>').appendTo(a),
+            $("<button>Сделать ставку</button>").appendTo(a).click({
+                aucid: n,
+                min: t[o].bet
+            }, doAuctionBet),
+            t[o].login && $("<div>Последняя ставка: " + t[o].login + "</div>").appendTo(a),
+            e.append(a)
+        }
+    } else
+        e.html('<div><h5 class="nobefore">Нет доступных лотов</h5></div>')
+}
+function doAuctionBet(t) {
+    var e = t.data.aucid
+      , o = t.data.min + 1 || 1
+      , s = $("#auction" + e)
+      , n = parseInt(s.find('input[type="text"]').val());
+    !n || n < o ? showMessage('Минимальная ставка <span class="money">' + o + "</span>") : n > u.money2 ? f.notEnough({
+        action: "money2"
+    }) : modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + f.over1000(n) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
+        sendToSocket({
+            type: "auction",
+            lot: e,
+            bet: n
+        })
+    })
+}
+function showQuiz(t) {
+    $(".quiz").remove();
+    for (var e = $('<div class="quiz">' + t.text + "</div>"), o = $("<p></p>"), s = 0; s < t.wordlen; s++) {
+        var n = "<span";
+        t.open && t.open[s] && " " === t.open[s] && (n += ' class="spaceLetter"'),
+        n += ">" + (t.open && t.open[s] ? t.open[s] : "") + "</span>",
+        $(n).appendTo(o)
+    }
+    o.appendTo(e),
+    e.bind("click contextmenu selectstart", function(t) {
+        return t.preventDefault(),
+        !1
+    }),
     $("<div/>").html("x").bind("click", function() {
         modalWindow("Хотите отключить викторину до конца текущего сеанса?", function() {
-            quizEnable = false;
-            $(".quiz").remove();
-            showMessage("Чтобы вновь включить викторину, напишите в чате команду &quot;викторина+&quot; без кавычек и пробелов.");
-        });
-    }).appendTo(qDiv);
+            quizEnable = !1,
+            $(".quiz").remove(),
+            showMessage("Чтобы вновь включить викторину, напишите в чате команду &quot;викторина+&quot; без кавычек и пробелов.")
+        })
+    }).appendTo(e),
     $("<div/>", {
-        "class": "quizabout"
+        class: "quizabout"
     }).html("?").bind("click", function() {
-        showMessage("Чтобы дать ответ в викторине необходимо написать слово (или слова) целиком в общий чат (или личным, но не приватным сообщением).");
-    }).appendTo(qDiv);
-    qDiv.appendTo(messagesList);
-    qDiv.clone().appendTo(mymessagesList);
-    doScroll();
+        showMessage("Чтобы дать ответ в викторине необходимо написать слово (или слова) целиком в общий чат (или личным, но не приватным сообщением).")
+    }).appendTo(e),
+    e.appendTo(messagesList),
+    e.clone().appendTo(mymessagesList),
+    doScroll()
 }
+rouletteTable(),
+rouletteForm.find("button").click(function() {
+    var t = parseInt(rouletteForm.find("input").val());
+    t ? 1e3 * t > u.money ? showMessage("Ставка превышает сумму ваших сбережений") : sendToSocket({
+        type: "roulette",
+        num: rouletteForm.find("span").html(),
+        bet: t
+    }) : showMessage('Ставка должна быть больше <span class="gamemoney">1 000</span>')
+}),
+roulette.click(function() {
+    rouletteWas() && rouletteDisable(),
+    showWindow("roulette")
+});
 var quizTop = $(".quiztop");
 function showProfile() {
-    var uid = $(this).attr("data-id");
-    if (uid) {
-        sendToSocket({
-            type: "profile",
-            uid: uid
-        });
-    }
+    var t = $(this).attr("data-id");
+    t && sendToSocket({
+        type: "profile",
+        uid: t
+    })
 }
 var quizRanks = {
     10: "Новичок",
@@ -6483,35 +5965,1255 @@ var quizRanks = {
     100: "Знаток",
     300: "Профи",
     500: "Мастер",
-    1000: "Гуру",
-    3000: "Мыслитель",
-    5000: "Мудрец",
-    10000: "Просветленный",
-    15000: "Оракул",
-    30000: "Гений",
-    50000: "Искусственный Интеллект",
-    100000: "Высший разум"
+    1e3: "Гуру",
+    3e3: "Мыслитель",
+    5e3: "Мудрец",
+    1e4: "Просветленный",
+    15e3: "Оракул",
+    3e4: "Гений",
+    5e4: "Искусственный Интеллект",
+    1e5: "Высший разум"
 };
-function showQuizList(plArr) {
-    var qdata = '<table><tr class="quizHeader"><td></td><th>Игроки</th><td>Очки</td><td>Звания</td></tr>'
-      , k = 0;
-    plArr.forEach(function(el) {
-        var rank = "-";
-        k++;
-        for (var i in quizRanks) {
-            if (quizRanks.hasOwnProperty(i) && el.quiz >= i) {
-                rank = quizRanks[i];
+function showQuizList(t) {
+    var s = '<table><tr class="quizHeader"><td></td><th>Игроки</th><td>Очки</td><td>Звания</td></tr>'
+      , n = 0;
+    t.forEach(function(e) {
+        var o = "-";
+        n++,
+        Object.keys(quizRanks).every(function(t) {
+            return o = quizRanks[t],
+            e.quiz >= t
+        }),
+        s += "<tr><td>" + n + '</td><th data-id="' + e._id + '">' + e.login + "</th><td>" + e.quiz + "</td><td>" + o + "</td></tr>"
+    }),
+    s += "</table>",
+    quizTop.html(s),
+    quizTop.find("th").on("click", showProfile)
+}
+function errorText(e, a) {
+    var s = $("#errorBlock");
+    s.length || (s = $("<div/>", {
+        id: "errorBlock"
+    }).appendTo(b));
+    var t = "<h1>" + e + "</h1>";
+    a || (t += '<p>Попробуйте перезагрузить страницу. Если проблема повторяется, <a href="https://vk.com/im?media=&sel=-' + (isMaffia ? "109864615" : "39094155") + '" title="Написать сообщение" target="_blank">сообщите нам</a></p>'),
+    s.html(t),
+    s.show()
+}
+function showPlayersList(e, a) {
+    playersInfoArray = {},
+    playersList.empty(),
+    battleDiv.find(".playerlist").empty(),
+    a.length < 3 ? (container.removeClass().addClass("color" + parseInt(a)),
+    roomInHall = a,
+    actionButton.removeClass("my")) : container.removeClass().addClass("ingame"),
+    Object.forEach(e, function(e) {
+        editPlayerList(e, 0, !0)
+    })
+}
+function gameTypeInfo(e) {
+    var a = ""
+      , s = e.hasOwnProperty("style") ? e.style.hasOwnProperty("style") ? e.style.style : e.style : 0;
+    return e.selecting && (a += '<b class="selrolgame"></b>'),
+    e.botwall && (a += '<b class="botwall"></b>'),
+    e.shortnight && (a += '<b class="shortnight"></b>'),
+    e.man && (a += '<b class="manmode"></b>'),
+    a + " " + gameStyle[s] + " на " + e.count + " игроков"
+}
+function showGameInfo(a) {
+    closedgame = 2 === a.style,
+    gametitle.html("<span>" + gameTypeInfo(a) + '</span> <span id="addedToGame">' + a.add + '</span> <span id="remainForGame">' + (a.count - a.add) + "</span> <span>Cтавка " + a.sum + "</span>"),
+    $("article").find(".blocktitle").find(".gamemakerinfo").html(a.creator + ": &laquo;" + a.caption + "&raquo;").attr("data-title", a.caption),
+    header.find(".gamestyle").find("span").each(function(e) {
+        $(this).removeClass(),
+        a["style" + (e + 1).toString()] && $(this).addClass("enabledoption")
+    });
+    var e = document.getElementById("playersButton");
+    e.className = "",
+    closedgame && a.creator === u.login && (e.className = "my",
+    e.innerHTML = "Принять"),
+    game.sum = a.sum,
+    gamemoney.html(f.over1000(u.money - a.sum));
+    var s = roleText.all.zayavka;
+    if (3 === a.style ? s = "Это необычная игра, а битва против ботов, где Вам вместе с другими игроками предстоит противостоять команде ботов!<br/> Дождитесь союзников, соперники прибудут позже." : a.married && (s = "Добро пожаловать на свадебную церемонию!<br/> Подождите, когда все гости соберутся..."),
+    showNewDiv(s),
+    5e3 < u.money && showNewDiv('<div id="inviteToGameDiv">За <span class="gamemoney">2 000</span> можно позвать всех свободных игроков сюда! <button data-action="inviteToGame">Позвать</button></div>'),
+    a.specialRoles) {
+        var t = "Создатель партии выбрал следующие роли: ";
+        a.specialRoles.forEach(function(e) {
+            t += '<span class="rolesmile role' + e + '"></span>'
+        }),
+        showNewDiv("<div>" + t + "</div")
+    }
+    if (a.params) {
+        var i = [];
+        a.params.noitem4 && i.push('<span class="for-ffl">без печенья</span><span class="for-maffia">без жуков</span>'),
+        a.params.nobonus && i.push("без игровых бонусов"),
+        a.params.hasOwnProperty("item2") && i.push('Лимит <span class="for-ffl">замков</span><span class="for-maffia">маскировок</span> - ' + a.params.item2),
+        showNewDiv("<div>В этой партии создателем установлены следующие ограничения:<ul><li>" + i.join("</li><li>") + "</li></ul></div>")
+    }
+    if (showNewDiv('<div class="blue">Скучно играть одному ☹? ' + (isAppVK ? '<span class="pseudolink" data-action="inviteFriends">Пригласи друзей и знакомых</span>' : 'Скинь друзьям ссылку<br/> <input type="text" readonly="readonly" value="' + getGameUrl() + '" style="width:100%;background:none;color:#f00"/><br/>') + " и играй вместе с ними ☺!</div>"),
+    helper.hint("wait-players"),
+    closedgame ? container.addClass("closedgame") : container.removeClass("closedgame"),
+    a.style1 ? (container.addClass("noprivate"),
+    privateCheck.prop("checked", !1)) : container.removeClass("noprivate"),
+    a.married ? (container.addClass("wedding"),
+    game.married = a.married) : (container.removeClass("wedding"),
+    game.married = !1),
+    a.starttime) {
+        zTimers[a._id] && clearInterval(zTimers[a._id]);
+        var o = $("<span/>", {
+            id: "timer-" + a._id,
+            class: "timer",
+            "data-lost": Math.floor((a.starttime - date.now()) / 1e3)
+        });
+        $("<div/>", {
+            class: "lastwords"
+        }).html("Игра начнется через: ").append(o).appendTo(messagesList),
+        zayavkaInTimer(a._id),
+        zTimers[a._id] = setInterval(function() {
+            zayavkaInTimer(a._id)
+        }, 3e3)
+    }
+}
+function showGamesList(e) {
+    gamesInfoArray = {},
+    gamesList.empty(),
+    Object.forEach(e, function(e) {
+        editGameList(e)
+    })
+}
+function showNewMessage(e) {
+    var a = "#000022"
+      , s = document.createElement("div")
+      , t = document.createElement("div")
+      , i = document.createElement("div")
+      , o = e.from;
+    if (i.className = "message",
+    s.className = "writer",
+    o || "Игра начинается" !== e.message || (o = "[server]",
+    $("h3.leave").css({
+        visibility: "hidden"
+    }),
+    setTimeout(function() {
+        $("h3.leave").css({
+            visibility: ""
+        })
+    }, 5e3)),
+    o) {
+        if (o.id && -1 < reds.indexOf(o.id) || server2 && !$("div").is("#" + o.id))
+            return;
+        if (!o.image && playersInfoArray[o.id] && (o.sex = playersInfoArray[o.id].sex,
+        o.image = playersInfoArray[o.id].image),
+        o.image)
+            if (2 < o.image.length) {
+                i.className += " userimage";
+                var r = document.createElement("div");
+                r.className = "selfimg",
+                r.style.backgroundImage = "url(/files/" + o.id + o.image + ")",
+                i.appendChild(r)
             } else {
+                var n = 1 === o.sex ? "w" : "m";
+                n = o.image ? n + o.image : "",
+                i.className += " " + n
+            }
+        o.creator && playersInfoArray[o.creator] && (e.to = o.creator,
+        e.toName = playersInfoArray[o.creator].login)
+    } else
+        i.className += " noimage",
+        e.color && (i.style = "color:" + e.color);
+    "private" === e.msgType && (i.className += " private");
+    var l = u.color && u.color !== a ? ' style="color:' + u.color + ' !important"' : ' class="me"';
+    if (!e.target) {
+        e.color && "#000" === e.color && (e.color = a);
+        var d = e.color && e.color !== a ? ' style="color:' + e.color + '"' : ""
+          , m = o && o.id && o.login ? '<b data-id="' + o.id + '"' + d + (o.id === u._id ? l : "") + ">" + o.login + "</b>" + (e.to ? "->" : ": ") : "";
+        if (e.to && e.toName && 0 < e.toName.length && !game.intuition) {
+            if (m += ' <b data-id="' + e.to + '"',
+            e.to === u._id) {
+                if (!container.hasClass("ingame") && date.pluhTime < date.now() - 1e4)
+                    switch (e.message) {
+                    case "плюх":
+                        showWall(battleWords[100].shot),
+                        date.pluhTime = date.now();
+                        break;
+                    case "целую":
+                        showWall("other/bearlove.gif"),
+                        date.pluhTime = date.now();
+                        break;
+                    case "мяу":
+                        showWall("other/cats.gif"),
+                        date.pluhTime = date.now();
+                        break;
+                    case "ауау":
+                        showWall("other/auau.gif"),
+                        date.pluhTime = date.now();
+                        break;
+                    case ":-*":
+                    case "чмок":
+                    case "люблю":
+                        var c = f.randomInt(13);
+                        showWall("/images/holidays/love/" + c + ".gif", {
+                            external: !0,
+                            transparent: !0
+                        }),
+                        date.pluhTime = date.now()
+                    }
+                i.className += " sendme",
+                m += l,
+                sound("notify")
+            }
+            m += ">" + e.toName + "</b>: "
+        }
+        s.innerHTML = m,
+        o && "[server]" === o && (t.style.color = "#f00",
+        t.style.fontFamily = "Ubuntu Mono, Consolas, Monaco, monospace")
+    }
+    e.msgStyle && (t.className = e.msgStyle),
+    t.innerHTML = specials_in(e),
+    i.appendChild(s),
+    i.appendChild(t),
+    messagesList.append(i),
+    (o && o.id && o.id === u._id || e.to && e.to === u._id) && mymessagesList.append($(i).clone()),
+    doScroll()
+}
+var notextMsgCount = 0;
+function sendMessage() {
+    var e = inputField.val().trim().substring(0, 200)
+      , a = e.toLowerCase().replace(/[.?!]/g, "").trim()
+      , s = e.replace(/\[[A-z]+\]/g, "").trim()
+      , t = !0;
+    if (e && (!container.hasClass("current") || !game.finish && 4 !== game.period))
+        if ("." !== e || u.vip) {
+            3 < (notextMsgCount = "" === s ? notextMsgCount + 1 : 0) && (sounds.joke || (sounds.joke = createAudio("/media/joke." + soundExt)),
+            notextMsgCount = 0,
+            sound("joke"));
+            var i = $("#adresat-id").val();
+            switch (a) {
+            case "хочу снега":
+                b.addClass("snow"),
+                t = !1;
                 break;
+            case "не надо снега":
+                b.removeClass("snow"),
+                t = !1;
+                break;
+            case "ёлка+":
+                halltree && (halltree.show(),
+                t = !1);
+                break;
+            case "ёлка-":
+                halltree && (halltree.hide(),
+                t = !1);
+                break;
+            case "очистить чат":
+                $(".messages:visible").empty(),
+                t = !1;
+                break;
+            case "давай дружить":
+                0 < i.length && friendQuery("question", i);
+                break;
+            case "бах":
+                0 < i.length && u.items[24] && (sendToSocket({
+                    type: "items",
+                    action: "24",
+                    login: $("#adresat").val(),
+                    uid: i
+                }),
+                t = !1);
+                break;
+            case "я хочу":
+                showWall("other/fallstar.gif");
+                break;
+            case "конверт-":
+                noconvert = !0,
+                showNewDiv('<div class="browm">Анимация конвертов отключена</div>'),
+                t = !1;
+                break;
+            case "конверт+":
+                noconvert = !1,
+                showNewDiv('<div class="browm">Анимация конвертов включена</div>'),
+                t = !1;
+                break;
+            case "приглашения-":
+                invitesToGame = !1,
+                showNewDiv('<div class="browm">Приглашения в игры отключены</div>'),
+                t = !1;
+                break;
+            case "приглашения+":
+                invitesToGame = !0,
+                showNewDiv('<div class="browm">Приглашения в игры включены</div>'),
+                t = !1
+            }
+            if (!container.hasClass("ingame"))
+                switch (a) {
+                case "хочу стенку":
+                    setStenka(),
+                    t = !1;
+                    break;
+                case "хочу чп":
+                    setCHP(),
+                    t = !1;
+                    break;
+                case "help":
+                    helper.start(),
+                    t = !1;
+                    break;
+                case "викторина-":
+                    quizEnable = !1,
+                    showNewDiv('<div class="browm">Викторина отключена</div>'),
+                    t = !1;
+                    break;
+                case "викторина+":
+                    quizEnable = !0,
+                    showNewDiv('<div class="browm">Викторина включена</div>'),
+                    t = !1;
+                    break;
+                case "салют-":
+                    fireworkEnable = !1,
+                    showNewDiv('<div class="browm">Вы решили не смотреть праздничные фейерверки</div>'),
+                    t = !1;
+                    break;
+                case "салют+":
+                    fireworkEnable = !0,
+                    showNewDiv('<div class="browm">Теперь Вы тоже не пропустите праздничные фейерверки</div>'),
+                    t = !1;
+                    break;
+                case "редактор меню":
+                    showWindow("menu-editor"),
+                    t = !1;
+                    break;
+                case "киндер-сюрприз":
+                    maffiaNEW()
+                }
+            if (t) {
+                var o = privateCheck.prop("checked");
+                if (!o && 0 < i.length && !$("div").is("#" + i))
+                    return;
+                var r = 0 < i.length ? $("#adresat").val() : "";
+                if (o && r === $("#nick").html())
+                    return;
+                var n = 0 < i.length ? o ? "private" : "direct" : "public";
+                lastMsg = e,
+                "testgame" === room ? !game.period || u.vip || o || 1 !== game.period && 4 !== game.period ? showNewMessage({
+                    message: specials_out(e),
+                    from: {
+                        id: u._id,
+                        login: u.login,
+                        image: u.image,
+                        sex: u.sex
+                    },
+                    msgType: n,
+                    to: i,
+                    toName: r
+                }) : showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)") : o && i && playersInfoArray[i] && playersInfoArray[i].bot ? (showNewMessage({
+                    message: specials_out(e),
+                    from: {
+                        id: u._id,
+                        login: u.login,
+                        image: u.image,
+                        sex: u.sex
+                    },
+                    msgType: n,
+                    to: i,
+                    toName: r
+                }),
+                showNewMessage({
+                    message: specials_out("Привет, " + u.login + "! Я - бот, но мне все равно приятно твое внимание :)"),
+                    from: playersInfoArray[i],
+                    msgType: n,
+                    to: u._id,
+                    toName: u.login
+                })) : sendToSocket({
+                    type: "message",
+                    msgType: n,
+                    to: i,
+                    toName: r,
+                    message: specials_out(e)
+                })
+            }
+            inputField.val("")
+        } else
+            showNewMessage({
+                message: 'Не "точкай" :)',
+                color: "#ff0000",
+                from: "[server]"
+            })
+}
+function userGoEvent(e, a) {
+    if (container.hasClass("wedding")) {
+        var s = 1 === e.sex ? "a гостья" : " гость";
+        game.married && -1 < game.married.indexOf(e._id) && (s = 1 === e.sex ? 'a <span class="lastwords">невеста</span>' : ' <span class="lastwords">жених</span>'),
+        a ? game.writeText('<div class="votemsg">Зал для свадебной церемонии покинул' + s + ' <b data-id="' + e._id + '">' + e.login + "</b></div>", e) : game.writeText('<div class="votemsg">На свадьбу прибыл' + s + ' <b data-id="' + e._id + '">' + e.login + "</b></div>", e)
+    } else
+        game.writeText('<div class="votemsg">' + (1 === e.sex ? a ? "Отсоединилась" : "Присоединилась" : a ? "Отсоединился" : "Присоединился") + ' <b data-id="' + e._id + '">' + e.login + "</b> " + (1 === e.sex ? " ♀" : " ♂") + "</div>", e)
+}
+function editPlayerList(e, a, s) {
+    if (e && e._id) {
+        var t = container.hasClass("current");
+        if (playersList.find("#" + e._id).remove(),
+        a)
+            2 < room.length && (t ? playersInfoArray[e._id] ? e.role && (game.writeText('<div class="important"><b class="nickname" data-id="' + e._id + '">' + playersInfoArray[e._id].login + "</b> - " + roles(e.role).name + " - " + (1 === playersInfoArray[e._id].sex ? roleText.all.leave1 : roleText.all.leave2) + "</div>", {
+                id: e._id
+            }),
+            playersInfoArray[e._id].killed = !0) : game.writeText('Кажется, <b class="nickname" data-id="' + e._id + '">кто-то</b> подглядывал за игрой', {
+                id: e._id
+            }) : playersInfoArray[e._id] && (userGoEvent(playersInfoArray[e._id], a),
+            closedgame && !playersInfoArray[e._id].marked || (changeNumberHtml("addedToGame", -1),
+            changeNumberHtml("remainForGame", 1)),
+            delete playersInfoArray[e._id]));
+        else {
+            playersInfoArray[e._id] = e;
+            var i = $("<div/>", {
+                id: e._id
+            }).html("<b></b>" + e.login);
+            i.attr("data-nick", e.login),
+            i.mouseenter(function() {
+                return showPlayerInfo(!0, $(this).attr("id")),
+                !1
+            }).mouseleave(function() {
+                return showPlayerInfo(!1),
+                !1
+            }),
+            u.friends && -1 < u.friends.indexOf(e._id) && i.addClass("green"),
+            e.vip && i.addClass("vipPlayer"),
+            e.curator ? i.addClass("curatorPlayer") : e.clan ? (i.addClass("clanPlayer"),
+            $("<span/>", {
+                "data-id": e.clan,
+                class: "clan-icon"
+            }).css("background", "url(/images/clans/" + e.clan + "/icon.png)").appendTo(i)) : room.length < 3 && i.addClass("mode" + e.mode),
+            -1 < reds.indexOf(e._id) && i.addClass("red"),
+            e.icon && i.find("b").addClass("status" + e.icon),
+            1 === e.marked && i.addClass("marked"),
+            i.appendTo(playersList),
+            !s && 2 < room.length && !container.hasClass("current") && (userGoEvent(e, a),
+            closedgame || (changeNumberHtml("addedToGame", 1),
+            changeNumberHtml("remainForGame", -1)))
+        }
+        aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")");
+        var o = [];
+        playersList.find("div").each(function() {
+            var e = [$(this).attr("data-nick"), $(this)];
+            o.push(e)
+        }),
+        o.sort(plSort),
+        playersList.html(),
+        $.each(o, function() {
+            playersList.append(this[1])
+        })
+    }
+}
+var zTimers = {}
+  , zayavkaTimer = function(e) {
+    var a = $("#" + e).find(".timer");
+    if (a) {
+        var s = a.attr("data-lost");
+        0 < (s -= 3) ? (a.attr("data-lost", s),
+        a.html(date.countdown(s))) : (clearInterval(zTimers[e]),
+        delete zTimers[e])
+    }
+}
+  , zayavkaInTimer = function(e) {
+    var a = $("#timer-" + e);
+    if (a) {
+        var s = a.attr("data-lost");
+        0 < (s -= 3) ? (a.attr("data-lost", s),
+        a.html(date.countdown(s))) : (clearInterval(zTimers[e]),
+        delete zTimers[e],
+        a.attr("data-lost", ""),
+        a.empty())
+    }
+};
+function editGameList(e) {
+    if ($("#" + e._id).remove(),
+    delete gamesInfoArray[e._id],
+    !e.del) {
+        var a = $("<li></li>");
+        e.special && a.addClass("specialgame"),
+        13 === e.gametype && a.addClass("important"),
+        a.html('<span class="row1">' + (e.cat ? "&#128008;" : "") + e.creator + '</span><span class="row2">' + e.sum + '</span><span class="row3">' + e.count + '</span><span class="row4">' + (e.selecting ? '<b class="selrolgame"></b>' : "") + (e.botwall ? '<b class="botwall"></b>' : "") + (e.shortnight ? '<b class="shortnight"></b>' : "") + (e.man ? '<b class="manmode"></b>' : "") + gameStyle[e.style] + '</span><span class="row5">' + e.add + '</span><span class="row6">' + (e.count - e.add) + "</span>"),
+        a.attr("id", e._id);
+        for (var s = '<div class="gticons">', t = 1; t < 5; t++) {
+            var i = "<span";
+            1 === e["style" + t] && (i += ' class="enabled"'),
+            s += i += "></span>"
+        }
+        s += '</div><div class="gtheader">' + (gameTypes[e.gametype] ? gameTypes[e.gametype] : "Нестандартная партия") + '</div><div class="gtcaption">' + e.caption + '</div><div class="gtplayers">' + (e.players ? e.players.join(", ") : "") + "</div>" + (e.bonus ? "<sub>За участие в этой игре можно получить подарок.</sub>" : ""),
+        gamesInfoArray[e._id] = s,
+        gamesList.append(a),
+        e.starttime && (zTimers[e._id] && clearInterval(zTimers[e._id]),
+        $("<b/>", {
+            class: "timer",
+            "data-lost": Math.round((e.starttime - date.now()) / 1e3)
+        }).appendTo(a.find(".row1")),
+        zayavkaTimer(e._id),
+        zTimers[e._id] = setInterval(function() {
+            zayavkaTimer(e._id)
+        }, 3e3)),
+        sortTable()
+    }
+}
+function goToRoom(e) {
+    "testgame" === room && helper.helpGameTimer && helper.helpGameStop();
+    var a = e || roomInHall;
+    3 !== ws.readyState && (helper && helper.enabled() && helper.stop(),
+    6 != +a || u.club ? (showNewMessage({
+        message: "Переходим..."
+    }),
+    sendToSocket({
+        type: "go",
+        room: a.toString()
+    })) : showMessage('Только для членов Клуба <u class="clubname"></u>!'))
+}
+function randomGame() {
+    var e = gamesList.find("li");
+    if (0 < e.length) {
+        var a = Math.floor(Math.random() * e.length);
+        e.eq(a).click()
+    } else
+        showNewMessage({
+            message: "Игра не найдена. Нужно создать свою игру!",
+            color: "#ff0000"
+        }),
+        sendToSocket({
+            type: "create",
+            count: 16,
+            sum: 1,
+            gametype: "2",
+            style: 0,
+            selectRole: !0,
+            about: "Чаще создавайте игры!"
+        })
+}
+function selectPlayer(e) {
+    e !== u._id && (playersList.find("div").removeClass("select"),
+    $("#" + e).addClass("select"))
+}
+function markPlayer() {
+    var e = playersList.find("div.select");
+    0 < e.length ? sendToSocket({
+        type: "mark",
+        selected: e.attr("id"),
+        kick: e.hasClass("marked")
+    }) : modalWindow("Вы уверены, что хотите принять в игру всех желающих?", markAll)
+}
+function markAll() {
+    var e = playersList.find("div:not(.marked)");
+    if (container.hasClass("ingame") && 0 < e.length) {
+        var a = e.eq(0).attr("id");
+        if (24 !== a.length || parseInt($("#remainForGame").html()) < 2)
+            return;
+        sendToSocket({
+            type: "mark",
+            selected: a
+        }),
+        setTimeout(markAll, 1e3)
+    }
+}
+function suggestedPlayer(e) {
+    var a, s = e._id, t = $("#" + s);
+    t && (e.kick ? (a = "Игрок " + t.html() + " исключен создателем.",
+    t.removeClass("marked"),
+    playersInfoArray[s].marked = 0) : (a = "Игрок " + t.html() + " одобрен создателем.",
+    t.addClass("marked"),
+    playersInfoArray[s].marked = 1),
+    game.writeText(a),
+    changeNumberHtml("addedToGame", e.allmarked, !0),
+    changeNumberHtml("remainForGame", e.all - e.allmarked, !0))
+}
+function showPlayerInfo(e, a) {
+    ptp.queue("fx", []);
+    var s = ptp.find("#playerInfo-stat")
+      , t = playersInfoArray[a];
+    if (e && t) {
+        t.hide && a === u._id && (t = u),
+        t.bot && t.creator && playersInfoArray[t.creator] && (t.icon = 2,
+        t.status = playersInfoArray[t.creator].login);
+        var i = function(e, a) {
+            return (void 0 === e[a + "1"] ? t.bot || t.hide ? "-" : "0" : e[a + "1"]) + " / " + (void 0 === e[a + "0"] ? t.bot || t.hide ? "-" : "0" : e[a + "0"])
+        };
+        t.image && 2 < t.image.length ? ptp.find("#playerInfo-image").removeClass().css({
+            background: "url(/files/" + a + t.image + ") center center no-repeat",
+            "background-size": "contain"
+        }) : ptp.find("#playerInfo-image").removeClass().removeAttr("style").addClass("i" + (1 === t.sex ? "w" : "m") + t.image),
+        t.club ? ptp.addClass("club") : ptp.removeClass("club"),
+        checkMarried(t, ptp),
+        t.vip ? ptp.addClass("vipProfile") : ptp.removeClass("vipProfile");
+        var o = t.login || "***"
+          , r = t.hide ? t._id === u._id ? "*" + u.rating + "*" : "скрыт" : t.hasOwnProperty("rating") ? t.rating : "-"
+          , n = t.hasOwnProperty("gamescount") ? t.gamescount : t.hide ? "-" : "∞";
+        s.find(".nick").html(o),
+        s.find(".rating").html(r),
+        s.find(".cat").html(i(t, "cat")),
+        s.find(".sleep").html(i(t, "lun")),
+        s.find(".jeal").html(i(t, "rev")),
+        s.find(".duty").html(i(t, "dej")),
+        s.find(".robb").html(i(t, "poh")),
+        s.find(".stud").html(i(t, "stud")),
+        s.find(".gamecount").html(n),
+        ptp.find("#player-status").removeClass().addClass("status" + t.icon).html(t.status || ""),
+        ptp.find("#playerInfo-about").html(t.about || "");
+        var l = "";
+        if (Object.forEach(t.cups, function(e, a) {
+            l += '<span data-title="' + e + '" style="background-image:url(/images/cups/' + a.replace("-", ".") + ')"></span>'
+        }),
+        ptp.find("#playerInfo-cups").html(l),
+        ptp.delay(1e3).fadeTo(900, 1),
+        container.hasClass("current") && 2 === game.period && !game.finish) {
+            1 === t.sex ? gameptp.addClass("woman-gameinfo") : gameptp.removeClass("woman-gameinfo");
+            var d = gameptp.find("div");
+            game.hisvote[a] ? d.eq(0).html(game.hisvote[a]) : d.eq(0).empty(),
+            game.votes[a] ? d.eq(1).html(game.votes[a].join(", ") + "<hr/> Голосов: " + game.votes[a].length) : d.eq(1).empty(),
+            (game.hisvote[a] || game.votes[a]) && (gameptp.find("strong").html(o),
+            gameptp.show())
+        }
+    } else
+        ptp.hide(),
+        gameptp.hide()
+}
+function showPlayerInfoBlock(e) {
+    var a = $(".info").find(".playerInfoBlock")
+      , s = a.find(".playerInfo-stat")
+      , t = a.find(".playerInfo-gifts")
+      , i = e._id === u._id
+      , o = function(e, a) {
+        return (void 0 === e[a + "1"] ? "0" : e[a + "1"]) + " / " + (void 0 === e[a + "0"] ? "0" : e[a + "0"])
+    };
+    i ? a.addClass("myProfile") : a.removeClass("myProfile"),
+    2 < e.image.length ? a.find(".playerInfo-image").removeClass().addClass("playerInfo-image").css({
+        background: "url(/files/" + e._id + e.image + ") center center no-repeat",
+        "background-size": "contain"
+    }) : a.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + (1 === e.sex ? "w" : "m") + e.image),
+    e.club ? a.addClass("club") : a.removeClass("club"),
+    checkMarried(e, a);
+    var r = e.login || "***"
+      , n = e.rating || "0";
+    s.find(".nick").html(r),
+    s.find(".rating").html(n),
+    s.find(".cat").html(o(e, "cat")),
+    s.find(".sleep").html(o(e, "lun")),
+    s.find(".jeal").html(o(e, "rev")),
+    s.find(".duty").html(o(e, "dej")),
+    s.find(".robb").html(o(e, "poh")),
+    s.find(".stud").html(o(e, "stud"));
+    var l = s.find(".law");
+    l.html(o(e, "adv")),
+    s.find(".roles-stat").remove(),
+    e.roles && $.each(e.roles, function(e, a) {
+        $('<span class="roles-stat" data-text="' + roles(e).name + '">' + (a[1] || "0") + " / " + (a[0] || "0") + "</span>").insertAfter(l)
+    }),
+    s.find(".gamecount").html(e.gamescount),
+    a.find(".player-status").removeClass().addClass("player-status status" + e.icon).html(e.status || ""),
+    a.find(".playerInfo-about").html(e.about || "");
+    var d = "";
+    Object.forEach(e.cups, function(e, a) {
+        d += '<span data-title="' + e + '" style="background-image:url(/images/cups/' + a.replace("-", ".") + ')"></span>'
+    }),
+    a.find(".playerInfo-cups").html(d);
+    var m = e.date ? date.rusDate(e.date) : "До 14 июня 2015 года";
+    if (e.room && "0" !== e.room ? 2 < e.room.length ? m += '<div class="green">В игре</div>' : m += '<div class="hall' + e.room.substring(0, 1) + '">' + (1 === e.room.indexOf("s") ? "*" : "") + "</div>" : m += '<div class="red">Вне игры</div>',
+    e.last && (m += '<div class="lastvisit">' + (date.isToday(e.last) ? "Сегодня" : date.rusDate(e.last, !0, !0)) + "</div>"),
+    e.vip && e.vip > date.now() && (m += '<div class="vipPlayer">VIP-статус до ' + date.showDate(e.vip, !0) + "</div>"),
+    e.blank) {
+        var c = '<div class="anketaInfo">';
+        Object.forEach(e.blank, function(e, a) {
+            var s = "1" === a && e ? date.rusDate(e, !0) : e;
+            c += "<p>" + s + "</p>"
+        }),
+        m += c + "</div>"
+    }
+    if (e.clan && (m += '<div data-action="clanProfile" data-id="' + e.clan + '" class="clan-status" style="background-image:url(/images/clans/' + e.clan + '/icon.png)">Состоит в клане</div>'),
+    $("#regdate").html(m),
+    i ? $('<button class="onlyvip">' + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").on("click", function() {
+        $(this).hide(),
+        sendToSocket({
+            type: "anketa",
+            data: {
+                hide: !u.hide
+            }
+        })
+    }).appendTo(a.find(".playerInfo-cups")) : $("<button>Сделать подарок</button>").on("click", function() {
+        giftShop.find('input[type="text"]').eq(0).val(e.login),
+        showWindow("giftshop")
+    }).appendTo(a.find(".playerInfo-cups")),
+    u.stat && u.stat.pay) {
+        var p = u.vip && u.vip > date.now() ? 2e3 : 3e3;
+        $('<button class="button-donatoptions money">' + (i ? "Получить" : "Подарить") + " VIP (" + p + ")</button>").on("click", function() {
+            u.money2 >= p ? modalWindow("Вы уверены, что хотите подарить игроку <b>" + r + "</b> VIP-статус на 30 дней?", function() {
+                sendToSocket({
+                    type: "donat",
+                    action: "vip",
+                    other: e._id
+                })
+            }) : f.notEnough({
+                action: "money2",
+                message: 'Для такого щедрого подарка у Вас должно быть <span class="money">' + p + "</span> на счету."
+            })
+        }).appendTo(a.find(".playerInfo-cups"))
+    }
+    if (t.empty(),
+    e.gifts) {
+        var g = function() {
+            var e = $(this);
+            modalWindow('Выбросить подарок?<br/> <div class="playerInfo-gifts singlegift"><div class="' + e.attr("class") + '" data-title="' + e.attr("data-title") + '"></div></div>', function() {
+                sendToSocket({
+                    type: "gift-delete",
+                    gift: e.attr("data-giftid")
+                }),
+                e.remove()
+            })
+        };
+        Object.forEach(e.gifts, function(e, a) {
+            var s = $('<div data-giftid="' + a + '" class="' + getGiftClass(e.num) + '" data-title="' + (e.login ? e.login : "Аноним") + ": " + (e.text ? matFilter(e.text) : "без комментариев") + " (" + date.showDate(a, !0) + ')"></div>');
+            i && s.on("click touchstart", g),
+            s.appendTo(t)
+        }),
+        t.append('<br class="clearfix"/>')
+    }
+    showWindow("playerInfoBlock")
+}
+function showSubmenuBlock(e) {
+    closewindow(),
+    submenu.removeClass().addClass("sm-" + e).fadeIn(500)
+}
+function showCurGames(e) {
+    var a = win.find(".curgames");
+    if (a.empty(),
+    0 < e.length)
+        for (var s = 0, t = e.length; s < t; s++) {
+            var i = e[s]._id
+              , o = $('<div id="curgame' + e[s]._id + '"></div>');
+            o.html("<time>" + date.showDate(e[s].time, !0) + "</time> <h5>" + e[s].creator + "</h5><em>" + e[s].caption + '</em><div class="curgame-info">' + (e[s].selecting ? '<b class="selrolgame"></b>' : "") + (e[s].botwall ? '<b class="botwall"></b>' : "") + (e[s].shortnight ? '<b class="shortnight"></b>' : "") + (e[s].man ? '<b class="manmode"></b>' : "") + gameStyle[e[s].style] + ' на <span class="red">' + e[s].count + '</span> игроков со ставкой <span class="brown">' + f.over1000(e[s].sum) + "</span></div><blockquote>" + e[s].players.join(", ") + "</blockquote> "),
+            $("<button>Посмотреть игру</button>").appendTo(o).click({
+                gameid: i
+            }, enterToGame),
+            a.append(o)
+        }
+    else
+        a.html("<div><h5>В данный момент не проходит ни одной игры :(</h5></div>")
+}
+function enterToGame(e) {
+    var a = e.data.gameid;
+    a && (closewindow(),
+    sendToSocket({
+        type: "enter-game",
+        game: a
+    }))
+}
+function inviteToGame() {
+    sendToSocket({
+        type: "invite"
+    }),
+    $("#inviteToGameDiv").remove()
+}
+var newGame = {
+    creating: !1,
+    plCount: 8,
+    stavka: 1,
+    type: 1,
+    style: 0,
+    minStavka: 1,
+    maxStavka: 2,
+    countForType: {
+        1: [8, 20],
+        2: [15, 25],
+        3: [20, 30],
+        4: [8, 20]
+    }
+}
+  , plC = $("#plCount")
+  , st = $("#stavka");
+function setCount(e) {
+    var t = parseInt(plC.html()) + e;
+    t >= newGame.countForType[newGame.type][0] && t <= newGame.countForType[newGame.type][1] && (newGame.plCount = t,
+    plC.html(t))
+}
+function setStavka(e) {
+    var t = Math.floor(u.money / 1e3)
+      , a = parseInt(st.html()) + e;
+    t < a && (a = t,
+    $("#about").html("Игра на последние деньги :)")),
+    a >= newGame.minStavka && a <= newGame.maxStavka && (newGame.stavka = a),
+    st.html(newGame.stavka)
+}
+$("#setCount1").on("click", function() {
+    setCount(-1)
+}),
+$("#setCount2").on("click", function() {
+    setCount(1)
+}),
+$("#setStavka1").on("click", function() {
+    setStavka(-1)
+}),
+$("#setStavka2").on("click", function() {
+    setStavka(1)
+});
+var ch1 = $("#check1")
+  , ch2 = $("#check2")
+  , ch3 = $("#check3")
+  , ch4 = $("#check4")
+  , ch5 = $("#check5")
+  , ch6 = $("#check6");
+function checkOptions() {
+    var e = Math.floor(u.money / 1e3);
+    1 !== u.club && (ch2.prop("checked", !1),
+    ch3.prop("checked", !1),
+    ch4.prop("checked", !1),
+    ch5.prop("checked", !1),
+    ch6.prop("checked", !1)),
+    (ch3.is(":checked") || ch4.is(":checked") || ch5.is(":checked") || ch6.is(":checked")) && (ch1.prop("checked", "checked"),
+    ch2.prop("checked", "checked")),
+    ch2.is(":checked") && ch1.prop("checked", "checked");
+    var t = 0
+      , a = newGame.style;
+    if (newGame.style = 0,
+    ch1.is(":checked") && (t += 1,
+    newGame.style += 1),
+    ch2.is(":checked") && (t += 10,
+    newGame.style += 10),
+    ch3.is(":checked") && (t += 100,
+    newGame.style += 100),
+    ch4.is(":checked") && (t += 100,
+    newGame.style += 1e3),
+    ch5.is(":checked") && (t += 100,
+    newGame.style += 1e4),
+    ch6.is(":checked") && (t += 100,
+    newGame.style += 1e5),
+    t || (newGame.minStavka = 1,
+    newGame.maxStavka = 2),
+    1 == t && (newGame.minStavka = 1,
+    newGame.maxStavka = 4),
+    10 < t && (newGame.minStavka = 2,
+    newGame.maxStavka = 16),
+    100 < t && (newGame.minStavka = 4,
+    newGame.maxStavka = 32),
+    200 < t && (newGame.minStavka = 8,
+    newGame.maxStavka = 64),
+    300 < t && (newGame.minStavka = 16,
+    newGame.maxStavka = 128),
+    400 < t && (newGame.minStavka = 32,
+    newGame.maxStavka = 500),
+    newGame.stavka < newGame.minStavka && (newGame.stavka = newGame.minStavka),
+    newGame.stavka > newGame.maxStavka && (newGame.stavka = newGame.maxStavka),
+    newGame.stavka > e) {
+        var c = $(this);
+        c.prop("checked", !c.prop("checked")),
+        newGame.stavka = e,
+        newGame.style = a
+    }
+    st.html(newGame.stavka)
+}
+function setGame(e) {
+    newGame.type = e ? parseInt(e) : parseInt($("#gamePanel").find("input:checked + label").attr("data-gametype")),
+    1 === newGame.type || 4 === newGame.type ? $("#gametype1_4").addClass("checkedGameType") : $("#gametype1_4").removeClass("checkedGameType");
+    var t = newGame.countForType[newGame.type][0];
+    newGame.plCount = t,
+    plC.html(t)
+}
+function checkGame() {
+    newGame.type = $("#gamePanel").find("input:checked + label").attr("data-gametype"),
+    plC.html() < newGame.countForType[newGame.type][0] && (newGame.plCount = newGame.countForType[newGame.type][0],
+    plC.html(newGame.plCount)),
+    plC.html() > newGame.countForType[newGame.type][1] && (newGame.plCount = newGame.countForType[newGame.type][1],
+    plC.html(newGame.plCount))
+}
+function createGame() {
+    if (checkGame(),
+    checkOptions(),
+    newGame.plCount = parseInt(plC.html()) || 8,
+    newGame.stavka = parseInt(st.html()) || 1,
+    !newGame.creating) {
+        newGame.creating = !0;
+        var e = $("#about").val().trim()
+          , t = {
+            type: "create",
+            count: newGame.plCount,
+            sum: newGame.stavka,
+            gametype: newGame.type,
+            style: newGame.style,
+            selectRole: $("#selectRole").prop("checked"),
+            about: e
+        };
+        (-1 < e.toLowerCase().indexOf("мур") || -1 < e.toLowerCase().indexOf("мяу")) && (t.cat = !0),
+        sendToSocket(t),
+        closewindow(),
+        setTimeout(function() {
+            newGame.creating = !1
+        }, 1e3)
+    }
+}
+function setStenka() {
+    $("#gamePanel").find("label").eq(1).click(),
+    ch1.prop("checked", !0),
+    ch2.prop("checked", !0),
+    ch3.prop("checked", !1),
+    ch4.prop("checked", !0),
+    ch5.prop("checked", !1),
+    ch6.prop("checked", !0),
+    plC.html("16"),
+    st.html("8"),
+    $("#about").val("0-0 играем?"),
+    showWindow("newgame")
+}
+function setCHP() {
+    $("#gamePanel").find("label").eq(0).click(),
+    ch1.prop("checked", !0),
+    ch2.prop("checked", !0),
+    ch3.prop("checked", !1),
+    ch4.prop("checked", !0),
+    ch5.prop("checked", !1),
+    ch6.prop("checked", !0),
+    plC.html("8"),
+    st.html("8"),
+    $("#about").val("ЧП"),
+    showWindow("newgame")
+}
+function getRandomInt(e, t) {
+    return Math.floor(Math.random() * (t - e + 1)) + e
+}
+$("#gamePanel").find("label").click(function() {
+    setGame($(this).attr("data-gametype"))
+}),
+$('.gameoptions input[type="checkbox"]').change(function(e) {
+    return u.club || -1 == ["check2", "check3", "check4", "check5", "check6"].indexOf(e.target.id) ? (checkOptions(),
+    !0) : (showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!'),
+    e.stopPropagation(),
+    e.preventDefault(),
+    $(this).prop("checked", !1),
+    !1)
+}),
+$("#about").keypress(function(e) {
+    var t = e.which;
+    return !($(this).attr("maxlength") <= $("#about").val().length && 8 != t && 46 != t) || (sound("signal"),
+    !1)
+});
+var ticketK = .7
+  , selectYet = !1
+  , ticketBlock = $("#tickets");
+function ticketClick() {
+    if (!selectYet) {
+        selectYet = !0;
+        var e = $(this).attr("data-id");
+        $(this).addClass("clicked-ticket"),
+        sendToSocket({
+            type: "ticket",
+            ticket: e
+        })
+    }
+}
+function showTickets(e, t) {
+    sound("notify");
+    var a, c = container.width() - 40, n = container.height() - 40, i = n / c * ticketK, s = Math.ceil(Math.sqrt(e * i)), o = Math.floor(n / s), k = Math.floor(o * ticketK), h = !1;
+    70 < k && (k = 70),
+    100 < o && (o = 100),
+    ticketBlock.html(""),
+    30 < e ? (ticketBlock.css("padding-top", "25px"),
+    a = ticketBlock) : (ticketBlock.css("padding-top", ticketBlock.outerHeight() / 2 - 200 + "px"),
+    ticketBlock.append("<section></section>"),
+    ticketBlock.append("<section></section>"),
+    ticketBlock.append("<section></section>"),
+    h = Math.floor((e - 10) / 2),
+    a = ticketBlock.find("section").eq(0));
+    for (var l = 0; l < e; l++) {
+        var d = $('<div data-id="' + l + '" style="transform:rotate(' + getRandomInt(-5, 5).toString() + 'deg)"></div>');
+        d.bind("click touchstart").click(ticketClick),
+        t && -1 < t.indexOf(l) && d.addClass("studTicket"),
+        a.append(d),
+        h && l === h - 1 && (a = ticketBlock.find("section").eq(1)),
+        h && l === h + 9 && (a = ticketBlock.find("section").eq(2))
+    }
+    ticketBlock.find("div").css("width", k + "px").css("height", o + "px"),
+    selectYet = !1,
+    ticketBlock.show()
+}
+function hideTickets() {
+    ticketBlock.find("div").remove(),
+    ticketBlock.hide()
+}
+function copyTicket(e) {
+    var t = ticketBlock.find("div").eq(e);
+    if (t.is(":visible")) {
+        t.css("visibility", "hidden");
+        var a = t.css("width")
+          , c = t.css("height")
+          , n = t.position()
+          , i = $('<div class="newTicket"></div>').html("<div><div></div><div></div></div>");
+        return i.css("width", c).css("height", a).css("left", n.left + "px").css("top", n.top + "px").css("font-size", Math.floor(parseInt(a) / 10) + "px"),
+        ticketBlock.append(i),
+        i
+    }
+}
+function hideTicket(e) {
+    var t = copyTicket(e)
+      , a = " 1s 5ms 1 normal ease-in forwards"
+      , c = {
+        1: {
+            animation: "hideTicket1" + a,
+            webkitAnimation: "hideTicket1" + a
+        },
+        2: {
+            animation: "hideTicket2" + a,
+            webkitAnimation: "hideTicket2" + a
+        },
+        3: {
+            animation: "hideTicket3" + a,
+            webkitAnimation: "hideTicket3" + a
+        },
+        4: {
+            animation: "hideTicket4" + a,
+            webkitAnimation: "hideTicket4" + a
+        }
+    };
+    t && (b.hasClass("noeffect") ? t.hide() : t.css(c[[1, 2, 3, 4].randomValue()]))
+}
+function ticketOpen(e, t) {
+    if (t) {
+        sound("signal");
+        var a = copyTicket(e);
+        a.addClass("activeTicket"),
+        a.find("div>div").eq(1).addClass("ticket" + t),
+        b.hasClass("noeffect") ? a.find("div>div").eq(0).addClass("ticket" + t) : setTimeout(function() {
+            a.find("div>div").eq(0).addClass("ticket" + t)
+        }, 1e3)
+    } else
+        hideTicket(e),
+        selectYet = !1
+}
+var statDiv = $(".stat")
+  , specGameAbout = $("#specialAbout");
+function createSpecialGame() {
+    if (!newGame.creating) {
+        newGame.creating = !0;
+        var e = {}
+          , t = specGameAbout.val().trim();
+        switch (statDiv.find("input[name=sgametype]:checked").val()) {
+        case "1":
+            e = {
+                count: 8,
+                stavka: 5,
+                type: 2,
+                style: 101011,
+                botwall: !0
+            };
+            break;
+        case "2":
+            e = {
+                ount: 5,
+                stavka: 5,
+                type: 6,
+                style: 1011,
+                botwall: !0
+            };
+            break;
+        case "3":
+            e = {
+                ount: 16,
+                stavka: 8,
+                type: 2,
+                style: 101011
+            };
+            break;
+        case "4":
+            e = {
+                ount: 10,
+                stavka: 4,
+                type: 6,
+                style: 1011
+            };
+            break;
+        case "5":
+            e = {
+                ount: 14,
+                stavka: 7,
+                type: 11,
+                style: 101011
+            };
+            break;
+        case "6":
+            e = {
+                ount: 24,
+                stavka: 5,
+                type: 10,
+                style: 101011
+            };
+            break;
+        case "7":
+            e = {
+                ount: 8,
+                stavka: 4,
+                type: 4,
+                style: 1011
+            };
+            break;
+        default:
+            e = {
+                ount: 8,
+                stavka: 2,
+                type: 1,
+                style: 0
             }
         }
-        qdata += "<tr><td>" + k + '</td><th data-id="' + el._id + '">' + el.login + "</th><td>" + el.quiz + "</td><td>" + rank + "</td></tr>";
-    });
-    qdata += "</table>";
-    quizTop.html(qdata);
-    quizTop.find("th").click(showProfile);
+        var a = {
+            type: "create",
+            count: e.count,
+            sum: e.stavka,
+            gametype: e.type,
+            style: e.style,
+            selectRole: $("#specialSelRole").prop("checked"),
+            about: t
+        };
+        e.botwall && (a.botwall = !0),
+        sendToSocket(a),
+        closewindow(),
+        setTimeout(function() {
+            newGame.creating = !1
+        }, 1e3)
+    }
 }
-var halltree, nytree, treeProportion = 0.6536, dmAnimates = {
+statDiv.find("button").on("click", createSpecialGame),
+specGameAbout.keydown(function(e) {
+    13 === e.which && createSpecialGame()
+});
+var UG = $(".userGame");
+function UGinc(e, t) {
+    var a = UG.find("#" + e)
+      , c = parseInt(a.html()) + t;
+    if (!(c < 0)) {
+        switch (e) {
+        case "UGplCount":
+            c < 5 && (c = 5),
+            30 < c && (c = 30);
+            break;
+        case "UGstavka":
+            500 < c && (c = 500),
+            2 < c && !UG.find("#UGcheck1").prop("checked") && !UG.find("#UGcheck2").prop("checked") && (c = 2);
+            break;
+        case "UGrobb":
+            var n = Math.floor(parseInt(UG.find("#UGplCount").html()) / 2) - 1;
+            UG.find("#UGhrobb").prop("checked") && (n -= 1),
+            n < c && (c = n),
+            c < 1 && (c = 1);
+            break;
+        case "UGitem2":
+            3 < c && (c = 3)
+        }
+        a.html(c)
+    }
+}
+function createUserGame() {
+    if (!newGame.creating) {
+        var e = function(e) {
+            newGame.creating = !0,
+            sendToSocket(e),
+            closewindow(),
+            setTimeout(function() {
+                newGame.creating = !1
+            }, 1e3)
+        }
+          , t = UG.find("#UGabout").val().trim()
+          , a = parseInt(UG.find("#UGplCount").html())
+          , c = parseInt(UG.find("#UGstavka").html())
+          , n = {
+            0: 0,
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0
+        }
+          , i = {}
+          , s = {}
+          , o = UG.find("#UGspecialGame").prop("checked")
+          , k = UG.find("#UGselectRole").prop("checked");
+        if (UG.find("#UGcheck1").is(":checked") && (n[0] = 1),
+        UG.find("#UGcheck2").is(":checked") && (n[0] = 2),
+        UG.find("#UGcheck3").is(":checked") && (n[1] = 1),
+        UG.find("#UGcheck4").is(":checked") && (n[2] = 1),
+        UG.find("#UGcheck5").is(":checked") && (n[3] = 1),
+        UG.find("#UGcheck6").is(":checked") && (n[4] = 1),
+        !n[2]) {
+            var h = parseInt(UG.find("#UGitem2").html());
+            h < 3 && (s.item2 = h),
+            UG.find("#UGitem4").is(":checked") && (s.item4 = 1),
+            UG.find("#UGbonus").is(":checked") && (s.bonus = 1)
+        }
+        if (i[2] = parseInt(UG.find("#UGrobb").html()),
+        i[6] = parseInt(UG.find("#UGjeal").html()),
+        UG.find("#UGhrobb").is(":checked") && (i[3] = 1),
+        UG.find("#UGduty").is(":checked") && (i[4] = 1),
+        UG.find("#UGassis").is(":checked") && (i[5] = 1),
+        UG.find("#UGsleep").is(":checked") && (i[7] = 1),
+        UG.find("#UGcat").is(":checked") && (i[8] = 1),
+        UG.find("#UGadv").is(":checked") && (i[9] = 1),
+        !i[5] || i[4]) {
+            var l = 0;
+            Object.forEach(i, function(e) {
+                l += e
+            });
+            var d = {
+                type: "userGame",
+                about: t,
+                count: a,
+                sum: c,
+                style: n,
+                special: o,
+                selectRole: k,
+                roles: i
+            };
+            UG.find("#UGManModeGame").prop("checked") && (d.man = !0),
+            UG.find("#UGShortNights").prop("checked") && (d.shortnight = !0),
+            0 < Object.size(s) && (d.params = s),
+            -1 < t.indexOf("#") && (d.ip = !0),
+            i[6] || !d.man ? a < l ? modalWindow("Количество активных ролей (" + l + ") превышает количество игроков (" + a + ") в партии.<br/>Изменить количество игроков на " + l + "?", function() {
+                d.count = l,
+                e(d)
+            }) : e(d) : showMessage('Хотя бы одна роль <span class="jeal"></span> обязательна для режима <span class="jeal"></span>-одиночка')
+        } else
+            showMessage('Для роли <span class="assis"></span> обязательно наличие в начале партии роли <span class="duty"></span>')
+    }
+}
+UG.find("#UGcheck4").change(function() {
+    var e = $("#UGitemsedit");
+    return $(this).prop("checked") ? e.addClass("noactive") : e.removeClass("noactive"),
+    !0
+}),
+$("#UGcreateGame").click(createUserGame),
+newGame.loadSaves = function() {
+    var a = "";
+    $.each(newGame.saves, function(e, t) {
+        t.UGabout || (t.UGabout = date.showDate(e, !0)),
+        a = '<option value="' + e + '">' + (23 < t.UGabout.length ? t.UGabout.substring(0, 20) + "..." : t.UGabout) + "</option>" + a
+    }),
+    $("#UGsaves").html("<option>выбрать</option>" + a)
+}
+,
+newGame.saves = lStorage.getItem("saves") ? JSON.parse(lStorage.getItem("saves")) : {},
+newGame.loadSaves(),
+UG.find("#UGdelete").click(function() {
+    var e = $("#UGsaves").val();
+    newGame.saves[e] ? (delete newGame.saves[e],
+    lStorage.setItem("saves", JSON.stringify(newGame.saves)),
+    newGame.loadSaves()) : showMessage("Выберите шаблон для удаления")
+}),
+UG.find("#UGsave").click(function() {
+    var a = {};
+    UG.find(":checkbox, span.svalue").each(function() {
+        var e = $(this)
+          , t = e.attr("id");
+        t && (a[t] = e.hasClass("check") ? e.prop("checked") : e.html())
+    }),
+    a.UGabout = $("#UGabout").val(),
+    newGame.saves[Date.now()] = a,
+    lStorage.setItem("saves", JSON.stringify(newGame.saves)),
+    newGame.loadSaves()
+}),
+UG.find("#UGsaves").change(function() {
+    var e = $(this).val();
+    newGame.saves[e] && $.each(newGame.saves[e], function(e, t) {
+        var a = UG.find("#" + e);
+        a && ("UGabout" == a.attr("id") ? a.val(t) : a.hasClass("check") ? a.prop("checked", t) : a.html(t))
+    })
+});
+var halltree, nytree, treeProportion = .6536, dmAnimates = {
     1: {
         left: "-350px"
     },
@@ -6523,446 +7225,118 @@ var halltree, nytree, treeProportion = 0.6536, dmAnimates = {
         left: "-400px"
     }
 };
-function enableTree(data) {
-    var halltreeWidth = parseInt(mainDiv.height() * treeProportion);
-    halltree = $('<div class="halltree"><img src="/images/tree.png" data-title="Оставь свои пожелания на Новогодней ёлке" alt="Новогодняя ёлка"/></div>');
-    halltree.click(function() {
-        showWindow("tree");
-    }).appendTo(mainDiv);
+function enableTree(t) {
+    var e = parseInt(mainDiv.height() * treeProportion);
+    (halltree = $('<div class="halltree"><img src="/images/tree.png" data-title="Оставь свои пожелания на Новогодней ёлке" alt="Новогодняя ёлка"/></div>')).click(function() {
+        showWindow("tree")
+    }).appendTo(mainDiv),
     halltree.css({
-        width: halltreeWidth
-    });
-    nytree = $('<div class="nytreeblock"><div class="nytree"><img src="/images/tree.png" alt=""/></div></div>');
-    $('<div class="tree"></div>').append('<div class="toybox"></div>').append(nytree).appendTo(win.find(".info"));
-    if (data.toys) {
-        data.toys.forEach(function(el) {
-            drawToy(el);
-        });
-    }
-    if (u.isGift != "2018") {
-        $('<img src="/images/nygift.png" data-title="Подарок от Деда Мороза" alt=""/>').css({
-            position: "absolute",
-            width: "100px",
-            height: "100px",
-            bottom: "0",
-            right: "15%",
-            cursor: "pointer"
-        }).click(function() {
-            $(this).hide();
-            sendToSocket({
-                type: "nygift"
-            });
-        }).appendTo(mainDiv);
-    }
-    b.addClass("snow").addClass("newyear");
-    sounds.dedMoroz = createAudio("/media/ded-moroz.mp3");
-    inputField.val("не надо снега");
+        width: e
+    }),
+    nytree = $('<div class="nytreeblock"><div class="nytree"><img src="/images/tree.png" alt=""/></div></div>'),
+    $('<div class="tree"></div>').append('<div class="toybox"></div>').append(nytree).appendTo(win.find(".info")),
+    t.toys && t.toys.forEach(function(t) {
+        drawToy(t)
+    }),
+    "2018" != u.isGift && $('<img src="/images/nygift.png" data-title="Подарок от Деда Мороза" alt=""/>').css({
+        position: "absolute",
+        width: "100px",
+        height: "100px",
+        bottom: "0",
+        right: "15%",
+        cursor: "pointer"
+    }).click(function() {
+        $(this).hide(),
+        sendToSocket({
+            type: "nygift"
+        })
+    }).appendTo(mainDiv),
+    b.addClass("snow").addClass("newyear"),
+    sounds.dedMoroz = createAudio("/media/ded-moroz.mp3"),
+    inputField.val("не надо снега")
 }
-function drawToy(el) {
-    var cssToy = {
-        left: el.x,
-        top: el.y
+function drawToy(t) {
+    var e = {
+        left: t.x,
+        top: t.y
     };
-    if (!el.t) {
-        cssToy.opacity = 0.5;
-    }
-    $('<span class="nytoy' + el.c + '" data-title="' + el.u + '"></span>').css(cssToy).click(function() {
-        warningWindow("<blockquote>" + el.t + "</blockquote><em>" + el.u + "</em> (" + showDate(el.d, true) + ")");
+    t.t || (e.opacity = .5),
+    $('<span class="nytoy' + t.c + '" data-title="' + t.u + '"></span>').css(e).click(function() {
+        warningWindow("<blockquote>" + t.t + "</blockquote><em>" + t.u + "</em> (" + date.showDate(t.d, !0) + ")")
     }).appendTo(nytree);
-    var nytreeWidth = 1376
-      , nytreeHeight = 2000
-      , toyLength = 100
-      , toyScale = nytreeHeight / toyLength
-      , miniToyH = (toyLength * 100 / nytreeHeight) + "%"
-      , miniToyW = (toyLength * 100 / nytreeWidth) + "%"
-      , marginLeft = "-" + Math.round(0.5 * halltree.height() / toyScale) + "px"
-      , cssData = {
-        left: (el.x * 100 / nytreeWidth) + "%",
-        top: (el.y / toyScale) + "%",
-        width: miniToyW,
-        height: miniToyH,
-        marginLeft: marginLeft
+    var o = "-" + Math.round(.5 * halltree.height() / 20) + "px"
+      , n = {
+        left: 100 * t.x / 1376 + "%",
+        top: t.y / 20 + "%",
+        width: 1e4 / 1376 + "%",
+        height: "5%",
+        marginLeft: o
     };
-    if (!el.t) {
-        cssData.opacity = 0.5;
-    }
-    $('<span class="nytoy' + el.c + '"></span>').css(cssData).appendTo(halltree);
+    t.t || (n.opacity = .5),
+    $('<span class="nytoy' + t.c + '"></span>').css(n).appendTo(halltree)
 }
-function showStatistics(data) {
-    if (data.params) {
-        if (data.params.banner) {
-            showWall(data.params.banner, true);
-            zastavka = data.params.banner;
-        }
-        if (data.params.bestplayer && !server2) {
-            showNewDiv('<div class="alarm">Лучший игрок месяца - <strong data-id="' + data.params.bestplayer._id + '">' + data.params.bestplayer.login + "</strong></div>");
-        }
-        if (data.params.maxonline) {
-            onlineCounter.after('<div id="maxonline">' + data.params.maxonline.count + " (" + showDate(data.params.maxonline.time) + ")</div>");
-        }
-        if (data.params.support) {
-            $("<div/>", {
-                "class": "supportButton"
-            }).html("Конкурс к Новому году").click(function() {
-                showWindow("support");
-            }).insertBefore("#lottery");
-            var supportWin = $(".support");
-            supportWin.find("button").click(function() {
-                var text = supportWin.find("textarea").val().substring(0, 1000);
-                sendToSocket({
-                    type: "support",
-                    text: text
-                });
-                closewindow();
-            });
-        }
-        if (data.params.gifts) {
-            var buyGiftsWin = $("<div/>", {
-                "class": "buyGifts"
-            }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="Малый подарок"/><figcaption data-type="1">7 снежинок</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="Средний подарок"/><figcaption data-type="2">18 снежинок</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Большой подарок"/><figcaption data-type="3">33 снежинки</figcaption></figure></div>');
-            win.find(".info").append(buyGiftsWin);
-            $("<div/>", {
-                "class": "buyGiftsButton"
-            }).html("Новогодняя Распродажа").click(function() {
-                showWindow("buyGifts");
-            }).insertBefore("#lottery");
-            buyGiftsWin.find("figcaption").click(function() {
-                sendToSocket({
-                    type: "buyGifts",
-                    box: $(this).attr("data-type")
-                });
-            });
-        }
-        if (data.params.vkpoll && data.params.vkpoll.title && data.params.vkpoll.code && typeof VK !== "undefined") {
-            messagesList.append('<div class="news"><em>' + data.params.vkpoll.title + '</em> <input type="checkbox" class="spoiler" id="showvkpoll"/><label for="showvkpoll"></label><div id="vk_poll" style="overflow:hidden"></div></div>');
-            VK.Widgets.Poll("vk_poll", {}, data.params.vkpoll.code);
-        }
-        if (isToday("14.2.2018")) {
-            $("<div/>", {
-                "class": "supportButton"
-            }).css({
-                width: "200px",
-                height: "102px",
-                background: "url(/images/holidays/f14send.png) center no-repeat",
-                margin: 0,
-                border: 0,
-                "box-shadow": "none"
-            }).attr("title", "Сделать анонимное признание...").click(function() {
-                showWindow("f14Win");
-            }).insertBefore("#lottery");
-            var f14Win = $("<div/>", {
-                "class": "f14Win"
-            }).html('<p>Только 14 февраля у Вас есть уникальная возможность анонимно признаться кому-то в любви или просто поздравить с Днем всех влюбленных!</p><textarea placeholder="Я люблю..." maxlength="1000"></textarea><button class="button">Отправить</button>').appendTo(win.find(".info"));
-            f14Win.find("button").click(function() {
-                var text = f14Win.find("textarea").val().substring(0, 1000);
-                sendToSocket({
-                    type: "f14msg",
-                    text: text
-                });
-                closewindow();
-                f14Win.find("textarea").val("");
-            });
-            $.cachedScript("/js/hearts.js").done(function() {
-                if (fall && !b.hasClass("noeffect")) {
-                    fall();
-                }
-            });
-        }
-        if (data.params.news) {
-            $.each(data.params.news, function(ind, el) {
-                showNewDiv('<div class="news specialnews">' + el.text + "<sup>" + rusDate(ind) + "</sup></div>");
-            });
-        }
+function NYtoyAdd(t) {
+    var i = $(this)
+      , o = $(".tree")
+      , e = function(t) {
+        var e = o.offset();
+        i.css({
+            left: t.pageX - e.left + o.scrollLeft() - i.width() / 2,
+            top: t.pageY - e.top + 1 + o.scrollTop() + 50
+        })
     }
-    var div100p = function(v1, v2, text) {
-        var div = $("<div/>").addClass("percent")
-          , innerDiv = $("<div/>")
-          , sum = v1 + v2
-          , p1 = Math.round(v1 * 100 / sum)
-          , p2 = Math.round(v2 * 100 / sum);
-        $("<em/>").html(text).appendTo(div);
-        $("<span/>").html(v1).css("width", p1 + "%").appendTo(innerDiv);
-        $("<span/>").html(v2).css("width", p2 + "%").appendTo(innerDiv);
-        innerDiv.appendTo(div);
-        return div;
+      , a = function() {
+        i.css({
+            position: "static"
+        }).appendTo(win.find(".toybox")),
+        document.onclick = null
     };
-    var st1 = data["game-bot"]
-      , st2 = data["game-all"];
-    statDiv.append("<div>Cтатистика игровых партий: " + over1000(st2.count) + "</div><hr/>");
-    div100p(st1.pl, st1.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv);
-    div100p(st2.win.stud, st2.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv);
-    if (data.map) {
-        mapAreas = data.map.areas;
+    i.css({
+        position: "absolute"
+    }).appendTo(o),
+    e(t),
+    document.onmousemove = function(t) {
+        e(t)
     }
-    if (data.roulette) {
-        rouletteInfo(data.roulette);
-    }
-    if (data.tree && data.tree === true && !server2) {
-        sendToSocket({
-            type: "tree"
-        });
-    }
-    $("<div/>", {
-        id: "indicator"
-    }).attr("data-title", "Индикатор сети").appendTo($(".panel-top"));
-}
-var itemsArray = {
-    "7": "Сертификат на бесплатное объявление",
-    "8": "Элемент Коллекции Активист",
-    "9": "Элемент Клубной Коллекции",
-    "10": "Новогодняя игрушка",
-    "11": "VIP-абонемент на 1 день",
-    "12": "Сертификат на бесплатную суперигру",
-    "13": "Билет на Барабан чудес",
-    "14": "Кошелек с монетами (16 000)",
-    "15": "Купон на заказ праздничного салюта (не чаще 1 раза в 20 секунд)",
-    "16": "Сертификат на быструю суперигру",
-    "17": "Элемент Новогодней Коллекции 2017",
-    "18": "Снежинка",
-    "19": "Сертификат на создание СуперМикса",
-    "20": "Скидочная карта -50% на покупки в игровой партии",
-    "21": "Шубка деда мороза (+20% к бессмертию)",
-    "22": {
-        ffl: "Морковка снеговика (+25% к шансу стать ревнивым студентом)",
-        maffia: "Морковка снеговика (+25% к шансу стать маньяком)"
-    },
-    "23": "Шапка снегурочки (+40% к интуиции)",
-    "24": "Для активации отправьте кому-то в личном сообщении слово &quot;бах&quot;",
-    "2018": "Элемент Новогодней Коллекции 2018"
-};
-var getItemsArray = function(i) {
-    return (typeof itemsArray[i] === "object") ? (isMaffia ? itemsArray[i].maffia : itemsArray[i].ffl) : itemsArray[i];
-};
-function showBox(data) {
-    var text = '<div class="box">';
-    for (var ind in data.box) {
-        if (data.box.hasOwnProperty(ind)) {
-            var title = (ind > 0 && ind < 7) ? roleText[gameMode()].items[ind] : getItemsArray(ind);
-            text += '<div data-title="' + title + '" class="items-' + ind + '">';
-            if (data.box[ind] > 1) {
-                text += "<span>" + data.box[ind] + "</span>";
-            }
-            text += "</div>";
-        }
-    }
-    text += "</div>";
-    warningWindow(data.text + ":<br/>" + text);
-}
-function itemAction(e) {
-    var i = e.data.item;
-    if (i) {
-        if (["7", "12", "13", "18", "24"].indexOf(i) >= 0) {
-            showMessage("Этот предмет пригодится Вам в соответствующей локации");
-        } else {
-            modalWindow("Активировать предмет?", function() {
-                sendToSocket({
-                    type: "items",
-                    action: i
-                });
-            });
-        }
-    }
-}
-function showInventory() {
-    if (u.items) {
-        var inventar = win.find(".inventory");
-        inventar.empty();
-        if (Object.size(u.items) > 0 || u.bonus) {
-            for (var i in u.items) {
-                if (u.items.hasOwnProperty(i)) {
-                    if (i !== "nytoys" && u.items[i] > 0) {
-                        var title = (i > 0 && i < 7) ? roleText[gameMode()].items[i] : getItemsArray(i)
-                          , curItem = $("<div></div>").attr("data-title", title).addClass("items-" + i);
-                        if (u.items[i] > 1) {
-                            curItem.html("<span>" + u.items[i] + "</span>");
-                        }
-                        curItem.click({
-                            item: i
-                        }, itemAction);
-                        curItem.appendTo(inventar);
-                    }
-                }
-            }
-            if (u.bonus || u.tempbonus) {
-                var bonusBox = $("<section/>", {
-                    "class": "bonus-ring"
-                });
-                for (var ind in u.bonus) {
-                    if (u.bonus.hasOwnProperty(ind)) {
-                        var fullBonus = ((u.tempbonus && u.tempbonus.deca) ? "10x" : "") + u.bonus[ind] + "%";
-                        $("<div/>", {
-                            "class": "bonus-" + ind,
-                            "data-title": bonusRings[ind]
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>" + fullBonus + "</span>").appendTo(bonusBox);
-                    }
-                }
-                if (u.tempbonus) {
-                    if (u.tempbonus.all1) {
-                        $("<div/>", {
-                            "class": "items-17",
-                            "data-title": "Новогодняя коллекция 2017 (до " + showDate(u.tempbonus.all1) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+1%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.anticat) {
-                        $("<div/>", {
-                            "class": "items-2018",
-                            "data-title": "Новогодняя коллекция 2018 (до " + showDate(u.tempbonus.anticat) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+10%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.discount) {
-                        $("<div/>", {
-                            "class": "items-20",
-                            "data-title": getItemsArray(20) + " (до " + showDate(u.tempbonus.discount, true) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>-50%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.nokill20) {
-                        $("<div/>", {
-                            "class": "items-21",
-                            "data-title": getItemsArray(21) + " (до " + showDate(u.tempbonus.nokill20, true) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+20%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.rev25) {
-                        $("<div/>", {
-                            "class": "items-22",
-                            "data-title": getItemsArray(22) + " (до " + showDate(u.tempbonus.rev25, true) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+25%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.intuit40) {
-                        $("<div/>", {
-                            "class": "items-23",
-                            "data-title": getItemsArray(23) + " (до " + showDate(u.tempbonus.intuit40, true) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+40%</span>").appendTo(bonusBox);
-                    }
-                    if (u.tempbonus.intuit100) {
-                        $("<div/>", {
-                            "class": "items-23",
-                            "data-title": "100% бонус интуиции (до " + showDate(u.tempbonus.intuit100, true) + ")"
-                        }).css({
-                            cursor: "auto"
-                        }).html("<span>+100%</span>").appendTo(bonusBox);
-                    }
-                }
-                bonusBox.appendTo(inventar);
-            }
-        } else {
-            inventar.append("<h5>У Вас пока нет ни одного полезного предмета.</h5>");
-        }
-    }
-}
-var slotArray = [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
-  , slotCount = slotArray.length
-  , slotInterval = 600
-  , slotsRotating = 0
-  , slotActive = false;
-function slotStart() {
-    if (!slotActive) {
-        var selItem = parseInt($("#slot-bet").find("input[name=slots]:checked").val()) || 0;
-        if (zTimers.slots) {
-            showMessage("Следующую попытку можно сделать только после остановки таймера.");
-            return;
-        }
-        if (selItem) {
-            setTimeout(function() {
-                $("#slot-handler").attr("src", "/images/slot-handle.gif").css({
-                    cursor: "wait"
-                });
-            });
-            slotActive = true;
+    ,
+    document.onclick = a,
+    nytree.click(function(t) {
+        document.onmousemove = null,
+        nytree.unbind("click"),
+        document.onclick = null;
+        var e = $(this).offset()
+          , o = Math.round(t.pageX - e.left + $(this).scrollLeft())
+          , n = Math.round(t.pageY - e.top + $(this).scrollTop());
+        modalWindow('Не забудьте указать ваше личное сообщение к игрушке<br/> <textarea placeholder="Поздравление или пожелание"></textarea><br/> Повесить игрушку?', function() {
+            var t = mW.find("textarea").val()
+              , e = i.attr("data-id");
             sendToSocket({
-                type: "slot",
-                item: selItem
-            });
-            u.items[selItem]--;
-        } else {
-            showMessage("Сначала выберите предмет из Вашего инвентаря, который Вы хотите использовать как ставку.");
+                type: "nytoy",
+                x: o,
+                y: n,
+                id: e,
+                text: t
+            }),
+            i.hide(),
+            delete u.items.nytoys[e]
+        }, a)
+    })
+}
+var NY = {
+    event: function(t) {
+        if (t.hasOwnProperty("count"))
+            alarm(0 < t.count ? "Дед Мороз подарил " + f.someThing(t.count, "подарок", "подарка", "подарков") : "Никто не получил внеочередного подарка от Деда Мороза :(");
+        else {
+            var e = f.randomInt(3)
+              , o = $('<img id="dm' + e + '" class="dedmoroz" src="/images/2017/dm' + e + '.gif"/>').appendTo(b);
+            sound("dedMoroz"),
+            o.animate(dmAnimates[e], 2e4, function() {
+                $(this).remove(),
+                sounds.dedMoroz.pause()
+            })
         }
     }
-}
-function slotTimerStart(secs) {
-    $("#timer-slots").attr("data-lost", secs);
-    zayavkaInTimer("slots");
-    zTimers.slots = setInterval(function() {
-        zayavkaInTimer("slots");
-    }, 3000);
-}
-function slotAction(data) {
-    var items = data.items;
-    slotTimerStart(slotInterval);
-    slotsRotating = 3;
-    for (var i = 1; i < 4; i++) {
-        var curslot = $("#slot" + i)
-          , curTop = parseInt(curslot.css("top")) || 0
-          , newTop = -slotArray.indexOf(items[i - 1]) * 60 - curTop + slotCount * 60 * 3 + 60;
-        slotMotion(curslot, newTop, curTop);
-    }
-    if (data.win) {
-        $.each(data.win, function(key, val) {
-            if (!u.items[key]) {
-                u.items[key] = 0;
-            }
-            u.items[key] += val;
-        });
-        slotActive = data.win;
-    }
-}
-function slotMotion(obj, top, curtop) {
-    if (top > 0) {
-        var step = b.hasClass("noeffect") ? top : Math.floor(top / 500) + 1;
-        top -= step;
-        curtop += step;
-        while (curtop > 0) {
-            curtop += -slotCount * 60;
-        }
-        obj.css({
-            top: curtop + "px"
-        });
-        var sec = top > 500 ? 10 : 10 - Math.ceil(top / 50);
-        setTimeout(slotMotion, sec, obj, top, curtop);
-    } else {
-        slotsRotating--;
-        if (slotsRotating <= 0) {
-            $("#slot-handler").attr("src", "/images/slot-handle.png").css({
-                cursor: "pointer"
-            });
-            if (slotActive === true) {
-                showMessage("Вам немного не повезло. Следующая попытка должна быть удачной!");
-            } else {
-                showBox({
-                    box: slotActive,
-                    text: "Вы выиграли"
-                });
-            }
-            updateInterface();
-            slotActive = false;
-        }
-    }
-}
-function areaAttack() {
-    var areaNum = $(this).attr("data-area");
-    if (areaNum && u.money >= 2000) {
-        sendToSocket({
-            type: "area",
-            num: areaNum
-        });
-        closewindow();
-    } else {
-        showMessage("Недостаточно средств для начала битвы.");
-    }
-}
+};
 var progressTime = 0
   , maxProgressRank = 7
   , quests = {
@@ -6978,17 +7352,17 @@ var progressTime = 0
         }, {
             money2: 10
         }, {
-            money2: 1000
+            money2: 1e3
         }, {
-            money2: 5000
+            money2: 5e3
         }, {
-            money2: 10000
+            money2: 1e4
         }],
         ranks: ["Случайный прохожий", "Посетитель", "Бывалый клиент", "Постоянный клиент", "Завсегдатай", "Частый гость", "Хозяин"]
     },
     2: {
         title: "Создавать игровые заявки",
-        values: [10, 50, 100, 500, 1000, 2000, 5000],
+        values: [10, 50, 100, 500, 1e3, 2e3, 5e3],
         prize: [{
             money: 3
         }, {
@@ -7002,7 +7376,7 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Экспериментатор", "Энтузиаст", "Созидатель", "Креативный игрок", "Автор", "Творец", "Великий создатель"]
     },
@@ -7022,7 +7396,7 @@ var progressTime = 0
         }, {
             money2: 100
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Ленивец", "Инициатор", "Деловой человек", "Энергичный игрок", "Неудержимый", "Деятель", "Главный активист"]
     },
@@ -7042,13 +7416,13 @@ var progressTime = 0
         }, {
             money2: 500
         }, {
-            money2: 2000
+            money2: 2e3
         }],
         ranks: ["Лишний на празднике", "Случайный гость", "Визитер", "Член клуба", "Почетный участник", "Клубный заводила", "Элитный член"]
     },
     5: {
         title: 'Потратить в магазине <span class="gamemoney">деньги</span>',
-        values: [3000, 10000, 50000, 100000, 500000, 1000000, 30000000],
+        values: [3e3, 1e4, 5e4, 1e5, 5e5, 1e6, 3e7],
         prize: [{
             item2: 1
         }, {
@@ -7060,15 +7434,15 @@ var progressTime = 0
         }, {
             money2: 500
         }, {
-            money2: 1000
+            money2: 1e3
         }, {
-            money2: 2000
+            money2: 2e3
         }],
         ranks: ["Жмот", "Скряга", "Экономист", "Покупатель", "Оптовик", "Транжира", "Платиновый клиент"]
     },
     6: {
         title: 'Потратить в магазине <span class="money">валюту</span>',
-        values: [5, 20, 50, 100, 1000, 10000, 30000],
+        values: [5, 20, 50, 100, 1e3, 1e4, 3e4],
         prize: [{
             item2: 10
         }, {
@@ -7082,13 +7456,13 @@ var progressTime = 0
         }, {
             item5: 100
         }, {
-            money: 1000
+            money: 1e3
         }],
         ranks: ["Инвестор", "Богач", "Толстосум", "Буржуй", "Воротила", "Олигарх", "Мультимиллиардер"]
     },
     7: {
         title: 'Приобрести в магазине <span class="for-ffl">Веб-камеру</span> <span class="for-maffia">Рацию</span>',
-        values: [1, 5, 10, 50, 100, 500, 1000],
+        values: [1, 5, 10, 50, 100, 500, 1e3],
         prize: [{
             money: 1
         }, {
@@ -7108,7 +7482,7 @@ var progressTime = 0
     },
     8: {
         title: "Сыграть в игровой партии",
-        values: [10, 50, 100, 500, 1000, 5000, 10000],
+        values: [10, 50, 100, 500, 1e3, 5e3, 1e4],
         prize: [{
             money: 2
         }, {
@@ -7128,7 +7502,7 @@ var progressTime = 0
     },
     9: {
         title: "Выиграть игровую партию",
-        values: [5, 30, 50, 100, 500, 1000, 5000],
+        values: [5, 30, 50, 100, 500, 1e3, 5e3],
         prize: [{
             money: 5
         }, {
@@ -7148,7 +7522,7 @@ var progressTime = 0
     },
     10: {
         title: "Набрать рейтинг",
-        values: [50, 100, 500, 1000, 5000, 10000, 50000],
+        values: [50, 100, 500, 1e3, 5e3, 1e4, 5e4],
         prize: [{
             money: 50
         }, {
@@ -7160,9 +7534,9 @@ var progressTime = 0
         }, {
             money2: 500
         }, {
-            money2: 1000
+            money2: 1e3
         }, {
-            money2: 5000
+            money2: 5e3
         }],
         ranks: ["Рядовой", "Сержант", "Лейтенант", "Капитан", "Майор", "Полковник", "Генерал"]
     },
@@ -7248,7 +7622,7 @@ var progressTime = 0
     },
     15: {
         title: 'Сыграть за роль <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
-        values: [10, 50, 100, 500, 1000, 5000, 10000],
+        values: [10, 50, 100, 500, 1e3, 5e3, 1e4],
         prize: [{
             money: 1
         }, {
@@ -7268,7 +7642,7 @@ var progressTime = 0
     },
     16: {
         title: 'Сыграть за роль <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
-        values: [5, 25, 50, 300, 500, 2000, 5000],
+        values: [5, 25, 50, 300, 500, 2e3, 5e3],
         prize: [{
             money: 1
         }, {
@@ -7288,7 +7662,7 @@ var progressTime = 0
     },
     17: {
         title: 'Сыграть за роль <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
-        values: [3, 10, 30, 100, 300, 1000, 3000],
+        values: [3, 10, 30, 100, 300, 1e3, 3e3],
         prize: [{
             money: 1
         }, {
@@ -7308,7 +7682,7 @@ var progressTime = 0
     },
     18: {
         title: 'Сыграть за роль <span class="for-ffl">ревнивого студента</span> <span class="for-maffia">маньяка</span>',
-        values: [3, 10, 20, 100, 300, 1000, 2000],
+        values: [3, 10, 20, 100, 300, 1e3, 2e3],
         prize: [{
             money: 1
         }, {
@@ -7328,7 +7702,7 @@ var progressTime = 0
     },
     19: {
         title: 'Сыграть за роль <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
-        values: [3, 10, 20, 100, 300, 1000, 2000],
+        values: [3, 10, 20, 100, 300, 1e3, 2e3],
         prize: [{
             money: 1
         }, {
@@ -7348,7 +7722,7 @@ var progressTime = 0
     },
     20: {
         title: 'Выиграть за роль <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
-        values: [7, 40, 80, 400, 900, 4000, 8000],
+        values: [7, 40, 80, 400, 900, 4e3, 8e3],
         prize: [{
             money: 2
         }, {
@@ -7362,13 +7736,13 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Абитуриент|Приезжий", "Первокурсник|Гастарбайтер", "Второкурсник|Турист", "Третьекурсник|Переселенец", "Четверокурсник|Коренной", "Пятикурсник|Уважаемый человек", "Аспирант|Почетный гражданин"]
     },
     21: {
         title: 'Выиграть за роль <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
-        values: [3, 20, 30, 100, 300, 1500, 3000],
+        values: [3, 20, 30, 100, 300, 1500, 3e3],
         prize: [{
             money: 2
         }, {
@@ -7382,13 +7756,13 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Барсеточник|Рэкетир", "Жулик|Бандит", "Мошенник|Гангстер", "Вор|Элитный мафиозо", "Грабитель|Капитан мафии", "Вор в законе|Консильери", "Депутат|Крёстный отец"]
     },
     22: {
         title: 'Выиграть за роль <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
-        values: [2, 7, 20, 70, 200, 600, 2000],
+        values: [2, 7, 20, 70, 200, 600, 2e3],
         prize: [{
             money: 2
         }, {
@@ -7402,7 +7776,7 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Наблюдатель|Стажер полиции", "Дотошный зевака|Жандарм", "Помощник дежурного|Сержант", "Дежурный|Комиссар", "Проверяющий|Прокурор", "Комендант|Шеф полиции", "Гроза похитителей|Гроза мафии"]
     },
@@ -7422,13 +7796,13 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Тихоня|Подозрительный тип", "Флегматик|Странная личность", "Само спокойствие|Безумец", "Излишняя подозрительность|Шизик", "Настороже|Психопат", "Тлеющая искра|Одержимый", "Вулкан страсти|Виртуоз ножа"]
     },
     24: {
         title: 'Выиграть за роль <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
-        values: [2, 6, 12, 50, 150, 500, 1000],
+        values: [2, 6, 12, 50, 150, 500, 1e3],
         prize: [{
             money: 2
         }, {
@@ -7442,13 +7816,13 @@ var progressTime = 0
         }, {
             money: 150
         }, {
-            money2: 1000
+            money2: 1e3
         }],
         ranks: ["Засоня|Медик-практикант", "Сонная тетеря|Интерн", "Бодрствующий|Ординатор", "Жертва бессонницы|Врач", "Ночной охотник|Заведующий отделением", "Недремлющее око|Главный врач", "Несущий возмездие во имя Луны|Профессор медицины"]
     },
     25: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">студента</span> <span class="for-maffia">гражданина</span>',
-        values: [50, 100, 500, 1000, 5000, 10000, 30000],
+        values: [50, 100, 500, 1e3, 5e3, 1e4, 3e4],
         prize: [{
             money: 5
         }, {
@@ -7468,7 +7842,7 @@ var progressTime = 0
     },
     26: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">похитителя</span> <span class="for-maffia">мафиози</span>',
-        values: [20, 50, 200, 800, 2000, 7000, 12000],
+        values: [20, 50, 200, 800, 2e3, 7e3, 12e3],
         prize: [{
             money: 5
         }, {
@@ -7488,7 +7862,7 @@ var progressTime = 0
     },
     27: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">главы похитителей</span> <span class="for-maffia">босса мафии</span>',
-        values: [1, 5, 10, 50, 100, 500, 1000],
+        values: [1, 5, 10, 50, 100, 500, 1e3],
         prize: [{
             money: 5
         }, {
@@ -7508,7 +7882,7 @@ var progressTime = 0
     },
     28: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">дежурного</span> <span class="for-maffia">комиссара</span>',
-        values: [10, 30, 100, 500, 1000, 5000, 10000],
+        values: [10, 30, 100, 500, 1e3, 5e3, 1e4],
         prize: [{
             money: 5
         }, {
@@ -7528,7 +7902,7 @@ var progressTime = 0
     },
     29: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">помощника дежурного</span> <span class="for-maffia">сержанта</span>',
-        values: [10, 30, 90, 400, 900, 4000, 8000],
+        values: [10, 30, 90, 400, 900, 4e3, 8e3],
         prize: [{
             money: 5
         }, {
@@ -7548,7 +7922,7 @@ var progressTime = 0
     },
     30: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">ревнивого студента</span> <span class="for-maffia">маньяка</span>',
-        values: [10, 30, 100, 500, 1000, 5000, 10000],
+        values: [10, 30, 100, 500, 1e3, 5e3, 1e4],
         prize: [{
             money: 5
         }, {
@@ -7568,7 +7942,7 @@ var progressTime = 0
     },
     31: {
         title: 'Вытянуть <span class="for-ffl">билет</span> <span class="for-maffia">карту</span> с ролью <span class="for-ffl">лунатика</span> <span class="for-maffia">доктора</span>',
-        values: [10, 30, 90, 400, 900, 4000, 8000],
+        values: [10, 30, 90, 400, 900, 4e3, 8e3],
         prize: [{
             money: 5
         }, {
@@ -7586,56 +7960,50 @@ var progressTime = 0
         }],
         role: 7
     }
-};
-var bonusRings = {
+}
+  , bonusRings = {
     intuit: "Амулет &quot;Шестое чувство&quot;<br/> наделяет Вас способностями видеть роли игроков",
     nokill: "Кристалл вечной жизни<br/> может спасти вашу жизнь в самой безнадежной ситуации",
     poh: "Тёмное кольцо<br/> пробуждает в своем обладателе силы темной стороны",
     rev: "Светлое кольцо<br/> пробуждает в своем хозяине чрезмерную эмоциальность, сводит с ума"
 };
-function progressRewardType(type) {
-    var out;
-    switch (type) {
+function progressRewardType(e) {
+    var s;
+    switch (e) {
     case "money":
-        out = "gamemoney";
+        s = "gamemoney";
         break;
     case "money2":
-        out = "money";
+        s = "money";
         break;
     default:
-        out = type + "-icon";
+        s = e + "-icon"
     }
-    return out;
+    return s
 }
-function progressReward(obj) {
-    var rewardHtml = "";
-    for (var i in obj) {
-        if (obj.hasOwnProperty(i)) {
-            rewardHtml += '<span class="' + progressRewardType(i) + '">' + ((i === "money") ? over1000(obj[i] * 1000) : obj[i]) + "</span>";
-        }
-    }
-    return rewardHtml;
+function progressReward(e) {
+    var n = "";
+    return Object.forEach(e, function(e, s) {
+        n += '<span class="' + progressRewardType(s) + '">' + ("money" === s ? f.over1000(1e3 * e) : e) + "</span>"
+    }),
+    n
 }
-function progressPersent(obj, i, curRang) {
-    var prevStep = (curRang > 0) ? quests[i].values[curRang - 1] : 0
-      , persent = (curRang >= maxProgressRank) ? 100 : Math.ceil((obj[i] - prevStep) * 100 / (quests[i].values[curRang] - prevStep));
-    if (persent > 100) {
-        persent = 100;
-    }
-    return persent + "%" + ((persent === 100 && curRang !== 7) ? '" data-title="Чтобы получить достижение, выполните задание еще 1 раз' : "");
+function progressPersent(e, s, n) {
+    var a = 0 < n ? quests[s].values[n - 1] : 0
+      , o = maxProgressRank <= n ? 100 : Math.ceil(100 * (e[s] - a) / (quests[s].values[n] - a));
+    return 100 < o && (o = 100),
+    o + "%" + (100 === o && 7 !== n ? '" data-title="Чтобы получить достижение, выполните задание еще 1 раз' : "")
 }
-function progressRank(i, curRang) {
-    var out = ""
-      , ranks = ["Новичок", "Начинающий", "Бывалый", "Опытный", "Матерый", "Искушенный", "Постоянный"]
-      , ticketRanks = ["Скромный", "Начинающий", "Известный", "Знаменитый", "Авторитетный", "Прославленный", "Идеальный"];
-    i = parseInt(i);
-    switch (i) {
+function progressRank(e, s) {
+    var n = ""
+      , a = ["Новичок", "Начинающий", "Бывалый", "Опытный", "Матерый", "Искушенный", "Постоянный"];
+    switch (e = parseInt(e)) {
     case 15:
     case 16:
     case 17:
     case 18:
     case 19:
-        out = (curRang === 0) ? roles(quests[i].role).name + "-" + ranks[curRang] : ranks[curRang] + " " + roles(quests[i].role).name.toLowerCase();
+        n = 0 === s ? roles(quests[e].role).name + "-" + a[s] : a[s] + " " + roles(quests[e].role).name.toLowerCase();
         break;
     case 25:
     case 26:
@@ -7644,3192 +8012,804 @@ function progressRank(i, curRang) {
     case 29:
     case 30:
     case 31:
-        out = ticketRanks[curRang] + " " + roles(quests[i].role).name.toLowerCase();
+        n = ["Скромный", "Начинающий", "Известный", "Знаменитый", "Авторитетный", "Прославленный", "Идеальный"][s] + " " + roles(quests[e].role).name.toLowerCase();
         break;
     default:
-        out = (quests[i].ranks) ? ((quests[i].ranks[curRang].indexOf("|") > 0) ? quests[i].ranks[curRang].split("|")[isMaffia ? 1 : 0] : quests[i].ranks[curRang]) : "***";
+        n = quests[e].ranks ? 0 < quests[e].ranks[s].indexOf("|") ? quests[e].ranks[s].split("|")[isMaffia ? 1 : 0] : quests[e].ranks[s] : "***"
     }
-    return out;
+    return n
 }
-function showProgressList(obj, pr, already) {
-    progressTime = Date.now() + 300000;
-    if (pr) {
-        u.progress = pr;
-    }
-    if (!u.progress) {
-        u.progress = {};
-    }
-    var progressList = win.find(".myprogress");
-    progressList.html("");
-    if (obj) {
-        var blockNum = 0
-          , ringObj = {
+function showProgressList(r, e, y) {
+    progressTime = Date.now() + 3e5,
+    e && (u.progress = e),
+    u.progress || (u.progress = {});
+    var l = win.find(".myprogress");
+    if (l.empty(),
+    r) {
+        var p = 0
+          , i = {
             7: "intuit",
             14: "nokill",
             24: "poh",
             31: "rev"
         }
-          , getProgressBonus = function(e) {
+          , f = function(e) {
             sendToSocket({
                 type: "progress-bonus",
                 block: e.data
-            });
-            progressTime = 0;
+            }),
+            progressTime = 0
         };
-        for (var i in obj) {
-            if (obj.hasOwnProperty(i)) {
-                var curRang = u.progress[i] || 0, div = $("<div/>").append('<div class="progress-image progress' + curRang + '"></div>').append('<div class="progress-content"></div>').append('<div class="progress-bar"><div style="width:' + progressPersent(obj, i, curRang) + '"></div>'), contentHtml;
-                if (curRang >= maxProgressRank) {
-                    contentHtml = "<div></div><div>" + quests[i].title + "</div><div></div><div>" + obj[i] + "/∞</div>";
-                    $(".progress-content", div).addClass("progress-done");
-                } else {
-                    contentHtml = "<div>" + progressRank(i, curRang) + "</div><div>" + quests[i].title + '</div><div data-title="Награда за выполнение">' + progressReward(quests[i].prize[curRang]) + "</div><div>" + obj[i] + "/" + quests[i].values[curRang] + "</div>";
-                }
-                $(".progress-content", div).html(contentHtml);
-                progressList.append(div);
-                if (ringObj.hasOwnProperty(i)) {
-                    ++blockNum;
-                    var bonusButton = $("<p/>", {
-                        "class": "button bonus-ring"
-                    }).html('<div class="bonus-' + ringObj[i] + '"></div><span></span>');
-                    if (already && already.indexOf(blockNum) > -1) {
-                        $("span", bonusButton).html((u.progress["block" + blockNum]) ? "Усилить предмет" : "Забрать бонус");
-                        bonusButton.click(blockNum, getProgressBonus);
-                    } else {
-                        bonusButton.addClass("progress-button-noactive");
-                        $("span", bonusButton).html("Бонус недоступен");
-                    }
-                    bonusButton.appendTo(progressList);
-                }
+        Object.forEach(r, function(e, s) {
+            var n, a = u.progress[s] || 0, o = $("<div/>").append('<div class="progress-image progress' + a + '"></div>').append('<div class="progress-content"></div>').append('<div class="progress-bar"><div style="width:' + progressPersent(r, s, a) + '"></div>');
+            if (maxProgressRank <= a ? (n = "<div></div><div>" + quests[s].title + "</div><div></div><div>" + e + "/∞</div>",
+            $(".progress-content", o).addClass("progress-done")) : n = "<div>" + progressRank(s, a) + "</div><div>" + quests[s].title + '</div><div data-title="Награда за выполнение">' + progressReward(quests[s].prize[a]) + "</div><div>" + e + "/" + quests[s].values[a] + "</div>",
+            $(".progress-content", o).html(n),
+            l.append(o),
+            i.hasOwnProperty(s)) {
+                p++;
+                var m = $("<p/>", {
+                    class: "button bonus-ring"
+                }).html('<div class="bonus-' + i[s] + '"></div><span></span>');
+                y && -1 < y.indexOf(p) ? ($("span", m).html(u.progress["block" + p] ? "Усилить предмет" : "Забрать бонус"),
+                m.click(p, f)) : (m.addClass("progress-button-noactive"),
+                $("span", m).html("Бонус недоступен")),
+                m.appendTo(l)
             }
-        }
+        })
     }
 }
-lotteryDiv.find("button").click(function() {
-    showWindow("lottery");
-});
-lotteryDiv.find("p").click(function() {
-    modalWindow("Скрыть обратный отсчёт до следующей лотереи?", function() {
-        clearInterval(lotteryInterval);
-        var allLost = u.lottery - datenow();
-        if (allLost > 0) {
-            lotteryInterval = setInterval(lotteryTimer, 5000);
-            lotteryDiv.find("p").hide();
-        } else {
-            lotteryTimer();
-        }
-    });
-});
-var lotteryInterval, lotteryQuery = false, lotteryTimerStart = function() {
-    lotteryTimer();
-    lotteryDiv.find("p").fadeIn();
-    lotteryInterval = setInterval(lotteryTimer, 5000);
-}, lotteryTimer = function() {
-    var lost = Math.round((u.lottery - datenow()) / 1000);
-    if (lost > 0) {
-        var minutes = Math.floor(lost / 60)
-          , seconds = lost % 60;
-        if (minutes < 10) {
-            minutes = "0" + minutes;
-        }
-        if (seconds < 10) {
-            seconds = "0" + seconds;
-        }
-        lotteryDiv.find("p").html(minutes + ":" + seconds);
-    } else {
-        clearInterval(lotteryInterval);
-        lotteryDiv.find("button").show();
-        lotteryDiv.find("p").hide();
-    }
-};
-var rouletteForm = $(".rouletteForm")
-  , rouletteWas = function() {
-    return (u.roulette && isToday(u.roulette));
-}
-  , rouletteDisable = function(show) {
-    if (show) {
-        rouletteForm.find("label").show();
-        rouletteForm.find("button").show();
-        rouletteForm.hide();
-    } else {
-        rouletteForm.show();
-        rouletteForm.find("label").hide();
-        rouletteForm.find("button").hide();
-    }
-}
-  , rouletteInfo = function(data) {
-    var rRes = $("#rouletteResult").find("p");
-    rRes.html("");
-    if (data.hasOwnProperty("sum")) {
-        rRes.eq(0).html("Сделано ставок на общую сумму: " + data.sum);
-    }
-    if (data.hasOwnProperty("last")) {
-        rRes.eq(1).html("Результат вчерашнего розыгрыша: " + data.last);
-    }
-    if (data.winners && data.winners.length > 0) {
-        rRes.eq(2).html("Cчастливчики: " + data.winners.join(", "));
-    }
-}
-  , rouletteTable = function() {
-    var rTable = $("#rouletteTable")
-      , row1 = $("<tr/>")
-      , row2 = $("<tr/>")
-      , row3 = $("<tr/>");
-    row1.append('<th rowspan="3">0</th>');
-    for (var i = 0; i < 12; i++) {
-        $("<td/>").html(3 * i + 3).appendTo(row1);
-        $("<td/>").html(3 * i + 2).appendTo(row2);
-        $("<td/>").html(3 * i + 1).appendTo(row3);
-    }
-    rTable.append(row1).append(row2).append(row3);
-    rTable.click(function(e) {
-        if (rouletteWas()) {
-            showMessage("Можно сделать только одну ставку в день. Приходите завтра.");
-            return;
-        }
-        var event = e || window.event
-          , target = event.target || event.srcElement;
-        if (target.tagName === "TD" || target.tagName === "TH") {
-            rouletteForm.find("span").html(target.innerHTML);
-            rouletteForm.show();
-        }
-    });
-};
-rouletteTable();
-rouletteForm.find("button").click(function() {
-    var betSum = parseInt(rouletteForm.find("input").val());
-    if (!betSum) {
-        showMessage('Ставка должна быть больше <span class="gamemoney">1 000</span>');
-    } else {
-        if (betSum * 1000 > u.money) {
-            showMessage("Ставка превышает сумму ваших сбережений");
-        } else {
-            sendToSocket({
-                type: "roulette",
-                num: rouletteForm.find("span").html(),
-                bet: betSum
-            });
-        }
-    }
-});
-roulette.click(function() {
-    if (rouletteWas()) {
-        rouletteDisable();
-    }
-    showWindow("roulette");
-});
-var zastavka;
-showWall(isMaffia ? "maffia/start.jpg" : "start.jpg");
-function loadImageFiles() {
-    for (var k = 0; k <= 10; k++) {
-        new Image().src = "/images/walls/" + ((k === 0) ? "0.gif" : k + ".jpg");
-    }
-    for (var mk = 1; mk <= 9; mk++) {
-        new Image().src = "/images/walls/maffia/" + mk + ((mk < 8) ? ".png" : ".jpg");
-    }
-    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png?240618", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(el) {
-        new Image().src = el;
-    });
-}
-$.cachedScript = function(url, options) {
-    options = $.extend(options || {}, {
-        dataType: "script",
-        cache: true,
-        url: url
-    });
-    return $.ajax(options);
-}
-;
-$(document).ready(function() {
-    createSmilePanel();
-    $(".gamesheader>.row1").click(function() {
-        sortTable(1);
-    });
-    $(".gamesheader>.row2").click(function() {
-        sortTable(2);
-    });
-    $(".gamesheader>.row3").click(function() {
-        sortTable(3);
-    });
-    $(".gamesheader>.row4").click(function() {
-        sortTable(4);
-    });
-    $(".gamesheader>.row5").click(function() {
-        sortTable(5);
-    });
-    $(".gamesheader>.row6").click(function() {
-        sortTable(6);
-    });
-    shop.find("p").addClass("moneyblock").html('<span class="gamemoney"></span> <span class="money"></span>');
-    for (var i = 1; i < 7; i++) {
-        var pr1 = prices["i" + i]
-          , pr2 = prices["i" + i] * 0.8
-          , pr3 = prices["ir" + i];
-        $("#shop" + i + " .gamemoney").html(over1000(pr1) + '<hr/><span class="gamemoney">' + over1000(pr2) + "</span>");
-        $("#shop" + i + " .money").html(over1000(pr3));
-    }
-    for (var col in collectionsData) {
-        if (collectionsData.hasOwnProperty(col)) {
-            collectionWin.append('<input id="collect' + col + '" type="radio" name="collects" value="' + col + '"/><label for="collect' + col + '">' + collectionsData[col].title + "</label>");
-        }
-    }
-    collectionWin.append("<p></p><div></div>");
-    collectRadio = collectionWin.find('input[type=radio][name="collects"]');
-    collectRadio.change(function() {
-        showCollect(this.value);
-    });
-    if (socketConnect) {
-        if (!mobile) {
-            socketConnect();
-        }
-    } else {
-        console.log("socketConnect undefined");
-    }
-    $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function() {
-        $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b);
-        mW.find(".modal").draggable();
-    });
-    if (isAppVK) {
-        outside.append('<div id="roll-start" class="button-roll"></div>');
-        $("#roll-start").click(function() {
-            showWindow("roll");
-        });
-    } else {
-        var sgtable = "<p>Ежедневно</p>";
-        $.each(specGamesTime, function(time, v) {
-            sgtable += "<div><time>" + time + "</time> " + (v.link ? '<a href="' + v.link + '" target="_blank">' + v.name + "</a>" : v.name) + "</div>";
-        });
-        outside.append('<div id="calendar">' + sgtable + "<sup>* московское время</sup></div>");
-    }
-    loadImageFiles();
-    var slotText = "";
-    slotArray.forEach(function(el) {
-        slotText += '<div class="itembox items-' + el + '"></div>';
-    });
-    slotText += '<div class="itembox items-' + slotArray[0] + '"></div><div class="itembox items-' + slotArray[1] + '"></div>';
-    $(".slots").html('<div id="slot1" class="slot">' + slotText + '</div><div id="slot2" class="slot">' + slotText + '</div><div id="slot3" class="slot">' + slotText + "</div>");
-    $(".slot").css({
-        top: "-360px"
-    });
-    $("#slot2").css({
-        top: "-480px"
-    });
-    if (!islocalStorage) {
-        showNewDiv('<div class="important">В вашем браузере запрещено сохранение данных от веб-сайтов, поэтому некоторые настройки и функции будут недоступны</div>');
-    }
-});
-var kinderMode = false;
-function maffiaNEW() {
-    if (b.hasClass("maffianew") || mobile) {
-        return;
-    }
-    inputField.attr("placeholder", "");
-    $("#statusText").attr("placeholder", "введите описание");
-    $("header>h3.button-findgame").html("Мне повезет!");
-    $("#selectChar").appendTo(header);
-    scrollCheck.next("label").prependTo(".panel-top");
-    scrollCheck.prependTo(".panel-top");
-    $("#smiles").appendTo(".panel-top");
-    $(".tooltip").appendTo(b);
-    $("#gameWidth").parent().hide();
-    $("article>h2").html("Набор в игру");
-    $("<div/>").addClass("nickblock").append($("#nick")).append($("header>.moneyblock")).appendTo(header);
-    over1000 = function(num) {
-        return num;
-    }
-    ;
-    game.setBankLines = function(banks) {
-        $(".studBank").css("width", Math.round(banks[0] / game.startBanks * 100) + "%");
-        $(".robbBank").css("width", Math.round(banks[1] / game.startBanks * 100) + "%");
-        $(".allBank").css("width", Math.round(banks[2] / game.startBanks * 100) + "%");
-        $(".winBank").css("width", Math.round(banks[3] / game.startBanks * 100) + "%");
-    }
-    ;
-    game.recalculateBanks = function(banks, start) {
-        if (!banks) {
-            return;
-        }
-        if (start) {
-            gametitle.append('<div class="studBank"></div><div class="robbBank"></div><div class="allBank"></div><div class="winBank"></div>');
-            game.startBanks = banks[0] + banks[1] + banks[2] + banks[3];
-            game.setBankLines(banks);
-        } else {
-            game.setBankLines(banks);
-        }
-        if (banks[0]) {
-            animateNumber("studBank", banks[0]);
-        }
-        if (banks[1]) {
-            animateNumber("robbBank", banks[1]);
-        }
-        if (banks[2]) {
-            animateNumber("allBank", banks[2]);
-        }
-        if (banks[3]) {
-            animateNumber("winBank", banks[3]);
-        }
-    }
-    ;
-    container.removeAttr("style");
-    $('<link rel="stylesheet" href="/css/maffia-new.css?50518">').appendTo(b);
-    maffiaCheckbox.prop("checked", true);
-    isMaffia = true;
-    showGroupWidget();
-    updateInterface();
-    b.addClass("maffia maffianew");
-    kinderMode = true;
-}
-$(window).resize(function() {
-    editProfileSize();
-    if (halltree) {
-        halltree.css({
-            width: parseInt(mainDiv.height() * 0.6536)
-        });
-    }
-});
-var newGame = {
-    creating: false,
-    plCount: 8,
-    stavka: 1,
-    type: 1,
-    style: 0,
-    minStavka: 1,
-    maxStavka: 2,
-    countForType: {
-        1: [8, 20],
-        2: [15, 25],
-        3: [20, 30],
-        4: [8, 20]
-    }
-};
-var plC = $("#plCount");
-var st = $("#stavka");
-function setCount(step) {
-    var newCount = parseInt(plC.html()) + step;
-    if (newCount >= newGame.countForType[newGame.type][0] && newCount <= newGame.countForType[newGame.type][1]) {
-        newGame.plCount = newCount;
-        plC.html(newCount);
-    }
-}
-function setStavka(step) {
-    var mymoney = Math.floor(u.money / 1000);
-    var newStavka = parseInt(st.html()) + step;
-    if (newStavka > mymoney) {
-        newStavka = mymoney;
-        $("#about").html("Игра на последние деньги :)");
-    }
-    if (newStavka >= newGame.minStavka && newStavka <= newGame.maxStavka) {
-        newGame.stavka = newStavka;
-    }
-    st.html(newGame.stavka);
-}
-$("#setCount1").on("click", function() {
-    setCount(-1);
-});
-$("#setCount2").on("click", function() {
-    setCount(1);
-});
-$("#setStavka1").on("click", function() {
-    setStavka(-1);
-});
-$("#setStavka2").on("click", function() {
-    setStavka(1);
-});
-var ch1 = $("#check1");
-var ch2 = $("#check2");
-var ch3 = $("#check3");
-var ch4 = $("#check4");
-var ch5 = $("#check5");
-var ch6 = $("#check6");
-function checkOptions() {
-    var mymoney = Math.floor(u.money / 1000);
-    if (u.club !== 1) {
-        ch2.prop("checked", false);
-        ch3.prop("checked", false);
-        ch4.prop("checked", false);
-        ch5.prop("checked", false);
-        ch6.prop("checked", false);
-    }
-    if (ch3.is(":checked") || ch4.is(":checked") || ch5.is(":checked") || ch6.is(":checked")) {
-        ch1.prop("checked", "checked");
-        ch2.prop("checked", "checked");
-    }
-    if (ch2.is(":checked")) {
-        ch1.prop("checked", "checked");
-    }
-    var scores = 0;
-    var oldStyle = newGame.style;
-    newGame.style = 0;
-    if (ch1.is(":checked")) {
-        scores += 1;
-        newGame.style += 1;
-    }
-    if (ch2.is(":checked")) {
-        scores += 10;
-        newGame.style += 10;
-    }
-    if (ch3.is(":checked")) {
-        scores += 100;
-        newGame.style += 100;
-    }
-    if (ch4.is(":checked")) {
-        scores += 100;
-        newGame.style += 1000;
-    }
-    if (ch5.is(":checked")) {
-        scores += 100;
-        newGame.style += 10000;
-    }
-    if (ch6.is(":checked")) {
-        scores += 100;
-        newGame.style += 100000;
-    }
-    if (!scores) {
-        newGame.minStavka = 1;
-        newGame.maxStavka = 2;
-    }
-    if (scores == 1) {
-        newGame.minStavka = 1;
-        newGame.maxStavka = 4;
-    }
-    if (scores > 10) {
-        newGame.minStavka = 2;
-        newGame.maxStavka = 16;
-    }
-    if (scores > 100) {
-        newGame.minStavka = 4;
-        newGame.maxStavka = 32;
-    }
-    if (scores > 200) {
-        newGame.minStavka = 8;
-        newGame.maxStavka = 64;
-    }
-    if (scores > 300) {
-        newGame.minStavka = 16;
-        newGame.maxStavka = 128;
-    }
-    if (scores > 400) {
-        newGame.minStavka = 32;
-        newGame.maxStavka = 500;
-    }
-    if (newGame.stavka < newGame.minStavka) {
-        newGame.stavka = newGame.minStavka;
-    }
-    if (newGame.stavka > newGame.maxStavka) {
-        newGame.stavka = newGame.maxStavka;
-    }
-    if (newGame.stavka > mymoney) {
-        var ch = $(this);
-        ch.prop("checked", !ch.prop("checked"));
-        newGame.stavka = mymoney;
-        newGame.style = oldStyle;
-    }
-    st.html(newGame.stavka);
-}
-function setGame(gtype) {
-    newGame.type = gtype ? parseInt(gtype) : parseInt($("#gamePanel").find("input:checked + label").attr("data-gametype"));
-    if (newGame.type === 1 || newGame.type === 4) {
-        $("#gametype1_4").addClass("checkedGameType");
-    } else {
-        $("#gametype1_4").removeClass("checkedGameType");
-    }
-    var newCount = newGame.countForType[newGame.type][0];
-    newGame.plCount = newCount;
-    plC.html(newCount);
-}
-function checkGame() {
-    newGame.type = $("#gamePanel").find("input:checked + label").attr("data-gametype");
-    if (plC.html() < newGame.countForType[newGame.type][0]) {
-        newGame.plCount = newGame.countForType[newGame.type][0];
-        plC.html(newGame.plCount);
-    }
-    if (plC.html() > newGame.countForType[newGame.type][1]) {
-        newGame.plCount = newGame.countForType[newGame.type][1];
-        plC.html(newGame.plCount);
-    }
-}
-$("#gamePanel").find("label").click(function() {
-    setGame($(this).attr("data-gametype"));
-});
-$('.gameoptions input[type="checkbox"]').change(function(event) {
-    if (!u.club && ["check2", "check3", "check4", "check5", "check6"].indexOf(event.target.id) != -1) {
-        showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!');
-        event.stopPropagation();
-        event.preventDefault();
-        $(this).prop("checked", false);
-        return false;
-    }
-    checkOptions();
-    return true;
-});
-$("#about").keypress(function(event) {
-    var key = event.which;
-    var count = $(this).attr("maxlength");
-    var a = $("#about").val().length;
-    if (a >= count && key != 8 && key != 46) {
-        sound("signal");
-        return false;
-    } else {
-        return true;
-    }
-});
-function createGame() {
-    checkGame();
-    checkOptions();
-    newGame.plCount = parseInt(plC.html()) || 8;
-    newGame.stavka = parseInt(st.html()) || 1;
-    if (newGame.creating) {
-        return;
-    }
-    newGame.creating = true;
-    var about = $("#about").val().trim()
-      , gameObj = {
-        type: "create",
-        count: newGame.plCount,
-        sum: newGame.stavka,
-        gametype: newGame.type,
-        style: newGame.style,
-        selectRole: $("#selectRole").prop("checked"),
-        about: about
-    };
-    if (about.toLowerCase().indexOf("мур") > -1 || about.toLowerCase().indexOf("мяу") > -1) {
-        gameObj.cat = true;
-    }
-    sendToSocket(gameObj);
-    closewindow();
-    setTimeout(function() {
-        newGame.creating = false;
-    }, 1000);
-}
-function setStenka() {
-    $("#gamePanel").find("label").eq(1).click();
-    ch1.prop("checked", true);
-    ch2.prop("checked", true);
-    ch3.prop("checked", false);
-    ch4.prop("checked", true);
-    ch5.prop("checked", false);
-    ch6.prop("checked", true);
-    plC.html("16");
-    st.html("8");
-    $("#about").val("0-0 играем?");
-    showWindow("newgame");
-}
-function setCHP() {
-    $("#gamePanel").find("label").eq(0).click();
-    ch1.prop("checked", true);
-    ch2.prop("checked", true);
-    ch3.prop("checked", false);
-    ch4.prop("checked", true);
-    ch5.prop("checked", false);
-    ch6.prop("checked", true);
-    plC.html("8");
-    st.html("8");
-    $("#about").val("ЧП");
-    showWindow("newgame");
-}
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-var ticketK = 0.7
-  , selectYet = false;
-var ticketBlock = $("#tickets");
-function ticketClick() {
-    if (!selectYet) {
-        selectYet = true;
-        var num = $(this).attr("data-id");
-        $(this).addClass("clicked-ticket");
-        sendToSocket({
-            type: "ticket",
-            ticket: num
-        });
-    }
-}
-function showTickets(count, noactive) {
-    sound("notify");
-    var curDiv, w = container.width() - 40, h = container.height() - 40, k = (h / w) * ticketK, y = Math.ceil(Math.sqrt(count * k)), ticketHeight = Math.floor(h / y), ticketWidth = Math.floor(ticketHeight * ticketK), ticketSide = false;
-    if (ticketWidth > 70) {
-        ticketWidth = 70;
-    }
-    if (ticketHeight > 100) {
-        ticketHeight = 100;
-    }
-    ticketBlock.html("");
-    if (count > 30) {
-        ticketBlock.css("padding-top", "0");
-        curDiv = ticketBlock;
-    } else {
-        ticketBlock.css("padding-top", ((ticketBlock.outerHeight() / 2) - 200) + "px");
-        ticketBlock.append("<section></section>");
-        ticketBlock.append("<section></section>");
-        ticketBlock.append("<section></section>");
-        ticketSide = Math.floor((count - 10) / 2);
-        curDiv = ticketBlock.find("section").eq(0);
-    }
-    for (var i = 0; i < count; i++) {
-        var newTicket = $('<div data-id="' + i + '" style="transform:rotate(' + getRandomInt(-5, 5).toString() + 'deg)"></div>');
-        newTicket.bind("click touchstart").click(ticketClick);
-        if (noactive && noactive.indexOf(i) > -1) {
-            newTicket.addClass("studTicket");
-        }
-        curDiv.append(newTicket);
-        if (ticketSide && i === ticketSide - 1) {
-            curDiv = ticketBlock.find("section").eq(1);
-        }
-        if (ticketSide && i === ticketSide + 9) {
-            curDiv = ticketBlock.find("section").eq(2);
-        }
-    }
-    ticketBlock.find("div").css("width", ticketWidth + "px").css("height", ticketHeight + "px");
-    selectYet = false;
-    ticketBlock.show();
-}
-function hideTickets() {
-    ticketBlock.find("div").remove();
-    ticketBlock.hide();
-}
-function copyTicket(num) {
-    var curTicket = ticketBlock.find("div").eq(num);
-    curTicket.css("visibility", "hidden");
-    var w = curTicket.css("width")
-      , h = curTicket.css("height")
-      , coords = curTicket.position()
-      , newTicket = $('<div class="newTicket"></div>').html("<div><div></div><div></div></div>");
-    newTicket.css("width", h).css("height", w).css("left", coords.left + "px").css("top", coords.top + "px").css("font-size", Math.floor(parseInt(w) / 10) + "px");
-    ticketBlock.append(newTicket);
-    return newTicket;
-}
-function hideTicket(num) {
-    var newTicket = copyTicket(num)
-      , animateParams = " 1s 5ms 1 normal ease-in forwards"
-      , classes = {
-        1: {
-            animation: "hideTicket1" + animateParams,
-            webkitAnimation: "hideTicket1" + animateParams
-        },
-        2: {
-            animation: "hideTicket2" + animateParams,
-            webkitAnimation: "hideTicket2" + animateParams
-        },
-        3: {
-            animation: "hideTicket3" + animateParams,
-            webkitAnimation: "hideTicket3" + animateParams
-        },
-        4: {
-            animation: "hideTicket4" + animateParams,
-            webkitAnimation: "hideTicket4" + animateParams
-        }
-    };
-    if (b.hasClass("noeffect")) {
-        newTicket.hide();
-    } else {
-        newTicket.css(classes[[1, 2, 3, 4].randomValue()]);
-    }
-}
-function ticketOpen(num, res) {
-    if (res) {
-        sound("signal");
-        var rotatingTicket = copyTicket(num);
-        rotatingTicket.addClass("activeTicket");
-        rotatingTicket.find("div>div").eq(1).addClass("ticket" + res);
-        if (b.hasClass("noeffect")) {
-            rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
-        } else {
-            setTimeout(function() {
-                rotatingTicket.find("div>div").eq(0).addClass("ticket" + res);
-            }, 1000);
-        }
-    } else {
-        hideTicket(num);
-        selectYet = false;
-    }
-}
-var statDiv = $(".stat")
-  , specGameAbout = $("#specialAbout");
-statDiv.find("button").click(createSpecialGame);
-specGameAbout.keydown(function(e) {
-    if (e.which == 13) {
-        createSpecialGame();
-    }
-});
-function createSpecialGame() {
-    if (newGame.creating) {
-        return;
-    }
-    newGame.creating = true;
-    var g = {}
-      , about = specGameAbout.val().trim();
-    var selGameType = statDiv.find("input[name=sgametype]:checked").val();
-    switch (selGameType) {
-    case "1":
-        g = {
-            count: 8,
-            stavka: 5,
-            type: 2,
-            style: 101011,
-            botwall: true
-        };
+function socketEvent(e) {
+    var s = JSON.parse(e.data);
+    switch (testMode && console.log(s),
+    s.type) {
+    case "reply":
+        socketStack.forEach(function(e, a) {
+            s.time === e.timestamp && socketStack.splice(a, 1)
+        }),
+        socketTry = 0,
+        $("#indicator").removeClass("offline"),
+        checkSocketStack();
         break;
-    case "2":
-        g = {
-            ount: 5,
-            stavka: 5,
-            type: 6,
-            style: 1011,
-            botwall: true
-        };
+    case "logout":
+        ws.onclose = function() {}
+        ,
+        b.removeClass("unauthorized"),
+        authFalse(s);
         break;
-    case "3":
-        g = {
-            ount: 16,
-            stavka: 8,
-            type: 2,
-            style: 101011,
-            botwall: false
-        };
+    case "message":
+        showNewMessage(s),
+        "exit" === s.msgType && (mW.hide(),
+        warningWindow(s.message, goToRoom));
         break;
-    case "4":
-        g = {
-            ount: 10,
-            stavka: 4,
-            type: 6,
-            style: 1011,
-            botwall: false
-        };
-        break;
-    case "5":
-        g = {
-            ount: 14,
-            stavka: 7,
-            type: 11,
-            style: 101011,
-            botwall: false
-        };
-        break;
-    case "6":
-        g = {
-            ount: 24,
-            stavka: 5,
-            type: 10,
-            style: 101011,
-            botwall: false
-        };
-        break;
-    case "7":
-        g = {
-            ount: 8,
-            stavka: 4,
-            type: 4,
-            style: 1011,
-            botwall: false
-        };
-        break;
-    default:
-        g = {
-            ount: 8,
-            stavka: 2,
-            type: 1,
-            style: 0,
-            botwall: false
-        };
-        break;
-    }
-    sendToSocket({
-        type: "create",
-        count: g.count,
-        sum: g.stavka,
-        gametype: g.type,
-        style: g.style,
-        botwall: g.botwall,
-        selectRole: $("#specialSelRole").prop("checked"),
-        about: about
-    });
-    closewindow();
-    setTimeout(function() {
-        newGame.creating = false;
-    }, 1000);
-}
-var UG = $(".userGame");
-function UGinc(elid, step) {
-    var el = UG.find("#" + elid)
-      , val = parseInt(el.html()) + step;
-    if (val < 0) {
-        return;
-    }
-    switch (elid) {
-    case "UGplCount":
-        if (val < 5) {
-            val = 5;
-        }
-        if (val > 30) {
-            val = 30;
-        }
-        break;
-    case "UGstavka":
-        if (val > 500) {
-            val = 500;
-        }
-        if (val > 2 && !UG.find("#UGcheck1").prop("checked") && !UG.find("#UGcheck2").prop("checked")) {
-            val = 2;
-        }
-        break;
-    case "UGrobb":
-        var pohMax = Math.floor(parseInt(UG.find("#UGplCount").html()) / 2) - 1;
-        if (UG.find("#UGhrobb").prop("checked")) {
-            pohMax -= 1;
-        }
-        if (val > pohMax) {
-            val = pohMax;
-        }
-        if (val < 1) {
-            val = 1;
-        }
-        break;
-    case "UGitem2":
-        if (val > 3) {
-            val = 3;
-        }
-        break;
-    }
-    el.html(val);
-}
-UG.find("#UGcheck4").change(function() {
-    var editopt = $("#UGitemsedit");
-    if ($(this).prop("checked")) {
-        editopt.addClass("noactive");
-    } else {
-        editopt.removeClass("noactive");
-    }
-    return true;
-});
-function createUserGame() {
-    if (newGame.creating) {
-        return;
-    }
-    var dataSending = function(cgo) {
-        newGame.creating = true;
-        sendToSocket(cgo);
-        closewindow();
-        setTimeout(function() {
-            newGame.creating = false;
-        }, 1000);
-    }
-      , about = UG.find("#UGabout").val().trim()
-      , count = parseInt(UG.find("#UGplCount").html())
-      , sum = parseInt(UG.find("#UGstavka").html())
-      , style = {
-        0: 0,
-        1: 0,
-        2: 0,
-        3: 0,
-        4: 0
-    }
-      , roles = {}
-      , params = {}
-      , special = UG.find("#UGspecialGame").prop("checked")
-      , selrole = UG.find("#UGselectRole").prop("checked");
-    if (UG.find("#UGcheck1").is(":checked")) {
-        style[0] = 1;
-    }
-    if (UG.find("#UGcheck2").is(":checked")) {
-        style[0] = 2;
-    }
-    if (UG.find("#UGcheck3").is(":checked")) {
-        style[1] = 1;
-    }
-    if (UG.find("#UGcheck4").is(":checked")) {
-        style[2] = 1;
-    }
-    if (UG.find("#UGcheck5").is(":checked")) {
-        style[3] = 1;
-    }
-    if (UG.find("#UGcheck6").is(":checked")) {
-        style[4] = 1;
-    }
-    if (!style[2]) {
-        var item2count = parseInt(UG.find("#UGitem2").html());
-        if (item2count < 3) {
-            params.item2 = item2count;
-        }
-        if (UG.find("#UGitem4").is(":checked")) {
-            params.item4 = 1;
-        }
-        if (UG.find("#UGbonus").is(":checked")) {
-            params.bonus = 1;
-        }
-    }
-    roles[2] = parseInt(UG.find("#UGrobb").html());
-    roles[6] = parseInt(UG.find("#UGjeal").html());
-    if (UG.find("#UGhrobb").is(":checked")) {
-        roles[3] = 1;
-    }
-    if (UG.find("#UGduty").is(":checked")) {
-        roles[4] = 1;
-    }
-    if (UG.find("#UGassis").is(":checked")) {
-        roles[5] = 1;
-    }
-    if (UG.find("#UGsleep").is(":checked")) {
-        roles[7] = 1;
-    }
-    if (UG.find("#UGcat").is(":checked")) {
-        roles[8] = 1;
-    }
-    if (UG.find("#UGadv").is(":checked")) {
-        roles[9] = 1;
-    }
-    if (roles[5] && !roles[4]) {
-        showMessage('Для роли <span class="assis"></span> обязательно наличие в начале партии роли <span class="duty"></span>');
-        return;
-    }
-    var activeRoles = 0;
-    for (var i in roles) {
-        if (roles.hasOwnProperty(i)) {
-            activeRoles += roles[i];
-        }
-    }
-    var cgo = {
-        type: "userGame",
-        about: about,
-        count: count,
-        sum: sum,
-        style: style,
-        special: special,
-        selectRole: selrole,
-        roles: roles
-    };
-    if (UG.find("#UGManModeGame").prop("checked")) {
-        cgo.man = true;
-    }
-    if (UG.find("#UGShortNights").prop("checked")) {
-        cgo.shortnight = true;
-    }
-    if (Object.size(params) > 0) {
-        cgo.params = params;
-    }
-    if (about.indexOf("#") > -1) {
-        cgo.ip = true;
-    }
-    if (!roles[6] && cgo.man) {
-        showMessage('Хотя бы одна роль <span class="jeal"></span> обязательна для режима <span class="jeal"></span>-одиночка');
-        return;
-    }
-    if (activeRoles > count) {
-        modalWindow("Количество активных ролей (" + activeRoles + ") превышает количество игроков (" + count + ") в партии.<br/>Изменить количество игроков на " + activeRoles + "?", function() {
-            cgo.count = activeRoles;
-            dataSending(cgo);
-        });
-    } else {
-        dataSending(cgo);
-    }
-}
-$("#UGcreateGame").click(createUserGame);
-newGame.loadSaves = function() {
-    var saves = "";
-    $.each(newGame.saves, function(key, value) {
-        if (!value.UGabout) {
-            value.UGabout = showDate(key, true);
-        }
-        saves = '<option value="' + key + '">' + (value.UGabout.length > 23 ? value.UGabout.substring(0, 20) + "..." : value.UGabout) + "</option>" + saves;
-    });
-    $("#UGsaves").html("<option>выбрать</option>" + saves);
-}
-;
-newGame.saves = lStorage.getItem("saves") ? JSON.parse(lStorage.getItem("saves")) : {};
-newGame.loadSaves();
-UG.find("#UGdelete").click(function() {
-    var delSave = $("#UGsaves").val();
-    if (newGame.saves[delSave]) {
-        delete newGame.saves[delSave];
-        lStorage.setItem("saves", JSON.stringify(newGame.saves));
-        newGame.loadSaves();
-    } else {
-        showMessage("Выберите шаблон для удаления");
-    }
-});
-UG.find("#UGsave").click(function() {
-    var cursave = {};
-    UG.find(":checkbox, span.svalue").each(function() {
-        var cur = $(this)
-          , curid = cur.attr("id");
-        if (curid) {
-            cursave[curid] = cur.hasClass("check") ? cur.prop("checked") : cur.html();
-        }
-    });
-    cursave.UGabout = $("#UGabout").val();
-    newGame.saves[Date.now()] = cursave;
-    lStorage.setItem("saves", JSON.stringify(newGame.saves));
-    newGame.loadSaves();
-});
-UG.find("#UGsaves").change(function() {
-    var cursave = $(this).val();
-    if (newGame.saves[cursave]) {
-        $.each(newGame.saves[cursave], function(key, value) {
-            var curel = UG.find("#" + key);
-            if (curel) {
-                if (curel.attr("id") == "UGabout") {
-                    curel.val(value);
-                } else {
-                    if (curel.hasClass("check")) {
-                        curel.prop("checked", value);
-                    } else {
-                        curel.html(value);
-                    }
-                }
+    case "infomessage":
+        if (s.kick)
+            game.kickVote(s);
+        else {
+            if (s.event ? game.event(s.event, s.from) : game.writeText(s.message, s.from || null, !0),
+            "exit" === s.msgType) {
+                mW.hide(),
+                game.finished();
+                var a = s.win
+                  , t = s.message || finalMsg(s, !0);
+                warningWindow(t, goToRoom, "Выйти из игры", a)
             }
-        });
-    }
-});
-var textRoles = {
-    1: "stud",
-    2: "poh",
-    3: "poh",
-    4: "dej",
-    5: "dej",
-    6: "rev",
-    7: "lun",
-    8: "cat",
-    9: "law"
-};
-function roles(roleId) {
-    var fflRoles = {
-        0: {
-            name: "Наблюдатель",
-            button: []
-        },
-        1: {
-            name: "Студент",
-            icon: "stud",
-            button: []
-        },
-        2: {
-            name: "Похититель",
-            icon: "robb",
-            button: ["Похитить"]
-        },
-        3: {
-            name: "Глава похитителей",
-            icon: "hrobb",
-            button: ["Запереть", "Похитить"]
-        },
-        4: {
-            name: "Дежурный",
-            icon: "duty",
-            button: ["Проверить"]
-        },
-        5: {
-            name: "Помощник дежурного",
-            icon: "assis",
-            button: []
-        },
-        6: {
-            name: "Ревнивый студент",
-            icon: "jeal",
-            button: ["Испортить подарок"]
-        },
-        7: {
-            name: "Лунатик",
-            icon: "sleep",
-            button: ["Лунатить"]
-        },
-        8: {
-            name: "Котик",
-            icon: "cat",
-            button: ["Поиграть"]
-        },
-        9: {
-            name: "Вахтёр",
-            icon: "law",
-            button: ["Оправдывать"]
-        }
-    }
-      , maffiaRoles = {
-        0: {
-            name: "Свидетель",
-            button: []
-        },
-        1: {
-            name: "Гражданин",
-            icon: "stud",
-            button: []
-        },
-        2: {
-            name: "Мафиози",
-            icon: "robb",
-            button: ["Убить"]
-        },
-        3: {
-            name: "Босс мафии",
-            icon: "hrobb",
-            button: ["Заморозить", "Убить"]
-        },
-        4: {
-            name: "Комиссар",
-            icon: "duty",
-            button: ["Проверить"]
-        },
-        5: {
-            name: "Сержант",
-            icon: "assis",
-            button: []
-        },
-        6: {
-            name: "Маньяк",
-            icon: "jeal",
-            button: ["Зарезать"]
-        },
-        7: {
-            name: "Доктор",
-            icon: "sleep",
-            button: ["Лечить"]
-        },
-        8: {
-            name: "Кот",
-            icon: "cat",
-            button: ["Поиграть"]
-        },
-        9: {
-            name: "Адвокат",
-            icon: "law",
-            button: ["Защищать"]
-        }
-    }
-      , allRoles = {
-        none: {
-            name: "[роль недоступна]",
-            button: []
-        },
-        10: {
-            name: "Палач",
-            icon: "roleblock roleblock10",
-            button: []
-        },
-        10.5: {
-            name: "Жертва",
-            icon: "roleblock roleblock10target",
-            button: []
-        }
-    };
-    return +roleId < 10 ? (isMaffia ? maffiaRoles[roleId] : fflRoles[roleId]) : allRoles[roleId];
-}
-var gameMode = function() {
-    return isMaffia ? "maffia" : "ffl";
-};
-var roleText = {
-    ffl: {
-        roleinfo: {
-            "0": "Вы - наблюдатель, поэтому не мешайте играть участникам.",
-            "1": "Вы - студент.<br/> Днём голосуйте против похитителей, а ночью старайтесь не привлекать их внимания своим храпом.",
-            "2": "Вы - похититель.<br/> Чтобы выиграть, вам нужно сорвать День Любви, оставив студентов без подарков.",
-            "3": "Вы - глава похитителей.<br/> Вы выиграйте, оставив студентов без подарков к празднику. У вас есть уникальная возможность совершать 2 действия за 1 ночь.",
-            "4": "Вы - дежурный.<br/> Ночью ищите похителей, а днём подвергайте их справедливому изгнанию из общежития.",
-            "5": "Вы - помощник дежурного.<br/> Чтобы победить, вам нужно изгнать всех похитителей. Ждите своего часа, а пока... делайте вид, что активно помогаете дежурному.",
-            "6": "Вы - ревнивый студент.<br/> Ваша цель - избавиться от похитителей. Днём выводите их на голосование, а ночью изымайте у них подарки.",
-            "7": "Вы - лунатик.<br/> Ночью вместо кровати выбирайте себе место возле чьей-то двери. Может это помешает похитителям совершить кражу.",
-            "8": "Вы - котик.<br/> Ночью своими играми мешайте игрокам, а днем все-таки ищите похитителей.",
-            "9": "Вы - вахтер.<br/> Как вахтеру Вам очень хочется отменить предстоящий праздник, помогите похитителям его сорвать. Защищайте их от гнева и возмедия студентов с помощью кнопки <b>Защитить</b>.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
-            "10": "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
-        },
-        nightActions: {
-            "1": "Студент спокойно спит.",
-            "2": "Похититель выбрал подходящую комнату для ограбления.",
-            "3": "Глава похитителей закрыл кого-то в комнате",
-            "4": "Дежурный решил проверить подозрительную комнату.",
-            "5": "Помощник дежурного спокойно спит.",
-            "6": "Ревнивый студент в порыве ревности ворвался в чью-то комнату.",
-            "7": "Лунатик отправился на ночную прогулку в известном только одному ему направлении.",
-            "8": "Неутомимый котик опять решил с кем-то поиграть.",
-            "9": "Вахтёр решил обеспечить кому-то из студентов алиби.",
-            robbers: {
-                msg: "[nick] хочет украсть подарок у студента [target]",
-                self: "Похититель [nick] - альтруист.",
-                his: "Похититель [nick] хочет украсть подарок у своего подельника. Как говорится, грабь награбленное!"
-            }
-        },
-        morningInfo: {
-            "1": "Студент отлично выспался.",
-            "2": "Ночью [nick] - [role] - не сберег подарка.",
-            "3": "Глава похитителей запер на сутки игрока [nick] в своей комнате.",
-            "4": "Ночью дежурный проверил комнату игрока [nick]. Кем же оказался подозреваемый?",
-            "5": "Помощник дежурного всю ночь делал вид, что помогает дежурному.",
-            "6": "[role] [nick] попал под раздачу ревнивого студента.",
-            "7": "Всю ночь лунатик провел возле комнаты студента [nick].",
-            "8": "Из-за милого котика студент [nick] всю ночь не сомкнул глаз.",
-            "4x": "Дежурный спугнул ночного гостя из комнаты студента [nick].",
-            "7x": "Ночью лунатик лунатил не зря, не дав проникнуть злоумышленнику в комнату студента [nick].",
-            "8x": "[role] - [nick], заигравшись с другом, не уберег своего подарка.",
-            "9": "[nick] получает иммунитет на следующие сутки.",
-            "9x": "Студенту [nick] удалось сохранить свой подарок, благодаря полученному иммунитету.",
-            lock: "Замок преградил путь ночному гостю в комнату одного из cтудентов",
-            mylock: '<div class="green">Ваш замок был испорчен таинственным ночным посетителем!</div>'
-        },
-        periodStart: {
-            "1": "Наступила ночь. Студентам пора спать, тем временем похитители замышляют недоброе.",
-            "2": "Наступил день. Для студентов утро добрым не бывает...",
-            "3": "Последнее слово подозреваемому! Что же было на самом деле?",
-            "4": "Наступило время голосования! Пора принимать решение!"
-        },
-        mainvote: {
-            simpleVote: '<span class="votemsg">[nick] подозревает в чём-то cтудента [target]</span>',
-            no: "Сегодня студенты были очень нерешительны...",
-            eq: "Сегодня студенты так и не определились...",
-            protect: "Вахтёру удалось оправдать студента своими показаниями!",
-            before: "Большинство игроков (из проголосовавших) считает, что [nick] причастен к похищениям подарков.",
-            question: "Вы считаете, что cтудент [nick]<br/> способен на преступление?",
-            "kick-yes": '[nick] считает, что во всем виноват <b class="nickname">[target]</b>',
-            "kick-no": '[nick] думает, что <b class="nickname">[target]</b> не брал чужого',
-            "result-sub": "<b>[YESVOTE]</b> проголосовал[YESs] за изгнание, <b>[NOVOTE]</b> посчитал[NOs], что cтудент обвинен напрасно.",
-            "result-stat": "Результаты голосования: [count1] назвали подозреваемого преступником, [count0] посчитали, что [nick] не виноват.",
-            result1: "[nick] - [role] - был признан виновным. Игра продолжится без него",
-            result0: "[nick] был оправдан. Поздравляем."
-        },
-        itemUse: {
-            5: "[nick] - [role] - не выдержал тяжелых студенческих будней и пустился во все тяжкие. А может просто жадность погубила?<br/>",
-            cookieResult: {
-                "true": {
-                    1: " почему-то не спала сегодня ночью. Может она принимала участие в краже?",
-                    2: " почему-то не спал сегодня ночью. Может он принимал участие в краже?"
-                },
-                "false": {
-                    1: " сегодня отлично выспалась!",
-                    2: " сегодня отлично выспался!"
-                },
-                no: {
-                    1: " полакомилась своим печеньем",
-                    2: " полакомился своим печеньем"
-                }
-            },
-            cookie: {
-                text: "Утром вы узнаете, [VERB] ли [nick] вашим угощением",
-                verb1: "полакомилась",
-                verb2: "полакомился"
-            },
-            cookieNo: "У Вас не осталось печенья :(",
-            cookieNan: "Выберите игрока из списка, которому хотите подложить печенюшку",
-            cookieDelete: "Ночью кто-то подбросил Вам печенье. К счастью, Вы утолили голод собственными запасами.",
-            tour: "Утром борьба за подарки продолжится без вашего участия.",
-            tourNo: "У Вас нет образца заявления на академический отпуск. Не получится написать его без ошибок :("
-        },
-        startText: "Борьба за праздник началась.",
-        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Похитители голосуют против дежурного, его помощника и лунатика, а студенты - против похитителей.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для студентов: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для похитителей: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место дежурного занимает его помощник. Новый дежурный уж точно не оставит похитителям никаких шансов!",
-        bossChild: "Место главы похитителей занимает его незаконно рожденный ребенок!",
-        "bossChild-father": ", ваш отец возглавлял группу похитителей подарков. Теперь вы должны отомстить за него и сорвать праздник любви!",
-        "bossChild-mother": ", ваша мать возглавляла группу похитителей подарков. Теперь вы должны отомстить за нее и сорвать праздник любви!",
-        stealGift: "К сожалению, вы остались без подарка.",
-        afterItem5: "С довольной ухмылкой Вы ушли в академический отпуск!",
-        stat: "В игре осталось [students], [mans] и [robbers].",
-        statCount: {
-            "[students]": ["студент", "студента", "студентов"],
-            "[robbers]": ["похититель", "похитителя", "похитителей"],
-            "[mans]": ["ревнивый студент", "ревнивых студента", "ревнивых студентов"]
-        },
-        end: {
-            studwin: "Победили cтуденты!",
-            robwin: "Победили похитители",
-            manwin: "Победила ревность",
-            menwin: "Победили мальчики",
-            womenwin: "Победили девочки",
-            drawwin: "Победила дружба"
-        },
-        reward: {
-            "1": 'Даже простым студентом вы не теряете самообладания и жажды победы.<br/> За помощь в проведении праздника Дня Любви профком наградил вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
-            "2": 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит вам прекрасную возможность отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
-            "3": 'Вам это удалось!<br/> Вы успешно сорвали праздник, доказав, кто здесь главный.<br/> Теперь Вы можете отдохнуть в <em>Академическом отпуске</em> <div class="shop-item5"></div>',
-            "4": 'Прекрасная работа, дежурный!<br/> У похитителей не было шансов.<br/> Находить злоумышленников вдвое быстрее вам помогут вкусные <em>печеньки</em> <div class="shop-item4"></div>',
-            "5": 'Вы - отличный помощник дежурного!<br/> Без вас этот праздник Любви мог и не состояться.<br/> <em>Печеньки</em> помогут вам и в следующий раз отыскать похитителей <div class="shop-item4"></div>',
-            "6": 'Ваша несдержанность помогла студентам нарушить коварный замысел похитителей!<br/> Но в следующей игре постарайтесь держать свою ревность под <em>замком</em> <div class="shop-item2"></div>',
-            "7": 'Не зря вы не высыпались все эти дни!<br/> Праздник Любви состоится!<br/> Что об этом думают похитители?<br/> это вам подскажет чудо техники - <em>веб-камера</em>! <div class="shop-item1"></div>',
-            "8": 'Как иногда внешность бывает обманчива!<br/> Милому котику удалось остановить банду похитителей подарков.<br/> Чтобы их месть не настигла Вас, закройтесь на оба <em>замка</em> <div class="shop-item2">2</div>',
-            "9": 'Вам это удалось!<br/> Вы успешно сорвали праздник, в благодарность Совет похитителей<br/> дарит Вам тройку <em>замков</em> для вашей защиты <div class="shop-item2">3</div>'
-        },
-        items: {
-            "1": "Веб-камера в упаковке",
-            "2": "Замок в коробке",
-            "3": "Абонемент Активная роль на 1 час",
-            "4": "Пачка печенья",
-            "5": "Чистый бланк для академического отпуска",
-            "6": "Пропуск в Клуб ФФЛ на 1 день"
-        }
-    },
-    maffia: {
-        roleinfo: {
-            "0": "Вы - свидетель, поэтому не мешайте другим участникам.",
-            "1": "Вы - Честный гражданин!<br/> Вы выиграете, казнив всех мафиози. Днем с помощью кнопки <b>Голосовать</b> голосуйте против тех, кого подозреваете.",
-            "2": "Вы - Мафиози!<br/> Вы победите, убив всех граждан, а также маньяка. Ночью убивайте выбранную жертву с помощью кнопки <b>Убить</b>. Днем притворяйтесь гражданином и голосуйте против неугодных вам с помощью кнопки <b>Голосовать</b>.",
-            "3": "Вы - Босс мафии!<br/>  Вы победите, убив всех граждан, а также маньяка. Ночью кнопкой <b>Заморозить</b> Вы лишаете кого-то действий на сутки. И кнопкой <b>Убить</b> кого-то убивайте. Днем притворяйтесь гражданином и голосуйте против неугодных вам кнопкой <b>Голосовать</b>.",
-            "4": "Вы - Комиссар!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью вы можете узнать роль персонажа с помощью кнопки <b>Проверить</b>.",
-            "5": "Вы - Сержант!<br/> Сотрудничайте с комиссаром. Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Если комиссара убьют, его место займете Вы.",
-            "6": "Вы - Mаньяк!<br/> Вы выиграете, убив всех мафиози. Ночью с помощью кнопки <b>Убить</b> Вы расправляетесь с ненавистными персонажами. Днем голосуете против них с помощью кнопки <b>Голосовать</b>.",
-            "7": "Вы - Доктор!<br/> Вы выиграете, если казните всех мафиози, проголосовав днем с помощью кнопки <b>Голосовать</b>. Ночью с помощью кнопки <b>Лечить</b> Вы можете спасти одного из граждан.",
-            "8": "Вы - кот!<br/> Ночью вы можете лишить действий любого игрока, выбрав его объектом своих игр. Будьте осторожны, если он будет убит, вас ждет та же учесть. Вы выиграете, когда вся мафия будет уничтожена.",
-            "9": "Вы - адвокат!<br/> Вы играете на стороне мафии. Чтобы выиграть, постарайтесь найти членов мафии и с помощью кнопки <b>Защищать</b> спасти ее от расправы и возмездия жителей города.<br/> Помните, что Вы не можете обеспечить кому-то защиту на сутки 2 раза подряд.",
-            "10": "Вы - палач!<br/> Ваша задача на игру - предать казни свою жертву. Если &quot;жертва&quot; будет убита ночью или самостоятельно покинет игру - Вы проиграете."
-        },
-        nightActions: {
-            "1": "",
-            "2": "Один из мафиози выбрал гражданина для убийства.",
-            "3": "Босс мафии выбрал, кого заморозить.",
-            "4": "Комиссар выбрал, кому из граждан нанести визит. Надеемся, что он разоблачит мафиози или маньяка.",
-            "5": "",
-            "6": "Маньяк выбрал жертву. Ни сна ни отдыха измученной душе...",
-            "7": "Доктор выехал на вызов.",
-            "8": "Спокойно и вальяжно, как ему и подобает, кот направился к одному из граждан.",
-            "9": "Адвокат взял под свою защиту кого-то из граждан.",
-            robbers: {
-                msg: "[nick]: Надо убить [target]",
-                self: "Мафиози [nick] - самоубийца.",
-                his: "Бегемот [nick], зачем ты бьешь своего?"
-            }
-        },
-        morningInfo: {
-            "1": "",
-            "2": "Ночью мафиози убили персонажа [nick] - [role].",
-            "3": "Ночью боссом мафии был заморожен на 1 сутки [nick]. Нам будет не хватать его мнения.",
-            "4": "Персонаж [nick] был проверен комиссаром. Кем же оказался проверяемый?",
-            "5": "",
-            "6": "Персонаж [nick] - [role] убит маньяком.",
-            "7": "Доктор посетил персонажа [nick]. Он оказался совершенно здоровым.",
-            "8": "Кот не давал спать всю ночь игроку [nick].",
-            "4x": "Комиссар спугнул преступника, который хотел убить персонажа [nick].",
-            "7x": "Ночью действиями реанимационной бригады был спасен от гибели персонаж [nick].",
-            "8x": "Рядом с телом жертвы был обнаружен мёртвый [role] - [nick]",
-            "9": "[nick] благодаря своему адвокату получил неприкосновенность на следующие сутки.",
-            "9x": "Благодаря адвокату и его работе [nick] сегодня остался жив.",
-            lock: "В один из домов было произведено нелегальное проникновение. К счастью, персонажа спасла маскировка.",
-            mylock: '<div class="green">Ваша маскировка была использована.</div>'
-        },
-        periodStart: {
-            "1": "Наступила ночь. Честные граждане спят. Всем остальным пора действовать.",
-            "2": "Наступил день. Честные граждане проснулись. Не дадим мафии прибрать к рукам наш город!",
-            "3": "Последнее слово - подозреваемому и его защитникам! А вы, уважаемые горожане, решайте - обвинить его или отпустить с миром. Будьте внимательны, подозреваемый может ввести вас в заблуждение!",
-            "4": "Наступило время голосования! Пора принимать решение!"
-        },
-        mainvote: {
-            simpleVote: '<span class="votemsg">[nick] голосует против [target]</span>',
-            no: "Сегодня горожане не нашли виновного...",
-            eq: "Сегодня горожане так и не определились, кого следует казнить.",
-            protect: "Адвокату удалось доказать невиновность своего подзащитного!",
-            before: "[nick] подозревается в пособничестве мафии!",
-            question: "Вы считаете, что [nick]<br/> нужно казнить?",
-            "kick-yes": '[nick] считает, что <b class="nickname">[target]</b> следует казнить',
-            "kick-no": '[nick] считает, что <b class="nickname">[target]</b> следует помиловать',
-            "result-sub": "Казнить - <b>[YESVOTE]</b> голосов,  помиловать - <b>[NOVOTE]</b> голосов",
-            "result-stat": "Результаты голосования: [count1] предложили казнить обвиняемого, [count0] посчитали, что [nick] должен быть оправдан.",
-            result1: "Горожанами был казнен персонаж [nick] - [role].",
-            result0: "Гражданин [nick] был оправдан."
-        },
-        itemUse: {
-            5: "Ночью на машине покинул город [nick] - [role]. Осторожней на поворотах!<br/>",
-            cookieResult: {
-                "true": {
-                    1: " почему-то не спала сегодня ночью. Может она мафиози?",
-                    2: " почему-то не спал сегодня ночью. Может он мафиози?"
-                },
-                "false": {
-                    1: " целую ночь провела дома.",
-                    2: " целую ночь провел дома."
-                },
-                no: {
-                    1: " смогла обнаружить Ваш жучок.",
-                    2: " смог обнаружить Ваш жучок."
-                }
-            },
-            cookie: {
-                text: "Вы воспользовались жучком против [VERB] [nick]. Результат вы узнаете на следующее утро.",
-                verb1: "синьоры",
-                verb2: "синьора"
-            },
-            cookieNo: "Нет жучков",
-            cookieNan: "Выберите игрока из списка, которому хотите подбросить жучок",
-            cookieDelete: "Ночью Вам был подброшен жучок. К счастью, Вам удалось его обнаружить.",
-            tour: "Утром вы покинете город на машине",
-            tourNo: "У вас нет автомобиля"
-        },
-        startText: "Борьба за город началась.",
-        intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Мафиози голосуют против граждан, а мирные жители - против мафии.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для мирных: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для мафии: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место комиссара занял сержант. Мы верим в нашего нового комиссара!",
-        bossChild: "Место босса мафии занимает его внебрачный ребенок!",
-        "bossChild-father": ", ваш отец был боссом мафии и был убит. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
-        "bossChild-mother": ", ваша мать была боссом мафии и была убита. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
-        stealGift: "К сожалению, Вас убили.",
-        afterItem5: "Вы покинули город на машине!",
-        stat: "В игре осталось [students], [mans] и [robbers].",
-        statCount: {
-            "[students]": ["гражданин", "гражданина", "граждан"],
-            "[robbers]": ["мафиози", "мафиози", "мафиози"],
-            "[mans]": ["маньяк", "маньяка", "маньяков"]
-        },
-        end: {
-            studwin: "Победили мирные граждане!",
-            robwin: "Победила мафия!",
-            manwin: "Победил маньяк!",
-            menwin: "Мужчины показали, кто здесь главный!",
-            womenwin: "Дамы были как всегда на высоте!",
-            drawwin: "Ничья"
-        },
-        reward: {
-            "1": 'Вы порядочный гражданин, и городу повезло, что Вы живете в нем.<br/> Мэр города за ваше участие в борьбе с мафией наградил Вас <em>Активной ролью</em> на 1 час <div class="shop-item3"></div>',
-            "2": 'Мафия бессмертна!<br/> Вы в очередной раз это доказали,<br/> за это мафиозный клан подарил Вам <em>Автомобиль</em> <div class="shop-item5"></div>',
-            "3": 'Мафия бессмертна!<br/> В знак почтения члены клана преподнесли<br/> своему боссу новенький <em>Автомобиль</em> <div class="shop-item5"></div>',
-            "4": 'Городу повезло, что у него есть такой комиссар!<br/> Вам удалось сорвать коварные планы мафиозного клана по захвату города.<br/> Для борьбы с мафией используйте новейшие достижения технического прогресса. <div class="shop-item4"></div>',
-            "5": 'Славная работа, сержант!<br/> Город счастлив, что в полиции работают такие смелые люди.<br/> В вашем нелегком труде помогут <em>жучки</em>,<br/> которые сообщат Вам обо всех перемещениях злоумышленника <div class="shop-item4"></div>',
-            "6": 'Кто бы мог подумать?!<br/> Маньяк спас город от мафии.<br/> Однако, учитывая вашу репутацию, <em>маскировка</em> Вам не помешает <div class="shop-item2"></div>',
-            "7": 'За спасение жителей города от неминуемой смерти<br/> мэрия наградила Вас <em>личной рацией</em>, чтобы Вы всегда могли быстро прийти на выручку <div class="shop-item1"></div>',
-            "8": 'Мафии не удалось захватить город благодаря коту!<br/> Известие об этом быстро разнеслось по округе.<br/> Смелому животному пока лучше <em>замаскироваться</em>, да получше. <div class="shop-item2">2</div>',
-            "9": 'Благодаря Вам мафии удалось прибрать к рукам этот город!<br/> Помимо гонорара Вам пригодятся эти <em>маскировочные костюмы</em>, чтобы скрыться от правосудия. <div class="shop-item2">3</div>'
-        },
-        items: {
-            "1": "Рация в коробке",
-            "2": "Маскировочный набор",
-            "3": "Абонемент Активная роль на 1 час",
-            "4": "Жучок в упаковке",
-            "5": "Сертификат на покупку автомобиля",
-            "6": "Пропуск в Клуб Мафии на 1 день"
-        }
-    },
-    all: {
-        bonus: {
-            intuit: '<div class="red">Интуиция подсказывает Вам, что [nick] - [role]!</div>',
-            nokill: "[nick] использовал бонус бессмертия и остался в игре!",
-            rev: "Бонус светлого кольца наделяет Вас новой ролью - [role]",
-            poh: "Бонус тёмного кольца наделяет Вас новой ролью - [role]"
-        },
-        "startText-sex": "В принципиальном поединке сошлись 2 непримиримых соперника: добро и зло, свет и тьма... И сторону здесь никто не выбирает.",
-        sex1: "Чтобы победить в Битве Полов, нужно расправиться со всей мужской половиной игроков.",
-        sex2: "Если хотите выиграть в Битве Полов, нужно дружно мужским коллективом выбить из игры всю прекрасную половину.",
-        rewardToy: "За проявленные успехи в игровой партии вы получаете замечательную новогоднюю игрушку!",
-        snowflake: "В этой суматохе Ваше внимание неожиданно привлекла прекрасная снежинка, которую в новогодние праздники можно будет обменять на подарки!",
-        greenVote: "[nick] подмигивает игроку [target]",
-        intuitVote: "Кто-то бросил косой взгляд в сторону одного из присутствующих",
-        leave1: "вышла из себя и из игры",
-        leave2: "вышел из себя и из игры",
-        zayavka: 'Играй чаще за роли <span class="robb"></span>, <span class="duty"></span> или <span class="jeal"></span> с помощью услуги Активная роль (ищи её в магазине)!'
-    }
-};
-var periodNames = {
-    1: "Ночь",
-    2: "День",
-    3: "Вечер",
-    4: "Голосование"
-};
-var startHours = {
-    1: 21,
-    2: 9,
-    3: 17,
-    4: 19
-}
-  , lastKickVote = 0
-  , game = {
-    active: false,
-    closed: false,
-    finish: false,
-    style: {},
-    botwall: false,
-    day: 0,
-    period: 1,
-    time: {
-        h: 21,
-        m: 0
-    },
-    role: 1,
-    item2: 0,
-    actions: [],
-    kickVotes: {
-        yes: 0,
-        no: 0
-    },
-    hisvote: {},
-    votes: {}
-};
-var min10, replaceLogins = {}, randomNicks = ["Аберто", "Авада Кедавра", "Авис", "Авифорс", "Агуаменти", "Адское пламя", "Аква Эрукто", "Акцио", "Аларте Аскендаре", "Алохомора", "Анапнео", "Апарекиум", "Араниа экзэми", "Аресто моментум", "Асцендио", "Баубиллиус ", "Бомбардо", "Бомбардо Максима", "Брахиабиндо", "Брахиам Эмендо", "Ваддивази", "Вердимилиус", "Верминкулюс", "Веселящие чары", "Взрывающее заклятие", "Вингардиум Левиоса", "Випера Эванеско", "Воздвигнись", "Вомитаре Виридис", "Воющие чары", "Вспыхни", "Вулнера санентур", "Гармония Нектере Пасус", "Гербивикус", "Гибель воров", "Глаз крысы, струна арфы, пусть вода превратится в ром", "Глиссео", "Глациус", "Гоменум ревелио", "Гомункуловы чары", "Губрайтов огонь", "Даклифорс", "Дантисимус", "Дезиллюминационное заклинание", "Делетриус", "Депримо", "Депульсо", "Десцендо", "Дефодио", "Джеминио", "Диминуендо", "Диссендиум", "Диффиндо", "Драконифорс", "Дуро", "Жалящее заклинание", "Ешь слизней", "Заклинание вечного приклеивания", "Заклинание головного пузыря", "Заклинание для очистки картофеля", "Заклинание замедленного падения", "Заклинание заметания следов", "Заклинание невидимого хлыста", "Заклятие ненаносимости", "Заклятие Неразбиваемости", "Заклинание Обращения", "Заклинание открытия дверей", "Заклинание пальцекусания", "Заклятие Пылающей руки", "Заклинание против списывания", "Заклинание роста ногтей на ногах", "Запирающие заклинания", "Затмись", "Зелёные искры", "Зелёное специальное заклинание", "Иммобулюс", "Импедимента", "Импервиус", "Империус", "Инаниматус Коньюрус", "Инкарцеро", "Инсендио", "Инфлэтус", "Информус", "Инкарсифорс", "Каве инимикум", "Калворио", "Кантис", "Капациус экстремис", "Карпе Ретрактум", "Квиетус", "Кишечно-опорожнительное заклятие", "Коллопортус", "Коллошио", "Колорум", "Конфундус", "Коньюнктивитус", "Круциатус", "Лакарнум Инфламаре", "Лапифорс", "Левикорпус", "Левиосо", "Легилименс", "Летучемышиный сглаз", "Либеракорпус", "Локомотор", "Пиертотум Локомотор", "Локомотор Мортис", "Локомотор Виббли", "Люмос", "Люмос Максима", "Люмос Солем", "Люмос Дуо", "Магикус экстримус", "Мелофорс", "Метео реканто", "Мимбл Вимбл", "Мобилиарбус", "Мобиликорпус", "Морсмордре", "Мукус Ад Нозем", "Мутацио Скулус", "Направление", "Нокс", "Обезъяз", "Облегчающие чары", "Обливиэйт", "Оглохни", "Оживи", "Окулус Репаро", "Оппуньо", "Орбис", "Орхидеус", "Остолбеней", "Остолбеней Дуо", "Остолбеней Триа", "Отключись", "Партис Темпорус", "Парящие чары", "Патентованные чары — грёзы наяву", "Перрикуллум", "Петрификус Тоталус", "Пескипикси Пестерноми", "Портоберто", "Портус", "Приори Инкантатем", "Проклятие воришки", "Протеевы чары", "Протего", "Протего Дуо", "Протего максима", "Протего тоталум", "Протего хоррибилис", "Пуллус", "Пэк", "Ревелио", "Редактум Скулус", "Редукто", "Редуцио", "Релашио", "Репарифарго", "Репаро", "Репелло Инимикум", "Репелло маглетум", "Ридикулус", "Риктусемпра", "Сальвио гексиа", "Сезам откройся", "Сектумсемпра", "Серпенсортиа", "Силенцио", "Синие искры", "Систем Аперио", "Сито из котла", "Скрибблифорс", "Скурж", "Снаффлифорс", "Сонорус", "Соппоро", "Спанджифай", "Стилклоу", "Таранталлегра", "Тергео", "Титилландо", "Тормозящие чары Хортона-Кейтча", "Трансмогрифианская Пытка", "Фианто Дури", "Финита", "Фините Инкантатем", "Фенестрам", "Фера Верто", "Ферула", "Флагрейт", "Флиппендо", "Флиппендо Дуо", "Флиппендо Триа", "Фульгари", "Фумос", "Фумос Дуо", "Фурункулус", "Хватательное заклинание", "Хербифорс", "Чары высушивания", "Чары подчинения", "Чары рессорной подушки", "Эбублио", "Эванеско", "Эверте Статум", "Экскуро", "Экспекто патронум", "Экспеллиармус", "Экспеллимеллиус", "Эктоматис", "Экспульсо", "Эманципаре", "Энгоргио", "Энгоргио Скулус", "Энтоморфиум", "Эпискеи", "Ябеда"];
-var showTime = function() {
-    var h = game.time.h
-      , m = game.time.m;
-    h = (h < 10) ? "0" + h : h;
-    m = (m < 10) ? "0" + m : m;
-    $("#gametime").html(h + ":" + m);
-};
-var truncate = function(word, length) {
-    if (word && word.length > length) {
-        return word.substring(0, length) + "…";
-    } else {
-        return word;
-    }
-};
-var addVote = function(id, isAdd) {
-    var targetObj = $("#" + id);
-    if (targetObj) {
-        var oldVal = parseInt(targetObj.find("b").html()) || 0
-          , newVal = (isAdd) ? oldVal + 1 : oldVal - 1;
-        targetObj.find("b").html(newVal.toString());
-    }
-};
-function editPlayer(user, leave) {
-    playersList.find("#" + user._id).remove();
-    if (leave) {
-        if (playersInfoArray[user._id]) {
-            playersInfoArray[user._id].killed = true;
-        }
-    } else {
-        playersInfoArray[user._id] = user;
-        var newPl = $('<div id="' + user._id + '"><b></b>' + truncate(user.login, 10) + ((user.role) ? '<span class="visiblerole"> - <i class="' + roles(user.role).icon + '"></i></span>' : "") + "</div>");
-        newPl.attr("data-nick", user.login);
-        if (user.bot) {
-            newPl.addClass("bot");
-        }
-        if (game.style.style && game.style.style === 4 && user.sex) {
-            newPl.addClass("sex" + user.sex);
-        }
-        newPl.appendTo("#players");
-        if (!game.intuition) {
-            newPl.mouseenter(function() {
-                showPlayerInfo(true, $(this).attr("id"));
-                return false;
-            }).mouseleave(function() {
-                showPlayerInfo(false);
-                return false;
-            });
-            if (u.friends && u.friends.indexOf(user._id) > -1) {
-                newPl.addClass("green");
-            }
-            if (reds.indexOf(user._id) > -1) {
-                newPl.addClass("red");
-            }
-        }
-    }
-    aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")");
-}
-game.isRobber = function(role) {
-    return (role === 2 || role === 3);
-}
-;
-game.setRole = function(user) {
-    if (game.intuition && playersInfoArray[user.id]) {
-        user.login = playersInfoArray[user.id].login;
-    }
-    playersList.find("#" + user.id).html("<b></b>" + truncate(user.login, 10) + ((user.role) ? '<span class="visiblerole"> - <i class="' + roles(user.role).icon + '"></i></span>' : ""));
-    if (playersInfoArray[user.id]) {
-        playersInfoArray[user.id].role = user.role;
-    }
-}
-;
-function changeAction() {
-    var newAction = "";
-    if (game.actions.length > 0) {
-        newAction = game.actions.shift();
-    }
-    actionButton.html(newAction);
-}
-game.writeText = function(text, udata, important, noreplace) {
-    var name = document.createElement("div");
-    var body = document.createElement("div");
-    var root = document.createElement("div");
-    root.className = "message";
-    if (udata) {
-        if (udata === "anonim") {
-            root.className += " gamemsg";
-        } else {
-            if (udata === "radio") {
-                root.className += " poh-radio";
-            } else {
-                if (udata.role) {
-                    root.className += " roleicon roleicon" + udata.role;
-                } else {
-                    if (udata.bonus) {
-                        root.className += " roleicon bonusicon-" + udata.bonus;
-                    } else {
-                        if (!udata.id) {
-                            udata.id = udata._id;
-                        }
-                        if (!udata.image && playersInfoArray[udata.id]) {
-                            udata.sex = playersInfoArray[udata.id].sex;
-                            udata.image = playersInfoArray[udata.id].image;
-                        }
-                        if (game.intuition) {
-                            udata.image = false;
-                        }
-                        if (udata.image) {
-                            if (udata.image.length > 2) {
-                                root.className += " userimage";
-                                var uIm = document.createElement("div");
-                                uIm.className = "selfimg";
-                                uIm.style.backgroundImage = "url(/files/" + udata.id + udata.image + ")";
-                                root.appendChild(uIm);
-                            } else {
-                                var nclass = (udata.sex === 1) ? "w" : "m";
-                                nclass = (udata.image) ? nclass + udata.image : "";
-                                root.className += " " + nclass;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        root.className += " noimage";
-    }
-    name.innerHTML = "";
-    if (!noreplace) {
-        text = roleReplace(text);
-    }
-    body.innerHTML = (important) ? '<div class="delimiter"></div><div class="important">' + text + '</div><div class="delimiter"></div>' : text;
-    root.appendChild(name);
-    root.appendChild(body);
-    gebi("messages").appendChild(root);
-    doScroll();
-}
-;
-game.event = function(data, datafrom, needReturn) {
-    var getKeyVal = function(obj, str) {
-        var out = {}
-          , parts = str.split(":");
-        if (parts[0] === "all") {
-            parts.shift();
-            obj = roleText.all;
-        }
-        if (parts.length > 1) {
-            out = obj;
-            for (var i = 0; i < parts.length; i++) {
-                out = out[parts[i]];
-            }
-        } else {
-            out = obj[parts.shift()];
-        }
-        return out;
-    };
-    var text = " " + getKeyVal(roleText[gameMode()], data.text);
-    if (data.p) {
-        if (game.intuition && data.p.id && playersInfoArray[data.p.id]) {
-            data.p.nick = playersInfoArray[data.p.id].login;
-        }
-        text = text.replace("[nick]", '<b class="nickname"' + (data.p.id ? ' data-id="' + data.p.id + '"' : "") + ">" + data.p.nick + "</b>");
-    }
-    if (data.replacedata) {
-        if (data.replacedata["[mans]"]) {
-            if (data.replacedata["[mans]"] === data.replacedata["[students]"]) {
-                text = text.replace("[students],", "");
-            } else {
-                data.replacedata["[students]"] -= data.replacedata["[mans]"];
-            }
-        } else {
-            text = text.replace(", [mans]", "");
-        }
-        for (var key in data.replacedata) {
-            if (data.replacedata.hasOwnProperty(key)) {
-                var val = data.replacedata[key];
-                if (val === "[ROLE2]") {
-                    val = roles(2).name;
-                }
-                if (data.text === "stat") {
-                    var someForms = roleText[gameMode()].statCount[key];
-                    text = text.replace(key, f.someThing(val, someForms[0], someForms[1], someForms[2]));
-                } else {
-                    text = (key === "[role]") ? text.replace(key, roleReplace(roles(val).name)) : text.replace(key, val);
-                    if (game.active && data.text === "mainvote:result1" && key === "[role]" && lastKickVote) {
-                        var isDark = val === 2 || val === 3 || (game.man && val === 6)
-                          , kickMarkText = (isDark && lastKickVote === 1) || (!isDark && lastKickVote === 2) ? "Вы были правы!" : "Вы ошиблись...";
-                        showNewDiv("<blockquote>" + kickMarkText + "</blockquote>");
-                    }
-                }
-            }
-        }
-    }
-    switch (data.text) {
-    case "nightActions:2":
-        sound("role2", true);
-        datafrom = {
-            role: 2
-        };
-        break;
-    case "nightActions:3":
-        sound("role3", true);
-        datafrom = {
-            role: 3
-        };
-        break;
-    case "nightActions:4":
-        sound("role4", true);
-        datafrom = {
-            role: 4
-        };
-        break;
-    case "nightActions:6":
-        sound("role6", true);
-        datafrom = {
-            role: 6
-        };
-        break;
-    case "nightActions:7":
-        sound("role7", true);
-        datafrom = {
-            role: 7
-        };
-        break;
-    case "nightActions:8":
-        sound("role8", true);
-        datafrom = {
-            role: 8
-        };
-        break;
-    case "nightActions:9":
-        sound("role9", true);
-        datafrom = {
-            role: 9
-        };
-        break;
-    case "all:bonus:intuit":
-        datafrom = {
-            bonus: "intuit"
-        };
-        break;
-    case "all:bonus:nokill":
-        datafrom = {
-            bonus: "nokill"
-        };
-        break;
-    case "all:bonus:rev":
-        datafrom = {
-            bonus: "rev"
-        };
-        break;
-    case "all:bonus:poh":
-        datafrom = {
-            bonus: "poh"
-        };
-        break;
-    }
-    if (needReturn) {
-        return text;
-    } else {
-        game.writeText('<div class="periodMsg"> ' + text + " </div>", datafrom, false, true);
-        return true;
-    }
-}
-;
-game.kick = function(isKick) {
-    lastKickVote = isKick ? 1 : 2;
-    sendToSocket({
-        type: "kick",
-        iskick: isKick
-    });
-}
-;
-game.showPlaylist = function(players) {
-    playersInfoArray = {};
-    playersList.html("");
-    for (var index in players) {
-        if (players.hasOwnProperty(index)) {
-            editPlayer(players[index], false);
-        }
-    }
-    container.removeClass("closedgame").addClass("current");
-    var str = [];
-    playersList.find("div").each(function() {
-        var sustr = [$(this).html(), $(this)];
-        str.push(sustr);
-    });
-    str.sort(plSort);
-    $.each(str, function() {
-        playersList.append(this[1]);
-    });
-}
-;
-game.updateInfoGame = function(text) {
-    var nickText = u.login;
-    nickText += $("div").is(".nickblock") ? "<br/>" : " - ";
-    nickText += '<span class="rolesmile role' + game.role + '"></span>' + roles(game.role).name;
-    $("#nick").html(nickText);
-    $(".gamemakerinfo").html("<span>День " + game.day + "</span> ➣ <span>" + periodNames[game.period] + '</span> <span id="gametime"></span>').removeAttr("title");
-    showTime();
-    if (game.period === 4) {
-        lastKickVote = 0;
-    }
-    if (game.active && !game.closed) {
-        switch (game.period) {
-        case 1:
-            mW.hide();
-            game.actions = roles(game.role).button.slice();
-            break;
-        case 2:
-            game.actions = ["Голосовать", "Переголосовать"];
-            break;
-        case 3:
-            game.actions = [];
-            break;
-        case 4:
-            game.actions = [];
-            if (text) {
-                modalWindow(text, function() {
-                    game.kick(true);
-                }, function() {
-                    game.kick(false);
-                });
-            }
-            break;
-        }
-        changeAction();
-    } else {
-        actionButton.html("");
-    }
-    if (game.role > 0 && game.period !== 3) {
-        game.setRole({
-            id: u._id,
-            login: u.login,
-            role: game.role
-        });
-    }
-}
-;
-var sortPoints = function(obj) {
-    var arrayForSort = [];
-    for (var k in obj) {
-        if (obj.hasOwnProperty(k)) {
-            arrayForSort.push({
-                id: k,
-                points: obj[k]
-            });
-        }
-    }
-    arrayForSort.sort(function(a, b) {
-        return b.points - a.points;
-    });
-    return arrayForSort;
-};
-game.setPeriod = function(event) {
-    if (event.resultInfo) {
-        if (event.resultInfo.points && event.resultInfo.logins) {
-            var pText = "Набрано баллов:<br/>";
-            sortPoints(event.resultInfo.points).forEach(function(el) {
-                if (event.resultInfo.logins[el.id]) {
-                    pText += '<b class="nickname" data-id="' + el.id + '">' + event.resultInfo.logins[el.id] + "</b> - " + el.points + " , ";
-                }
-            });
-            game.writeText(pText.substring(0, pText.length - 2), false, true);
-        }
-        return;
-    }
-    playersList.find("div").removeClass("voted");
-    if (event.period === 2) {
-        sound("day", true);
-    } else {
-        if (event.period === 1) {
-            sound("night", true);
-        } else {
-            sound("notify", true);
-        }
-    }
-    if (event.period !== 3) {
-        playersList.find("b").html("");
-    }
-    game.day = event.day;
-    game.period = event.period;
-    game.time = {
-        h: startHours[game.period],
-        m: 0
-    };
-    game.hisvote = {};
-    game.votes = {};
-    var param = "";
-    if (event.msgArray && event.msgArray.length > 0) {
-        var msgs = event.msgArray;
-        if (game.period === 4) {
-            param = (msgs[0] === u._id) ? false : game.event(msgs[1], false, true);
-        } else {
-            var text = "";
-            msgs.forEach(function(el) {
-                text += game.event(el, false, true) + "<br/>";
-            });
-            game.writeText(text, false, (game.period === 2), true);
-        }
-    }
-    if (event.addInfo) {
-        if (event.addInfo.roles) {
-            var rolesText = "";
-            for (var i in event.addInfo.roles) {
-                if (event.addInfo.roles.hasOwnProperty(i)) {
-                    rolesText += '<b class="nickname" data-id="' + i + '">' + playersInfoArray[i].login + "</b> - " + roles(event.addInfo.roles[i]).name + " , ";
-                }
-            }
-            game.writeText(rolesText.substring(0, rolesText.length - 2), false, true);
-        }
-        if (event.addInfo.points) {
-            var pointsText = "Набрано баллов:<br/>"
-              , arrayForSort = sortPoints(event.addInfo.points);
-            arrayForSort.forEach(function(el) {
-                if (playersInfoArray[el.id]) {
-                    pointsText += '<b class="nickname" data-id="' + el.id + '">' + (game.intuition ? replaceLogins[el.id] : playersInfoArray[el.id].login) + "</b> - " + el.points + " , ";
-                }
-            });
-            game.writeText(pointsText.substring(0, pointsText.length - 2), false, true);
-            if (game.intuition) {
-                var allnicks = randomNicks.slice(0);
-                allnicks.shuffle();
-                playersList.html("");
-                $.each(playersInfoArray, function(ind, el) {
-                    el.login = allnicks.shift();
-                    delete el.role;
-                });
-                for (var index in playersInfoArray) {
-                    if (playersInfoArray.hasOwnProperty(index) && !playersInfoArray[index].killed) {
-                        editPlayer(playersInfoArray[index], false);
-                    }
-                }
-                var str = [];
-                playersList.find("div").each(function() {
-                    var sustr = [$(this).html(), $(this)];
-                    str.push(sustr);
-                });
-                str.sort(plSort);
-                $.each(str, function(key, value) {
-                    playersList.append(value[1]);
-                });
-            }
-        }
-    }
-    switch (game.period) {
-    case 1:
-        game.kickVotes = {
-            yes: 0,
-            no: 0
-        };
-        container.addClass("nightPeriod");
-        if (game.active) {
-            helper.hint("night" + game.role);
+            s.banks && game.recalculateBanks(s.banks)
         }
         break;
-    case 2:
-        game.closed = !!(event.closed && event.closed === u._id);
-        container.removeClass("nightPeriod");
-        if (game.active) {
-            helper.hint("day-side" + (game.isRobber(game.role) ? "2" : "1"));
+    case "isban":
+        if (s.sec) {
+            var o = Math.floor(s.sec / 3600)
+              , r = s.sec % 3600
+              , i = Math.floor(r / 60)
+              , n = r % 60
+              , l = "";
+            0 < o && (l += f.someThing(o, "час", "часа", "часов") + " "),
+            0 < i && (l += f.someThing(i, "минуту", "минуты", "минут") + " "),
+            0 < n && (l += f.someThing(n, "секунду", "секунды", "секунд")),
+            showNewDiv('<div class="ban">Вы не можете пользоваться чатом еще ' + l + "</div>"),
+            inputField.blur()
         }
         break;
-    case 3:
-        if (game.active) {
-            helper.hint((event.msgArray && event.msgArray[0] && event.msgArray[0].p && event.msgArray[0].p.id && event.msgArray[0].p.id === u._id) ? "voteme" : "vote");
-        }
+    case "authorize":
+        s.success ? authorizeDone(s) : (editProfileSize(),
+        charDiv.addClass("charEdit"));
         break;
-    }
-    if (event.del && event.del.length > 0) {
-        event.del.forEach(function(el) {
-            editPlayer({
-                _id: el
-            }, true);
-        });
-    }
-    game.updateInfoGame(param);
-    game.writeText('<div class="delimiter"></div><div class="periodMsg">' + roleText[gameMode()].periodStart[game.period] + '</div><div class="delimiter"></div> ');
-    if (event.banks) {
-        game.recalculateBanks(event.banks);
-    }
-}
-;
-game.setTime = function() {
-    game.time.m += (game.botwall || game.fast) ? 10 : 5;
-    if (game.time.m > 59) {
-        game.time.m = 0;
-        game.time.h += 1;
-    }
-    if (game.time.h > 23) {
-        game.time.h = 0;
-    }
-    showTime();
-}
-;
-game.action = function() {
-    if (!game.active || !actionButton.html()) {
-        return;
-    }
-    if (room === "testgame") {
-        var selPl = playersList.find("div.select").attr("id");
-        game.vote({
-            target: helper.helpGamePlayers[selPl]._id,
-            from: helper.helpGamePlayerIL(0),
-            targetLogin: helper.helpGamePlayers[selPl].login
-        });
-        changeAction();
-        sound("click", true);
-        return;
-    }
-    if (playersList.find("div").is(".select")) {
-        var selectedPl = playersList.find("div.select");
-        if (game.period === 1) {
-            modalWindow("Уверены, что хотите это сделать?", function() {
-                sendToSocket({
-                    type: "game-action",
-                    target: selectedPl.attr("id")
-                });
-                changeAction();
-            });
-        } else {
-            sendToSocket({
-                type: "game-action",
-                target: selectedPl.attr("id")
-            });
-            changeAction();
-        }
-        sound("click", true);
-    } else {
-        showMessage("Сначала необходимо выбрать в списке одного из участников партии");
-    }
-}
-;
-game.vote = function(data) {
-    if (game.period > 2) {
-        return;
-    }
-    if (!game.votes[data.target]) {
-        game.votes[data.target] = [];
-    }
-    if (game.intuition) {
-        if (playersInfoArray[data.from.id]) {
-            data.from.login = playersInfoArray[data.from.id].login;
-        }
-        if (data.target && playersInfoArray[data.target]) {
-            data.targetLogin = playersInfoArray[data.target].login;
-            if (data.event && data.event.replacedata) {
-                data.event.replacedata["[target]"] = data.targetLogin;
-            }
-        }
-    }
-    game.votes[data.target].push(data.from.login);
-    game.hisvote[data.from.id] = data.targetLogin;
-    if (data.oldTarget) {
-        addVote(data.oldTarget, false);
-        if (game.votes[data.oldTarget]) {
-            var ca = game.votes[data.oldTarget];
-            ca.splice(ca.indexOf(data.from.login), 1);
-        }
-    }
-    addVote(data.target, true);
-    if (!data.event) {
-        data.event = game.special ? {
-            text: "all:greenVote"
-        } : {
-            text: "mainvote:simpleVote"
-        };
-        data.event.replacedata = {
-            "[nick]": '<b class="nickname"' + (data.from.id ? ' data-id="' + data.from.id + '"' : "") + ">" + data.from.login + "</b>",
-            "[target]": '<b class="nickname" data-id="' + data.target + '">' + data.targetLogin + "</b>"
-        };
-        if (game.intuition) {
-            data.event = {
-                text: "all:intuitVote"
-            };
-        }
-        game.writeText(game.event(data.event, false, true), data.from);
-    } else {
-        game.event(data.event, data.from || "anonim");
-    }
-    if (data.from && data.from.id && !game.intuition) {
-        $("#" + data.from.id).addClass("voted");
-    }
-}
-;
-game.kickVote = function(data) {
-    if (data.kick === "1") {
-        game.kickVotes.yes++;
-    } else {
-        game.kickVotes.no++;
-    }
-    var msgtext = game.event({
-        text: "mainvote:result-sub",
-        replacedata: {
-            "[YESVOTE]": game.kickVotes.yes,
-            "[NOVOTE]": game.kickVotes.no,
-            "[YESs]": ((game.kickVotes.yes === 1) ? "" : "и"),
-            "[NOs]": ((game.kickVotes.no === 1) ? "" : "и")
-        }
-    }, false, true);
-    game.writeText('<span class="important">' + game.event(data.event, false, true) + "</span><br/>" + msgtext, data.event.p);
-}
-;
-var finalMsg = function(data, end) {
-    actionButton.html("");
-    var str = ""
-      , shareStr = ""
-      , causeEvent = (data.item5) ? "afterItem5" : "stealGift";
-    if (data.winners) {
-        str += "Победа оказалась на стороне: <br><b>" + data.winners.join("</b><br/><b>") + "</b>";
-    } else {
-        str += (data.event) ? game.event(data.event, false, true) : roleText[gameMode()][causeEvent];
-    }
-    str += "<br/> ";
-    if (game.role) {
-        if (data.days) {
-            str += (end ? "Партия длилась " : "Вы продержались ") + f.someThing(data.days, "день", "дня", "дней") + "<br/> ";
-        }
-        if (data.money) {
-            str += 'Вы получили <span class="gamemoney">' + over1000(data.money) + "</span><br/> ";
-        }
-        if (data.rate) {
-            str += "<b>Рейтинг +" + data.rate + "</b><br/> ";
-        }
-    }
-    if (data.points) {
-        str += "<strong>Итоговые баллы:</strong> <blockquote>";
-        sortPoints(data.points).forEach(function(el) {
-            str += el.id + " - " + el.points + "<br/>";
-        });
-        str += "</blockquote>";
-    } else {
-        if (data.roles) {
-            str += "<strong>Роли исполняли:</strong> <blockquote>";
-            data.roles.forEach(function(el, index) {
-                if (el === "finish") {
-                    if (index < data.roles.length - 1) {
-                        str += "<b>Изменившиеся роли:</b><br/>";
-                    }
-                } else {
-                    str += el[1] + " - " + roles(el[0]).name + "<br/>";
-                    shareStr += el[1] + "-" + roles(el[0]).name + ",";
-                }
-            });
-            str += "</blockquote>";
-        }
-    }
-    if (data.win) {
-        sound("win", true);
-        var ticketImg = (isMaffia) ? "maffia/tickets/" + game.role + ".png" : "tickets/" + game.role + ".jpg";
-        if (!isAppVK) {
-            str += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(true) + "&amp;title=Мне удалось заработать " + over1000(data.money) + " за " + f.someThing(data.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + shareStr + "&amp;image=http://loday.ru/images/" + ticketImg + '&amp;noparse=true">Сохранить игру</a><br/>';
-        }
-    }
-    str += (end) ? "" : "Хотите досмотреть игру до конца?";
-    return str;
-};
-game.killed = function(data) {
-    game.active = false;
-    modalWindow(finalMsg(data, false), function() {
-        container.addClass("nogift");
-    }, goToRoom);
-}
-;
-game.newRole = function(obj) {
-    if (!obj.role) {
-        return;
-    }
-    game.role = obj.role;
-    if (obj.bonus) {
-        game.event({
-            text: "all:bonus:" + obj.bonus,
-            replacedata: {
-                "[role]": obj.role
-            }
-        }, false);
-    }
-    alarm("Теперь ты - " + roles(obj.role).name + "!");
-    if (obj.child) {
-        var parentSex = (playersInfoArray[obj.child] && playersInfoArray[obj.child].sex === 1) ? "mother" : "father";
-        game.writeText(u.login + roleText[gameMode()]["bossChild-" + parentSex], false, true);
-    }
-    if (obj.hasOwnProperty("bonus") && !obj.bonus) {
-        playersList.find(".visiblerole").remove();
-        $.each(playersInfoArray, function(key, value) {
-            if (key != u._id) {
-                delete value.role;
-            }
-        });
-    }
-    if (obj.roles) {
-        for (var i in obj.roles) {
-            if (obj.roles.hasOwnProperty(i)) {
-                game.setRole({
-                    id: i,
-                    login: playersInfoArray[i].login,
-                    role: obj.roles[i]
-                });
-            }
-        }
-    }
-    game.updateInfoGame();
-}
-;
-game.dejInfo = function(data) {
-    var checksList = function(obj) {
-        var str = "";
-        for (var key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                if (str) {
-                    str += ", ";
-                }
-                str += obj[key][1] + " - " + roles(obj[key][0]).name;
-            }
-        }
-        return str;
-    };
-    var out = "Я - " + roles(data.role).name + "!";
-    if (data.checks && Object.size(data.checks) > 0) {
-        out += " Мне стало известно, что " + checksList(data.checks) + " !";
-    }
-    var from = {
-        id: data.id,
-        login: playersInfoArray[data.id].login,
-        sex: playersInfoArray[data.id].sex,
-        image: playersInfoArray[data.id].image,
-        color: "#f00"
-    };
-    setTimeout(function() {
+    case "reconnect":
+        s.error ? ($("#errorBlock").hide(),
+        warningWindow("Не удалось восстановить соединение", function() {
+            window.location.reload()
+        }, "Обновить страницу")) : (mW.hide(),
         showNewMessage({
-            type: "message",
-            message: out,
+            message: "Соединенис с сервером было восстановлено!",
+            color: "#ff0000"
+        }),
+        $("#errorBlock").hide(),
+        ticketBlock.is(":visible") && hideTickets());
+        break;
+    case "register":
+        regButton.prop("disabled", !1),
+        "busy" === s.result ? showMessage("Этот логин уже занят, придумайте другой") : s.result ? setTimeout(function() {
+            sendToSocket({
+                type: "authorize"
+            })
+        }, 500) : errorText("Не удалось создать персонажа.");
+        break;
+    case "enter":
+        messagesList.empty(),
+        room = s.room,
+        closedgame = !1,
+        game.style = {},
+        game.finish = !1,
+        game.intuition = !1,
+        s.user && Object.update(u, s.user),
+        showPlayersList(s.online, s.room),
+        s.gameInfo ? (showGameInfo(s.gameInfo),
+        date.isToday(u.rolldate) || $(".button-roll").stop().animate({
+            rotation: 360
+        }, {
+            duration: 3e3,
+            start: function() {
+                $(this).addClass("nobackground")
+            },
+            step: function(e) {
+                $(this).css({
+                    transform: "rotate(" + e + "deg)"
+                })
+            }
+        }).animate({
+            rotation: -360
+        }, {
+            duration: 3e3,
+            step: function(e) {
+                $(this).css({
+                    transform: "rotate(" + e + "deg)"
+                })
+            },
+            complete: function() {
+                $(this).removeClass("nobackground").removeAttr("style")
+            }
+        })) : updateInterface(),
+        s.games && showGamesList(s.games),
+        s.greens && showGreenList(s.greens);
+        break;
+    case "standart":
+        switch (s.action) {
+        case "money":
+        case "money2":
+            f.notEnough(s);
+            break;
+        case "hiddenprofile":
+            showMessage('Профиль игрока скрыт.<br/> Хочешь также? Приобретай <span class="pseudolink" data-action="windowByName" data-param="donatoptions">VIP-статус</span>.');
+            break;
+        case "nocommonchat":
+            showMessage("Сейчас Вы не можете отправлять сообщения в общий чат");
+            break;
+        case "onlyvip":
+            showMessage("Данная операция доступна только для VIP-аккаунта")
+        }
+        break;
+    case "inform":
+        editPlayerList(s.user, s.leave);
+        break;
+    case "inform-game":
+        s.inviter ? invitesToGame ? modalWindow(s.inviter + " приглашает Вас в игру. Поиграем?", function() {
+            goToRoom(s.gameid)
+        }) : alarm(s.inviter + " приглашает всех в игру") : editGameList(s);
+        break;
+    case "wasmarked":
+        suggestedPlayer(s);
+        break;
+    case "showmsg":
+        showMessage(s.message);
+        break;
+    case "alarm":
+        s.action ? f.onlineCount(s.online, s) : s.text && alarm(s.text);
+        break;
+    case "area-battle":
+        if (s.winner && s.area) {
+            mapAreas[s.area].win || (mapAreas[s.area].win = {}),
+            mapAreas[s.area].win[s.winner] || (mapAreas[s.area].win[s.winner] = 0),
+            mapAreas[s.area].win[s.winner] += 1;
+            alarm("Завершена битва за район (" + mapAreas[s.area].title + "). " + {
+                bots: "Боты одержали победу!",
+                players: "Удача была на стороне игроков!",
+                draw: "Победителя выявить не удалось"
+            }[s.winner])
+        }
+        break;
+    case "updateInfo":
+        delete s.type,
+        s.msg && (showMessage(s.msg),
+        delete s.msg),
+        updateInterface(s);
+        break;
+    case "profile":
+        showPlayerInfoBlock(s.data);
+        break;
+    case "buyingame":
+        game.buyAnswer(s);
+        break;
+    case "friend-query":
+        var c = function(e) {
+            -1 !== reds.indexOf(e.fromId) || u.server2 || showConvert(function() {
+                modalWindow(e.from + " хочет добавить вас в друзья. Вы согласны?", function() {
+                    friendQuery("answer", e.fromId, !0)
+                }, function() {
+                    friendQuery("answer", e.fromId, !1)
+                })
+            })
+        };
+        if (s.multi) {
+            var d = 0;
+            s.from.forEach(function(e) {
+                setTimeout(function() {
+                    c({
+                        from: e.login,
+                        fromId: e._id
+                    })
+                }, d),
+                d += 1e3
+            })
+        } else
+            c(s);
+        break;
+    case "friend-new":
+        addFriend(s.fid, s.add);
+        break;
+    case "greenlist":
+        s.greens && showGreenList(s.greens);
+        break;
+    case "startgame":
+        game.start(s);
+        break;
+    case "setPeriod":
+        game.setPeriod(s);
+        break;
+    case "quiz":
+        if (quizEnable && 9 < u.rating)
+            if (s.login) {
+                var m = '<div class="alarm">Игрок <b>' + s.login + "</b> дал" + (1 === s.sex ? "а" : "") + " правильный ответ - <em>" + s.answer + "</em>";
+                s.rank && (m += " и достиг" + (1 === s.sex ? "ла" : "") + " нового звания - <strong>" + s.rank + "</strong>"),
+                m += "</div>",
+                showNewDiv(m),
+                mymessagesList.find(".quiz").remove()
+            } else
+                showQuiz(s);
+        break;
+    case "vote":
+        game.vote(s);
+        break;
+    case "dej-info":
+        game.dejInfo(s);
+        break;
+    case "setrole":
+        game.setRole(s.user);
+        break;
+    case "newrole":
+        game.newRole(s);
+        break;
+    case "giftSteal":
+        game.killed(s);
+        break;
+    case "sysmsg":
+        s.immediate ? (warningWindow(s.filter ? escapeHtml(matFilter(s.message)) : s.message),
+        inputField.blur()) : showConvert(function() {
+            warningWindow(s.filter ? escapeHtml(matFilter(s.message)) : s.message)
+        });
+        break;
+    case "gameitem":
+        game.itemUse(s);
+        break;
+    case "lock-delete":
+        game.deleteLock(s.message);
+        break;
+    case "cookie":
+        game.cookieResult(s);
+        break;
+    case "showTickets":
+        showTickets(s.count, s.noactive);
+        break;
+    case "hideTicket":
+        hideTicket(s.ticket);
+        break;
+    case "isticket":
+        ticketOpen(s.ticket, s.result);
+        break;
+    case "totes":
+        showToteList(s.arr);
+        break;
+    case "curgames":
+        showCurGames(s.games);
+        break;
+    case "auctions":
+        showAuctionList(s.arr);
+        break;
+    case "gift":
+        if (s.data)
+            if (s.data.card)
+                (new Image).src = "/images/walls/gifts/" + s.data.num + ".gif",
+                showConvert(function() {
+                    warningWindow('<blockquote class="giftCite"><p>' + (s.data.text ? escapeHtml(matFilter(s.data.text)) : "считает, что Вы всё поймете без слов.") + "</p><cite>" + (s.data.login || "Кто-то из Ваших поклонников") + "</cite></blockquoteclass>", function() {
+                        showWall("gifts/" + s.data.num + ".gif", {
+                            nohide: !0,
+                            transparent: !0
+                        }),
+                        49 == s.data.num && wallpaper.css({
+                            "background-color": "#330906"
+                        })
+                    }, "Открыть")
+                }, !0);
+            else if (s.data.pid && -1 < reds.indexOf(s.data.pid))
+                modalWindow((s.data.login ? s.data.login : "Аноним") + " из вашего игнор-листа прислал Вам подарок. Хотите его удалить?", function() {
+                    sendToSocket({
+                        type: "gift-delete",
+                        gift: s.data.time
+                    })
+                });
+            else {
+                var g = "Вам подарок от ";
+                g += s.data.login ? s.data.login : "неизвестного доброжелателя",
+                s.data.text && (g += " с пожеланиями:<br/> <em>" + escapeHtml(matFilter(s.data.text)) + "</em>"),
+                g += '<div class="giftdiv ' + getGiftClass(s.data.num) + '"></div>',
+                showConvert(function() {
+                    warningWindow(g, !1, !1, !1, "opencard")
+                })
+            }
+        break;
+    case "box":
+        updateInterface({
+            inc: s.inc,
+            items: s.items
+        }),
+        showBox(s);
+        break;
+    case "rolling":
+        doRolling(s);
+        break;
+    case "quiz-list":
+        s.players && showQuizList(s.players);
+        break;
+    case "audio":
+        if (!isAppVK && isRadio && s.src) {
+            var w = s.src;
+            sounds.radio.volume = soundValue / 100,
+            sounds.radio.setAttribute("src", w),
+            radio.attr("data-title", s.singer + " - " + s.title),
+            sounds.radio.play()
+        }
+        break;
+    case "reward":
+        s.num && warningWindow('<div class="reward">' + roleText[gameMode()].reward[s.num] + "</div>", !1, !1, !1, "newspaper"),
+        s.toy && warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + s.toy + '"></div></div>', !1, !1, !1, "newspaper"),
+        s.snowflake && !server2 && (warningWindow('<div class="reward">' + roleText.all.snowflake + '<div class="snowflake"></div></div>', !1, !1, !1),
+        u.items[18] ? u.items[18]++ : u.items[18] = 1),
+        s.collect && warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + s.collect + " collect-element collect-element" + s.element + '"></span></div>', !1, !1, !1, "newspaper"),
+        s.item && (warningWindow('<div>В ваш инвентарь добавлена награда: <div class="items items-' + s.item + '" data-count="' + s.count + '"></div></div>'),
+        updateInterface(s.update));
+        break;
+    case "newtoy":
+        drawToy(s.toy);
+        break;
+    case "lottery":
+        if (s.itemnum) {
+            var k = {
+                text: "Ваша удача не прошла мимо",
+                box: {}
+            };
+            k.box[s.itemnum] = 1,
+            showBox(k),
+            updateInterface({
+                items: s.items
+            })
+        } else
+            showMessage("В следующий раз Вам обязательно повезет!");
+        u.lottery = s.time,
+        lotteryTimerStart();
+        var p = lotteryWin.find("div").find("span");
+        p.unbind("click"),
+        s.data && $.each(s.data, function(e, a) {
+            p.eq(e - 1).empty().addClass("openLottery items-" + a)
+        });
+        break;
+    case "roulette":
+        u.money = s.money,
+        u.roulette = s.roulette,
+        rouletteDisable(),
+        updateInterface(),
+        showMessage("Вы сделали ставку на " + s.num + ".<br/> Возможно, завтра Вас ждет приятный сюрприз.");
+        break;
+    case "roulette-result":
+        rouletteDisable(!0),
+        rouletteInfo(s, !0);
+        break;
+    case "progress":
+        if (s.login)
+            alarm(s.login + " получает достижение - " + progressRank(s.num, s.value));
+        else {
+            var h = progressReward(quests[s.num].prize[s.value]);
+            warningWindow('<div class="progress">Вы получили новое достижение - <u>' + progressRank(s.num, s.value) + "</u><br/>Ваша награда - " + h + "</div>"),
+            progressTime = 0,
+            Object.forEach(quests[s.num].prize[s.value], function(e, a) {
+                u[a] += "money" === a ? 1e3 * e : e
+            }),
+            updateInterface()
+        }
+        break;
+    case "progress-list":
+        showProgressList(s.list, s.progress, s.already);
+        break;
+    case "bonus":
+        if (s.role)
+            switch (s.bonus) {
+            case "intuit":
+                game.event({
+                    text: "all:bonus:intuit",
+                    replacedata: {
+                        "[nick]": s.login,
+                        "[role]": s.role
+                    }
+                }, !1)
+            }
+        break;
+    case "firework":
+        if (game.writeText('<div class="firework-text">' + s.login + " запускает фейерверк в честь праздника!</div>", !1, !0),
+        !ticketBlock.is(":visible") && !container.hasClass("ingame") && fireworkEnable) {
+            var v = f.randomInt(11);
+            showWall("firework/" + v + ".gif", {
+                nohide: !0,
+                transparent: 9 <= v
+            })
+        }
+        break;
+    case "gif":
+        !container.hasClass("ingame") && date.pluhTime < date.now() - 1e4 && (date.pluhTime = date.now(),
+        showWall("other/bah.gif"));
+        break;
+    case "collect":
+        s.data && (u.collections = s.collections,
+        showMessage('На ёлке совершенно случайно Вы заметили фрагмент Новогодней коллекции <div class="collect' + s.data.collect + " collect-element collect-element" + s.data.element + '"><div>'));
+        break;
+    case "clan":
+        clan.showWindow(s);
+        break;
+    case "slot":
+        slotAction(s);
+        break;
+    case "friends":
+        windowTable("allfriends", s.list);
+        break;
+    case "tree":
+        enableTree(s.data);
+        break;
+    case "dedmoroz":
+        NY.event(s);
+        break;
+    case "battle":
+        snowball.action(s);
+        break;
+    case "infomoder":
+        "function" == typeof showInfoModer && showInfoModer(s.data);
+        break;
+    case "moder":
+        "function" == typeof moderAnswer && moderAnswer(s);
+        break;
+    case "admin":
+        var y = "";
+        s.data.forEach(function(e) {
+            Object.forEach(e, function(e) {
+                y += e + " "
+            }),
+            y += "<br/>"
+        }),
+        showNewMessage({
+            message: y
+        });
+        break;
+    case "draw-result":
+        if (s.sex) {
+            var T = "";
+            s.winner && (T = 1 === s.sex ? 'Под восхищенные мужские взгляды <b data-id="' + s.winnerId + '">' + s.winner + "</b> изящно ловит букет, не оставив соперницам ни шанса!" : 'Ловким движением <b data-id="' + s.winnerId + '">' + s.winner + "</b> хватает подвязку своими сильными руками, что не остается без внимания присутствующих на празднике девушек!"),
+            game.writeText('<img src="/images/cups/wed' + (1 === s.sex ? "wo" : "") + 'menitem.png" alt="" style="float:left"/> ' + T, !1, !0)
+        } else {
+            var x = '<div class="draw-result">' + s.moder.login + " провел" + (1 === s.moder.sex ? "а" : "") + " жеребьевку. Результаты представлены ниже:<br/> ";
+            if (1 < s.count)
+                for (var I = 0, W = 0, M = s.arr.length; I < M; I++)
+                    I === W * s.count && (x += "<u>Группа " + ++W + "</u><br/><ol>"),
+                    x += "<li>" + s.arr[I] + "</li>",
+                    I + 1 !== W * s.count && I + 1 !== M || (x += "</ol>");
+            else
+                s.arr.forEach(function(e) {
+                    x += e + "<br/>"
+                });
+            x += "</div>",
+            showNewDiv(x)
+        }
+        break;
+    case "css":
+        s.add ? b.append("<style>" + s.style.replace("'", '"') + "</style>") : s.el && $(s.el).attr("style", s.style);
+        break;
+    case "f14pairs":
+        if (s.pairs) {
+            var q = $('<img id="amur" src="/images/holidays/september1/schollbell.gif"/>').appendTo(b);
+            sounds.schoolbell || (sounds.schoolbell = createAudio("/media/special/schoolbell." + soundExt)),
+            setTimeout(function() {
+                sound("schoolbell")
+            }, 1e3),
+            q.animate({
+                left: "-350px"
+            }, 1e4, function() {
+                $(this).remove(),
+                sounds.schoolbell.pause();
+                var a = "Учитель рассадил всех за парты парами:<br/><ol>";
+                s.pairs.forEach(function(e) {
+                    e[1] && e[2] && (a += "<li>" + f.playerNick(e[1], !0) + ' <span class="green">+</span> ' + f.playerNick(e[2], !0) + "</li>")
+                }),
+                a += "</ol>",
+                s.lost && (a += "<hr/><p>Пока все хитро переглядываются со своими соседями по парте, одиноко на &quot;камчатке&quot; сидит " + f.playerNick(s.lost, !0) + "</p>"),
+                showNewDiv('<div class="september1-pairs">' + a + "</div>"),
+                mymessagesList.append('<div class="september1-pairs">' + a + "</div>")
+            })
+        }
+        s.task && setTimeout(function(e) {
+            showNewMessage({
+                message: "Хочешь получить поощрение за примерное поведение? Тогда выполни задание вместе со своим соседом по парте - сыграй до конца следующую партию:<br/><ul><li>" + gameStyle[e.task.style] + "</li><li>не менее чем на " + e.task.count + " игроков</li></ul>",
+                msgType: "private",
+                from: !1,
+                to: u._id,
+                toName: u.login
+            })
+        }, 5e3, s);
+        break;
+    case "pairs3":
+        if (s.pairs)
+            $('<img class="tripleBD" src="/images/holidays/3/' + f.randomInt(5) + '.gif"/>').appendTo(b).animate({
+                left: "100%"
+            }, 5e3, function() {
+                if ($(this).remove(),
+                s.pairs && 0 < s.pairs.length) {
+                    var a = "Смотрите, какие замечательные компании друзей у нас сегодня собрались:<br/><ol>";
+                    s.pairs.forEach(function(e) {
+                        e[1] && e[2] && e[3] && (a += '<li><strong data-id="' + e[1]._id + '">' + e[1].login + '</strong>, <strong data-id="' + e[2]._id + '">' + e[2].login + '</strong> и <strong data-id="' + e[3]._id + '">' + e[3].login + "</strong></li>")
+                    }),
+                    a += "</ol>",
+                    showNewDiv('<div class="pairs3">' + a + "</div>")
+                }
+            });
+        s.task && showNewMessage({
+            message: "Хочешь получить подарок в честь трехлетия игры? Тогда сыграй с двумя своими друзьями в игру &quot;Без ботов&quot; на <i>" + s.task.count + "</i> игроков",
             msgType: "private",
-            from: from,
+            from: !1,
             to: u._id,
             toName: u.login
         });
-    }, 2000);
-}
-;
-var animateNumber = function(objId, newVal, digit1000) {
-    var el;
-    if (objId === "gamemoney") {
-        el = gamemoney;
-        if (gamemoney.html() && gamemoney.html() !== over1000(newVal)) {
-            sound("money");
-        }
-    } else {
-        el = $("#" + objId);
-    }
-    el.animate({
-        num: newVal
-    }, {
-        duration: 2000,
-        step: function(num) {
-            this.innerHTML = (digit1000) ? over1000(num.toFixed()) : num.toFixed();
-        }
-    });
-};
-game.recalculateBanks = function(banks) {
-    if (!banks) {
-        return;
-    }
-    animateNumber("studBank", banks[0] || 0);
-    animateNumber("robbBank", banks[1] || 0);
-    animateNumber("allBank", banks[2] || 0);
-    animateNumber("winBank", banks[3] || 0);
-}
-;
-game.start = function(data) {
-    hideTickets();
-    messagesList.html("");
-    gebi("playersButton").className = "my";
-    mW.hide();
-    closewindow();
-    if (specialDay) {
-        if (specialDay === "february23") {
-            var num = f.randomInt(13)
-              , ext = "jpg";
-            if (num > 10) {
-                num -= 10;
-                ext = "gif";
-            } else {
-                if (num === 10) {
-                    ext = "png";
-                }
-            }
-            showWall("february23/" + num + "." + ext);
-        }
-        if (specialDay === "march8") {
-            showWall("/images/holidays/march8/back.jpg", true);
-        }
-    } else {
-        if (data.married) {
-            showWall((data.role) ? "wedding" + (data.role === 2 ? "2" : "1") + ".jpg" : "0.gif");
-        } else {
-            var roleWall = !data.role ? "0.gif" : (isMaffia && data.role < 10) ? "maffia/" + data.role + ".jpg" : data.role + ".jpg";
-            showWall(roleWall);
-        }
-    }
-    game.active = true;
-    game.closed = false;
-    game.finish = false;
-    game.day = 0;
-    game.period = 1;
-    game.count = data.count;
-    game.botwall = (data.botwall);
-    game.fast = (data.fast);
-    game.special = (data.special);
-    game.man = data.man;
-    game.intuition = data.intuition;
-    game.hisvote = {};
-    game.votes = {};
-    game.kickVotes = {
-        yes: 0,
-        no: 0
-    };
-    game.style = data.gamestyle;
-    game.items = {
-        1: u.item1,
-        2: u.item2,
-        4: u.item4,
-        5: u.item5
-    };
-    game.item2limit = (u.item2 && u.item2 > 2) ? 3 : 2;
-    itemPanel.removeClass();
-    itemPanel.find("div").removeClass("itemoff");
-    var caption = ""
-      , startText = "";
-    if (data.caption) {
-        caption = data.caption;
-    }
-    if (data.gameinfo) {
-        room = data.gameinfo._id;
-        game.count = data.gameinfo.count;
-        closedgame = (data.gameinfo.style === 2);
-        gametitle.html("<span>" + gameStyle[data.gameinfo.style] + " на " + data.gameinfo.count + " игроков</span>");
-        showPlayersList({}, room);
-        data.banks = data.gameinfo.banks;
-        game.day = data.gameinfo.day;
-        game.period = data.gameinfo.period;
-        game.botwall = (data.gameinfo.botwall);
-        game.fast = (data.gameinfo.fast);
-        game.special = (data.gameinfo.special);
-        game.style.style2 = true;
-        game.active = false;
-        game.time = {
-            h: startHours[game.period],
-            m: 0
-        };
-        header.find(".gamestyle").find("span").each(function(index) {
-            $(this).removeClass();
-            if (data.gameinfo["style" + (index + 1).toString()]) {
-                $(this).addClass("enabledoption");
-            }
-        });
-        game.intuition = data.gameinfo.intuition;
-    }
-    if (game.style.style2) {
-        itemPanel.addClass("noactive");
-    }
-    if (data.params) {
-        if (data.params.noitem4) {
-            itemPanel.find(".gameitem4").addClass("itemoff");
-        }
-        if (data.params.hasOwnProperty("item2")) {
-            game.item2limit = data.params.item2;
-            if (game.item2limit === 0) {
-                itemPanel.find(".gameitem2").addClass("itemoff");
-            }
-        }
-    }
-    game.item2 = u.item2 ? (u.item2 > game.item2limit ? game.item2limit : u.item2) : 0;
-    if (game.intuition && data.players) {
-        var allnicks = randomNicks.slice(0);
-        allnicks.shuffle();
-        replaceLogins = {};
-        $.each(data.players, function(ind, el) {
-            replaceLogins[ind] = el.login;
-            el.login = allnicks.shift();
-        });
-    }
-    game.role = data.role;
-    game.updateInfoGame();
-    gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>');
-    game.recalculateBanks(data.banks);
-    if (data.married) {
-        startText += "Занимайте места поудобнее. Свадебная церемония начнется днем...";
-    } else {
-        if (data.intuition) {
-            startText += '<div class="important">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(data.intuition, "день", "дня", "дней") + "!</div>";
-        } else {
-            startText += '<div class="startText">';
-            startText += (game.style.style === 4) ? roleText.all["startText-sex"] : roleText[gameMode()].startText;
-            startText += '</div><div class="message noimage">';
-            startText += (game.style.style === 4) ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role];
-            startText += "</div>";
-        }
-    }
-    if (game.man) {
-        startText += '<div class="important">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>";
-    }
-    if (caption.substring(0, 2).toLowerCase() === "пб" || game.botwall) {
-        startText += '<div class="important">Внимание! Это партия против ботов!</div>';
-    }
-    if (!isMaffia) {
-        $("#gift").show();
-    }
-    updateGameitems();
-    if (data.roles) {
-        var allRoles = "В этой партии присутствуют следующие роли: ";
-        data.roles.forEach(function(el) {
-            allRoles += '<span class="rolesmile role' + el + '"></span>';
-        });
-        startText += "<div>" + allRoles + "</div";
-    }
-    if (u.invite && playersInfoArray[u.invite]) {
-        startText += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>";
-    }
-    if (u.invited) {
-        var pupils = [];
-        for (var i in playersInfoArray) {
-            if (playersInfoArray.hasOwnProperty(i)) {
-                if (playersInfoArray[i].invite && playersInfoArray[i].invite === u._id) {
-                    pupils.push(playersInfoArray[i].login);
-                }
-            }
-        }
-        if (pupils.length > 0) {
-            startText += '<div class="red">В этой партии находятся ваши ученики: ' + pupils.join(", ") + "</div>";
-        }
-    }
-    showNewDiv('<div class="startgame">' + startText + "</div>");
-    game.showPlaylist(data.players);
-    clearInterval(min10);
-    min10 = setInterval(function() {
-        game.setTime();
-    }, 1000);
-    if (game.role) {
-        helper.hint("start");
-        if (getStatForRole(u, game.role) < 1) {
-            helper.hint("Это твоя первая роль " + roles(game.role).name + ".<br/> Посмотрим, сможешь ли ты с ней справиться!", true);
-        }
-        u.money -= game.sum;
-    }
-}
-;
-function getStatForRole(user, roleNum) {
-    var result = 0;
-    if (roleNum < 10) {
-        if (user[textRoles[roleNum] + "0"]) {
-            result += user[textRoles[roleNum] + "0"];
-        }
-        if (user[textRoles[roleNum] + "1"]) {
-            result += user[textRoles[roleNum] + "1"];
-        }
-    } else {
-        if (user.roles) {
-            if (user.roles[roleNum]["0"]) {
-                result += user.roles[roleNum]["0"];
-            }
-            if (user.roles[roleNum]["1"]) {
-                result += user.roles[roleNum]["1"];
-            }
-        }
-    }
-    return result;
-}
-game.finished = function() {
-    game.finish = true;
-    clearInterval(min10);
-    if (typeof hideHint === "function") {
-        hideHint();
-    }
-}
-;
-function updateGameitems() {
-    [1, 2, 4, 5].forEach(function(i) {
-        var v = parseInt(game.items[i])
-          , curItem = $("div.gameitem" + i + ">b", itemPanel);
-        curItem.removeClass();
-        if (!u["item" + i] || u["item" + i] < 0) {
-            u["item" + i] = 0;
-        }
-        var itemVal = (i === 2) ? game.item2 : u["item" + i]
-          , limit = (i === 2) ? game.item2limit : items["g" + i];
-        if (!itemVal) {
-            curItem.addClass("noitem");
-        }
-        curItem.html(itemVal + "/" + ((v >= limit) ? "0" : (limit - v).toString()));
-    });
-}
-function doItem(inum) {
-    if (!inum) {
-        return;
-    }
-    if (!game.active) {
-        showMessage("Для Вас эта игровая партия уже завершена. Вы не можете повлиять на нее.");
-        return;
-    }
-    if (game.style.style2) {
-        showMessage("Игра без предметов");
-    } else {
-        if (u["item" + inum]) {
-            switch (inum) {
-            case 4:
-                var selectedPl = playersList.find("div.select")
-                  , cId = selectedPl.attr("id");
-                if (cId) {
-                    if (u.item4 > 0) {
-                        sendToSocket({
-                            type: "gameitem",
-                            item: inum,
-                            target: cId
-                        });
-                    } else {
-                        showMessage(roleText[gameMode()].itemUse.cookieNo);
-                    }
-                } else {
-                    showMessage(roleText[gameMode()].itemUse.cookieNan);
-                }
-                break;
-            case 5:
-                if (u.item5 > 0) {
-                    modalWindow("Воспользовавшись этим предметом вы покинете игру, забрав с собой часть игрового банка. Хотите продолжить?", function() {
-                        sendToSocket({
-                            type: "gameitem",
-                            item: inum
-                        });
-                    });
-                } else {
-                    showMessage(roleText[gameMode()].itemUse.tourNo);
-                }
-                break;
-            }
-        }
-    }
-}
-game.itemUse = function(data) {
-    if (!data.item) {
-        return;
-    }
-    switch (data.item) {
-    case 4:
-        u.item4 -= 1;
-        updateGameitems();
-        if (data.uid && playersInfoArray[data.uid]) {
-            game.writeText(game.event({
-                text: "itemUse:cookie:text",
-                replacedata: {
-                    "[VERB]": ((playersInfoArray[data.uid].sex === 1) ? roleText[gameMode()].itemUse.cookie.verb1 : roleText[gameMode()].itemUse.cookie.verb2),
-                    "[nick]": '<b class="nickname" data-id="' + data.uid + '">' + playersInfoArray[data.uid].login + "</b>"
-                }
-            }, false, true));
-        }
-        sound("item4", true);
         break;
-    case 5:
-        u.item5 -= 1;
-        updateGameitems();
-        game.writeText('<div class="green">' + roleText[gameMode()].itemUse.tour + "</div>");
-        sound("item5", true);
+    case "curator":
+        if (s.action)
+            switch (s.action) {
+            case "msg":
+            case "answer":
+                curator.msg(s.text, s);
+                break;
+            case "online":
+                curator.msg(s.text, s),
+                curator.msg("Кураторов онлайн: " + s.count);
+                break;
+            case "takeq":
+                curator.answer(s);
+                break;
+            case "busyq":
+                curator.msg("Вопрос уже принят другим куратором.");
+                break;
+            case "flood":
+                curator.msg("Вопросы можно задавать не чаще, чем раз в " + s.text)
+            }
         break;
-    }
-}
-;
-function buyItem(inum) {
-    if (!inum) {
-        return;
-    }
-    if (["1", "2", "4", "5"].indexOf(inum) > -1) {
+    case "console":
         sendToSocket({
-            type: "buy",
-            item: inum,
-            money: 1
+            type: "console",
+            logs: logs
         });
-    }
-}
-game.buyAnswer = function(data) {
-    [1, 2, 4, 5].forEach(function(el) {
-        if (data["item" + el]) {
-            u["item" + el] = data["item" + el];
-            game.items[el]++;
-            if (el === 2) {
-                game.item2++;
-            }
-        }
-    });
-    if (data.price) {
-        u.money -= data.price;
-        gamemoney.html(over1000(u.money));
-    }
-    updateGameitems();
-}
-;
-var itemPanel = $("#items");
-$("div.gameitem4>div", itemPanel).click(function() {
-    doItem(4);
-});
-$("div.gameitem5>div", itemPanel).click(function() {
-    doItem(5);
-});
-$("div>span", itemPanel).click(function() {
-    var itemNum = $(this).parent().attr("class").substring(8);
-    buyItem(itemNum);
-});
-game.deleteLock = function() {
-    if (u.item2) {
-        u.item2 -= 1;
-    }
-    game.item2--;
-    updateGameitems();
-    game.event({
-        text: "morningInfo:mylock"
-    });
-}
-;
-game.cookieResult = function(data) {
-    if (data.result) {
-        for (var index in data.result) {
-            if (data.result.hasOwnProperty(index)) {
-                var curCook = playersInfoArray[index];
-                game.writeText('<div class="green"><b data-id="' + index + '">' + curCook.login + "</b>" + roleText[gameMode()].itemUse.cookieResult[data.result[index]][curCook.sex] + "</div>");
-            }
-        }
-    }
-    if (data.msg) {
-        for (var i = 0; i < parseInt(data.msg); i++) {
-            game.writeText('<div class="green">' + roleText[gameMode()].itemUse.cookieDelete + "</div>");
-        }
-    }
-}
-;
-game.notePlayer = function(uid) {
-    if (!uid || !playersInfoArray[uid]) {
-        return;
-    }
-    var curpl = playersList.find("#" + uid);
-    if (curpl) {
-        var text = '<br/><label>Роль <select id="note-role"><option selected="selected"></option>';
-        for (var i = 1; i <= 9; i++) {
-            text += '<option value="' + i + '">' + roles(i).name + "</option>";
-        }
-        text += '</select></label><br/><label>Метка <input type="text" placeholder="Например, АКТИВ" id="note-text"/></label>';
-        modalWindow("Заметка об игроке " + playersInfoArray[uid].login + text, function() {
-            var nr = $("#note-role")
-              , nt = $("#note-text")
-              , playerIcon = curpl.find("b")
-              , newtext = "";
-            if (nr && nr.val()) {
-                newtext += '<span class="rolesmile role' + nr.val() + '"></span> ';
-            }
-            if (nt && nt.val()) {
-                newtext += nt.val();
-            }
-            if (newtext) {
-                curpl.html(playerIcon[0].outerHTML + newtext + " " + playersInfoArray[uid].login + (playersInfoArray[uid].role ? '<span class="visiblerole"> - <i class="' + roles(playersInfoArray[uid].role).icon + '"></i></span>' : ""));
-            }
-        });
-    }
-}
-;
-var snowball = {
-    myside: 1,
-    sides: {},
-    active: false,
-    time: 0,
-    timer: 0
-}
-  , battleWords = {
-    100: {
-        nodefend: "Выберите свою позицию - в первых рядах или позади?",
-        noattack: "Выберите тип броска - на точность или на силу?",
-        notarget: "Выберите соперника, в которого хотите бросить снежком",
-        killed: "Вас забросали снегом :(<br/> Вам удастся продолжить борьбу, если ваша команда выиграет этот раунд и &quot;откопает&quot; Вас",
-        shot: "../battle/snowball/shot.gif"
-    },
-    101: {
-        nodefend: "Решайтесь! В атаку или в укрытие?",
-        noattack: "Как будем стрелять?",
-        notarget: "В кого будем стрелять?",
-        killed: "Вы не в силах продолжить сражение :(<br/> Если Ваша команда выиграет, Вы сможете принять участие в следующем раунде",
-        shot: "../battle/shot.gif"
-    }
-}
-  , battleType = function() {
-    return (snowball.type === 100) ? "snow" : "battle";
-}
-  , battleDiv = $(".battleDiv")
-  , snowPlayList1 = battleDiv.find(".playerlist").eq(0)
-  , snowPlayList2 = battleDiv.find(".playerlist").eq(1)
-  , battleMain = battleDiv.find(".battlemain")
-  , snowSelect = $("#snowball-target");
-battleDiv.find(".playerlist").bind("dblclick touchmove", function(e) {
-    var event = e || window.event;
-    var target = event.target || event.srcElement;
-    if (target.tagName !== "DIV" || target.className === "playerlist") {
-        return;
-    }
-    $("#adresat-id").val(target.id);
-    $("#adresat").val(target.dataset.nick);
-});
-$(".snowball-domove").click(function() {
-    var defend = battleMain.find("input[name=snowball-def]:checked").val()
-      , attack = battleMain.find("input[name=snowball-att]:checked").val()
-      , target = snowSelect.val();
-    if (!defend) {
-        showMessage(battleWords[snowball.type].nodefend);
-        return;
-    }
-    if (snowball.type === 101 && defend === "2") {
-        attack = "1";
-        target = u._id;
-    }
-    if (!attack) {
-        showMessage(battleWords[snowball.type].noattack);
-        return;
-    }
-    if (!target) {
-        showMessage(battleWords[snowball.type].notarget);
-        return;
-    }
-    sendToSocket({
-        type: "snowball",
-        defend: defend,
-        attack: attack,
-        target: target
-    });
-    battleMain.addClass("battlewait");
-});
-$(".battle101").find("input[name=snowball-def]").change(function() {
-    $(this).parent().next("div").css({
-        display: ($("#battle-def2").prop("checked") ? "none" : "block")
-    });
-});
-snowball.action = function(data) {
-    if (!data.action) {
-        return;
-    }
-    switch (data.action) {
-    case "start":
-        snowball.start(data);
         break;
-    case "round":
-        snowball.setRound(data);
-        break;
-    case "move":
-        snowball.newMove(data);
-        break;
-    case "end":
-        snowball.end(data.msg);
-        break;
+    default:
+        console.log("unknown event:", s)
     }
 }
-;
-snowball.start = function(data) {
-    container.addClass("battle");
-    $(".battlemain").hide();
-    battleMain = $(".battlemain.battle" + data.gtype);
-    battleMain.show();
-    snowball.type = data.gtype;
-    snowSelect = data.gtype === 100 ? $("#snowball-target") : $("#battle-target");
-    playersInfoArray = data.players;
-    messagesList.html("");
-    mW.hide();
-    snowball.active = true;
-    snowball.timer = setInterval(function() {
-        snowball.setTime();
-    }, 1000);
-}
-;
-snowball.setRound = function(data) {
-    if (data.round) {
-        var classtext = "snows" + (data.round + 4);
-        snowPlayList1.removeClass().addClass("playerlist " + classtext);
-        snowPlayList2.removeClass().addClass("playerlist " + classtext);
-    }
-    if (data.sides[1].indexOf(u._id) > -1) {
-        snowball.myside = 1;
-        snowball.sides.we = data.sides[1];
-        snowball.sides.they = data.sides[2];
-    } else {
-        snowball.myside = 2;
-        snowball.sides.we = data.sides[2];
-        snowball.sides.they = data.sides[1];
-    }
-    snowball.playerList(snowball.sides.we, snowPlayList1);
-    snowball.playerList(snowball.sides.they, snowPlayList2);
-    var nicksArray = [];
-    snowSelect.html("");
-    snowball.sides.they.forEach(function(el) {
-        nicksArray.push([playersInfoArray[el].login || "***", el]);
-    });
-    nicksArray.sort(plSort);
-    nicksArray.forEach(function(el) {
-        snowSelect.append('<option value="' + el[1] + '">' + el[0] + "</option>");
-    });
-    showNewDiv('<br/><div class="important">' + snowball.roundName[data.round] + "</div>");
-    if (data.sides[1].indexOf(u._id) === -1 && data.sides[2].indexOf(u._id) === -1) {
-        battleMain.addClass("killed");
-        snowball.active = false;
-    } else {
-        battleMain.removeClass("killed");
-        snowball.active = true;
-    }
-    snowball.time = 0;
-    sound("notify");
-}
-;
-snowball.playerList = function(ids, playlist) {
-    if (!ids) {
-        return;
-    }
-    playlist.html("");
-    ids.forEach(function(id) {
-        if (playersInfoArray[id]) {
-            var el = playersInfoArray[id]
-              , newPl = $('<div id="' + el._id + '"></div>').html("<b></b>" + el.login);
-            newPl.attr("data-nick", el.login);
-            newPl.appendTo(playlist);
-            newPl.mouseenter(function() {
-                showPlayerInfo(true, $(this).attr("id"));
-                return false;
-            }).mouseleave(function() {
-                showPlayerInfo(false);
-                return false;
-            });
-            if (reds.indexOf(el._id) > -1) {
-                newPl.addClass("red");
-            }
-            newPl.find("b").addClass("status" + el.icon);
-            $('<span class="' + battleType() + 'block"></span>').appendTo(newPl);
-        }
-    });
-    var str = [];
-    playlist.find("div").each(function() {
-        var sustr = [$(this).attr("data-nick"), $(this)];
-        str.push(sustr);
-    });
-    str.sort(plSort);
-    playlist.html();
-    $.each(str, function() {
-        playlist.append(this[1]);
-    });
-}
-;
-snowball.newMove = function(data) {
-    if (snowball.active) {
-        battleMain.removeClass("battlewait");
-    }
-    var text = "Ход " + data.step + "<hr/>";
-    if (data.msg) {
-        data.msg.forEach(function(el) {
-            text += el.replace(u.login, '<span class="green">' + u.login + "</span>") + "<br/>";
-        });
-    }
-    game.writeText(text);
-    if (data.del) {
-        data.del.forEach(function(el) {
-            if (el === u._id) {
-                showWall(battleWords[snowball.type].shot);
-                battleMain.addClass("killed");
-                showMessage(battleWords[snowball.type].killed);
-                snowball.active = false;
-            }
-            battleDiv.find("#" + el).addClass("snowman");
-            snowSelect.find('option[value="' + el + '"]').remove();
-        });
-    }
-    if (data.pl) {
-        for (var i in data.pl) {
-            if (data.pl.hasOwnProperty(i)) {
-                var plDiv = battleDiv.find("#" + i).find("." + battleType() + "block");
-                plDiv.css("width", snowball.type === 100 ? parseInt(plDiv.css("height")) * data.pl[i] + "px" : 20 * (5 - data.pl[i]) + "%");
-            }
-        }
-    }
-    snowball.time = 0;
-    sound("notify");
-}
-;
-snowball.roundName = {
-    1: "1/32 финала",
-    2: "1/16 финала",
-    3: "1/8 финала",
-    4: "1/4 финала",
-    5: "Полуфинал",
-    6: "Финал"
-};
-snowball.setTime = function() {
-    snowball.time++;
-    var lost = 30 - snowball.time
-      , timeText = "0:" + ((lost > 9) ? lost : (lost > 0 ? "0" + lost : "00"));
-    battleMain.find("b").html(timeText);
-}
-;
-snowball.end = function(text) {
-    clearInterval(snowball.timer);
-    warningWindow(text, goToRoom);
-}
-;
 var curator = {
     qid: 0
 };
-curatorWindow.find("div.output").append("<div>Есть вопрос по игре? Напиши его куратору прямо сейчас!</div>");
+curatorWindow.find("div.output").append("<div>Есть вопрос по игре? Напиши его куратору прямо сейчас!</div>"),
 curatorWindow.on("click", function() {
-    if ($(this).hasClass("hide")) {
-        $(this).removeClass("hide");
-    }
-});
+    $(this).hasClass("hide") && $(this).removeClass("hide")
+}),
 curatorWindow.find("div.curatorHide").on("click", function(e) {
-    curatorWindow.toggleClass("hide");
-    e.preventDefault();
-    return false;
-});
+    return curatorWindow.toggleClass("hide"),
+    e.preventDefault(),
+    !1
+}),
 curatorWindow.find("input").keydown(function(e) {
-    if (e.which === 13) {
-        var text = $(this).val().trim();
-        if (curator.qid) {
-            sendToSocket({
-                type: "curator",
-                action: "answer",
-                qid: curator.qid,
-                text: text
-            });
-            curatorWindow.find("curator-qid" + curator.qid).removeAttr("style");
-            curator.qid = 0;
-        } else {
-            if (text && text.length > 5) {
-                sendToSocket({
-                    type: "curator",
-                    action: "question",
-                    text: text
-                });
-            } else {
-                curator.msg("Пожалуйста, напишите свой вопрос куратору!");
-            }
-        }
-        $(this).val("");
+    if (13 === e.which) {
+        var t = $(this).val().trim();
+        curator.qid ? (sendToSocket({
+            type: "curator",
+            action: "answer",
+            qid: curator.qid,
+            text: t
+        }),
+        curatorWindow.find("curator-qid" + curator.qid).removeAttr("style"),
+        curator.qid = 0) : t && 5 < t.length ? sendToSocket({
+            type: "curator",
+            action: "question",
+            text: t
+        }) : curator.msg("Пожалуйста, напишите свой вопрос куратору!"),
+        $(this).val("")
     }
-});
-curator.msg = function(text, author) {
-    var curatorDiv = curatorWindow.find("div.output")
-      , newDiv = $("<div/>");
-    if (curatorWindow.hasClass("hide")) {
-        curatorWindow.removeClass("hide");
-    }
-    sound("notify");
-    $("<p/>").html(curTime()).appendTo(newDiv);
-    if (author) {
-        if (author.qid) {
-            newDiv.addClass("curator-qid" + author.qid);
-            $("<strong/>").attr("data-id", author.uid).html(author.login + ":").appendTo(newDiv);
-            $("<span/>").html(text).appendTo(newDiv);
-            $("<button/>").html("Ответить").click(function() {
-                curator.takeQid(author.qid);
-            }).appendTo(newDiv);
-        } else {
-            $("<b/>").attr("data-id", author.uid).attr("title", "Написать куратору в игровом чате").html(author.login + ":").click(function() {
-                $("#adresat-id").val(author.uid);
-                $("#adresat").val(author.login);
-                privateCheck.prop("checked", true);
-                inputField.focus();
-            }).appendTo(newDiv);
-            $("<span/>").html(text).appendTo(newDiv);
-        }
-    } else {
-        newDiv.addClass("gray");
-        newDiv.html(text);
-    }
-    newDiv.appendTo(curatorDiv);
+}),
+curator.msg = function(e, t) {
+    var n = curatorWindow.find("div.output")
+      , a = $("<div/>");
+    curatorWindow.hasClass("hide") && curatorWindow.removeClass("hide"),
+    sound("notify"),
+    $("<p/>").html(date.curTime()).appendTo(a),
+    t ? t.qid ? (a.addClass("curator-qid" + t.qid),
+    $("<strong/>").attr("data-id", t.uid).html(t.login + ":").appendTo(a),
+    $("<span/>").html(e).appendTo(a),
+    $("<button/>").html("Ответить").click(function() {
+        curator.takeQid(t.qid)
+    }).appendTo(a)) : ($("<b/>").attr("data-id", t.uid).attr("title", "Написать куратору в игровом чате").html(t.login + ":").click(function() {
+        $("#adresat-id").val(t.uid),
+        $("#adresat").val(t.login),
+        privateCheck.prop("checked", !0),
+        inputField.focus()
+    }).appendTo(a),
+    $("<span/>").html(e).appendTo(a)) : (a.addClass("gray"),
+    a.html(e)),
+    a.appendTo(n)
 }
-;
-curator.takeQid = function(qid) {
+,
+curator.takeQid = function(e) {
     sendToSocket({
         type: "curator",
         action: "get",
-        qid: qid
-    });
+        qid: e
+    })
 }
-;
-curator.answer = function(data) {
-    var thisQ = curatorWindow.find(".curator-qid" + data.qid);
-    thisQ.find("button").remove();
-    if (data.uid === u._id) {
-        thisQ.css({
-            background: "#cfc"
-        });
-        curator.qid = data.qid;
-        curator.msg("Вопрос закреплен за Вами. Не забудьте ответить!");
-        curatorWindow.find("input").focus();
-    } else {
-        thisQ.css({
-            opacity: 0.2
-        });
-        thisQ.append("<div>Вопрос закреплен за куратором " + data.login + "</div>");
-    }
+,
+curator.answer = function(e) {
+    var t = curatorWindow.find(".curator-qid" + e.qid);
+    t.find("button").remove(),
+    e.uid === u._id ? (t.css({
+        background: "#cfc"
+    }),
+    curator.qid = e.qid,
+    curator.msg("Вопрос закреплен за Вами. Не забудьте ответить!"),
+    curatorWindow.find("input").focus()) : (t.css({
+        opacity: .2
+    }),
+    t.append("<div>Вопрос закреплен за куратором " + e.login + "</div>"))
 }
 ;
 var alarmWin = $('<div id="alarm"></div>').appendTo(container);
 function showAlarms() {
     warningWindow('<div class="alarmlist">' + alarmWin.html() + "</div>");
-    var alWin = $(".alarmlist").parents(".modal");
-    alWin.scrollTop(alWin[0].scrollHeight);
+    var e = $(".alarmlist").parents(".modal");
+    e.scrollTop(e[0].scrollHeight)
 }
-function alarm(text, nosound) {
-    if (noAlarm) {
-        return;
-    }
-    $("<div/>", {
-        "data-time": showDate(Date.now(), true),
-        html: text
-    }).appendTo(alarmWin).click(showAlarms).fadeIn(600).delay(4000).fadeOut(500);
-    if (!nosound) {
-        sound("notify");
-    }
+function alarm(e, t) {
+    noAlarm || ($("<div/>", {
+        "data-time": date.showDate(Date.now(), !0),
+        html: e
+    }).appendTo(alarmWin).click(showAlarms).fadeIn(600).delay(4e3).fadeOut(500),
+    t || sound("notify"))
 }
-function convertAnimate(envelope) {
-    var html = $("html")
-      , pageH = html.height()
-      , pageW = html.width();
-    envelope.x -= 0.5;
-    var x = envelope.x;
-    var y = x * Math.sin(x) + 0.3 * x * x;
-    envelope.y = 100 - Math.floor(y / 28);
-    y = Math.floor(pageH * envelope.y / 100) - 80;
-    x = Math.floor(pageW * x / 100);
-    if (x < 1) {
-        clearInterval(envelope.timer);
-        envelope.x = 100;
-        envelope.y = 0;
-    } else {
-        envelope.scale = 1.5 - Math.abs(50 - envelope.x) / 100;
-        envelope.obj.css("transform", "scale(" + envelope.scale + ")");
-        envelope.obj.css("top", y + "px");
-        envelope.obj.css("left", x + "px");
-    }
+function convertAnimate(e) {
+    var t = html.height()
+      , n = html.width();
+    e.x -= .5;
+    var a = e.x
+      , i = a * Math.sin(a) + .3 * a * a;
+    e.y = 100 - Math.floor(i / 28),
+    i = Math.floor(t * e.y / 100) - 80,
+    (a = Math.floor(n * a / 100)) < 1 ? (clearInterval(e.timer),
+    e.x = 100,
+    e.y = 0) : (e.scale = 1.5 - Math.abs(50 - e.x) / 100,
+    e.obj.css("transform", "scale(" + e.scale + ")"),
+    e.obj.css("top", i + "px"),
+    e.obj.css("left", a + "px"))
 }
-function showConvert(callback) {
-    var newObj = $('<div class="envelope"></div>').appendTo(container);
-    var convert = {
-        obj: newObj,
+function showConvert(e, t) {
+    var n = $('<div class="envelope"></div>').appendTo(container);
+    t && n.addClass("animatedGift");
+    var a = {
+        obj: n,
         x: 100,
         y: 0,
         scale: 1,
         timer: 0
     };
-    convert.obj.show();
-    if (noconvert) {
-        convert.x = 1;
-        convertAnimate(convert);
-    } else {
-        convert.timer = setInterval(function() {
-            convertAnimate(convert);
-        }, 50);
-    }
-    convert.obj.click(function() {
-        clearInterval(convert.timer);
-        $(this).remove();
-        if (callback) {
-            callback();
-        }
-    });
+    a.obj.show(),
+    noconvert ? (a.x = 1,
+    convertAnimate(a)) : a.timer = setInterval(function() {
+        convertAnimate(a)
+    }, 50),
+    a.obj.click(function() {
+        clearInterval(a.timer),
+        $(this).remove(),
+        e && e()
+    })
 }
-function friendQuery(type, fid, success) {
-    if (fid === u._id) {
-        showMessage("Вам грустно и одиноко? Но это не повод зацикливаться на себе! Поглядите вокруг..");
-        if (u.friends.indexOf(fid) > -1) {
-            sendToSocket({
-                type: "friends",
-                action: "del",
-                fid: fid
-            });
-        }
-        return;
-    }
-    if (type === "answer" && success) {
-        addFriend(fid, true);
-    }
-    var out = {
+function friendQuery(e, t, n) {
+    if (t === u._id)
+        return showMessage("Вам грустно и одиноко? Но это не повод зацикливаться на себе! Поглядите вокруг.."),
+        void (-1 < u.friends.indexOf(t) && sendToSocket({
+            type: "friends",
+            action: "del",
+            fid: t
+        }));
+    "answer" === e && n && addFriend(t, !0);
+    var a = {
         type: "friends",
-        action: type,
-        fid: fid
+        action: e,
+        fid: t
     };
-    if (success) {
-        out.success = success;
-    }
-    sendToSocket(out);
+    n && (a.success = n),
+    sendToSocket(a)
 }
-function addFriend(fid, add) {
-    if (add) {
-        u.friends.push(fid);
-        playersList.find("#" + fid).addClass("green");
-    } else {
-        u.friends.splice(u.friends.indexOf(fid), 1);
-        playersList.find("#" + fid).removeClass("green");
-    }
+function addFriend(e, t) {
+    t ? (u.friends.push(e),
+    playersList.find("#" + e).addClass("green")) : (u.friends.splice(u.friends.indexOf(e), 1),
+    playersList.find("#" + e).removeClass("green"))
 }
-function addRed(fid, add) {
-    if (add) {
-        reds.push(fid);
-        playersList.find("#" + fid).addClass("red");
-    } else {
-        reds.splice(reds.indexOf(fid), 1);
-        playersList.find("#" + fid).removeClass("red");
-    }
-    lStorage.setItem("reds", reds);
+function addRed(e, t) {
+    t ? (reds.push(e),
+    playersList.find("#" + e).addClass("red")) : (reds.splice(reds.indexOf(e), 1),
+    playersList.find("#" + e).removeClass("red")),
+    lStorage.setItem("reds", reds)
 }
 function deleteFriendFromTable() {
-    var curfr = $(this);
-    modalWindow("Хотите удалить <b>" + curfr.attr("data-login") + "</b> из друзей?", function() {
-        curfr.parents("tr").remove();
-        addFriend(curfr.attr("data-uid"), false);
+    var e = $(this);
+    modalWindow("Хотите удалить <b>" + e.attr("data-login") + "</b> из друзей?", function() {
+        e.parents("tr").remove(),
+        addFriend(e.attr("data-uid"), !1),
         sendToSocket({
             type: "friends",
             action: "del",
-            fid: curfr.attr("data-uid")
-        });
-    });
-}
-function friendsTable(list) {
-    var table = $("#friends-table")
-      , s = ""
-      , friendsObj = {};
-    list.forEach(function(el) {
-        friendsObj[el._id] = el;
-    });
-    u.friends.forEach(function(el, ind) {
-        var curel = friendsObj[el] || {
-            login: "*удаленный персонаж*",
-            sex: 2
-        };
-        s += "<tr><td>" + (ind + 1) + "</td><td>" + (curel.last ? '<strong data-id="' + el + '">' + curel.login + "</strong>" : curel.login + " (бот)") + '</td><td class="sex' + curel.sex + '">' + (curel.sex === 1 ? "♀" : "♂") + '</td><td><button data-uid="' + el + '" data-login="' + curel.login + '" class="button">Удалить</button></td><td>' + (curel.last ? rusDate(curel.last, true, true) : "Всегда в игре") + "</td></tr>";
-    });
-    table.html(s);
-    table.find("button").on("click", deleteFriendFromTable);
-}
-function getProfile(uid) {
-    sendToSocket({
-        type: "profile",
-        uid: uid
-    });
+            fid: e.attr("data-uid")
+        })
+    })
 }
 var plMenu = $("#playersMenu");
-plMenu.find("span").eq(0).click(function() {
-    getProfile($(this).parent().attr("data-id"));
-});
-plMenu.find("span").eq(1).click(function() {
-    var fid = $(this).parent().attr("data-id");
-    if (fid && fid.indexOf("testplayer") === -1) {
-        friendQuery("question", fid);
+function defPosition(e) {
+    var t = 0
+      , n = 0;
+    return null !== document.attachEvent ? (t = e.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft),
+    n = e.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop)) : !document.attachEvent && document.addEventListener && (t = e.clientX + window.scrollX,
+    n = e.clientY + window.scrollY),
+    {
+        x: t,
+        y: n
     }
-});
-plMenu.find("span").eq(2).click(function() {
-    var fid = $(this).parent().attr("data-id");
-    if (fid) {
-        addFriend(fid, false);
-        friendQuery("del", fid);
-    }
-});
-plMenu.find("span").eq(3).click(function() {
-    var fid = $(this).parent().attr("data-id");
-    if (fid) {
-        addRed(fid, true);
-    }
-});
-plMenu.find("span").eq(4).click(function() {
-    var fid = $(this).parent().attr("data-id");
-    if (fid) {
-        addRed(fid, false);
-    }
-});
-function defPosition(event) {
-    var x = 0
-      , y = 0;
-    if (document.attachEvent !== null) {
-        x = event.clientX + (document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft);
-        y = event.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop);
-    } else {
-        if (!document.attachEvent && document.addEventListener) {
-            x = event.clientX + window.scrollX;
-            y = event.clientY + window.scrollY;
-        }
-    }
-    return {
-        x: x,
-        y: y
-    };
 }
+plMenu.find("span").eq(0).click(function() {
+    getProfile($(this).parent().attr("data-id"))
+}),
+plMenu.find("span").eq(1).click(function() {
+    var e = $(this).parent().attr("data-id");
+    e && -1 === e.indexOf("testplayer") && friendQuery("question", e)
+}),
+plMenu.find("span").eq(2).click(function() {
+    var e = $(this).parent().attr("data-id");
+    e && (addFriend(e, !1),
+    friendQuery("del", e))
+}),
+plMenu.find("span").eq(3).click(function() {
+    var e = $(this).parent().attr("data-id");
+    e && addRed(e, !0)
+}),
+plMenu.find("span").eq(4).click(function() {
+    var e = $(this).parent().attr("data-id");
+    e && addRed(e, !1)
+});
 var hiddenCommands = [{
     name: "help",
     about: "помощь по игре"
@@ -10855,6 +8835,9 @@ var hiddenCommands = [{
     name: "салют-",
     about: "отключить анимацию фейерверков"
 }, {
+    name: "приглашения-",
+    about: "запретить принимать приглашения игроков в игровые наборы"
+}, {
     name: "хочу чп",
     about: "вызов окна создания ЧП на 8 игроков"
 }, {
@@ -10870,7 +8853,7 @@ var hiddenCommands = [{
     name: "ёлка-",
     about: "отключение новогодней ёлки"
 }, {
-    animate: true
+    animate: !0
 }, {
     name: "плюх",
     about: "запустить снежком в адреса сообщения"
@@ -10879,7 +8862,7 @@ var hiddenCommands = [{
     about: "отправить воздушный поцелуй адресату"
 }, {
     name: "люблю",
-    about: "отправить признание в любви адресу.<br/> Также действуют команды <ul><li>чмок</li><li>:-*</li></ul>"
+    about: "отправить признание в любви адресу.<br/> Также действуют команды <ol><li>чмок</li><li>:-*</li></ol>"
 }, {
     name: "мяу",
     about: "отправить анимацию котиков адресату"
@@ -10888,628 +8871,520 @@ var hiddenCommands = [{
     about: "отправить анимацию тюленя адресату"
 }];
 function showHiddenCommands() {
-    var text = '<table class="hidden-commands"><tr><th>команда</th><th>описание</th></tr>';
-    hiddenCommands.forEach(function(el) {
-        text += el.animate ? '<tr><td colspan="2" style="padding-top:10px">Команды для отправки анимации (не чаще, чем 1 раз в 10 секунд)</td></tr>' : "<tr><td>" + el.name + "</td><td>" + el.about + "</td></tr> ";
-    });
-    showMessage(text + "</table><hr/> Наберите выбранную команду в чат");
+    var t = '<table class="hidden-commands"><tr><th>команда</th><th>описание</th></tr>';
+    hiddenCommands.forEach(function(e) {
+        t += e.animate ? '<tr><td colspan="2" style="padding-top:10px">Команды для отправки анимации (не чаще, чем 1 раз в 10 секунд)</td></tr>' : "<tr><td>" + e.name + "</td><td>" + e.about + "</td></tr> "
+    }),
+    showMessage(t + "</table><hr/> Наберите выбранную команду в чат")
 }
 var menuedit = {
     submenuElements: {},
     getOptions: function() {
         try {
-            return JSON.parse(lStorage.getItem("menu"));
+            return JSON.parse(lStorage.getItem("menu"))
         } catch (e) {
-            return false;
+            return !1
         }
     },
-    check: function(options) {
-        if (!options) {
-            options = menuedit.getOptions();
-        }
-        submenu.find("div").removeClass("hiddenclass");
-        leftPanel.children("div").show();
-        leftPanel.find(".button-giftshop").nextAll("div").hide();
-        if (options) {
-            if (options.blocks) {
-                options.blocks.forEach(function(v) {
-                    if (v) {
-                        if (v.substring(0, 5) == "block") {
-                            leftPanel.find("." + v).hide();
-                        } else {
-                            submenu.find("." + v).addClass("hiddenclass");
-                        }
-                    }
-                });
-            }
-            if (options.show) {
-                options.show.forEach(function(v) {
-                    leftPanel.find("." + v).show();
-                });
-            }
-        }
+    check: function(e) {
+        e || (e = menuedit.getOptions()),
+        submenu.find("div").removeClass("hiddenclass"),
+        leftPanel.children("div").show(),
+        leftPanel.find(".button-giftshop").nextAll("div").hide(),
+        e && (e.blocks && e.blocks.forEach(function(e) {
+            e && ("block" === e.substring(0, 5) ? leftPanel.find("." + e).hide() : submenu.find("." + e).addClass("hiddenclass"))
+        }),
+        e.show && e.show.forEach(function(e) {
+            leftPanel.find("." + e).show()
+        }))
     },
     save: function() {
-        var menuOptions = {
+        var e = {
             blocks: [],
             show: []
         };
         $.each($("#submenuEdit-block1").find("input:not(:checked)"), function() {
-            menuOptions.blocks.push(this.value.indexOf("block") > -1 ? this.value : menuedit.submenuElements[this.value]);
-        });
+            e.blocks.push(-1 < this.value.indexOf("block") ? this.value : menuedit.submenuElements[this.value])
+        }),
         $.each($("#submenuEdit-block2").find("input:checked"), function() {
-            menuOptions.show.push(menuedit.submenuElements[this.value]);
-        });
-        if (menuOptions.blocks.length > 0 || menuOptions.show.length > 0) {
-            lStorage.setItem("menu", JSON.stringify(menuOptions));
-        } else {
-            lStorage.removeItem("menu");
-        }
-        menuedit.check(menuOptions);
-        closewindow();
+            e.show.push(menuedit.submenuElements[this.value])
+        }),
+        0 < e.blocks.length || 0 < e.show.length ? lStorage.setItem("menu", JSON.stringify(e)) : lStorage.removeItem("menu"),
+        menuedit.check(e),
+        closewindow()
     },
     window: function() {
-        var text = ""
-          , text2 = "<p>Включить следующие элементы в главное меню:</p>"
-          , i = 0
-          , options = menuedit.getOptions();
-        $.each(submenu.children("div"), function(numblock, mblock) {
-            var blockNum = numblock + 1
-              , blockClass = $(mblock).attr("class").replace("submenu", "block");
-            text += '<p><input type="checkbox" class="check" id="submenuEditorBlock' + blockNum + '" value="' + blockClass + '"' + ((options && options.blocks && options.blocks.indexOf(blockClass) > -1) ? "" : ' checked="checked"') + '/><label for="submenuEditorBlock' + blockNum + '">Блок №' + blockNum + "</p>";
-            $.each($(mblock).children("div"), function() {
-                i++;
-                menuedit.submenuElements[i] = $(this).attr("class").replace(" hiddenclass", "");
-                text += '<input type="checkbox" class="check" id="submenuEditorItem' + i + '" value="' + i + '"' + ((options && options.blocks && options.blocks.indexOf(menuedit.submenuElements[i]) > -1) ? "" : ' checked="checked"') + '/><label for="submenuEditorItem' + i + '">' + $(this).attr("data-title") + "</label>";
-                text2 += '<input type="checkbox" class="check" id="submenuItem' + i + '" value="' + i + '"' + ((options && options.show && options.show.indexOf(menuedit.submenuElements[i]) > -1) ? ' checked="checked"' : "") + '/><label for="submenuItem' + i + '">' + $(this).attr("data-title") + "</label>";
-            });
-        });
-        win.find(".menu-editor").html('<div id="submenuEdit-block1">' + text + '</div><hr/><div id="submenuEdit-block2">' + text2 + "</div>");
+        var i = ""
+          , o = "<p>Включить следующие элементы в главное меню:</p>"
+          , d = 0
+          , r = menuedit.getOptions();
+        $.each(submenu.children("div"), function(e, t) {
+            var n = e + 1
+              , a = $(t).attr("class").replace("submenu", "block");
+            i += '<p><input type="checkbox" class="check" id="submenuEditorBlock' + n + '" value="' + a + '"' + (r && r.blocks && -1 < r.blocks.indexOf(a) ? "" : ' checked="checked"') + '/><label for="submenuEditorBlock' + n + '">Блок №' + n + "</p>",
+            $.each($(t).children("div"), function() {
+                d++,
+                menuedit.submenuElements[d] = $(this).attr("class").replace(" hiddenclass", ""),
+                i += '<input type="checkbox" class="check" id="submenuEditorItem' + d + '" value="' + d + '"' + (r && r.blocks && -1 < r.blocks.indexOf(menuedit.submenuElements[d]) ? "" : ' checked="checked"') + '/><label for="submenuEditorItem' + d + '">' + $(this).attr("data-title") + "</label>",
+                o += '<input type="checkbox" class="check" id="submenuItem' + d + '" value="' + d + '"' + (r && r.show && -1 < r.show.indexOf(menuedit.submenuElements[d]) ? ' checked="checked"' : "") + '/><label for="submenuItem' + d + '">' + $(this).attr("data-title") + "</label>"
+            })
+        }),
+        win.find(".menu-editor").html('<div id="submenuEdit-block1">' + i + '</div><hr/><div id="submenuEdit-block2">' + o + "</div>"),
         $("<button/>", {
-            "class": "button"
-        }).html("Сохранить").on("click", menuedit.save).insertAfter("#submenuEdit-block2");
+            class: "button"
+        }).html("Сохранить").on("click", menuedit.save).insertAfter("#submenuEdit-block2")
     }
 };
-leftPanel.on("contextmenu", function() {
-    showWindow("menu-editor");
-    return false;
-});
-menuedit.check();
-function menu(isPlayersMenu, evt) {
-    if (game.intuition) {
-        return false;
-    }
-    evt = evt || window.event;
-    if (evt.stopPropagation) {
-        evt.stopPropagation();
+function menu(e, t) {
+    if (game.intuition)
+        return !1;
+    (t = t || window.event).stopPropagation ? t.stopPropagation() : t.cancelBubble = !0;
+    var n = e ? document.getElementById("playersMenu") : document.getElementById("contextMenu");
+    if (e) {
+        if (!t.target.id || "players" === t.target.id)
+            return !1;
+        n.setAttribute("data-id", t.target.id);
+        var a = "";
+        reds && -1 < reds.indexOf(t.target.id) && (a += "isred"),
+        u.friends && -1 < u.friends.indexOf(t.target.id) && (a += " isgreen"),
+        u._id === t.target.id && (a += " iam"),
+        playersInfoArray[t.target.id] && playersInfoArray[t.target.id].bot && (a += " bot"),
+        n.className = a
     } else {
-        evt.cancelBubble = true;
+        var i = "";
+        if (isAppVK)
+            return !0;
+        isMaffia || (i += 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>'),
+        i += '<button data-action="showAlarms">Лог уведомлений</button> <button data-action="showHiddenCommands">Скрытые команды чата</button>',
+        n.innerHTML = i
     }
-    var menuBlock = isPlayersMenu ? document.getElementById("playersMenu") : document.getElementById("contextMenu")
-      , html = "";
-    if (isPlayersMenu) {
-        if (!evt.target.id || evt.target.id == "players") {
-            return false;
-        }
-        menuBlock.dataset.id = evt.target.id;
-        var classMenu = "";
-        if (reds && reds.indexOf(evt.target.id) > -1) {
-            classMenu += "isred";
-        }
-        if (u.friends && u.friends.indexOf(evt.target.id) > -1) {
-            classMenu += " isgreen";
-        }
-        if (u._id == evt.target.id) {
-            classMenu += " iam";
-        }
-        if (playersInfoArray[evt.target.id] && playersInfoArray[evt.target.id].bot) {
-            classMenu += " bot";
-        }
-        menuBlock.className = classMenu;
-    } else {
-        if (isAppVK) {
-            return true;
-        }
-        if (!isMaffia) {
-            html += 'Игра &quot;День Любви&quot; beta<br/>по мотивам Friends For Love<br/> Проблемы с игрой? <a href="http://vk.com/igraffl" target="_blank">Вам сюда</a><br/><sub>Для правильной работы игры используйте браузер Google Chrome или Mozilla Firefox</sub>';
-        }
-        html += '<button data-action="showAlarms">Лог уведомлений</button> <button data-action="showHiddenCommands">Скрытые команды чата</button>';
-    }
-    if (html) {
-        menuBlock.innerHTML = html;
-    }
-    menuBlock.style.top = defPosition(evt).y + "px";
-    menuBlock.style.left = defPosition(evt).x + "px";
-    menuBlock.style.display = "block";
-    return false;
+    return n.style.top = defPosition(t).y + "px",
+    n.style.left = defPosition(t).x + "px",
+    !(n.style.display = "block")
 }
-var isFullScreen = false;
-function fullScreen(element) {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else {
-        if (element.mozRequestFullScreen) {
-            element.mozRequestFullScreen();
-        } else {
-            if (element.webkitRequestFullscreen) {
-                element.webkitRequestFullscreen();
-            }
-        }
-    }
+leftPanel.on("contextmenu", function() {
+    return showWindow("menu-editor"),
+    !1
+}),
+menuedit.check();
+var isFullScreen = !1;
+function fullScreen(e) {
+    e.requestFullscreen ? e.requestFullscreen() : e.mozRequestFullScreen ? e.mozRequestFullScreen() : e.webkitRequestFullscreen && e.webkitRequestFullscreen()
 }
 function fullScreenCancel() {
-    if (document.cancelFullScreen) {
-        document.cancelFullScreen();
-    } else {
-        if (document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else {
-            if (document.webkitCancelFullScreen) {
-                document.webkitCancelFullScreen();
-            }
-        }
-    }
+    document.cancelFullScreen ? document.cancelFullScreen() : document.mozCancelFullScreen ? document.mozCancelFullScreen() : document.webkitCancelFullScreen && document.webkitCancelFullScreen()
 }
 function fullScreenToggle() {
-    if (isFullScreen) {
-        isFullScreen = false;
-        fullScreenCancel();
-    } else {
-        isFullScreen = true;
-        fullScreen(document.documentElement);
-    }
+    isFullScreen ? (isFullScreen = !1,
+    fullScreenCancel()) : (isFullScreen = !0,
+    fullScreen(document.documentElement))
 }
-$("#fullScreen").click(fullScreenToggle);
-$("#contextMenu").on("click", execDataAction);
-function addHandler(object, event, handler, useCapture) {
-    if (object.addEventListener) {
-        object.addEventListener(event, handler, useCapture ? useCapture : false);
-    } else {
-        if (object.attachEvent) {
-            object.attachEvent("on" + event, handler);
-        }
-    }
+function addHandler(e, t, n, a) {
+    e.addEventListener ? e.addEventListener(t, n, a || !1) : e.attachEvent && e.attachEvent("on" + t, n)
 }
+$("#fullScreen").click(fullScreenToggle),
+$("#contextMenu").on("click", execDataAction),
 addHandler(document, "contextmenu", function() {
-    document.getElementById("contextMenu").style.display = "none";
-    document.getElementById("playersMenu").style.display = "none";
-    tp.hide();
-    ptp.hide();
-});
+    document.getElementById("contextMenu").style.display = "none",
+    plMenu.hide(),
+    tp.hide(),
+    ptp.hide()
+}),
 addHandler(document, "click", function(e) {
-    document.getElementById("contextMenu").style.display = "none";
-    if (e.which !== 3 || !e.target || !e.target.parentElement || !e.target.parentElement.id || e.target.parentElement.id !== "players") {
-        plMenu.hide();
-    }
-    tp.hide();
-    ptp.hide();
-});
-$(document).on("click", "strong[data-id]", showProfile).on("click", ".warningWindow", execDataAction);
+    document.getElementById("contextMenu").style.display = "none",
+    3 === e.which && e.target && e.target.parentElement && e.target.parentElement.id && "players" === e.target.parentElement.id || plMenu.hide(),
+    tp.hide(),
+    ptp.hide()
+}),
 header.on("contextmenu touchcancel", function(e) {
-    return menu(false, e);
-});
+    return menu(!1, e)
+}),
 playersList.on("contextmenu", function(e) {
-    return menu(true, e);
-});
+    return menu(!0, e)
+}),
 $("output").on("contextmenu", function(e) {
-    if ((e.target.nodeName === "B" || e.target.nodeName === "STRONG") && e.target.getAttribute("data-id")) {
-        var uid = e.target.getAttribute("data-id");
-        if (e.target.textContent && uid !== u._id) {
-            var addIs = (reds.indexOf(uid) === -1);
-            modalWindow("Хотите " + (addIs ? "игнорировать" : "видеть") + " сообщения игрока " + e.target.textContent + "?", function() {
-                addRed(e.target.getAttribute("data-id"), addIs);
-            });
+    if (("B" === e.target.nodeName || "STRONG" === e.target.nodeName) && e.target.getAttribute("data-id")) {
+        var t = e.target.getAttribute("data-id");
+        if (e.target.textContent && t !== u._id) {
+            var n = -1 === reds.indexOf(t);
+            modalWindow("Хотите " + (n ? "игнорировать" : "видеть") + " сообщения игрока " + e.target.textContent + "?", function() {
+                addRed(e.target.getAttribute("data-id"), n)
+            })
         }
-        return false;
+        return !1
     }
-    return true;
+    return !0
 });
-$(document).on("mousemove touchmove", "[data-title]", function(e) {
-    tooltip(e, $(this).attr("data-title"), true);
-}).on("mouseleave touchleave", "[data-title]", function(e) {
-    tooltip(e, "", false);
-});
-function hotkey(event) {
-    if (room.length < 3 && event.ctrlKey && event.keyCode === 192) {
-        closewindow();
-        randomGame();
-    }
-    if (event.keyCode === 27) {
-        closewindow();
-    }
-}
-function keyDown(event) {
-    if (event.which === 112) {
-        event.preventDefault();
-        helper.start();
-        return false;
-    } else {
-        if (event.which === 122) {
-            fullScreenToggle();
-            return false;
-        } else {
-            if (event.keyCode === 8 && (event.target.tagName !== "INPUT" || event.target.readOnly) && event.target.tagName !== "TEXTAREA" && !event.target.getAttribute("contenteditable")) {
-                event.preventDefault();
-                return false;
-            } else {
-                return true;
-            }
-        }
-    }
-}
-inputField.keydown(function(event) {
-    if (event.which === 38 && !inputField.val()) {
-        event.preventDefault();
-        inputField.val(lastMsg);
-        return false;
-    } else {
-        return true;
-    }
-});
-document.body.onkeyup = hotkey;
-document.body.onkeydown = keyDown;
-function Unloader() {
-    var o = this;
-    this.unload = function(evt) {
-        var message = "Вы уверены, что хотите покинуть игру?";
-        if (typeof evt === "undefined") {
-            evt = window.event;
-        }
-        if (evt) {
-            evt.returnValue = message;
-        }
-        return message;
-    }
-    ;
-    this.resetUnload = function() {
-        $(window).off("beforeunload", o.unload);
-        setTimeout(function() {
-            $(window).on("beforeunload", o.unload);
-        }, 2000);
-    }
-    ;
-    this.init = function() {
-        $(window).on("beforeunload", o.unload);
-        $("a").on("click", function() {
-            o.resetUnload;
-        });
-        $(document).on("submit", "form", function() {
-            o.resetUnload;
-        });
-        $(document).on("keydown", function(event) {
-            if ((event.ctrlKey && event.keyCode == 116) || event.keyCode == 116) {
-                o.resetUnload;
-            }
-        });
-    }
-    ;
-    this.init();
-}
-if (!window.WebSocket) {
-    errorText("Ваш браузер не поддерживает технологию веб-сокетов. Пожалуйста, установите последююю версию браузера Google Chrome или Mozilla Firefox.");
-}
-var parseQueryString = function(strQuery) {
-    var strSearch = strQuery.substr(1)
-      , strPattern = /([^=]+)=([^&]+)&?/ig
-      , arrMatch = strPattern.exec(strSearch)
-      , objRes = {};
-    while (arrMatch !== null) {
-        objRes[arrMatch[1]] = arrMatch[2];
-        arrMatch = strPattern.exec(strSearch);
-    }
-    return objRes;
+window.WebSocket || errorText("Ваш браузер не поддерживает технологию веб-сокетов. Пожалуйста, установите последнюю версию браузера Google Chrome или Mozilla Firefox.", !0);
+var ws, parseQueryString = function(e) {
+    for (var a = e.substr(1), i = /([^=]+)=([^&]+)&?/gi, o = i.exec(a), t = {}; null !== o; )
+        t[o[1]] = o[2],
+        o = i.exec(a);
+    return t
 };
 function showGroupWidget() {
-    if (typeof VK === "undefined") {
-        console.log("not VK");
-        return;
-    }
-    var groupId = isMaffia ? 109864615 : 39094155;
-    $("#vk_groups").html("");
-    VK.Widgets.Group("vk_groups", {
-        mode: 0,
-        width: "200",
-        height: "216",
-        color1: isMaffia ? "000000" : "fcf9f9",
-        color2: isMaffia ? "FFFFFF" : "000000",
-        color3: isMaffia ? "5E81A8" : "827c99"
-    }, groupId);
+    if ("undefined" != typeof VK) {
+        var e = isMaffia ? 109864615 : 39094155;
+        $("#vk_groups").empty(),
+        isMaffia && u.groupMember ? $("<a></a>", {
+            href: "https://vk.com/maffia.online",
+            target: "_blank",
+            id: "vk-group-button"
+        }).appendTo("#vk_groups") : VK.Widgets.Group("vk_groups", {
+            mode: 0,
+            width: "200",
+            height: "216",
+            color1: isMaffia ? "000000" : "fcf9f9",
+            color2: isMaffia ? "FFFFFF" : "000000",
+            color3: isMaffia ? "5E81A8" : "827c99"
+        }, e)
+    } else
+        console.log("not VK")
 }
 function appSocialButton() {
-    if (typeof VK === "undefined") {
-        return;
+    if ("undefined" != typeof VK) {
+        var e = isMaffia ? 109864615 : 39094155
+          , a = isMaffia ? 5206919 : 5065752
+          , i = isMaffia ? "Мафия Онлайн" : "День Любви"
+          , o = currentDomainUrl() + (isMaffia ? "/images/maffia/applogo.png" : "/images/gift.png");
+        VK.init(function() {
+            VK.callMethod("setTitle", i),
+            VK.Widgets.Like("vk_like", {
+                height: 24,
+                pageUrl: "http://vk.com/app" + a,
+                pageTitle: i,
+                pageImage: o,
+                type: "button"
+            }),
+            $("#vk_share").html(VK.Share.button({
+                url: "http://vk.com/app" + a,
+                title: i,
+                image: o
+            }, {
+                type: "custom",
+                text: "Рассказать друзьям"
+            })),
+            VK.Widgets.ContactUs("vk_contact_us", {
+                text: "Задать вопрос",
+                height: 24
+            }, -e),
+            VK.Widgets.Subscribe("vk_subscribe", {
+                soft: 1
+            }, -e),
+            VK.api("friends.get", {}, function(u) {
+                VK.api("friends.getAppUsers", {}, function(e) {
+                    var r = e.response || []
+                      , a = u.response || []
+                      , i = a.length
+                      , c = r.length;
+                    if (c < i)
+                        for (var o = 0; o < c; o++)
+                            for (var t = 0; t < i; t++)
+                                if (r[o] === a[t]) {
+                                    a.splice(t, 1);
+                                    break
+                                }
+                    var l = a.length
+                      , n = r;
+                    if (l < 4)
+                        n = n.concat(a);
+                    else {
+                        for (var s = [], d = 0; d < 5; d++) {
+                            var p = a.length - 1
+                              , f = Math.floor(Math.random() * p);
+                            s.push(a[f]),
+                            a.splice(f, 1)
+                        }
+                        n = n.concat(s)
+                    }
+                    var m = n.join(",");
+                    VK.api("getProfiles", {
+                        uids: m,
+                        fields: "first_name,last_name,photo_medium"
+                    }, function(e) {
+                        for (var a = e.response ? e.response.length : 0, i = "", o = "", t = 0; t < a; t++) {
+                            var n = -1 < r.indexOf(e.response[t].uid)
+                              , s = '<a href="http://vk.com/id' + e.response[t].uid + '" title="Открыть профиль" target="_blank"><figure' + (n ? "" : ' class="noinstall"') + '><img src="' + e.response[t].photo_medium + '" /><figcaption>' + e.response[t].first_name + " " + e.response[t].last_name + "</figcaption></figure></a> ";
+                            n ? i += s : o += s
+                        }
+                        win.find(".info").append('<div class="vkfriends"></div>'),
+                        $(".vkfriends").html("<p>Уже установили приложение (" + c + "):</p>" + i + "<hr/><p>Еще не знают о Мафии Онлайн (" + l + ")</p>" + o + "<hr/>"),
+                        $("<div/>", {
+                            id: "vkfriends-button"
+                        }).click(function() {
+                            showWindow("vkfriends")
+                        }).appendTo(outside)
+                    })
+                })
+            })
+        }, function() {
+            console.log("vkapp failed"),
+            logs && logs.push("vkapp failed")
+        })
     }
-    var groupId = isMaffia ? 109864615 : 39094155
-      , appId = isMaffia ? 5206919 : 5065752
-      , appTitle = isMaffia ? "Мафия Онлайн" : "День Любви"
-      , appImage = document.location.protocol + (isMaffia ? "//loday.ru/images/maffia/applogo.png" : "//loday.ru/images/gift.png");
-    VK.init(function() {
-        VK.callMethod("setTitle", appTitle);
-        VK.Widgets.Like("vk_like", {
-            height: 24,
-            pageUrl: "http://vk.com/app" + appId,
-            pageTitle: appTitle,
-            pageImage: appImage,
-            type: "button"
-        });
-        $("#vk_share").html(VK.Share.button({
-            url: "http://vk.com/app" + appId,
-            title: appTitle,
-            image: appImage
-        }, {
-            type: "custom",
-            text: "Рассказать друзьям"
-        }));
-        VK.Widgets.ContactUs("vk_contact_us", {
-            text: "Задать вопрос",
-            height: 24
-        }, -groupId);
-        VK.Widgets.Subscribe("vk_subscribe", {
-            soft: 1
-        }, -groupId);
-        VK.api("friends.get", {}, function(dataAllFriends) {
-            VK.api("friends.getAppUsers", {}, function(dataAppUsers) {
-                var yesApp = dataAppUsers.response
-                  , noApp = dataAllFriends.response
-                  , frCount = noApp.length
-                  , appCount = yesApp.length;
-                if (appCount < frCount) {
-                    for (var i = 0; i < appCount; i++) {
-                        for (var j = 0; j < frCount; j++) {
-                            if (yesApp[i] == noApp[j]) {
-                                noApp.splice(j, 1);
-                                break;
-                            }
-                        }
-                    }
-                }
-                var noAppCount = noApp.length
-                  , getIdsArr = yesApp;
-                if (noAppCount < 4) {
-                    getIdsArr = getIdsArr.concat(noApp);
-                } else {
-                    var uidArr = [];
-                    for (var k = 0; k < 5; k++) {
-                        var max = noApp.length - 1
-                          , rand = Math.floor(Math.random() * max);
-                        uidArr.push(noApp[rand]);
-                        noApp.splice(rand, 1);
-                    }
-                    getIdsArr = getIdsArr.concat(uidArr);
-                }
-                var noAppUids = getIdsArr.join(",");
-                VK.api("getProfiles", {
-                    uids: noAppUids,
-                    fields: "first_name,last_name,photo_medium"
-                }, function(data) {
-                    var profilesCount = data.response.length
-                      , yesAppStr = ""
-                      , noAppStr = "";
-                    for (var i = 0; i < profilesCount; i++) {
-                        var isInstall = yesApp.indexOf(data.response[i].uid) > -1
-                          , adduser = '<a href="http://vk.com/id' + data.response[i].uid + '" title="Открыть профиль" target="_blank"><figure' + (isInstall ? "" : ' class="noinstall"') + '><img src="' + data.response[i].photo_medium + '" /><figcaption>' + data.response[i].first_name + " " + data.response[i].last_name + "</figcaption></figure></a> ";
-                        if (isInstall) {
-                            yesAppStr += adduser;
-                        } else {
-                            noAppStr += adduser;
-                        }
-                    }
-                    win.find(".info").append('<div class="vkfriends"></div>');
-                    $(".vkfriends").html("<p>Уже установили приложение (" + appCount + "):</p>" + yesAppStr + "<hr/><p>Еще не знают о Мафии Онлайн (" + noAppCount + ")</p>" + noAppStr + "<hr/>");
-                    $("<div/>", {
-                        id: "vkfriends-button"
-                    }).click(function() {
-                        showWindow("vkfriends");
-                    }).appendTo(outside);
-                });
-            });
-        });
-    }, function() {
-        console.log("vkapp failed");
-        if (logs) {
-            logs.push("vkapp failed");
-        }
-    });
 }
 if (isAppVK) {
     var qStr = parseQueryString(window.location.search);
-    if (!qStr.viewer_id || !qStr.auth_key) {
-        errorText("Ошибка подключения аккаунта ВКонтакте: " + document.cookie);
-        errorText = function() {}
-        ;
-    }
-    createCookie("vid", qStr.viewer_id, 7);
-    createCookie("auth", qStr.auth_key, 7);
-    if (qStr.user_id && qStr.user_id != qStr.viewer_id) {
-        createCookie("invite-vk", qStr.user_id, 7);
-    }
-    if (mafApp) {
-        createCookie("mafApp", 1, 1);
-    } else {
-        createCookie("mafApp", "", -1);
-    }
-    $.cachedScript("//vk.com/js/api/xd_connection.js?2").done(function() {
+    qStr.viewer_id && qStr.auth_key || (errorText("Ошибка подключения аккаунта ВКонтакте: " + document.cookie),
+    window.errorText = function() {}
+    ),
+    createCookie("vid", qStr.viewer_id, 7),
+    createCookie("auth", qStr.auth_key, 7),
+    qStr.user_id && qStr.user_id !== qStr.viewer_id && createCookie("invite-vk", qStr.user_id, 7),
+    mafApp ? createCookie("mafApp", 1, 1) : createCookie("mafApp", "", -1),
+    "mobile" === isAppVK ? $.cachedScript("//vk.com/js/api/mobile_sdk.js").done(function() {
+        payDiv.find(".pay-item").click(function() {
+            var e = {
+                type: "item",
+                item: $(this).attr("data-item")
+            };
+            VK.callMethod("showOrderBox", e)
+        })
+    }) : $.cachedScript("//vk.com/js/api/xd_connection.js?2").done(function() {
         $.cachedScript("//vk.com/js/api/share.js?95").done(function() {
-            appSocialButton();
+            appSocialButton(),
             payDiv.find(".pay-item").click(function() {
-                var params = {
+                var e = {
                     type: "item",
                     item: $(this).attr("data-item")
                 };
-                VK.callMethod("showOrderBox", params);
-            });
-        });
+                VK.callMethod("showOrderBox", e)
+            })
+        })
+    })
+} else
+    createCookie("vid", "", -1),
+    mobile || $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {
+        setTimeout(showGroupWidget, 5e3)
     });
-} else {
-    createCookie("vid", "", -1);
-    if (!mobile) {
-        $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {
-            setTimeout(showGroupWidget, 5000);
-        });
-    }
+function authFalse(e) {
+    isAppVK ? errorText("Ошибка авторизации: " + e.text + ". Обновите страницу") : authDiv ? $("#authDiv").fadeIn(500) : mobile ? (wallhide(),
+    showMessage("Пожалуйста, пройдите авторизацию повторно.")) : (createCookie("sid", "", -1),
+    warningWindow("Ошибка авторизации", function() {
+        $(window).off("beforeunload", Unloader.unload),
+        window.location.href = "/"
+    }, "Авторизоваться", !1, "showOnTop"),
+    console.log(e.text))
 }
-function authFalse(event) {
-    if (isAppVK) {
-        errorText("Ошибка авторизации: " + event.text + ". Обновите страницу");
-    } else {
-        if (typeof (authDiv) !== "undefined") {
-            $("#authDiv").fadeIn(500);
-        } else {
-            if (mobile) {
-                showMessage("Пожалуйста, пройдите авторизацию повторно.");
-            } else {
-                createCookie("sid", "", -1);
-                warningWindow("Ошибка авторизации", function() {
-                    $(window).off("beforeunload", Unloader.unload);
-                    window.location.href = "/";
-                }, "Авторизоваться");
-                console.log(event.text);
-            }
-        }
-    }
-}
-var ws;
-function socketConnect(retry) {
+function socketConnect(a) {
     try {
-        console.log("connecting...");
-        ws = new WebSocket("ws" + ((window.location.protocol === "https:") ? "s://" + domain + ":909" + (domain === "maffia-online.ru" ? "1" : "0") : "://" + domain + ":9000"));
-        if (!retry) {
-            ws.onerror = function(event) {
-                errorText("Произошла ошибка при установке соединения " + (event.target ? event.target.url : "no target") + ". Проверьте настройки браузера, фаервола и интернет-соединения. Отключите, если используете, сервис VPN или прокси-сервер.");
-                ws.close();
-            }
-            ;
+        console.log("connecting..."),
+        ws = new WebSocket("ws" + ("https:" === window.location.protocol ? "s://" + domain + ":909" + ("maffia-online.ru" === domain ? "1" : "0") : "://" + domain + ":9000")),
+        a || (ws.onerror = function(e) {
+            errorText("Произошла ошибка при установке соединения " + (e.target ? e.target.url : "no target") + ". Проверьте настройки браузера, фаервола и интернет-соединения. Отключите, если используете, сервис VPN или прокси-сервер."),
+            ws.close()
         }
-        ws.onclose = function(event) {
+        ),
+        ws.onclose = function(e) {
             $("#indicator").addClass("offline");
-            var closeText = "";
-            switch (event.code) {
-            case 1000:
-                closeText = "Браузер закрыл соединение";
+            var a = "";
+            switch (e.code) {
+            case 1e3:
+                a = "Браузер закрыл соединение";
                 break;
             case 1001:
-                closeText = "Переход со страницы";
+                a = "Переход со страницы";
                 break;
             case 1006:
-                closeText = "Соединение прервано (обрыв связи)";
+                a = "Соединение прервано (обрыв связи)";
                 break;
-            case 4000:
-                closeText = "Соединение разорвано (обнаружена чрезмерная активность)";
+            case 4e3:
+                a = "Соединение разорвано (обнаружена чрезмерная активность)";
                 break;
             case 4001:
-                closeText = "К сожалению, ваш аккаунт заблокирован";
+                a = "К сожалению, ваш аккаунт заблокирован";
                 break;
             case 4002:
-                closeText = "Только что в ваш аккаунт был выполнен еще один вход";
+                a = "Только что в ваш аккаунт был выполнен еще один вход";
                 break;
             case 4003:
-                closeText = "Сбой интернет-соединения";
+                a = "Сбой интернет-соединения";
                 break;
             case 4004:
-                closeText = "Сервер исключил Вас из-за неактивности соединения";
+                a = "Сервер исключил Вас из-за неактивности соединения";
                 break;
             case 4005:
-                closeText = "Соединение разорвано из-за повторного подключения";
+                a = "Соединение разорвано из-за повторного подключения";
                 break;
             case 4006:
-                closeText = "Ошибка авторизации";
-                authFalse(event);
+                a = "Ошибка авторизации",
+                authFalse(e);
                 break;
             default:
-                closeText = "Обрыв связи (" + event.code + ")";
+                a = "Обрыв связи (" + e.code + ")"
             }
-            console.log(event);
-            var obj = {
-                message: closeText,
+            console.log(e);
+            var i = {
+                message: a,
                 color: "#ff0000",
                 from: "[server]"
             };
-            if (event.wasClean && event.code !== 1006) {
-                if (event.code === 4000 || event.code === 4001) {
-                    modalWindow(obj.message, function() {
-                        errorText(closeText);
-                    });
-                } else {
-                    modalWindow(obj.message + "<br/> Обновить страницу?", function() {
-                        window.location.reload();
-                    });
-                }
-            } else {
-                showNewDiv('<div class="blue">Идет попытка восстановить соединение...<br/></div>');
-                setTimeout(function() {
-                    socketConnect(true);
-                }, 3000);
-            }
-            showNewMessage(obj);
+            e.wasClean && 1006 !== e.code ? 4e3 === e.code || 4001 === e.code ? modalWindow(i.message, function() {
+                errorText(a)
+            }) : modalWindow(i.message + "<br/> Обновить страницу?", function() {
+                window.location.reload()
+            }) : (showNewDiv('<div class="blue">Идет попытка восстановить соединение...<br/></div>'),
+            setTimeout(function() {
+                socketConnect(!0)
+            }, 3e3)),
+            showNewMessage(i)
         }
-        ;
+        ,
         ws.onopen = function() {
             $("#indicator").removeClass("offline");
-            var authObj = {
+            var e = {
                 type: "authorize",
-                reconnect: retry,
+                reconnect: a,
                 mode: isMaffia
             };
-            if (isAppVK && !getCookie("vid")) {
-                authObj.data = {
-                    vid: qStr.viewer_id,
-                    auth: qStr.auth_key,
-                    mafApp: qStr.maffia
-                };
-            }
-            if (server2) {
-                authObj.server2 = true;
-            }
-            setTimeout(sendToSocket, 500, authObj);
+            isAppVK && !getCookie("vid") && (e.data = {
+                vid: qStr.viewer_id,
+                auth: qStr.auth_key,
+                mafApp: qStr.maffia
+            }),
+            server2 && (e.server2 = !0),
+            setTimeout(sendToSocket, 500, e),
             $(function() {
-                if (!isAppVK && !mobile && typeof window.obUnloader != "object") {
-                    window.obUnloader = new Unloader();
-                }
-            });
+                isAppVK || mobile || "object" == typeof window.obUnloader || (window.obUnloader = new Unloader)
+            }),
             ws.onerror = function() {}
-            ;
         }
-        ;
-        console.log("connected");
+        ,
+        console.log("connected")
     } catch (e) {
-        console.log(e);
-        warningWindow("Невозможно установить соединение с сервером.");
+        console.log(e),
+        warningWindow("Невозможно установить соединение с сервером.")
     }
-    ws.onmessage = socketEvent;
+    ws.onmessage = socketEvent
 }
-var specGamesTime = {
-    "17:00": {
-        name: "Супермикс",
-        link: "http://maffia-online.ru/games/supermix.html"
-    },
-    "19:00": {
-        name: "Сотня",
-        link: "http://maffia-online.ru/games/sotnya.html"
-    },
-    "20:00": {
-        name: "Супермикс",
-        link: "http://maffia-online.ru/games/supermix.html"
-    },
-    "20:30": {
-        name: "Интуиция",
-        link: "http://maffia-online.ru/games/intuition.html"
-    },
-    "21:00": {
-        name: "Камикадзе",
-        link: "http://maffia-online.ru/games/kamikadze.html"
-    },
-    "21:30": {
-        name: "Битва полов",
-        link: "http://maffia-online.ru/games/bitva-polov.html"
-    },
-    "22:00": {
-        name: "Последний герой",
-        link: "http://maffia-online.ru/games/poslednij-geroj.html"
-    },
-    "22:30": {
-        name: "Перестрелка"
-    },
-    "00:05": {
-        name: "Классическая мафия (каждый час)"
+function loadImageFiles() {
+    for (var e = 0; e <= 10; e++)
+        (new Image).src = "/images/walls/" + (0 === e ? "0.gif" : e + ".jpg");
+    for (var a = 1; a <= 9; a++)
+        (new Image).src = "/images/walls/maffia/" + a + (a < 8 ? ".png" : ".jpg");
+    ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png?210818", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png?240618", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(e) {
+        (new Image).src = e
+    })
+}
+showWall(isMaffia ? "maffia/start.jpg" : "start.jpg"),
+$(document).ready(function() {
+    createSmilePanel(),
+    $(".gamesheader>.row1").click(function() {
+        sortTable(1)
+    }),
+    $(".gamesheader>.row2").click(function() {
+        sortTable(2)
+    }),
+    $(".gamesheader>.row3").click(function() {
+        sortTable(3)
+    }),
+    $(".gamesheader>.row4").click(function() {
+        sortTable(4)
+    }),
+    $(".gamesheader>.row5").click(function() {
+        sortTable(5)
+    }),
+    $(".gamesheader>.row6").click(function() {
+        sortTable(6)
+    });
+    for (var e = 1; e < 7; e++) {
+        var a = prices["i" + e]
+          , i = .8 * prices["i" + e]
+          , o = prices["ir" + e];
+        $("#shop" + e + " .gamemoney").html(f.over1000(a) + '<hr/><span class="gamemoney">' + f.over1000(i) + "</span>"),
+        $("#shop" + e + " .money").html(f.over1000(o))
     }
-};
+    if (Object.forEach(collectionsData, function(e, a) {
+        collectionWin.append('<input id="collect' + a + '" type="radio" name="collects" value="' + a + '"/><label for="collect' + a + '">' + e.title + "</label>")
+    }),
+    collectionWin.append("<p></p><div></div>"),
+    collectRadio = collectionWin.find('input[type=radio][name="collects"]'),
+    collectRadio.change(function() {
+        showCollect(this.value)
+    }),
+    socketConnect ? mobile || socketConnect() : console.log("socketConnect undefined"),
+    $.cachedScript("https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js").done(function() {
+        $('<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">').appendTo(b),
+        mW.find(".modal").draggable()
+    }),
+    isAppVK)
+        outside.append('<div id="roll-start" class="button-roll"></div>'),
+        $("#roll-start").click(function() {
+            showWindow("roll")
+        });
+    else {
+        var t = "<p>Ежедневно</p>";
+        $.each(specGamesTime, function(e, a) {
+            t += "<div><time>" + e + "</time> " + (a.link ? '<a href="' + a.link + '" target="_blank">' + a.name + "</a>" : a.name) + "</div>"
+        }),
+        outside.append('<div id="calendar">' + t + "<sup>* московское время</sup></div>")
+    }
+    loadImageFiles();
+    var n = slotArray.reduce(function(e, a) {
+        return e + '<div class="itembox items-' + a + '"></div>'
+    }, "");
+    n += '<div class="itembox items-' + slotArray[0] + '"></div><div class="itembox items-' + slotArray[1] + '"></div>',
+    $(".slots").html('<div id="slot1" class="slot">' + n + '</div><div id="slot2" class="slot">' + n + '</div><div id="slot3" class="slot">' + n + "</div>"),
+    $(".slot").css({
+        top: "-360px"
+    }),
+    $("#slot2").css({
+        top: "-480px"
+    }),
+    islocalStorage || showNewDiv('<div class="important">В вашем браузере запрещено сохранение данных от веб-сайтов, поэтому некоторые настройки и функции будут недоступны</div>')
+});
+var kinderMode = !1;
+function maffiaNEW() {
+    b.hasClass("maffianew") || mobile || (inputField.attr("placeholder", ""),
+    $("#statusText").attr("placeholder", "введите описание"),
+    $("header>h3.button-findgame").html("Мне повезет!"),
+    $("#selectChar").appendTo(header),
+    scrollCheck.next("label").prependTo(".panel-top"),
+    scrollCheck.prependTo(".panel-top"),
+    $("#smiles").appendTo(".panel-top"),
+    $(".tooltip").appendTo(b),
+    $("#gameWidth").parent().hide(),
+    $("article>h2").html("Набор в игру"),
+    $("<div/>").addClass("nickblock").append($("#nick")).append($("header>.moneyblock")).appendTo(header),
+    f.over1000 = function(e) {
+        return e
+    }
+    ,
+    game.setBankLines = function(e) {
+        $(".studBank").css("width", Math.round(e[0] / game.startBanks * 100) + "%"),
+        $(".robbBank").css("width", Math.round(e[1] / game.startBanks * 100) + "%"),
+        $(".allBank").css("width", Math.round(e[2] / game.startBanks * 100) + "%"),
+        $(".winBank").css("width", Math.round(e[3] / game.startBanks * 100) + "%")
+    }
+    ,
+    game.recalculateBanks = function(e, a) {
+        e && (a && (gametitle.append('<div class="studBank"></div><div class="robbBank"></div><div class="allBank"></div><div class="winBank"></div>'),
+        game.startBanks = e[0] + e[1] + e[2] + e[3]),
+        game.setBankLines(e),
+        e[0] && animateNumber("studBank", e[0]),
+        e[1] && animateNumber("robbBank", e[1]),
+        e[2] && animateNumber("allBank", e[2]),
+        e[3] && animateNumber("winBank", e[3]))
+    }
+    ,
+    container.removeAttr("style"),
+    $('<link rel="stylesheet" href="/css/maffia-new.css?50518">').appendTo(b),
+    maffiaCheckbox.prop("checked", !0),
+    isMaffia = !0,
+    showGroupWidget(),
+    updateInterface(),
+    b.addClass("maffia maffianew"),
+    kinderMode = !0)
+}
+$(window).resize(function() {
+    editProfileSize(),
+    halltree && halltree.css({
+        width: parseInt(.6536 * mainDiv.height())
+    })
+});
+var supportsColorInput = function() {
+    var e = document.createElement("input");
+    return e.setAttribute("type", "color"),
+    "text" !== e.type
+}();
+supportsColorInput || $('<script type="text/javascript" src="/js/jscolor.js"><\/script>').appendTo(b);
