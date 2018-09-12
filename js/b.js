@@ -4993,14 +4993,19 @@ function setRange(e) {
     t.css("left", e.val() * (200 - a) / 100),
     "0" === e.val() ? e.parent().css("opacity", .5) : e.parent().css("opacity", "")
 }
+function lStorageNumberValue(e, t) {
+    var a = parseInt(lStorage.getItem(e));
+    return isNaN(a) && (a = t),
+    a
+}
 isMaffia && lStorage.setItem("maffia", 1),
 $("#shareButton").on("click", inviteFriends),
 ("1" === lStorage.getItem("nographic") || mobile && null === lStorage.getItem("nographic")) && (allMessagesList.addClass("nographic"),
 graphicCheckbox.prop("checked", !1)),
-(soundValue = lStorage.getItem("sound")) || (soundValue = 75),
+soundValue = lStorageNumberValue("sound", 75),
 soundRange.val(soundValue),
 setRange(soundRange),
-(musicValue = lStorage.getItem("music")) || (musicValue = 50),
+musicValue = lStorageNumberValue("music", 50),
 musicRange.val(musicValue),
 setRange(musicRange),
 "1" === lStorage.getItem("noalarm") && (noAlarm = !0,
@@ -6569,6 +6574,8 @@ function showPlayerInfo(e, a) {
         }
     } else
         ptp.hide(),
+        ptp.removeClass(),
+        ptp.find("#playerInfo-image").removeAttr("style"),
         gameptp.hide()
 }
 function showPlayerInfoBlock(e) {
