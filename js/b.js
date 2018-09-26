@@ -275,16 +275,16 @@ function authorizeDone(i) {
     shareMaffia(),
     i.regplayers) {
         var e = '<div class="news">Последние 10 новичков: '
-          , s = ""
-          , o = 0
+          , o = ""
+          , s = 0
           , n = 0;
         i.regplayers.forEach(function(t) {
             n = new Date(t.date).getDate(),
-            o !== n ? (o = n,
-            s += "<br/> " + date.rusDate(t.date, !1, "short") + ": ") : s += ", ",
-            s += '<strong data-id="' + t._id + '">' + t.login + "</strong>"
+            s !== n ? (s = n,
+            o += "<br/> " + date.rusDate(t.date, !1, "short") + ": ") : o += ", ",
+            o += '<strong data-id="' + t._id + '">' + t.login + "</strong>"
         }),
-        showNewDiv(e += s + "</div>")
+        showNewDiv(e += o + "</div>")
     }
     if (i.was && showNewDiv('<div class="wastoday">Сегодня были в игре (' + i.was.length + '):<input type="checkbox" class="spoiler" id="showwasingame"/><label for="showwasingame"></label><div>' + i.was.map(function(t) {
         return '<strong data-id="' + t._id + '">' + t.login + "</strong>"
@@ -302,6 +302,7 @@ function authorizeDone(i) {
     !mobile && !isAppVK && 1200 < b.outerWidth() && gameWidth.prepend('<option value="default">оптимально</option>'),
     u.rating < 10 && helper.start(),
     (hintsNeed || u.curator) && curatorWindow.addClass("hide").show(),
+    isAppVK || mobile || showGroupWidget(),
     f.radioIframe()
 }
 function showStatistics(t) {
@@ -330,16 +331,16 @@ function showStatistics(t) {
             })
         }
         if (i.gifts) {
-            var s = $("<div></div>", {
+            var o = $("<div></div>", {
                 class: "buyGifts"
             }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="Малый подарок"/><figcaption data-type="1">7 снежинок</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="Средний подарок"/><figcaption data-type="2">18 снежинок</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Большой подарок"/><figcaption data-type="3">33 снежинки</figcaption></figure></div>');
-            winInfo.append(s),
+            winInfo.append(o),
             $("<div></div>", {
                 class: "buyGiftsButton"
             }).html("Новогодняя Распродажа").on("click", function() {
                 return showWindow("buyGifts")
             }).insertBefore("#lottery"),
-            s.find("figcaption").on("click", function() {
+            o.find("figcaption").on("click", function() {
                 return sendToSocket({
                     type: "buyGifts",
                     box: $(e).attr("data-type")
@@ -361,11 +362,11 @@ function showStatistics(t) {
             }).attr("title", "Сделать анонимное признание...").on("click", function() {
                 return showWindow("f14Win")
             }).insertBefore("#lottery");
-            var o = $("<div></div>", {
+            var s = $("<div></div>", {
                 class: "f14Win"
             }).html('<p>Только 14 февраля у Вас есть уникальная возможность анонимно признаться кому-то в любви или просто поздравитьс Днем всех влюбленных!</p><textarea placeholder="Я люблю..." maxlength="1000"></textarea><button class="button">Отправить</button>').appendTo(winInfo);
-            o.find("button").on("click", function() {
-                var t = o.find("textarea");
+            s.find("button").on("click", function() {
+                var t = s.find("textarea");
                 sendToSocket({
                     type: "f14msg",
                     text: t.val().substring(0, 1e3)
@@ -377,27 +378,33 @@ function showStatistics(t) {
                 window.fall && !b.hasClass("noeffect") && fall()
             })
         }
-        i.news && Object.forEach(i.news, function(t, e) {
-            return showNewDiv('<div class="news specialnews">' + t.text + "<sup>" + date.rusDate(e) + "</sup></div>")
-        })
+        var n = $("<div></div>", {
+            class: "newsWin"
+        }).appendTo(winInfo);
+        i.news ? Object.forEach(i.news, showNews) : n.prepend('<div class="news">На данный час нет новостей.<sup>' + date.rusDate(Date.now()) + "</sup></div>"),
+        $("<div></div>", {
+            class: "newsButton"
+        }).html("Новости").attr("data-count", Object.size(i.news)).on("click", function() {
+            return showWindow("newsWin")
+        }).insertBefore(onlineCounter)
     }
-    var n = function(t, e, i) {
+    var r = function(t, e, i) {
         var a = $("<div></div>").addClass("percent")
-          , s = $("<div></div>")
-          , o = t + e
-          , n = Math.round(100 * t / o)
-          , r = Math.round(100 * e / o);
+          , o = $("<div></div>")
+          , s = t + e
+          , n = Math.round(100 * t / s)
+          , r = Math.round(100 * e / s);
         return $("<em></em>").html(i).appendTo(a),
-        $("<span></span>").html(t).css("width", n + "%").appendTo(s),
-        $("<span></span>").html(e).css("width", r + "%").appendTo(s),
-        s.appendTo(a),
+        $("<span></span>").html(t).css("width", n + "%").appendTo(o),
+        $("<span></span>").html(e).css("width", r + "%").appendTo(o),
+        o.appendTo(a),
         a
     }
-      , r = t["game-bot"]
+      , d = t["game-bot"]
       , l = t["game-all"];
     statDiv.append("<div>Cтатистика игровых партий: " + f.over1000(l.count) + "</div><hr/>"),
-    n(r.pl, r.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv),
-    n(l.win.stud, l.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv),
+    r(d.pl, d.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv),
+    r(l.win.stud, l.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv),
     t.map && (mapAreas = t.map.areas),
     t.roulette && rouletteInfo(t.roulette),
     t.tree && !0 === t.tree && !server2 && sendToSocket({
@@ -441,15 +448,7 @@ function editProfile(a) {
     charObj.sex = u.sex,
     charObj.image = u.image,
     charObj.about = u.about,
-    u.charNum ? u.chars[u.charNum - 1] = {
-        sex: charObj.sex,
-        image: charObj.image,
-        about: charObj.about
-    } : u.mainChar && (u.mainChar = {
-        sex: charObj.sex,
-        image: charObj.image,
-        about: charObj.about
-    }),
+    u.charNum ? Object.update(u.chars[u.charNum - 1], charObj) : u.mainChar && Object.update(u.mainChar, charObj),
     charObj.changeChar(),
     "addChar" === a ? (charDiv.addClass("addChar"),
     $("#charAbout").val("")) : $("#charAbout").val(u.about),
@@ -505,20 +504,20 @@ regButton.on("click", function() {
             about: e
         }
     } else if (u.login) {
-        var h = !1;
+        var t = !1;
         if (u.sex !== charObj.sex && (u.sex = charObj.sex,
         playersInfoArray[u._id] && (playersInfoArray[u._id].sex = charObj.sex),
         r.sex = charObj.sex,
-        h = !0),
+        t = !0),
         u.image !== charObj.image && (u.image = charObj.image,
         playersInfoArray[u._id] && (playersInfoArray[u._id].image = charObj.image),
         r.image = charObj.image,
-        h = !0),
+        t = !0),
         u.about !== e && (u.about = e,
         playersInfoArray[u._id] && (playersInfoArray[u._id].about = e),
         r.about = e,
-        h = !0),
-        !h)
+        t = !0),
+        !t)
             return c = !1,
             void alarm("Профиль не был изменен.");
         updateInterface(),
@@ -533,9 +532,9 @@ regButton.on("click", function() {
             image: charObj.image,
             about: e
         };
-        var t = getCookie("invite")
+        var h = getCookie("invite")
           , n = getCookie("invite-vk");
-        void 0 !== t && 24 === t.length && (r.invite = t),
+        void 0 !== h && 24 === h.length && (r.invite = h),
         n && (r["invite-vk"] = n),
         regButton.prop("disabled", !0),
         i = !1
@@ -666,30 +665,30 @@ clan.openWindow = function(n) {
     var a = "clan" === n
       , t = a ? clan.myclan : clan.clanView.info;
     if (t) {
-        var i = $("." + n);
+        var i = winInfo.find("." + n)
+          , c = i.find(".clan-members");
         i.css("backgroundImage", "url(/images/clans/" + t.id + "/logo.jpg)"),
         i.find(".clan-name").html(t.name),
         i.find(".clan-slogan").html(t.slogan),
-        i.find(".clan-info").html((a ? "" : "<mark>Клан создан: " + date.rusDate(t.date) + "</mark>") + t.info);
-        var c = i.find(".clan-members");
+        i.find(".clan-info").html((a ? "" : "<mark>Клан создан: " + date.rusDate(t.date) + "</mark>") + t.info),
         c.empty(),
-        $.each(t.members, function(n, a) {
-            n === t.leader ? i.find(".clan-leader").html('<strong data-id="' + n + '">' + a + "</strong>") : $("<strong/>", {
-                "data-id": n
-            }).html(a).appendTo(c)
+        Object.forEach(t.members, function(n, a) {
+            a === t.leader ? i.find(".clan-leader").html('<strong data-id="' + a + '">' + n + "</strong>") : $("<strong></strong>", {
+                "data-id": a
+            }).html(n).appendTo(c)
         }),
         a ? (t.wishes && (c.append("<hr/><p>Кандидаты в клан:</p>"),
-        $.each(t.wishes, function(n, a) {
+        Object.forEach(t.wishes, function(n, a) {
             $("<strong/>", {
-                "data-id": n
-            }).html(a).appendTo(c),
+                "data-id": a
+            }).html(n).appendTo(c),
             $("<span/>", {
                 "data-action": "acceptToClan",
-                "data-uid": n
+                "data-uid": a
             }).html("Принять в клан").appendTo(c),
             $("<span/>", {
                 "data-action": "acceptToClan",
-                "data-uid": n,
+                "data-uid": a,
                 "data-param": "no"
             }).html("Отказать").appendTo(c)
         })),
@@ -699,21 +698,17 @@ clan.openWindow = function(n) {
 ,
 clan.showWindow = function(n) {
     n.info ? n.my ? (clan.myclan = n.info,
-    clan.myclan.leader === u._id && $(".clan").find(".clan-slogan,.clan-info").bind("dblclick touchmove", function() {
+    clan.myclan.leader === u._id && winInfo.find(".clan").find(".clan-slogan,.clan-info").on("dblclick touchmove", function() {
         $(this).attr("contentEditable", !0)
-    }).blur(function() {
+    }).on("blur", function() {
         $(this).attr("contentEditable", !1);
-        var n = $(this).attr("class").replace("clan-", "")
-          , a = $(this).text();
-        if (clan.myclan.hasOwnProperty(n) && a !== clan.myclan[n]) {
-            clan.myclan[n] = a;
-            var t = {
-                type: "clan",
-                action: "edit"
-            };
-            t[n] = a,
-            sendToSocket(t)
-        }
+        var n, a = $(this).attr("class").replace("clan-", ""), t = $(this).text();
+        clan.myclan.hasOwnProperty(a) && t !== clan.myclan[a] && (clan.myclan[a] = t,
+        sendToSocket(((n = {
+            type: "clan",
+            action: "edit"
+        })[a] = t,
+        n)))
     }),
     showWindow("clan")) : (clan.clanView.info = n.info,
     showWindow("clan-window")) : n.list && (windowTable("clanlist", n.list),
@@ -724,12 +719,11 @@ function currentDomainUrl() {
     return document.location.protocol + "//" + domain
 }
 function serverPort(e) {
-    var t = e ? document.location.protocol + "//loday.ru:" : "";
+    var t = e ? currentDomainUrl() + ":" : "";
     return t += "https:" === document.location.protocol ? "808" + ("maffia-online.ru" === domain ? "2" : "1") : "8080"
 }
 function insertToInput(e) {
-    var t = inputField.val();
-    inputField.val(t + " [" + e + "]"),
+    inputField.val(inputField.val() + " [" + e + "]"),
     $("#showSmiles").prop("checked", !1),
     inputField.focus()
 }
@@ -749,15 +743,15 @@ function getCookie(e) {
 }
 var socketTry = 0
   , lastSocketMsg = 0
-  , socketStack = []
-  , checkSocketStack = function e() {
-    var t = socketStack[0];
-    if (t) {
+  , socketStack = [];
+function checkSocketStack() {
+    var e = socketStack[0];
+    if (e) {
         if (socketTry++,
         1 === ws.readyState && lastSocketMsg + 100 < Date.now()) {
             lastSocketMsg = Date.now();
             try {
-                ws.send(JSON.stringify(t))
+                ws.send(JSON.stringify(e))
             } catch (e) {
                 showNewMessage({
                     message: "Ошибка: сбой инициализации сокета. Не удалось соединиться с сервером.",
@@ -766,9 +760,9 @@ var socketTry = 0
             }
         }
         2 < socketTry && $("#indicator").addClass("offline"),
-        setTimeout(e, 1e3 * socketTry)
+        setTimeout(checkSocketStack, 1e3 * socketTry)
     }
-};
+}
 function sendToSocket(e) {
     e.timestamp = Date.now(),
     socketStack.push(e),
@@ -1267,22 +1261,33 @@ var date = {
     }
 };
 var payDiv = $(".pay")
-  , donatInput = payDiv.find("input")
+  , donatInput = payDiv.find(".greenpay").find("input")
+  , donatGoldInput = payDiv.find(".mafcoin").find("input")
   , minDonatSum = function() {
-    return 1 <= parseInt(donatInput.val()) / 10 || (showMessage("Минимальная сумма - 1 рубль"),
+    var n = $(this).parent()
+      , o = parseInt(n.find("input").val());
+    return 10 <= (n.hasClass("mafcoin") ? o : o / 10) || (showMessage("Минимальная сумма - 10 рублей"),
     !1)
 };
 payDiv.find("#payeer-button").on("click", minDonatSum),
-payDiv.find("#pay-button").on("click", minDonatSum);
+payDiv.find("#pay-button").on("click", minDonatSum),
+payDiv.find("#goldpay-button").on("click", minDonatSum);
 var sumChange = function() {
     var n = parseInt(donatInput.val()) / 10;
-    1 <= n ? (payDiv.find("#pay-rouble").html(f.someThing(n, "рубль", "рубля", "рублей")),
+    1 <= n ? (payDiv.find("#pay-rouble").html(n),
     payDiv.find("#payeer-button").attr("href", serverPort(!0) + "/billing/?uid=" + u._id + "&sum=" + n.toFixed(2)),
     payDiv.find("#pay-button").attr("href", serverPort(!0) + "/billing/form?id=" + u._id + "&sum=" + n.toFixed(0))) : (payDiv.find("#pay-rouble").empty(),
     payDiv.find("#payeer-button").attr("href", "#"),
     payDiv.find("#pay-button").attr("href", "#"))
 };
 donatInput.change(sumChange).keyup(sumChange);
+var sumGoldChange = function() {
+    var n = parseInt(donatGoldInput.val());
+    1 <= n ? (payDiv.find("#goldpay-rouble").html(n),
+    payDiv.find("#goldpay-button").attr("href", serverPort(!0) + "/billing/form?id=_" + u._id + "&sum=" + n.toFixed(0))) : (payDiv.find("#goldpay-rouble").empty(),
+    payDiv.find("#goldpay-button").attr("href", "#"))
+};
+donatGoldInput.change(sumGoldChange).keyup(sumGoldChange);
 var vipButton = $("#donat-vip").find("button");
 $("#showDonat").on("click", function() {
     showWindow("donatoptions")
@@ -1522,7 +1527,7 @@ var f = {
     },
     radioIframe: function(e) {
         isAppVK || (e ? ($("#enableRadioStream").remove(),
-        $("<div/>", {
+        $("<div></div>", {
             id: "disableRadioStream"
         }).html("Закрыть радио").on("click", function() {
             f.radioIframe(!1),
@@ -1531,7 +1536,7 @@ var f = {
         }).insertBefore(onlineCounter),
         onlineCounter.before('<iframe id="radioStream" src="/html/radio.html?' + encodeURIComponent(u.login) + '" frameborder="0" scrolling="no" style="width:200px;height:200px"></iframe>')) : !1 === e ? ($("#radioStream").remove(),
         $("#disableRadioStream").remove(),
-        $("<div/>", {
+        $("<div></div>", {
             id: "enableRadioStream"
         }).html("Слушать радио").on("click", function() {
             f.radioIframe(!0),
@@ -2116,14 +2121,14 @@ game.writeText = function(e, a, t, i) {
         a.image)
             if (2 < a.image.length) {
                 o.className += " userimage";
-                var l = document.createElement("div");
-                l.className = "selfimg",
-                l.style.backgroundImage = "url(/files/" + a.id + a.image + ")",
-                o.appendChild(l)
+                var r = document.createElement("div");
+                r.className = "selfimg",
+                r.style.backgroundImage = "url(/files/" + a.id + a.image + ")",
+                o.appendChild(r)
             } else {
-                var r = 1 === a.sex ? "w" : "m";
-                r = a.image ? r + a.image : "",
-                o.className += " " + r
+                var l = 1 === a.sex ? "w" : "m";
+                l = a.image ? l + a.image : "",
+                o.className += " " + l
             }
     } else
         o.className += " noimage";
@@ -2357,21 +2362,21 @@ game.setPeriod = function(a) {
                 }),
                 game.writeText(o.substring(0, o.length - 2), !1, !0),
                 game.intuition) {
-                    var l = randomNicks.slice(0);
-                    l.shuffle(),
+                    var r = randomNicks.slice(0);
+                    r.shuffle(),
                     playersList.empty(),
                     Object.forEach(playersInfoArray, function(e, a) {
-                        e.login = l.shift(),
+                        e.login = r.shift(),
                         delete e.role,
                         playersInfoArray[a].killed || editPlayer(e, !1)
                     });
-                    var r = [];
+                    var l = [];
                     playersList.find("div").each(function() {
                         var e = [$(this).html(), $(this)];
-                        r.push(e)
+                        l.push(e)
                     }),
-                    r.sort(plSort),
-                    r.forEach(function(e) {
+                    l.sort(plSort),
+                    l.forEach(function(e) {
                         playersList.append(e[1])
                     })
                 }
@@ -2511,7 +2516,7 @@ var finalMsg = function(t, e) {
     t.win) {
         sound("win", !0);
         var s = isMaffia ? "maffia/tickets/" + game.role + ".png" : "tickets/" + game.role + ".jpg";
-        isAppVK || (i += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(!0) + "&amp;title=Мне удалось заработать " + f.over1000(t.money) + " за " + f.someThing(t.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + n + "&amp;image=http://loday.ru/images/" + s + '&amp;noparse=true">Сохранить игру</a><br/>')
+        isAppVK || (i += '<a class="button share" target="_target" title="Поделиться с друзьями ВКонтакте" href="' + getGameUrl(!0) + "&amp;title=Мне удалось заработать " + f.over1000(t.money) + " за " + f.someThing(t.days, "день", "дня", "дней") + "!&amp;description=" + u.login + " в игре " + header.attr("data-name") + "!%0AВ игре принимали участие: " + n + "&amp;image=" + currentDomainUrl() + "/images/" + s + '&amp;noparse=true">Сохранить игру</a><br/>')
     }
     return i += e ? "" : "Хотите досмотреть игру до конца?"
 };
@@ -2756,19 +2761,19 @@ game.start = function(a) {
     isMaffia || $("#gift").show(),
     updateGameitems(),
     a.roles) {
-        var l = "В этой партии присутствуют следующие роли: ";
+        var r = "В этой партии присутствуют следующие роли: ";
         a.roles.forEach(function(e) {
-            l += '<span class="rolesmile role' + e + '"></span>'
+            r += '<span class="rolesmile role' + e + '"></span>'
         }),
-        s += "<div>" + l + "</div"
+        s += "<div>" + r + "</div"
     }
     if (u.invite && playersInfoArray[u.invite] && (s += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>"),
     u.invited) {
-        var r = [];
+        var l = [];
         Object.forEach(playersInfoArray, function(e) {
-            e.invite && e.invite === u._id && r.push(e.login)
+            e.invite && e.invite === u._id && l.push(e.login)
         }),
-        0 < r.length && (s += '<div class="red">В этой партии находятся ваши ученики: ' + r.join(", ") + "</div>")
+        0 < l.length && (s += '<div class="red">В этой партии находятся ваши ученики: ' + l.join(", ") + "</div>")
     }
     showNewDiv('<div class="startgame">' + s + "</div>"),
     game.showPlaylist(a.players),
@@ -5220,6 +5225,7 @@ function showTopLists(e) {
 }
 $(".moneyblock").find("b").on("click", function() {
     sumChange(),
+    sumGoldChange(),
     showWindow("pay")
 }),
 $("h3").on("click", function() {
@@ -5602,7 +5608,7 @@ function showCollect(e) {
 }
 function itemAction(t) {
     var e = t.data.item;
-    e && (0 <= ["7", "12", "13", "18", "24"].indexOf(e) ? showMessage("Этот предмет пригодится Вам в соответствующей локации") : modalWindow("Активировать предмет?", function() {
+    e && (0 <= ["7", "12", "13", "18", "24", "25"].indexOf(e) ? showMessage("Этот предмет пригодится Вам в соответствующей локации") : modalWindow("Активировать предмет?", function() {
         sendToSocket({
             type: "items",
             action: e
@@ -6113,14 +6119,14 @@ function showNewMessage(e) {
         o.image)
             if (2 < o.image.length) {
                 i.className += " userimage";
-                var r = document.createElement("div");
-                r.className = "selfimg",
-                r.style.backgroundImage = "url(/files/" + o.id + o.image + ")",
-                i.appendChild(r)
+                var n = document.createElement("div");
+                n.className = "selfimg",
+                n.style.backgroundImage = "url(/files/" + o.id + o.image + ")",
+                i.appendChild(n)
             } else {
-                var n = 1 === o.sex ? "w" : "m";
-                n = o.image ? n + o.image : "",
-                i.className += " " + n
+                var r = 1 === o.sex ? "w" : "m";
+                r = o.image ? r + o.image : "",
+                i.className += " " + r
             }
         o.creator && playersInfoArray[o.creator] && (e.to = o.creator,
         e.toName = playersInfoArray[o.creator].login)
@@ -6295,10 +6301,10 @@ function sendMessage() {
                 var o = privateCheck.prop("checked");
                 if (!o && 0 < i.length && !$("div").is("#" + i))
                     return;
-                var r = 0 < i.length ? $("#adresat").val() : "";
-                if (o && r === $("#nick").html())
+                var n = 0 < i.length ? $("#adresat").val() : "";
+                if (o && n === $("#nick").html())
                     return;
-                var n = 0 < i.length ? o ? "private" : "direct" : "public";
+                var r = 0 < i.length ? o ? "private" : "direct" : "public";
                 lastMsg = e,
                 "testgame" === room ? !game.period || u.vip || o || 1 !== game.period && 4 !== game.period ? showNewMessage({
                     message: specials_out(e),
@@ -6308,9 +6314,9 @@ function sendMessage() {
                         image: u.image,
                         sex: u.sex
                     },
-                    msgType: n,
+                    msgType: r,
                     to: i,
-                    toName: r
+                    toName: n
                 }) : showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)") : o && i && playersInfoArray[i] && playersInfoArray[i].bot ? (showNewMessage({
                     message: specials_out(e),
                     from: {
@@ -6319,21 +6325,21 @@ function sendMessage() {
                         image: u.image,
                         sex: u.sex
                     },
-                    msgType: n,
+                    msgType: r,
                     to: i,
-                    toName: r
+                    toName: n
                 }),
                 showNewMessage({
                     message: specials_out("Привет, " + u.login + "! Я - бот, но мне все равно приятно твое внимание :)"),
                     from: playersInfoArray[i],
-                    msgType: n,
+                    msgType: r,
                     to: u._id,
                     toName: u.login
                 })) : sendToSocket({
                     type: "message",
-                    msgType: n,
+                    msgType: r,
                     to: i,
-                    toName: r,
+                    toName: n,
                     message: specials_out(e)
                 })
             }
@@ -6545,17 +6551,17 @@ function showPlayerInfo(e, a) {
         checkMarried(t, ptp),
         t.vip ? ptp.addClass("vipProfile") : ptp.removeClass("vipProfile");
         var o = t.login || "***"
-          , r = t.hide ? t._id === u._id ? "*" + u.rating + "*" : "скрыт" : t.hasOwnProperty("rating") ? t.rating : "-"
-          , n = t.hasOwnProperty("gamescount") ? t.gamescount : t.hide ? "-" : "∞";
+          , n = t.hide ? t._id === u._id ? "*" + u.rating + "*" : "скрыт" : t.hasOwnProperty("rating") ? t.rating : "-"
+          , r = t.hasOwnProperty("gamescount") ? t.gamescount : t.hide ? "-" : "∞";
         s.find(".nick").html(o),
-        s.find(".rating").html(r),
+        s.find(".rating").html(n),
         s.find(".cat").html(i(t, "cat")),
         s.find(".sleep").html(i(t, "lun")),
         s.find(".jeal").html(i(t, "rev")),
         s.find(".duty").html(i(t, "dej")),
         s.find(".robb").html(i(t, "poh")),
         s.find(".stud").html(i(t, "stud")),
-        s.find(".gamecount").html(n),
+        s.find(".gamecount").html(r),
         ptp.find("#player-status").removeClass().addClass("status" + t.icon).html(t.status || ""),
         ptp.find("#playerInfo-about").html(t.about || "");
         var l = "";
@@ -6593,10 +6599,10 @@ function showPlayerInfoBlock(e) {
     }) : a.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + (1 === e.sex ? "w" : "m") + e.image),
     e.club ? a.addClass("club") : a.removeClass("club"),
     checkMarried(e, a);
-    var r = e.login || "***"
-      , n = e.rating || "0";
-    s.find(".nick").html(r),
-    s.find(".rating").html(n),
+    var n = e.login || "***"
+      , r = e.rating || "0";
+    s.find(".nick").html(n),
+    s.find(".rating").html(r),
     s.find(".cat").html(o(e, "cat")),
     s.find(".sleep").html(o(e, "lun")),
     s.find(".jeal").html(o(e, "rev")),
@@ -6646,7 +6652,7 @@ function showPlayerInfoBlock(e) {
     u.stat && u.stat.pay) {
         var p = u.vip && u.vip > date.now() ? 2e3 : 3e3;
         $('<button class="button-donatoptions money">' + (i ? "Получить" : "Подарить") + " VIP (" + p + ")</button>").on("click", function() {
-            u.money2 >= p ? modalWindow("Вы уверены, что хотите подарить игроку <b>" + r + "</b> VIP-статус на 30 дней?", function() {
+            u.money2 >= p ? modalWindow("Вы уверены, что хотите подарить игроку <b>" + n + "</b> VIP-статус на 30 дней?", function() {
                 sendToSocket({
                     type: "donat",
                     action: "vip",
@@ -6712,6 +6718,13 @@ function inviteToGame() {
         type: "invite"
     }),
     $("#inviteToGameDiv").remove()
+}
+function newsCounter(e) {
+    var a = $(".newsButton");
+    a.attr("data-count", parseInt(a.attr("data-count")) + e)
+}
+function showNews(e, a) {
+    winInfo.find(".newsWin").prepend('<div class="news specialnews" data-newsid="' + a + '">' + e.text + "<sup>" + date.rusDate(a) + "</sup></div>")
 }
 var newGame = {
     creating: !1,
@@ -8084,6 +8097,10 @@ function socketEvent(e) {
         b.removeClass("unauthorized"),
         authFalse(s);
         break;
+    case "authorize":
+        s.success ? authorizeDone(s) : (editProfileSize(),
+        charDiv.addClass("charEdit"));
+        break;
     case "message":
         showNewMessage(s),
         "exit" === s.msgType && (mW.hide(),
@@ -8117,10 +8134,6 @@ function socketEvent(e) {
             showNewDiv('<div class="ban">Вы не можете пользоваться чатом еще ' + l + "</div>"),
             inputField.blur()
         }
-        break;
-    case "authorize":
-        s.success ? authorizeDone(s) : (editProfileSize(),
-        charDiv.addClass("charEdit"));
         break;
     case "reconnect":
         s.error ? ($("#errorBlock").hide(),
@@ -8377,6 +8390,12 @@ function socketEvent(e) {
     case "quiz-list":
         s.players && showQuizList(s.players);
         break;
+    case "news":
+        s.del ? (winInfo.find(".newsWin").find('div[data-newsid="' + s.del + '"]').remove(),
+        newsCounter(-1)) : s.data && (showNews(s.data, s.id, !0),
+        alarm("Опубликована очередная новость"),
+        newsCounter(1));
+        break;
     case "audio":
         if (!isAppVK && isRadio && s.src) {
             var w = s.src;
@@ -8538,12 +8557,12 @@ function socketEvent(e) {
         break;
     case "f14pairs":
         if (s.pairs) {
-            var q = $('<img id="amur" src="/images/holidays/september1/schollbell.gif"/>').appendTo(b);
+            var N = $('<img id="amur" src="/images/holidays/september1/schollbell.gif"/>').appendTo(b);
             sounds.schoolbell || (sounds.schoolbell = createAudio("/media/special/schoolbell." + soundExt)),
             setTimeout(function() {
                 sound("schoolbell")
             }, 1e3),
-            q.animate({
+            N.animate({
                 left: "-350px"
             }, 1e4, function() {
                 $(this).remove(),
@@ -9161,9 +9180,7 @@ if (isAppVK) {
     })
 } else
     createCookie("vid", "", -1),
-    mobile || $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {
-        setTimeout(showGroupWidget, 5e3)
-    });
+    mobile || $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {});
 function authFalse(e) {
     isAppVK ? errorText("Ошибка авторизации: " + e.text + ". Обновите страницу") : authDiv ? $("#authDiv").fadeIn(500) : mobile ? (wallhide(),
     showMessage("Пожалуйста, пройдите авторизацию повторно.")) : (createCookie("sid", "", -1),
@@ -9226,9 +9243,10 @@ function socketConnect(a) {
                 color: "#ff0000",
                 from: "[server]"
             };
-            e.wasClean && 1006 !== e.code ? 4e3 === e.code || 4001 === e.code ? modalWindow(i.message, function() {
-                errorText(a)
+            e.wasClean && 1006 !== e.code ? 4e3 === e.code || 4001 === e.code ? warningWindow(i.message, function() {
+                return errorText(a)
             }) : modalWindow(i.message + "<br/> Обновить страницу?", function() {
+                window.obUnloader && window.obUnloader.resetUnload(),
                 window.location.reload()
             }) : (showNewDiv('<div class="blue">Идет попытка восстановить соединение...<br/></div>'),
             setTimeout(function() {
