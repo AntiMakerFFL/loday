@@ -67,6 +67,7 @@ var domain = document.location.hostname
   , roomInHall = 1
   , zastavka = !1
   , mapAreas = !1
+  , lastNews = 0
   , u = {}
   , gamesInfoArray = {}
   , playersInfoArray = {}
@@ -245,6 +246,8 @@ function authorizeDone(i) {
     u.rating < 4 && $("#roll-start").hide(),
     updateInterface(),
     room = i.room,
+    f.onlineCount(i.onlineCount),
+    i.statistics && showStatistics(i.statistics),
     showPlayersList(i.online, i.room),
     showGamesList(i.games),
     i.greens && showGreenList(i.greens),
@@ -267,24 +270,22 @@ function authorizeDone(i) {
         }, t) + " </ul> <blockquote>Не забудьте поздравить!</blockquote></div>",
         showNewDiv(t)
     }
-    if (f.onlineCount(i.onlineCount),
-    i.statistics && showStatistics(i.statistics),
-    u.dj && $('<script type="text/javascript" src="/js/dj.js"><\/script>').appendTo(b),
-    (u.moder || u.moder2 && server2) && ($('<script type="text/javascript" src="/js/moder.js?050718"><\/script>').appendTo(b),
+    if (u.dj && $('<script type="text/javascript" src="/js/dj.js"><\/script>').appendTo(b),
+    (u.moder || u.moder2 && server2) && ($('<script type="text/javascript" src="/js/moder.js?220918"><\/script>').appendTo(b),
     i.statistics && i.statistics.valentin && b.append("<style>.ad-valentin{display:block !important}</style>")),
     shareMaffia(),
     i.regplayers) {
         var e = '<div class="news">Последние 10 новичков: '
-          , o = ""
-          , s = 0
+          , s = ""
+          , o = 0
           , n = 0;
         i.regplayers.forEach(function(t) {
             n = new Date(t.date).getDate(),
-            s !== n ? (s = n,
-            o += "<br/> " + date.rusDate(t.date, !1, "short") + ": ") : o += ", ",
-            o += '<strong data-id="' + t._id + '">' + t.login + "</strong>"
+            o !== n ? (o = n,
+            s += "<br/> " + date.rusDate(t.date, !1, "short") + ": ") : s += ", ",
+            s += '<strong data-id="' + t._id + '">' + t.login + "</strong>"
         }),
-        showNewDiv(e += o + "</div>")
+        showNewDiv(e += s + "</div>")
     }
     if (i.was && showNewDiv('<div class="wastoday">Сегодня были в игре (' + i.was.length + '):<input type="checkbox" class="spoiler" id="showwasingame"/><label for="showwasingame"></label><div>' + i.was.map(function(t) {
         return '<strong data-id="' + t._id + '">' + t.login + "</strong>"
@@ -302,7 +303,7 @@ function authorizeDone(i) {
     !mobile && !isAppVK && 1200 < b.outerWidth() && gameWidth.prepend('<option value="default">оптимально</option>'),
     u.rating < 10 && helper.start(),
     (hintsNeed || u.curator) && curatorWindow.addClass("hide").show(),
-    isAppVK || mobile || showGroupWidget(),
+    isAppVK || mobile || $.cachedScript("//vk.com/js/api/openapi.js?147").done(showGroupWidget),
     f.radioIframe()
 }
 function showStatistics(t) {
@@ -331,16 +332,16 @@ function showStatistics(t) {
             })
         }
         if (i.gifts) {
-            var o = $("<div></div>", {
+            var s = $("<div></div>", {
                 class: "buyGifts"
             }).html('<div><figure><img class="box1" src="/images/lots/box1.png" alt="Малый подарок"/><figcaption data-type="1">7 снежинок</figcaption></figure><figure><img class="box2" src="/images/lots/box2.png" alt="Средний подарок"/><figcaption data-type="2">18 снежинок</figcaption></figure><figure><img class="box3" src="/images/lots/box3.png" alt="Большой подарок"/><figcaption data-type="3">33 снежинки</figcaption></figure></div>');
-            winInfo.append(o),
+            winInfo.append(s),
             $("<div></div>", {
                 class: "buyGiftsButton"
             }).html("Новогодняя Распродажа").on("click", function() {
                 return showWindow("buyGifts")
             }).insertBefore("#lottery"),
-            o.find("figcaption").on("click", function() {
+            s.find("figcaption").on("click", function() {
                 return sendToSocket({
                     type: "buyGifts",
                     box: $(e).attr("data-type")
@@ -362,11 +363,11 @@ function showStatistics(t) {
             }).attr("title", "Сделать анонимное признание...").on("click", function() {
                 return showWindow("f14Win")
             }).insertBefore("#lottery");
-            var s = $("<div></div>", {
+            var o = $("<div></div>", {
                 class: "f14Win"
             }).html('<p>Только 14 февраля у Вас есть уникальная возможность анонимно признаться кому-то в любви или просто поздравитьс Днем всех влюбленных!</p><textarea placeholder="Я люблю..." maxlength="1000"></textarea><button class="button">Отправить</button>').appendTo(winInfo);
-            s.find("button").on("click", function() {
-                var t = s.find("textarea");
+            o.find("button").on("click", function() {
+                var t = o.find("textarea");
                 sendToSocket({
                     type: "f14msg",
                     text: t.val().substring(0, 1e3)
@@ -381,38 +382,39 @@ function showStatistics(t) {
         var n = $("<div></div>", {
             class: "newsWin"
         }).appendTo(winInfo);
-        i.news ? Object.forEach(i.news, showNews) : n.prepend('<div class="news">На данный час нет новостей.<sup>' + date.rusDate(Date.now()) + "</sup></div>"),
+        Object.keys(i.news).length ? Object.forEach(i.news, showNews) : n.prepend('<div class="news" data-newsid="0">На данный час нет новостей.</div>'),
+        lastNews = Math.max.apply(Math, [0].concat(Object.keys(i.news))),
         $("<div></div>", {
             class: "newsButton"
-        }).html("Новости").attr("data-count", Object.size(i.news)).on("click", function() {
+        }).html("Новости").on("click", function() {
             return showWindow("newsWin")
-        }).insertBefore(onlineCounter)
+        }).insertBefore(onlineCounter),
+        newsCounter()
     }
+    t.clans && (clan.saveAll(t.clans),
+    windowTable("clanlist", t.clans));
     var r = function(t, e, i) {
         var a = $("<div></div>").addClass("percent")
-          , o = $("<div></div>")
-          , s = t + e
-          , n = Math.round(100 * t / s)
-          , r = Math.round(100 * e / s);
+          , s = $("<div></div>")
+          , o = t + e
+          , n = Math.round(100 * t / o)
+          , r = Math.round(100 * e / o);
         return $("<em></em>").html(i).appendTo(a),
-        $("<span></span>").html(t).css("width", n + "%").appendTo(o),
-        $("<span></span>").html(e).css("width", r + "%").appendTo(o),
-        o.appendTo(a),
+        $("<span></span>").html(t).css("width", n + "%").appendTo(s),
+        $("<span></span>").html(e).css("width", r + "%").appendTo(s),
+        s.appendTo(a),
         a
     }
-      , d = t["game-bot"]
-      , l = t["game-all"];
-    statDiv.append("<div>Cтатистика игровых партий: " + f.over1000(l.count) + "</div><hr/>"),
-    r(d.pl, d.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv),
-    r(l.win.stud, l.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv),
+      , l = t["game-bot"]
+      , d = t["game-all"];
+    statDiv.append("<div>Cтатистика игровых партий: " + f.over1000(d.count) + "</div><hr/>"),
+    r(l.pl, l.bot, "Победы в Противостоянии: Игроки - Боты").appendTo(statDiv),
+    r(d.win.stud, d.win.poh, "Победы игровых сторон: " + (isMaffia ? "Мирные граждане - Мафия" : "Студенты - Похитители")).appendTo(statDiv),
     t.map && (mapAreas = t.map.areas),
     t.roulette && rouletteInfo(t.roulette),
     t.tree && !0 === t.tree && !server2 && sendToSocket({
         type: "tree"
-    }),
-    $("<div></div>", {
-        id: "indicator"
-    }).attr("data-title", "Индикатор сети").appendTo($(".panel-top"))
+    })
 }
 var charObj = {
     sex: 2,
@@ -618,11 +620,11 @@ blankForm.find("button").on("click", function() {
     closewindow()
 });
 var clan = {
-    myclan: !1,
     clanView: {
         id: !1,
         info: !1
-    }
+    },
+    all: {}
 };
 function clanProfile(n) {
     var a = n.attr("data-id");
@@ -634,7 +636,7 @@ function clanProfile(n) {
     }))
 }
 function joinToClan() {
-    clan.clanView.id && modalWindow("Уверены, что хотите подать заявку на вступление в клан " + clan.clanView.info.name + "? В настоящий момент опция выхода из клана неактивна.", function() {
+    clan.clanView.id && modalWindow("Хотите подать заявку на вступление в клан " + clan.clanView.info.name + "?", function() {
         sendToSocket({
             type: "clan",
             action: "join",
@@ -661,44 +663,64 @@ function leaveClan() {
         })
     })
 }
+clan.saveAll = function(n) {
+    clan.all = {},
+    n.forEach(function(n) {
+        clan.all[n.id] = n
+    })
+}
+,
+clan.getIcon = function(n) {
+    var a = clan.all[n].icon;
+    return "url(/images/clans/" + (1 === a ? "standart/icon" + (isMaffia ? "2" : "1") + ".png" : n + "/icon.png?" + a) + ")"
+}
+,
 clan.openWindow = function(n) {
     var a = "clan" === n
       , t = a ? clan.myclan : clan.clanView.info;
     if (t) {
-        var i = winInfo.find("." + n)
-          , c = i.find(".clan-members");
-        i.css("backgroundImage", "url(/images/clans/" + t.id + "/logo.jpg)"),
-        i.find(".clan-name").html(t.name),
-        i.find(".clan-slogan").html(t.slogan),
-        i.find(".clan-info").html((a ? "" : "<mark>Клан создан: " + date.rusDate(t.date) + "</mark>") + t.info),
-        c.empty(),
+        var l = winInfo.find("." + n)
+          , i = l.find(".clan-members");
+        l.css("backgroundImage", "url(/images/clans/" + (1 === t.logo ? "standart/logo" + (isMaffia ? "2" : "1") + ".png" : t.id + "/logo.jpg?" + t.logo) + ")"),
+        l.find(".clan-name").html(t.name),
+        l.find(".clan-slogan").html(t.slogan),
+        l.find(".clan-info").html((a ? "" : "<mark>Клан создан: " + date.rusDate(t.date) + "</mark>") + t.info),
+        i.empty(),
         Object.forEach(t.members, function(n, a) {
-            a === t.leader ? i.find(".clan-leader").html('<strong data-id="' + a + '">' + n + "</strong>") : $("<strong></strong>", {
+            a === t.leader ? l.find(".clan-leader").html('<strong data-id="' + a + '">' + n + "</strong>") : $("<strong></strong>", {
                 "data-id": a
-            }).html(n).appendTo(c)
+            }).html(n).appendTo(i)
         }),
-        a ? (t.wishes && (c.append("<hr/><p>Кандидаты в клан:</p>"),
+        a ? (t.wishes && (i.append("<hr/><p>Кандидаты в клан:</p>"),
         Object.forEach(t.wishes, function(n, a) {
-            $("<strong/>", {
+            $("<strong></strong>", {
                 "data-id": a
-            }).html(n).appendTo(c),
-            $("<span/>", {
+            }).html(n).appendTo(i),
+            $("<span></span>", {
                 "data-action": "acceptToClan",
                 "data-uid": a
-            }).html("Принять в клан").appendTo(c),
-            $("<span/>", {
+            }).html("Принять в клан").appendTo(i),
+            $("<span></span>", {
                 "data-action": "acceptToClan",
                 "data-uid": a,
                 "data-param": "no"
-            }).html("Отказать").appendTo(c)
+            }).html("Отказать").appendTo(i)
         })),
-        u.clan ? i.find("button").show() : i.find("button").hide()) : u.clan ? i.find("button").hide() : i.find("button").show()
+        u.clan ? l.find("button").show() : l.find("button").hide()) : u.clan ? l.find("button").hide() : l.find("button").show()
     }
 }
 ,
 clan.showWindow = function(n) {
+    if (!n) {
+        if (u.clan)
+            return void sendToSocket({
+                type: "clan",
+                action: "my"
+            });
+        n = {}
+    }
     n.info ? n.my ? (clan.myclan = n.info,
-    clan.myclan.leader === u._id && winInfo.find(".clan").find(".clan-slogan,.clan-info").on("dblclick touchmove", function() {
+    clan.myclan.leader === u._id && $(".clan", winInfo).find(".clan-slogan,.clan-info").on("dblclick touchmove", function() {
         $(this).attr("contentEditable", !0)
     }).on("blur", function() {
         $(this).attr("contentEditable", !1);
@@ -711,10 +733,57 @@ clan.showWindow = function(n) {
         n)))
     }),
     showWindow("clan")) : (clan.clanView.info = n.info,
-    showWindow("clan-window")) : n.list && (windowTable("clanlist", n.list),
+    showWindow("clan-window")) : ($("#clan-create").css({
+        display: u.clan ? "none" : "block"
+    }),
     showWindow("clanlist"))
 }
-;
+,
+clan.createForm = function() {
+    winInfo.find(".clanlist").append('<div id="clan-create">\n\t\t<blockquote>Стоимость создания своего клана - <span class="goldmoney">500 мафкойнов</span>.</blockquote>\n\t\t<div>Администрация оставляет за собой право: <ol>\n\t\t\t<li>изменять информацию о клане (текстовую или графическую), если она несет оскорбление в адрес кого-либо</li>\n\t\t\t<li>применять штрафные санкции к клану или его членам в случае использования нечестных приемов развития клана (вплоть до обнуления или удаления)</li>\n\t\t\t<li>дополнять или ограничивать функциональность клановой локации в игре</li>\n\t\t</ol></div>\n\t\t<label>Название клана <input type="text" maxlength="25" placeholder="Обязательно для заполнения"/></label>\n\t\t<label>Девиз клана <input type="text" maxlength="50" placeholder="Мы круче всех, наверное..."/></label>\n\t\t<label>Информация о клане <textarea maxlength="500" placeholder="Например, условия приема в клан"></textarea></label>\n\t\t<input type="button" id="clan-create-button" value="Создать клан"/>\n\t</div>'),
+    $("#clan-create-button").on("click", clan.create)
+}
+,
+clan.create = function() {
+    var n = $("#clan-create")
+      , a = n.find('input[type="text"]')
+      , t = n.find("textarea")
+      , l = a.eq(0).val();
+    l ? sendToSocket({
+        type: "clan",
+        action: "new",
+        name: l,
+        slogan: a.eq(1).val() || "",
+        info: t.val() || ""
+    }) : showMessage("У клана обязательно должно быть название!")
+}
+,
+clan.loadingPicture = function(n, a) {
+    var t = a[0]
+      , l = a[1];
+    return createFotoLoading(n, "/upload?clan=" + t, "Не удалось установить " + l + " клана")
+}
+,
+winInfo.find(".clan").append('<div id="clan-files">\n\t<div class="goldmoney">\n\t\t<input type="file" accept="image/jpeg" id="clan-logo-file"/>\n\t\t<span>Изменить логотип клана</span><label class="button" for="clan-logo-file">5 мафкойнов</label>\n\t\t<sup>(квадратное изображение 200х200 в формате jpg)</sup>\n\t</div>\n\t<div class="goldmoney">\n\t\t<input type="file" accept="image/png" id="clan-icon-file"/>\n\t\t<span>Изменить значок клана </span><label class="button" for="clan-icon-file">5 мафкойнов</label><br/>\n\t\t<sup>(квадратное изображение 20х20 в формате png)</sup>\n\t</div>\n</div>'),
+$("#clan-files").on("change", "input", function() {
+    var l = $(this).attr("id")
+      , n = $("#" + l)[0];
+    if (!u.items[25] || u.items[25] < 5)
+        f.notEnough({
+            action: "item25"
+        });
+    else if (n.files && n.files[0]) {
+        var i = n.files[0];
+        307200 < i.size ? showMessage("Размер файла превышает 300 КБ") : previewLoadPicture(this, function(n) {
+            var a = "clan-logo-file" === l ? ["logo", "логотип"] : ["icon", "значок"]
+              , t = "clan-logo-file" === l ? "0" : "";
+            modalWindow("Уверены, что хотите установить такой " + a[1] + ' для клана?<br/><img class="preloadFileImage" src="' + n + '" style="display:block;width:20' + t + "px;height:20" + t + 'px;margin:0 auto;"/>', function() {
+                return clan.loadingPicture(i, a)
+            })
+        })
+    } else
+        showMessage("Не выбран файл для загрузки")
+});
 function currentDomainUrl() {
     return document.location.protocol + "//" + domain
 }
@@ -759,7 +828,7 @@ function checkSocketStack() {
                 })
             }
         }
-        2 < socketTry && $("#indicator").addClass("offline"),
+        2 < socketTry && allMessagesList.addClass("offline"),
         setTimeout(checkSocketStack, 1e3 * socketTry)
     }
 }
@@ -891,8 +960,7 @@ function updateInterface(e) {
                 e.collection ? (u.collections || (u.collections = {}),
                 u.collections[e.collection] || (u.collections[e.collection] = 0),
                 u.collections[e.collection][e.item] || (u.collections[e.collection][e.item] = 0),
-                u.collections[e.collection][e.item] += e.value) : (u.items || (u.items = {}),
-                u.items[e.item] || (u.items[e.item] = 0),
+                u.collections[e.collection][e.item] += e.value) : (u.items[e.item] || (u.items[e.item] = 0),
                 u.items[e.item] += e.value)
             });
         Object.update(u, e)
@@ -963,8 +1031,7 @@ function showWall(e, t) {
 }
 function showWindow(t) {
     switch (win.attr("class", "window"),
-    mobile && $("#showHeaderPanel").prop("checked", !1),
-    win.find(".info>div").hide(),
+    winInfo.children("div").hide(),
     submenu.hide(),
     -1 < ["tournaments", "aboutgame"].indexOf(t) && win.find(".info ." + t).load("/html/" + t + ("aboutgame" === t && isMaffia ? "-maffia" : "") + ".html"),
     winInfo.find("." + t).show(),
@@ -1077,7 +1144,11 @@ function showWindow(t) {
         });
         break;
     case "menu-editor":
-        menuedit.window()
+        menuedit.window();
+        break;
+    case "newsWin":
+        lStorage.setItem("lastnews", lastNews),
+        newsCounter()
     }
     [["stat", "statwin", !0], ["clan", "myclanwin", !0], ["clan-window", "clanwin", !0], ["slotmachine", "slotwin", !0], ["tree", "treewin"], ["f14Win", "blackwin"], ["playerInfoBlock", "profileWindow"], ["buyGifts", "buyboxwin", !0], ["pay", "info_pay", !0]].forEach(function(e) {
         e[0] === t && (e[2] && win.addClass("nobefore"),
@@ -1198,7 +1269,7 @@ function windowTable(e, t) {
         break;
     case "clanlist":
         t.forEach(function(e) {
-            n += "<tr><td>" + e.id + '</td><td class="pseudolink" data-action="clanProfile" data-id="' + e.id + '">' + e.name + '</td><td style="background:url(/images/clans/' + e.id + '/icon.png) center no-repeat"> </td><td>' + e.slogan + "</td><td>" + date.rusDate(e.date) + "</td></tr>"
+            n += "<tr><td>" + e.id + '</td><td class="pseudolink" data-action="clanProfile" data-id="' + e.id + '">' + e.name + '</td><td style="background:' + clan.getIcon(e.id) + ') center no-repeat"> </td><td>' + e.slogan + "</td><td>" + date.rusDate(e.date) + "</td></tr>"
         })
     }
     a.html(n)
@@ -1208,6 +1279,38 @@ function getProfile(e) {
         type: "profile",
         uid: e
     })
+}
+function previewLoadPicture(e, t) {
+    if (window.FileReader) {
+        if (e.files && e.files[0]) {
+            var a = new FileReader;
+            a.onload = function(e) {
+                t(e.target.result)
+            }
+            ,
+            a.readAsDataURL(e.files[0])
+        }
+    } else
+        showMessage("К сожалению, в вашем браузере не поддерживается предпросмотр загружаемых файлов.<br/> Если хотите посмотреть как будет выглядеть ваша аватарка перед загрузкой, воспользуйтесь другим браузером.")
+}
+function createFotoLoading(e, t, a) {
+    var n = new FormData;
+    n.append("uploadFile", e),
+    $.ajax({
+        url: currentDomainUrl() + ":" + serverPort(!1) + t,
+        data: n,
+        cache: !1,
+        contentType: !1,
+        processData: !1,
+        type: "POST",
+        success: function(e) {
+            "ok" === e.status ? showMessage(e.text) : showMessage(a + ":<br/> " + e.errors)
+        },
+        xhrFields: {
+            withCredentials: !0
+        }
+    }),
+    closewindow()
 }
 updateInterface.vip = !0;
 var date = {
@@ -1371,19 +1474,11 @@ $("#speaker").on("click", function() {
 });
 var donatFoto = $("#donat-foto")
   , donatFotoFile = donatFoto.find("input")[0]
-  , donatFotoFileImage = !1;
+  , donatFotoFileImage = "";
 $(donatFotoFile).change(function() {
-    if (window.FileReader) {
-        if (this.files && this.files[0]) {
-            var n = new FileReader;
-            n.onload = function(n) {
-                donatFotoFileImage = n.target.result
-            }
-            ,
-            n.readAsDataURL(this.files[0])
-        }
-    } else
-        showMessage("К сожалению, в вашем браузере не поддерживается предпросмотр загружаемых файлов.<br/> Если хотите посмотреть как будет выглядеть ваша аватарка перед загрузкой, воспользуйтесь другим браузером.")
+    previewLoadPicture(this, function(n) {
+        donatFotoFileImage = n
+    })
 }),
 donatFoto.find("button").on("click", function() {
     if (!u.vip && u.money2 < 1e3)
@@ -1391,34 +1486,14 @@ donatFoto.find("button").on("click", function() {
             action: "money2"
         });
     else if (donatFotoFile.files && donatFotoFile.files[0]) {
-        var o = donatFotoFile.files[0];
-        if (307200 < o.size)
+        var n = donatFotoFile.files[0];
+        if (307200 < n.size)
             showMessage("Размер файла превышает 300 КБ");
         else {
-            var n = function() {
-                var n = new FormData;
-                n.append("uploadFile", o),
-                $.ajax({
-                    url: currentDomainUrl() + ":" + serverPort(!1) + "/upload",
-                    data: n,
-                    cache: !1,
-                    contentType: !1,
-                    processData: !1,
-                    type: "POST",
-                    success: function(n) {
-                        "ok" === n.status ? showMessage(n.text) : showMessage("Не удалось установить аватар:<br/> " + n.errors)
-                    },
-                    xhrFields: {
-                        withCredentials: !0
-                    }
-                }),
-                closewindow()
-            };
-            if (donatFotoFileImage) {
-                var t = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
-                modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img src="' + donatFotoFileImage + '" ' + t + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img src="' + donatFotoFileImage + '" ' + t + '/><br/> в режиме День Любви</div><br class="clearfix"/>', n)
-            } else
-                n()
+            var o = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
+            modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img class="preloadFileImage" src="' + donatFotoFileImage + '" ' + o + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img class="preloadFileImage" src="' + donatFotoFileImage + '" ' + o + '/><br/> в режиме День Любви</div><br class="clearfix"/>', function() {
+                return createFotoLoading(n, "/upload", "Не удалось установить аватар")
+            })
         }
     } else
         showMessage("Не выбран файл для загрузки")
@@ -1427,26 +1502,26 @@ var donatBotnick = $("#donat-botnick");
 donatBotnick.find("button").on("click", function() {
     var n = donatBotnick.find("input[type=text]").val().trim().substring(0, 20)
       , o = $("#botnick-sex").prop("checked") ? 1 : 2;
-    200 <= u.money2 ? (sendToSocket({
+    u.items[25] && 2 <= u.items[25] ? (sendToSocket({
         type: "donat",
         action: "botnick",
         login: n,
         sex: o
     }),
     closewindow()) : f.notEnough({
-        action: "money2"
+        action: "item25"
     })
 });
 var donatBotwords = $("#donat-botwords");
 donatBotwords.find("button").on("click", function() {
     var n = donatBotwords.find("input").val().trim().substring(0, 150);
-    100 <= u.money2 ? (sendToSocket({
+    u.items[25] && 1 <= u.items[25] ? (sendToSocket({
         type: "donat",
         action: "botwords",
         text: n
     }),
     closewindow()) : f.notEnough({
-        action: "money2"
+        action: "item25"
     })
 });
 var donatBigGame = $("#donat-biggame");
@@ -1563,13 +1638,26 @@ var f = {
             }
         return n
     },
-    notEnough: function(e) {
-        var t = 'Недостаточно <span class="' + ("money2" === e.action ? "money" : "gamemoney") + '">средств</span> для выполнения этой операции. ';
-        e.message && (t = e.message),
-        "money2" === e.action ? (t += "<br/>Хотите пополнить счёт?",
-        modalWindow(t, function() {
-            showWindow("pay")
-        })) : showMessage(t)
+    notEnough: function(r) {
+        var e = function(e, t, o) {
+            return void 0 === t && (t = "средств"),
+            void 0 === o && (o = ""),
+            r.message || 'Недостаточно <span class="' + e + '">' + t + "</span> для выполнения этой операции. " + o
+        };
+        switch (r.action) {
+        case "money2":
+            modalWindow(e("money", "баксов", "<br/> Хотите пополнить счёт?"), function() {
+                return showWindow("pay")
+            });
+            break;
+        case "item25":
+            modalWindow(e("goldmoney", "мафкойнов", "<br/> Хотите пополнить счёт?"), function() {
+                return showWindow("pay")
+            });
+            break;
+        default:
+            showMessage(e("gamemoney"))
+        }
     },
     over1000: function(e) {
         if (!e)
@@ -5256,6 +5344,8 @@ var showWindowClick = function() {
                 showSubmenuBlock(e.substr(6));
             else {
                 var t = e.substr(7);
+                if ("clan" === t)
+                    return void clan.showWindow();
                 switch (t) {
                 case "total":
                     sendToSocket({
@@ -5283,13 +5373,6 @@ var showWindowClick = function() {
                     Date.now() > progressTime && sendToSocket({
                         type: "progress-list"
                     });
-                    break;
-                case "clan":
-                    if (!clan.myclan)
-                        return void sendToSocket({
-                            type: "clan",
-                            action: "my"
-                        });
                     break;
                 case "allfriends":
                     sendToSocket({
@@ -5325,6 +5408,11 @@ $(document).on("click", "strong[data-id]", showProfile).on("click", "[data-actio
     tooltip(e, $(this).attr("data-title"), !0)
 }).on("mouseleave touchleave", "[data-title]", function(e) {
     tooltip(e, "", !1)
+}).on("keypress", "textarea, input", function(e) {
+    var t = e.which
+      , a = $(this).attr("maxlength");
+    return !a || (!($(this).val().length >= a && 8 !== t && 46 !== t) || (sound("signal"),
+    !1))
 }),
 gamesList.bind("click touchstart", function(e) {
     showTooltip("", !1),
@@ -5439,6 +5527,7 @@ function Unloader() {
 Object.keys(winTableData).forEach(function(e) {
     return winTableCreate(e)
 }),
+clan.createForm(),
 inputField.keydown(function(e) {
     return !(38 === e.which && !inputField.val()) || (e.preventDefault(),
     inputField.val(lastMsg),
@@ -6073,14 +6162,14 @@ function showGameInfo(a) {
     game.married = !1),
     a.starttime) {
         zTimers[a._id] && clearInterval(zTimers[a._id]);
-        var o = $("<span/>", {
+        var n = $("<span/>", {
             id: "timer-" + a._id,
             class: "timer",
             "data-lost": Math.floor((a.starttime - date.now()) / 1e3)
         });
         $("<div/>", {
             class: "lastwords"
-        }).html("Игра начнется через: ").append(o).appendTo(messagesList),
+        }).html("Игра начнется через: ").append(n).appendTo(messagesList),
         zayavkaInTimer(a._id),
         zTimers[a._id] = setInterval(function() {
             zayavkaInTimer(a._id)
@@ -6099,10 +6188,10 @@ function showNewMessage(e) {
       , s = document.createElement("div")
       , t = document.createElement("div")
       , i = document.createElement("div")
-      , o = e.from;
+      , n = e.from;
     if (i.className = "message",
     s.className = "writer",
-    o || "Игра начинается" !== e.message || (o = "[server]",
+    n || "Игра начинается" !== e.message || (n = "[server]",
     $("h3.leave").css({
         visibility: "hidden"
     }),
@@ -6111,25 +6200,25 @@ function showNewMessage(e) {
             visibility: ""
         })
     }, 5e3)),
-    o) {
-        if (o.id && -1 < reds.indexOf(o.id) || server2 && !$("div").is("#" + o.id))
+    n) {
+        if (n.id && -1 < reds.indexOf(n.id) || server2 && !$("div").is("#" + n.id))
             return;
-        if (!o.image && playersInfoArray[o.id] && (o.sex = playersInfoArray[o.id].sex,
-        o.image = playersInfoArray[o.id].image),
-        o.image)
-            if (2 < o.image.length) {
+        if (!n.image && playersInfoArray[n.id] && (n.sex = playersInfoArray[n.id].sex,
+        n.image = playersInfoArray[n.id].image),
+        n.image)
+            if (2 < n.image.length) {
                 i.className += " userimage";
-                var n = document.createElement("div");
-                n.className = "selfimg",
-                n.style.backgroundImage = "url(/files/" + o.id + o.image + ")",
-                i.appendChild(n)
+                var o = document.createElement("div");
+                o.className = "selfimg",
+                o.style.backgroundImage = "url(/files/" + n.id + n.image + ")",
+                i.appendChild(o)
             } else {
-                var r = 1 === o.sex ? "w" : "m";
-                r = o.image ? r + o.image : "",
+                var r = 1 === n.sex ? "w" : "m";
+                r = n.image ? r + n.image : "",
                 i.className += " " + r
             }
-        o.creator && playersInfoArray[o.creator] && (e.to = o.creator,
-        e.toName = playersInfoArray[o.creator].login)
+        n.creator && playersInfoArray[n.creator] && (e.to = n.creator,
+        e.toName = playersInfoArray[n.creator].login)
     } else
         i.className += " noimage",
         e.color && (i.style = "color:" + e.color);
@@ -6138,7 +6227,7 @@ function showNewMessage(e) {
     if (!e.target) {
         e.color && "#000" === e.color && (e.color = a);
         var d = e.color && e.color !== a ? ' style="color:' + e.color + '"' : ""
-          , m = o && o.id && o.login ? '<b data-id="' + o.id + '"' + d + (o.id === u._id ? l : "") + ">" + o.login + "</b>" + (e.to ? "->" : ": ") : "";
+          , m = n && n.id && n.login ? '<b data-id="' + n.id + '"' + d + (n.id === u._id ? l : "") + ">" + n.login + "</b>" + (e.to ? "->" : ": ") : "";
         if (e.to && e.toName && 0 < e.toName.length && !game.intuition) {
             if (m += ' <b data-id="' + e.to + '"',
             e.to === u._id) {
@@ -6177,7 +6266,7 @@ function showNewMessage(e) {
             m += ">" + e.toName + "</b>: "
         }
         s.innerHTML = m,
-        o && "[server]" === o && (t.style.color = "#f00",
+        n && "[server]" === n && (t.style.color = "#f00",
         t.style.fontFamily = "Ubuntu Mono, Consolas, Monaco, monospace")
     }
     e.msgStyle && (t.className = e.msgStyle),
@@ -6185,7 +6274,7 @@ function showNewMessage(e) {
     i.appendChild(s),
     i.appendChild(t),
     messagesList.append(i),
-    (o && o.id && o.id === u._id || e.to && e.to === u._id) && mymessagesList.append($(i).clone()),
+    (n && n.id && n.id === u._id || e.to && e.to === u._id) && mymessagesList.append($(i).clone()),
     doScroll()
 }
 var notextMsgCount = 0;
@@ -6298,15 +6387,15 @@ function sendMessage() {
                     maffiaNEW()
                 }
             if (t) {
-                var o = privateCheck.prop("checked");
-                if (!o && 0 < i.length && !$("div").is("#" + i))
+                var n = privateCheck.prop("checked");
+                if (!n && 0 < i.length && !$("div").is("#" + i))
                     return;
-                var n = 0 < i.length ? $("#adresat").val() : "";
-                if (o && n === $("#nick").html())
+                var o = 0 < i.length ? $("#adresat").val() : "";
+                if (n && o === $("#nick").html())
                     return;
-                var r = 0 < i.length ? o ? "private" : "direct" : "public";
+                var r = 0 < i.length ? n ? "private" : "direct" : "public";
                 lastMsg = e,
-                "testgame" === room ? !game.period || u.vip || o || 1 !== game.period && 4 !== game.period ? showNewMessage({
+                "testgame" === room ? !game.period || u.vip || n || 1 !== game.period && 4 !== game.period ? showNewMessage({
                     message: specials_out(e),
                     from: {
                         id: u._id,
@@ -6316,8 +6405,8 @@ function sendMessage() {
                     },
                     msgType: r,
                     to: i,
-                    toName: n
-                }) : showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)") : o && i && playersInfoArray[i] && playersInfoArray[i].bot ? (showNewMessage({
+                    toName: o
+                }) : showMessage("Мирные граждане могут пользоваться общим чатом только днём<br/> (или при наличии VIP-статуса)") : n && i && playersInfoArray[i] && playersInfoArray[i].bot ? (showNewMessage({
                     message: specials_out(e),
                     from: {
                         id: u._id,
@@ -6327,7 +6416,7 @@ function sendMessage() {
                     },
                     msgType: r,
                     to: i,
-                    toName: n
+                    toName: o
                 }),
                 showNewMessage({
                     message: specials_out("Привет, " + u.login + "! Я - бот, но мне все равно приятно твое внимание :)"),
@@ -6339,7 +6428,7 @@ function sendMessage() {
                     type: "message",
                     msgType: r,
                     to: i,
-                    toName: n,
+                    toName: o,
                     message: specials_out(e)
                 })
             }
@@ -6388,11 +6477,11 @@ function editPlayerList(e, a, s) {
             }),
             u.friends && -1 < u.friends.indexOf(e._id) && i.addClass("green"),
             e.vip && i.addClass("vipPlayer"),
-            e.curator ? i.addClass("curatorPlayer") : e.clan ? (i.addClass("clanPlayer"),
-            $("<span/>", {
+            e.curator ? i.addClass("curatorPlayer") : e.clan && clan.all[e.clan] ? (i.addClass("clanPlayer"),
+            $("<span></span>", {
                 "data-id": e.clan,
                 class: "clan-icon"
-            }).css("background", "url(/images/clans/" + e.clan + "/icon.png)").appendTo(i)) : room.length < 3 && i.addClass("mode" + e.mode),
+            }).css("background", clan.getIcon(e.clan)).appendTo(i)) : room.length < 3 && i.addClass("mode" + e.mode),
             -1 < reds.indexOf(e._id) && i.addClass("red"),
             e.icon && i.find("b").addClass("status" + e.icon),
             1 === e.marked && i.addClass("marked"),
@@ -6402,14 +6491,14 @@ function editPlayerList(e, a, s) {
             changeNumberHtml("remainForGame", -1)))
         }
         aside.find(".blocktitle").html(" (" + playersList.find("div").length.toString() + ")");
-        var o = [];
+        var n = [];
         playersList.find("div").each(function() {
             var e = [$(this).attr("data-nick"), $(this)];
-            o.push(e)
+            n.push(e)
         }),
-        o.sort(plSort),
+        n.sort(plSort),
         playersList.html(),
-        $.each(o, function() {
+        $.each(n, function() {
             playersList.append(this[1])
         })
     }
@@ -6550,11 +6639,11 @@ function showPlayerInfo(e, a) {
         t.club ? ptp.addClass("club") : ptp.removeClass("club"),
         checkMarried(t, ptp),
         t.vip ? ptp.addClass("vipProfile") : ptp.removeClass("vipProfile");
-        var o = t.login || "***"
-          , n = t.hide ? t._id === u._id ? "*" + u.rating + "*" : "скрыт" : t.hasOwnProperty("rating") ? t.rating : "-"
+        var n = t.login || "***"
+          , o = t.hide ? t._id === u._id ? "*" + u.rating + "*" : "скрыт" : t.hasOwnProperty("rating") ? t.rating : "-"
           , r = t.hasOwnProperty("gamescount") ? t.gamescount : t.hide ? "-" : "∞";
-        s.find(".nick").html(o),
-        s.find(".rating").html(n),
+        s.find(".nick").html(n),
+        s.find(".rating").html(o),
         s.find(".cat").html(i(t, "cat")),
         s.find(".sleep").html(i(t, "lun")),
         s.find(".jeal").html(i(t, "rev")),
@@ -6563,7 +6652,7 @@ function showPlayerInfo(e, a) {
         s.find(".stud").html(i(t, "stud")),
         s.find(".gamecount").html(r),
         ptp.find("#player-status").removeClass().addClass("status" + t.icon).html(t.status || ""),
-        ptp.find("#playerInfo-about").html(t.about || "");
+        $("#playerInfo-about", ptp).html(t.about || "");
         var l = "";
         if (Object.forEach(t.cups, function(e, a) {
             l += '<span data-title="' + e + '" style="background-image:url(/images/cups/' + a.replace("-", ".") + ')"></span>'
@@ -6575,7 +6664,7 @@ function showPlayerInfo(e, a) {
             var d = gameptp.find("div");
             game.hisvote[a] ? d.eq(0).html(game.hisvote[a]) : d.eq(0).empty(),
             game.votes[a] ? d.eq(1).html(game.votes[a].join(", ") + "<hr/> Голосов: " + game.votes[a].length) : d.eq(1).empty(),
-            (game.hisvote[a] || game.votes[a]) && (gameptp.find("strong").html(o),
+            (game.hisvote[a] || game.votes[a]) && (gameptp.find("strong").html(n),
             gameptp.show())
         }
     } else
@@ -6589,7 +6678,7 @@ function showPlayerInfoBlock(e) {
       , s = a.find(".playerInfo-stat")
       , t = a.find(".playerInfo-gifts")
       , i = e._id === u._id
-      , o = function(e, a) {
+      , n = function(e, a) {
         return (void 0 === e[a + "1"] ? "0" : e[a + "1"]) + " / " + (void 0 === e[a + "0"] ? "0" : e[a + "0"])
     };
     i ? a.addClass("myProfile") : a.removeClass("myProfile"),
@@ -6599,18 +6688,18 @@ function showPlayerInfoBlock(e) {
     }) : a.find(".playerInfo-image").removeClass().removeAttr("style").addClass("playerInfo-image i" + (1 === e.sex ? "w" : "m") + e.image),
     e.club ? a.addClass("club") : a.removeClass("club"),
     checkMarried(e, a);
-    var n = e.login || "***"
+    var o = e.login || "***"
       , r = e.rating || "0";
-    s.find(".nick").html(n),
+    s.find(".nick").html(o),
     s.find(".rating").html(r),
-    s.find(".cat").html(o(e, "cat")),
-    s.find(".sleep").html(o(e, "lun")),
-    s.find(".jeal").html(o(e, "rev")),
-    s.find(".duty").html(o(e, "dej")),
-    s.find(".robb").html(o(e, "poh")),
-    s.find(".stud").html(o(e, "stud"));
+    s.find(".cat").html(n(e, "cat")),
+    s.find(".sleep").html(n(e, "lun")),
+    s.find(".jeal").html(n(e, "rev")),
+    s.find(".duty").html(n(e, "dej")),
+    s.find(".robb").html(n(e, "poh")),
+    s.find(".stud").html(n(e, "stud"));
     var l = s.find(".law");
-    l.html(o(e, "adv")),
+    l.html(n(e, "adv")),
     s.find(".roles-stat").remove(),
     e.roles && $.each(e.roles, function(e, a) {
         $('<span class="roles-stat" data-text="' + roles(e).name + '">' + (a[1] || "0") + " / " + (a[0] || "0") + "</span>").insertAfter(l)
@@ -6635,7 +6724,7 @@ function showPlayerInfoBlock(e) {
         }),
         m += c + "</div>"
     }
-    if (e.clan && (m += '<div data-action="clanProfile" data-id="' + e.clan + '" class="clan-status" style="background-image:url(/images/clans/' + e.clan + '/icon.png)">Состоит в клане</div>'),
+    if (e.clan && clan.all[e.clan] && (m += '<div data-action="clanProfile" data-id="' + e.clan + '" class="clan-status" style="background-image:' + clan.getIcon(e.clan) + '">Состоит в клане</div>'),
     $("#regdate").html(m),
     i ? $('<button class="onlyvip">' + (u.hide ? "Открыть профиль" : "Скрыть профиль") + "</button>").on("click", function() {
         $(this).hide(),
@@ -6651,8 +6740,8 @@ function showPlayerInfoBlock(e) {
     }).appendTo(a.find(".playerInfo-cups")),
     u.stat && u.stat.pay) {
         var p = u.vip && u.vip > date.now() ? 2e3 : 3e3;
-        $('<button class="button-donatoptions money">' + (i ? "Получить" : "Подарить") + " VIP (" + p + ")</button>").on("click", function() {
-            u.money2 >= p ? modalWindow("Вы уверены, что хотите подарить игроку <b>" + n + "</b> VIP-статус на 30 дней?", function() {
+        $('<button class="money">' + (i ? "Получить" : "Подарить") + " VIP (" + p + ")</button>").on("click", function() {
+            u.money2 >= p ? modalWindow("Вы уверены, что хотите подарить игроку <b>" + o + "</b> VIP-статус на 30 дней?", function() {
                 sendToSocket({
                     type: "donat",
                     action: "vip",
@@ -6695,12 +6784,12 @@ function showCurGames(e) {
     0 < e.length)
         for (var s = 0, t = e.length; s < t; s++) {
             var i = e[s]._id
-              , o = $('<div id="curgame' + e[s]._id + '"></div>');
-            o.html("<time>" + date.showDate(e[s].time, !0) + "</time> <h5>" + e[s].creator + "</h5><em>" + e[s].caption + '</em><div class="curgame-info">' + (e[s].selecting ? '<b class="selrolgame"></b>' : "") + (e[s].botwall ? '<b class="botwall"></b>' : "") + (e[s].shortnight ? '<b class="shortnight"></b>' : "") + (e[s].man ? '<b class="manmode"></b>' : "") + gameStyle[e[s].style] + ' на <span class="red">' + e[s].count + '</span> игроков со ставкой <span class="brown">' + f.over1000(e[s].sum) + "</span></div><blockquote>" + e[s].players.join(", ") + "</blockquote> "),
-            $("<button>Посмотреть игру</button>").appendTo(o).click({
+              , n = $('<div id="curgame' + e[s]._id + '"></div>');
+            n.html("<time>" + date.showDate(e[s].time, !0) + "</time> <h5>" + e[s].creator + "</h5><em>" + e[s].caption + '</em><div class="curgame-info">' + (e[s].selecting ? '<b class="selrolgame"></b>' : "") + (e[s].botwall ? '<b class="botwall"></b>' : "") + (e[s].shortnight ? '<b class="shortnight"></b>' : "") + (e[s].man ? '<b class="manmode"></b>' : "") + gameStyle[e[s].style] + ' на <span class="red">' + e[s].count + '</span> игроков со ставкой <span class="brown">' + f.over1000(e[s].sum) + "</span></div><blockquote>" + e[s].players.join(", ") + "</blockquote> "),
+            $("<button>Посмотреть игру</button>").appendTo(n).click({
                 gameid: i
             }, enterToGame),
-            a.append(o)
+            a.append(n)
         }
     else
         a.html("<div><h5>В данный момент не проходит ни одной игры :(</h5></div>")
@@ -6719,9 +6808,15 @@ function inviteToGame() {
     }),
     $("#inviteToGameDiv").remove()
 }
-function newsCounter(e) {
-    var a = $(".newsButton");
-    a.attr("data-count", parseInt(a.attr("data-count")) + e)
+function newsCounter() {
+    var e = +lStorage.getItem("lastnews") || 0
+      , a = winInfo.find(".newsWin").children("div")
+      , s = $(".newsButton")
+      , t = 0;
+    a.each(function() {
+        this.getAttribute("data-newsid") > e && t++
+    }),
+    s.attr("data-count", t ? " (" + t + ")" : "")
 }
 function showNews(e, a) {
     winInfo.find(".newsWin").prepend('<div class="news specialnews" data-newsid="' + a + '">' + e.text + "<sup>" + date.rusDate(a) + "</sup></div>")
@@ -6900,11 +6995,6 @@ $('.gameoptions input[type="checkbox"]').change(function(e) {
     e.stopPropagation(),
     e.preventDefault(),
     $(this).prop("checked", !1),
-    !1)
-}),
-$("#about").keypress(function(e) {
-    var t = e.which;
-    return !($(this).attr("maxlength") <= $("#about").val().length && 8 != t && 46 != t) || (sound("signal"),
     !1)
 });
 var ticketK = .7
@@ -8088,7 +8178,7 @@ function socketEvent(e) {
             s.time === e.timestamp && socketStack.splice(a, 1)
         }),
         socketTry = 0,
-        $("#indicator").removeClass("offline"),
+        allMessagesList.removeClass("offline"),
         checkSocketStack();
         break;
     case "logout":
@@ -8197,6 +8287,7 @@ function socketEvent(e) {
         switch (s.action) {
         case "money":
         case "money2":
+        case "item25":
             f.notEnough(s);
             break;
         case "hiddenprofile":
@@ -8206,7 +8297,13 @@ function socketEvent(e) {
             showMessage("Сейчас Вы не можете отправлять сообщения в общий чат");
             break;
         case "onlyvip":
-            showMessage("Данная операция доступна только для VIP-аккаунта")
+            showMessage("Данная операция доступна только для VIP-аккаунта");
+            break;
+        case "noclan":
+            showMessage("Вы не состоите в клане.");
+            break;
+        case "error":
+            showMessage("Операция недоступна.")
         }
         break;
     case "inform":
@@ -8392,9 +8489,10 @@ function socketEvent(e) {
         break;
     case "news":
         s.del ? (winInfo.find(".newsWin").find('div[data-newsid="' + s.del + '"]').remove(),
-        newsCounter(-1)) : s.data && (showNews(s.data, s.id, !0),
+        newsCounter()) : s.data && (showNews(s.data, s.id, !0),
         alarm("Опубликована очередная новость"),
-        newsCounter(1));
+        lastNews = s.id,
+        newsCounter());
         break;
     case "audio":
         if (!isAppVK && isRadio && s.src) {
@@ -9043,9 +9141,9 @@ $("output").on("contextmenu", function(e) {
 });
 window.WebSocket || errorText("Ваш браузер не поддерживает технологию веб-сокетов. Пожалуйста, установите последнюю версию браузера Google Chrome или Mozilla Firefox.", !0);
 var ws, parseQueryString = function(e) {
-    for (var a = e.substr(1), i = /([^=]+)=([^&]+)&?/gi, o = i.exec(a), t = {}; null !== o; )
-        t[o[1]] = o[2],
-        o = i.exec(a);
+    for (var a = e.substr(1), o = /([^=]+)=([^&]+)&?/gi, i = o.exec(a), t = {}; null !== i; )
+        t[i[1]] = i[2],
+        i = o.exec(a);
     return t
 };
 function showGroupWidget() {
@@ -9071,21 +9169,21 @@ function appSocialButton() {
     if ("undefined" != typeof VK) {
         var e = isMaffia ? 109864615 : 39094155
           , a = isMaffia ? 5206919 : 5065752
-          , i = isMaffia ? "Мафия Онлайн" : "День Любви"
-          , o = currentDomainUrl() + (isMaffia ? "/images/maffia/applogo.png" : "/images/gift.png");
+          , o = isMaffia ? "Мафия Онлайн" : "День Любви"
+          , i = currentDomainUrl() + (isMaffia ? "/images/maffia/applogo.png" : "/images/gift.png");
         VK.init(function() {
-            VK.callMethod("setTitle", i),
+            VK.callMethod("setTitle", o),
             VK.Widgets.Like("vk_like", {
                 height: 24,
                 pageUrl: "http://vk.com/app" + a,
-                pageTitle: i,
-                pageImage: o,
+                pageTitle: o,
+                pageImage: i,
                 type: "button"
             }),
             $("#vk_share").html(VK.Share.button({
                 url: "http://vk.com/app" + a,
-                title: i,
-                image: o
+                title: o,
+                image: i
             }, {
                 type: "custom",
                 text: "Рассказать друзьям"
@@ -9101,18 +9199,18 @@ function appSocialButton() {
                 VK.api("friends.getAppUsers", {}, function(e) {
                     var r = e.response || []
                       , a = u.response || []
-                      , i = a.length
-                      , c = r.length;
-                    if (c < i)
-                        for (var o = 0; o < c; o++)
-                            for (var t = 0; t < i; t++)
-                                if (r[o] === a[t]) {
+                      , o = a.length
+                      , l = r.length;
+                    if (l < o)
+                        for (var i = 0; i < l; i++)
+                            for (var t = 0; t < o; t++)
+                                if (r[i] === a[t]) {
                                     a.splice(t, 1);
                                     break
                                 }
-                    var l = a.length
+                    var c = a.length
                       , n = r;
-                    if (l < 4)
+                    if (c < 4)
                         n = n.concat(a);
                     else {
                         for (var s = [], d = 0; d < 5; d++) {
@@ -9128,13 +9226,13 @@ function appSocialButton() {
                         uids: m,
                         fields: "first_name,last_name,photo_medium"
                     }, function(e) {
-                        for (var a = e.response ? e.response.length : 0, i = "", o = "", t = 0; t < a; t++) {
+                        for (var a = e.response ? e.response.length : 0, o = "", i = "", t = 0; t < a; t++) {
                             var n = -1 < r.indexOf(e.response[t].uid)
                               , s = '<a href="http://vk.com/id' + e.response[t].uid + '" title="Открыть профиль" target="_blank"><figure' + (n ? "" : ' class="noinstall"') + '><img src="' + e.response[t].photo_medium + '" /><figcaption>' + e.response[t].first_name + " " + e.response[t].last_name + "</figcaption></figure></a> ";
-                            n ? i += s : o += s
+                            n ? o += s : i += s
                         }
                         win.find(".info").append('<div class="vkfriends"></div>'),
-                        $(".vkfriends").html("<p>Уже установили приложение (" + c + "):</p>" + i + "<hr/><p>Еще не знают о Мафии Онлайн (" + l + ")</p>" + o + "<hr/>"),
+                        $(".vkfriends").html("<p>Уже установили приложение (" + l + "):</p>" + o + "<hr/><p>Еще не знают о Мафии Онлайн (" + c + ")</p>" + i + "<hr/>"),
                         $("<div/>", {
                             id: "vkfriends-button"
                         }).click(function() {
@@ -9179,11 +9277,11 @@ if (isAppVK) {
         })
     })
 } else
-    createCookie("vid", "", -1),
-    mobile || $.cachedScript("//vk.com/js/api/openapi.js?147").done(function() {});
+    createCookie("vid", "", -1);
 function authFalse(e) {
     isAppVK ? errorText("Ошибка авторизации: " + e.text + ". Обновите страницу") : authDiv ? $("#authDiv").fadeIn(500) : mobile ? (wallhide(),
-    showMessage("Пожалуйста, пройдите авторизацию повторно.")) : (createCookie("sid", "", -1),
+    showMessage("Пожалуйста, пройдите авторизацию повторно.")) : (console.log(e),
+    createCookie("sid", "", -1),
     warningWindow("Ошибка авторизации", function() {
         $(window).off("beforeunload", Unloader.unload),
         window.location.href = "/"
@@ -9200,7 +9298,7 @@ function socketConnect(a) {
         }
         ),
         ws.onclose = function(e) {
-            $("#indicator").addClass("offline");
+            allMessagesList.addClass("offline");
             var a = "";
             switch (e.code) {
             case 1e3:
@@ -9238,25 +9336,25 @@ function socketConnect(a) {
                 a = "Обрыв связи (" + e.code + ")"
             }
             console.log(e);
-            var i = {
+            var o = {
                 message: a,
                 color: "#ff0000",
                 from: "[server]"
             };
-            e.wasClean && 1006 !== e.code ? 4e3 === e.code || 4001 === e.code ? warningWindow(i.message, function() {
+            e.wasClean && 1006 !== e.code ? 4e3 === e.code || 4001 === e.code ? warningWindow(o.message, function() {
                 return errorText(a)
-            }) : modalWindow(i.message + "<br/> Обновить страницу?", function() {
+            }) : modalWindow(o.message + "<br/> Обновить страницу?", function() {
                 window.obUnloader && window.obUnloader.resetUnload(),
                 window.location.reload()
             }) : (showNewDiv('<div class="blue">Идет попытка восстановить соединение...<br/></div>'),
             setTimeout(function() {
                 socketConnect(!0)
             }, 3e3)),
-            showNewMessage(i)
+            showNewMessage(o)
         }
         ,
         ws.onopen = function() {
-            $("#indicator").removeClass("offline");
+            allMessagesList.removeClass("offline");
             var e = {
                 type: "authorize",
                 reconnect: a,
@@ -9314,10 +9412,10 @@ $(document).ready(function() {
     });
     for (var e = 1; e < 7; e++) {
         var a = prices["i" + e]
-          , i = .8 * prices["i" + e]
-          , o = prices["ir" + e];
-        $("#shop" + e + " .gamemoney").html(f.over1000(a) + '<hr/><span class="gamemoney">' + f.over1000(i) + "</span>"),
-        $("#shop" + e + " .money").html(f.over1000(o))
+          , o = .8 * prices["i" + e]
+          , i = prices["ir" + e];
+        $("#shop" + e + " .gamemoney").html(f.over1000(a) + '<hr/><span class="gamemoney">' + f.over1000(o) + "</span>"),
+        $("#shop" + e + " .money").html(f.over1000(i))
     }
     if (Object.forEach(collectionsData, function(e, a) {
         collectionWin.append('<input id="collect' + a + '" type="radio" name="collects" value="' + a + '"/><label for="collect' + a + '">' + e.title + "</label>")
