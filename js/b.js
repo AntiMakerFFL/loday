@@ -190,8 +190,11 @@ var prices = {
     },
     23: "Шапка снегурочки (+40% к интуиции)",
     24: "Для активации отправьте кому-то в личном сообщении слово &quot;бах&quot;",
-    2018: "Элемент Новогодней Коллекции 2018"
-};
+    2018: "Элемент Новогодней Коллекции 2018",
+    25: "Мафкойны - самая ценная валюта в игре",
+    26: "Молот Тора (для коллекции Суперсила)"
+}
+  , noactiveItems = ["7", "12", "13", "18", "24", "25", "26"];
 function getItemsArray(e) {
     return "object" == typeof itemsArray[e] ? isMaffia ? itemsArray[e].maffia : itemsArray[e].ffl : itemsArray[e]
 }
@@ -663,6 +666,12 @@ function leaveClan() {
         })
     })
 }
+function isMafcoins(n) {
+    return !(!u.items[25] || u.items[25] < n) || (f.notEnough({
+        action: "item25"
+    }),
+    !1)
+}
 clan.saveAll = function(n) {
     clan.all = {},
     n.forEach(function(n) {
@@ -765,24 +774,23 @@ clan.loadingPicture = function(n, a) {
 }
 ,
 winInfo.find(".clan").append('<div id="clan-files">\n\t<div class="goldmoney">\n\t\t<input type="file" accept="image/jpeg" id="clan-logo-file"/>\n\t\t<span>Изменить логотип клана</span><label class="button" for="clan-logo-file">5 мафкойнов</label>\n\t\t<sup>(квадратное изображение 200х200 в формате jpg)</sup>\n\t</div>\n\t<div class="goldmoney">\n\t\t<input type="file" accept="image/png" id="clan-icon-file"/>\n\t\t<span>Изменить значок клана </span><label class="button" for="clan-icon-file">5 мафкойнов</label><br/>\n\t\t<sup>(квадратное изображение 20х20 в формате png)</sup>\n\t</div>\n</div>'),
-$("#clan-files").on("change", "input", function() {
+$("#clan-files").on("click", "input", function() {
+    return isMafcoins(5)
+}).on("change", "input", function() {
     var l = $(this).attr("id")
       , n = $("#" + l)[0];
-    if (!u.items[25] || u.items[25] < 5)
-        f.notEnough({
-            action: "item25"
-        });
-    else if (n.files && n.files[0]) {
-        var i = n.files[0];
-        307200 < i.size ? showMessage("Размер файла превышает 300 КБ") : previewLoadPicture(this, function(n) {
-            var a = "clan-logo-file" === l ? ["logo", "логотип"] : ["icon", "значок"]
-              , t = "clan-logo-file" === l ? "0" : "";
-            modalWindow("Уверены, что хотите установить такой " + a[1] + ' для клана?<br/><img class="preloadFileImage" src="' + n + '" style="display:block;width:20' + t + "px;height:20" + t + 'px;margin:0 auto;"/>', function() {
-                return clan.loadingPicture(i, a)
+    if (isMafcoins(5))
+        if (n.files && n.files[0]) {
+            var i = n.files[0];
+            307200 < i.size ? showMessage("Размер файла превышает 300 КБ") : previewLoadPicture(this, function(n) {
+                var a = "clan-logo-file" === l ? ["logo", "логотип"] : ["icon", "значок"]
+                  , t = "clan-logo-file" === l ? "0" : "";
+                modalWindow("Уверены, что хотите установить такой " + a[1] + ' для клана?<br/><img class="preloadFileImage" src="' + n + '" style="display:block;width:20' + t + "px;height:20" + t + 'px;margin:0 auto;"/>', function() {
+                    return clan.loadingPicture(i, a)
+                })
             })
-        })
-    } else
-        showMessage("Не выбран файл для загрузки")
+        } else
+            showMessage("Не выбран файл для загрузки")
 });
 function currentDomainUrl() {
     return document.location.protocol + "//" + domain
@@ -869,13 +877,13 @@ function specials_in(e) {
             var a = e.time ? new Date(e.time) : new Date
               , n = a.getSeconds()
               , s = a.getMinutes()
-              , o = a.getHours()
-              , i = a.getDate()
+              , i = a.getHours()
+              , o = a.getDate()
               , l = a.getMonth() + 1
               , r = a.getFullYear()
               , c = {
-                time: (o < 10 ? "0" + o : o) + (s < 10 ? ":0" + s : ":" + s) + (n < 10 ? ":0" + n : ":" + n),
-                date: (i < 10 ? "0" + i : i) + (l < 10 ? ".0" + l + "." + r : ":" + l + "." + r)
+                time: (i < 10 ? "0" + i : i) + (s < 10 ? ":0" + s : ":" + s) + (n < 10 ? ":0" + n : ":" + n),
+                date: (o < 10 ? "0" + o : o) + (l < 10 ? ".0" + l + "." + r : ":" + l + "." + r)
             };
             t = (t = t.replace(/\*time\*/gim, c.time)).replace(/\[date\]/gim, c.date)
         }
@@ -903,11 +911,11 @@ function warningWindow(e, t, a, n) {
     s.appendTo(container),
     s.find(".modal3").html(e),
     s.show();
-    var o = s.find("button");
-    if (a ? o.css({
+    var i = s.find("button");
+    if (a ? i.css({
         padding: "0 10px"
-    }).html(a) : o.html("ОК"),
-    o.one("click", function() {
+    }).html(a) : i.html("ОК"),
+    i.one("click", function() {
         s.fadeOut(400),
         t && t(),
         setTimeout(function() {
@@ -920,8 +928,8 @@ function warningWindow(e, t, a, n) {
                 return s.remove()
             }).appendTo(s.find(".modal3")),
             game.style && 4 === game.style.style && container.hasClass("current")) {
-                var i = n.win ? 1 === u.sex ? "women" : "men" : 1 === u.sex ? "men" : "women";
-                s.addClass(i + "win")
+                var o = n.win ? 1 === u.sex ? "women" : "men" : 1 === u.sex ? "men" : "women";
+                s.addClass(o + "win")
             } else
                 n.win && 430 < $(window).height() && s.addClass("win");
             s.addClass("showWindow")
@@ -994,12 +1002,12 @@ function updateInterface(e) {
             $("#shop" + t).find("div:nth-of-type(2)").html(a)
         }
     if (u.items) {
-        var o = slotArray.reduce(function(e, t) {
+        var i = slotArray.reduce(function(e, t) {
             return u.items[t] && (e += '<input type="radio" name="slots" id="slot-bet' + t + '" value="' + t + '"/><label data-count="' + u.items[t] + '" class="items items-' + t + '" for="slot-bet' + t + '"></label>'),
             e
         }, "");
-        o || (o = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате."),
-        $("#slot-bet").html(o)
+        i || (i = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате."),
+        $("#slot-bet").html(i)
     }
     winInfo.find(".inventory").is(":visible") && showInventory(),
     Boolean(u.vip) !== updateInterface.vip && (u.vip && u.vip > Date.now() ? (b.removeClass("noVip"),
@@ -1018,8 +1026,8 @@ function showWall(e, t) {
     var a = void 0 === t ? {} : t
       , n = a.external
       , s = void 0 !== n && n
-      , o = a.nohide
-      , i = void 0 !== o && o
+      , i = a.nohide
+      , o = void 0 !== i && i
       , l = a.transparent
       , r = void 0 !== l && l
       , c = s ? e : "/images/walls/" + e;
@@ -1031,7 +1039,7 @@ function showWall(e, t) {
         "background-image": "url(" + c + ")"
     }),
     wallpaper.show(),
-    i || setTimeout(function() {
+    o || setTimeout(function() {
         return wallpaper.fadeOut(3e3, wallhide)
     }, 2e3)
 }
@@ -1081,7 +1089,7 @@ function showWindow(t) {
     case "areamap":
         if (mapAreas) {
             var s = document.getElementById("citymap")
-              , o = function(e) {
+              , i = function(e) {
                 var t = e.data
                   , a = $("#areaData");
                 if (a.empty(),
@@ -1104,7 +1112,7 @@ function showWindow(t) {
                     a.append(n)
                 }
             }
-              , i = function() {
+              , o = function() {
                 if ("contentDocument"in s)
                     for (var e = $(s.contentDocument), t = 1; t <= 8; t++) {
                         var a = $("#area" + t, e)
@@ -1112,11 +1120,11 @@ function showWindow(t) {
                         a.html("<title>" + n.title + "</title>"),
                         n.own && "bots" === n.own && a.attr("class", a.attr("class") + " " + n.own),
                         n.num = t,
-                        a.click(n, o)
+                        a.click(n, i)
                     }
             };
-            i(),
-            s.onload = i
+            o(),
+            s.onload = o
         }
         break;
     case "clan":
@@ -1171,9 +1179,9 @@ function showTooltip(e, t) {
         var a = t.split("|")
           , n = parseInt(a[0])
           , s = parseInt(a[1])
-          , o = html.width();
-        n < o / 2 ? tp.css("left", n + "px") : (tp.css("left", ""),
-        tp.css("right", o - n + "px")),
+          , i = html.width();
+        n < i / 2 ? tp.css("left", n + "px") : (tp.css("left", ""),
+        tp.css("right", i - n + "px")),
         tp.css("top", s + 10 + "px"),
         tp.html(gamesInfoArray[e]).show()
     } else
@@ -1183,16 +1191,16 @@ function tooltip(e, t, a) {
     var n = $(".tooltip")
       , s = isAppVK || kinderMode || mobile ? b : container;
     if (a) {
-        var o = e.pageX - s.offset().left
-          , i = e.pageY - s.offset().top
+        var i = e.pageX - s.offset().left
+          , o = e.pageY - s.offset().top
           , l = s.outerWidth()
           , r = s.outerHeight();
-        if (o < l / 2 ? (n.css("left", o + "px"),
+        if (i < l / 2 ? (n.css("left", i + "px"),
         n.css("right", "")) : (n.css("left", ""),
-        n.css("right", l - o + "px")),
-        r < i + 40 ? (n.css("top", ""),
-        n.css("bottom", r - i + "px")) : (n.css("bottom", ""),
-        n.css("top", i + 10 + "px")),
+        n.css("right", l - i + "px")),
+        r < o + 40 ? (n.css("top", ""),
+        n.css("bottom", r - o + "px")) : (n.css("bottom", ""),
+        n.css("top", o + 10 + "px")),
         0 < t.indexOf("|")) {
             var c = e.target.hasAttribute("data-club") ? u.club ? 1 : 0 : isMaffia ? 1 : 0;
             t = t.split("|")[c]
@@ -1321,6 +1329,15 @@ function createFotoLoading(e, t, a) {
         }
     }),
     closewindow()
+}
+function getRoleWallpaper(e) {
+    if (!e)
+        return "0.gif";
+    if (isMaffia) {
+        var t = 1100 < b.width() && 600 < b.height() ? "full/" : "";
+        return e < 10 ? "maffia/" + t + e + ".jpg" : t + e + ".jpg"
+    }
+    return e + ".jpg"
 }
 updateInterface.vip = !0;
 var date = {
@@ -2214,14 +2231,14 @@ game.writeText = function(e, a, t, i) {
         a.image)
             if (2 < a.image.length) {
                 o.className += " userimage";
-                var r = document.createElement("div");
-                r.className = "selfimg",
-                r.style.backgroundImage = "url(/files/" + a.id + a.image + ")",
-                o.appendChild(r)
+                var l = document.createElement("div");
+                l.className = "selfimg",
+                l.style.backgroundImage = "url(/files/" + a.id + a.image + ")",
+                o.appendChild(l)
             } else {
-                var l = 1 === a.sex ? "w" : "m";
-                l = a.image ? l + a.image : "",
-                o.className += " " + l
+                var r = 1 === a.sex ? "w" : "m";
+                r = a.image ? r + a.image : "",
+                o.className += " " + r
             }
     } else
         o.className += " noimage";
@@ -2455,21 +2472,21 @@ game.setPeriod = function(a) {
                 }),
                 game.writeText(o.substring(0, o.length - 2), !1, !0),
                 game.intuition) {
-                    var r = randomNicks.slice(0);
-                    r.shuffle(),
+                    var l = randomNicks.slice(0);
+                    l.shuffle(),
                     playersList.empty(),
                     Object.forEach(playersInfoArray, function(e, a) {
-                        e.login = r.shift(),
+                        e.login = l.shift(),
                         delete e.role,
                         playersInfoArray[a].killed || editPlayer(e, !1)
                     });
-                    var l = [];
+                    var r = [];
                     playersList.find("div").each(function() {
                         var e = [$(this).html(), $(this)];
-                        l.push(e)
+                        r.push(e)
                     }),
-                    l.sort(plSort),
-                    l.forEach(function(e) {
+                    r.sort(plSort),
+                    r.forEach(function(e) {
                         playersList.append(e[1])
                     })
                 }
@@ -2768,12 +2785,8 @@ game.start = function(a) {
         "march8" === specialDay && showWall("/images/holidays/march8/back.jpg", {
             external: !0
         })
-    } else if (a.married)
-        showWall(a.role ? "wedding" + (2 === a.role ? "2" : "1") + ".jpg" : "0.gif");
-    else {
-        var i = a.role ? isMaffia && a.role < 10 ? "maffia/" + a.role + ".jpg" : a.role + ".jpg" : "0.gif";
-        showWall(i)
-    }
+    } else
+        a.married ? showWall(a.role ? "wedding" + (2 === a.role ? "2" : "1") + ".jpg" : "0.gif") : showWall(getRoleWallpaper(a.role));
     game.active = !0,
     game.closed = !1,
     game.finish = !1,
@@ -2801,9 +2814,9 @@ game.start = function(a) {
     game.item2limit = u.item2 && 2 < u.item2 ? 3 : 2,
     itemPanel.removeClass(),
     itemPanel.find("div").removeClass("itemoff");
-    var n = ""
-      , s = "";
-    if (a.caption && (n = a.caption),
+    var i = ""
+      , n = "";
+    if (a.caption && (i = a.caption),
     a.gameinfo && (room = a.gameinfo._id,
     game.count = a.gameinfo.count,
     closedgame = 2 === a.gameinfo.style,
@@ -2832,43 +2845,43 @@ game.start = function(a) {
     0 === game.item2limit && itemPanel.find(".gameitem2").addClass("itemoff"))),
     game.item2 = u.item2 ? u.item2 > game.item2limit ? game.item2limit : u.item2 : 0,
     game.intuition && a.players) {
-        var o = randomNicks.slice(0);
-        o.shuffle(),
+        var s = randomNicks.slice(0);
+        s.shuffle(),
         replaceLogins = {},
         Object.forEach(a.players, function(e, a) {
             replaceLogins[a] = e.login,
-            e.login = o.shift()
+            e.login = s.shift()
         })
     }
     if (game.role = a.role,
     game.updateInfoGame(),
     gametitle.html("<span>" + (game.count ? gameTypeInfo(game) : gametitle.find("span").eq(0).html()) + '</span> <span id="studBank" data-title="Банк студентов|Банк граждан"></span> <span id="robbBank" data-title="Банк похитителей|Банк мафии"></span> <span id="allBank" data-title="Общий банк"></span> <span id="winBank" data-title="Банк победы"></span>'),
     game.recalculateBanks(a.banks),
-    a.married ? s += "Занимайте места поудобнее. Свадебная церемония начнется днем..." : a.intuition ? s += '<div class="important">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(a.intuition, "день", "дня", "дней") + "!</div>" : (s += '<div class="startText">',
-    s += 4 === game.style.style ? roleText.all["startText-sex"] : roleText[gameMode()].startText,
-    s += '</div><div class="message noimage">',
-    s += 4 === game.style.style ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role],
-    s += "</div>"),
-    game.man && (s += '<div class="important">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>"),
-    ("пб" === n.substring(0, 2).toLowerCase() || game.botwall) && (s += '<div class="important">Внимание! Это партия против ботов!</div>'),
+    a.married ? n += "Занимайте места поудобнее. Свадебная церемония начнется днем..." : a.intuition ? n += '<div class="important">' + roleText[gameMode()].intuitionStart + " Победа в этой партии ждет Вас через " + f.someThing(a.intuition, "день", "дня", "дней") + "!</div>" : (n += '<div class="startText">',
+    n += 4 === game.style.style ? roleText.all["startText-sex"] : roleText[gameMode()].startText,
+    n += '</div><div class="message noimage">',
+    n += 4 === game.style.style ? roleText.all["sex" + u.sex] : roleText[gameMode()].roleinfo[game.role],
+    n += "</div>"),
+    game.man && (n += '<div class="important">Внимание! В этой партии ' + roles(6).name + " играет сам за себя!</div>"),
+    ("пб" === i.substring(0, 2).toLowerCase() || game.botwall) && (n += '<div class="important">Внимание! Это партия против ботов!</div>'),
     isMaffia || $("#gift").show(),
     updateGameitems(),
     a.roles) {
-        var r = "В этой партии присутствуют следующие роли: ";
+        var o = "В этой партии присутствуют следующие роли: ";
         a.roles.forEach(function(e) {
-            r += '<span class="rolesmile role' + e + '"></span>'
+            o += '<span class="rolesmile role' + e + '"></span>'
         }),
-        s += "<div>" + r + "</div"
+        n += "<div>" + o + "</div"
     }
-    if (u.invite && playersInfoArray[u.invite] && (s += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>"),
+    if (u.invite && playersInfoArray[u.invite] && (n += '<div class="red">В этой партии находится ваш наставник - <b data-id="' + u.invite + '">' + playersInfoArray[u.invite].login + "</b></div>"),
     u.invited) {
         var l = [];
         Object.forEach(playersInfoArray, function(e) {
             e.invite && e.invite === u._id && l.push(e.login)
         }),
-        0 < l.length && (s += '<div class="red">В этой партии находятся ваши ученики: ' + l.join(", ") + "</div>")
+        0 < l.length && (n += '<div class="red">В этой партии находятся ваши ученики: ' + l.join(", ") + "</div>")
     }
-    showNewDiv('<div class="startgame">' + s + "</div>"),
+    showNewDiv('<div class="startgame">' + n + "</div>"),
     game.showPlaylist(a.players),
     clearInterval(min10),
     min10 = setInterval(function() {
@@ -5650,29 +5663,41 @@ $(".roll>div").click(function() {
 });
 var collectRadio, collectionsData = {
     1: {
+        name: "Активист",
         title: "Коллекция &quot;Активист&quot; <em>(услуга Активная роль приобретается на 30 часов)</em>",
         info: "Элемент коллекции активиста можно выиграть на барабане чудес и в лотерее."
     },
     2: {
+        name: "Клубная",
         title: 'Клубная коллекция <em>(Клуб <u class="clubname"></u> активируется на 40 дней)</em>',
         info: "Элемент клубной коллекции можно выиграть на барабане чудес и в лотерее."
     },
     2017: {
+        name: "2017",
         title: "Новогодняя коллекция 2017 <em>(+1% ко всем игровым бонусам)</em>",
         info: "Элементы новогодней коллекции 2017 можно выиграть в лотерее."
     },
     2018: {
+        name: "2018",
         title: "Новогодняя коллекция 2018 <em>(+10% к шансу обмануть кота)</em>",
         info: "Элементы новогодней коллекции 2018 можно выиграть в лотерее."
     },
     3: {
+        name: "Наставник",
         title: 'Коллекция наставника <em>(удвоение ежедневной <span class="for-ffl">стипендии</span> <span class="for-maffia">зарплаты</span>)</em>',
         info: "Элементы коллекции наставника можно получить за игровые достижения на проекте ваших учеников, зарегистрировавшихся по персональной ссылке (кнопка <em>Поделиться</em>)."
     },
     4: {
+        name: "Суперскорость",
         title: "Коллекция &quot;Суперскорость&quot; <em>(быстрый набор суперигр на 100)</em>",
         multi: !0,
         info: "Элементы коллекции Суперскорость можно получить за победу в игре на 100 игроков.<br/> Коллекцию можно собирать неограниченное число раз. За полный набор элементов Вы получаете награду - 30 сертификатов на создание быстрой суперигры."
+    },
+    5: {
+        name: "Суперсила",
+        title: "Коллекция &quot;Суперсила&quot; <em>(удвоенный рейтинг на 24 часа)</em>",
+        multi: !0,
+        info: "Элементы коллекции Суперсила можно получить за участие в специальных партиях без ботов (с таймером). За полный набор элементов Вы получаете награду - на 100% больше рейтинга в играх."
     }
 };
 function showCollect(e) {
@@ -5682,7 +5707,7 @@ function showCollect(e) {
         collectionsData[e].multi && u.collections && u.collections[e] && 15 === Object.size(u.collections[e]))
             Object.keys(u.collections[e]).every(function(t) {
                 return 0 < u.collections[e][t]
-            }) && $("<button/>").css({
+            }) && $("<button></button>").css({
                 display: "block",
                 margin: "3px auto"
             }).html("Активировать коллекцию").on("click", function() {
@@ -5702,7 +5727,7 @@ function showCollect(e) {
 }
 function itemAction(t) {
     var e = t.data.item;
-    e && (0 <= ["7", "12", "13", "18", "24", "25"].indexOf(e) ? showMessage("Этот предмет пригодится Вам в соответствующей локации") : modalWindow("Активировать предмет?", function() {
+    e && (-1 !== noactiveItems.indexOf(e) ? showMessage("Этот предмет пригодится Вам в соответствующей локации") : modalWindow("Активировать предмет?", function() {
         sendToSocket({
             type: "items",
             action: e
@@ -5711,18 +5736,18 @@ function itemAction(t) {
 }
 function showInventory() {
     if (u.items) {
-        var n = win.find(".inventory");
-        if (n.empty(),
+        var a = win.find(".inventory");
+        if (a.empty(),
         0 < Object.size(u.items) || u.bonus) {
             if (Object.forEach(u.items, function(t, e) {
                 if ("nytoys" !== e && 0 < t) {
                     var o = 0 < e && e < 7 ? roleText[gameMode()].items[e] : getItemsArray(e)
-                      , s = $("<div></div>").attr("data-title", o).addClass("items-" + e);
+                      , s = $("<div></div>").attr("data-title", o).addClass("items-" + e + (-1 === noactiveItems.indexOf(e) ? "" : " noactiveItem"));
                     1 < t && s.html("<span>" + t + "</span>"),
                     s.click({
                         item: e
                     }, itemAction),
-                    s.appendTo(n)
+                    s.appendTo(a)
                 }
             }),
             u.bonus || u.tempbonus) {
@@ -5731,7 +5756,7 @@ function showInventory() {
                 });
                 Object.forEach(u.bonus, function(t, e) {
                     var o = (u.tempbonus && u.tempbonus.deca ? "10x" : "") + t + "%";
-                    $("<div/>", {
+                    $("<div></div>", {
                         class: "bonus-" + e,
                         "data-title": bonusRings[e]
                     }).css({
@@ -5779,11 +5804,17 @@ function showInventory() {
                     "data-title": "100% бонус интуиции (до " + date.showDate(u.tempbonus.intuit100, !0) + ")"
                 }).css({
                     cursor: "auto"
+                }).html("<span>+100%</span>").appendTo(s),
+                u.tempbonus.rating && $("<div/>", {
+                    class: "items-26",
+                    "data-title": "удвоенный рейтинг (до " + date.showDate(u.tempbonus.rating, !0) + ")"
+                }).css({
+                    cursor: "auto"
                 }).html("<span>+100%</span>").appendTo(s)),
-                s.appendTo(n)
+                s.appendTo(a)
             }
         } else
-            n.append("<h5>У Вас пока нет ни одного полезного предмета.</h5>")
+            a.append("<h5>У Вас пока нет ни одного полезного предмета.</h5>")
     }
 }
 var slotArray = [1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24]
@@ -5822,8 +5853,8 @@ function slotAction(t) {
     slotsRotating = 3;
     for (var o = 1; o < 4; o++) {
         var s = $("#slot" + o)
-          , n = parseInt(s.css("top")) || 0;
-        slotMotion(s, 60 * -slotArray.indexOf(e[o - 1]) - n + 60 * slotCount * 3 + 60, n)
+          , a = parseInt(s.css("top")) || 0;
+        slotMotion(s, 60 * -slotArray.indexOf(e[o - 1]) - a + 60 * slotCount * 3 + 60, a)
     }
     t.win && ($.each(t.win, function(t, e) {
         u.items[t] || (u.items[t] = 0),
@@ -5840,8 +5871,8 @@ function slotMotion(t, e, o) {
         t.css({
             top: o + "px"
         });
-        var n = 500 < e ? 10 : 10 - Math.ceil(e / 50);
-        setTimeout(slotMotion, n, t, e, o)
+        var a = 500 < e ? 10 : 10 - Math.ceil(e / 50);
+        setTimeout(slotMotion, a, t, e, o)
     } else
         --slotsRotating <= 0 && ($("#slot-handler").attr("src", "/images/slot-handle.png").css({
             cursor: "pointer"
@@ -5907,10 +5938,10 @@ var lotteryInterval, lotteryQuery = !1, lotteryTimerStart = function() {
       , o = $("<tr/>")
       , s = $("<tr/>");
     e.append('<th rowspan="3">0</th>');
-    for (var n = 0; n < 12; n++)
-        $("<td/>").html(3 * n + 3).appendTo(e),
-        $("<td/>").html(3 * n + 2).appendTo(o),
-        $("<td/>").html(3 * n + 1).appendTo(s);
+    for (var a = 0; a < 12; a++)
+        $("<td/>").html(3 * a + 3).appendTo(e),
+        $("<td/>").html(3 * a + 2).appendTo(o),
+        $("<td/>").html(3 * a + 1).appendTo(s);
     t.append(e).append(o).append(s),
     t.click(function(t) {
         if (rouletteWas())
@@ -5923,10 +5954,10 @@ var lotteryInterval, lotteryQuery = !1, lotteryTimerStart = function() {
         }
     })
 };
-function toteVariants(s, n, a) {
-    Object.forEach(a[s].variants, function(t, e) {
+function toteVariants(s, a, n) {
+    Object.forEach(n[s].variants, function(t, e) {
         var o = "tote" + s + "_" + e;
-        $('<input type="radio" id="' + o + '" name="tote' + s + '" class="check" value="' + e + '"/><label for="' + o + '" data-title="' + (a[s].bets[e].sum ? f.someThing(a[s].bets[e].count, "ставка", "ставки", "ставок") + " на общую сумму " + f.over1000(a[s].bets[e].sum) + (a[s].bets[e].mybet ? "(ваша ставка - " + f.over1000(a[s].bets[e].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(t.text + (a[s].bets[e].sum ? " (" + f.roundTwo(a[s].sum / a[s].bets[e].sum) + ")" : "")).appendTo(n)
+        $('<input type="radio" id="' + o + '" name="tote' + s + '" class="check" value="' + e + '"/><label for="' + o + '" data-title="' + (n[s].bets[e].sum ? f.someThing(n[s].bets[e].count, "ставка", "ставки", "ставок") + " на общую сумму " + f.over1000(n[s].bets[e].sum) + (n[s].bets[e].mybet ? "(ваша ставка - " + f.over1000(n[s].bets[e].mybet) + ")" : "") : "Нет ставок") + '"></label>').html(t.text + (n[s].bets[e].sum ? " (" + f.roundTwo(n[s].sum / n[s].bets[e].sum) + ")" : "")).appendTo(a)
     })
 }
 function showToteList(t) {
@@ -5934,18 +5965,18 @@ function showToteList(t) {
     if (e.empty(),
     0 < t.length)
         for (var o = 0, s = t.length; o < s; o++) {
-            var n = t[o]._id
-              , a = $('<div id="tote' + t[o]._id + '"></div>');
-            $("<h5>" + t[o].title + "</h5>").appendTo(a),
-            $("<p>" + t[o].descr + "</p>").appendTo(a),
-            toteVariants(o, a, t),
-            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(a),
-            $('<br/><label class="gamemoney">Ваша ставка <input type="text" value="10" /> 000 </label>').appendTo(a),
-            $('<button class="button">Сделать ставку</button>').appendTo(a).click({
-                toteid: n
+            var a = t[o]._id
+              , n = $('<div id="tote' + t[o]._id + '"></div>');
+            $("<h5>" + t[o].title + "</h5>").appendTo(n),
+            $("<p>" + t[o].descr + "</p>").appendTo(n),
+            toteVariants(o, n, t),
+            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(n),
+            $('<br/><label class="gamemoney">Ваша ставка <input type="text" value="10" /> 000 </label>').appendTo(n),
+            $('<button class="button">Сделать ставку</button>').appendTo(n).click({
+                toteid: a
             }, doBet),
-            $('<div>∑ = <span class="gamemoney">' + f.over1000(t[o].sum) + "</span></div>").appendTo(a),
-            e.append(a)
+            $('<div>∑ = <span class="gamemoney">' + f.over1000(t[o].sum) + "</span></div>").appendTo(n),
+            e.append(n)
         }
     else
         e.html("<div><h5>В тотализаторе нет ни одного предстоящего события</h5></div>")
@@ -5959,17 +5990,17 @@ function doBet(t) {
     else if (1e3 * s > u.money)
         showMessage("Для такой ставки недостаточно денег на вашем игровом счете");
     else {
-        var n = o.find("h5").html()
-          , a = o.find('input[type="radio"]:checked');
-        if (a.val()) {
-            var i = a.next().html();
-            modalWindow('Уверены, что хотите сделать ставку в размере <span class="gamemoney">' + f.over1000(1e3 * s) + "</span> на вариант <b>" + i + "</b> в событии <em>" + n + "</em>?<br/> Отменить ставку будет невозможно!", function() {
+        var a = o.find("h5").html()
+          , n = o.find('input[type="radio"]:checked');
+        if (n.val()) {
+            var i = n.next().html();
+            modalWindow('Уверены, что хотите сделать ставку в размере <span class="gamemoney">' + f.over1000(1e3 * s) + "</span> на вариант <b>" + i + "</b> в событии <em>" + a + "</em>?<br/> Отменить ставку будет невозможно!", function() {
                 sendToSocket({
                     type: "tote",
                     action: "add",
                     id: e,
                     bet: s,
-                    variant: a.val()
+                    variant: n.val()
                 })
             })
         } else
@@ -5982,19 +6013,19 @@ function showAuctionList(t) {
     0 < t.length) {
         e.append('<div class="specialnews">Каждая ставка продлевает время аукциона на 3 суток. Победителем становится игрок, чья ставка продержится 72 часа. Ставки, перебитые другими участниками, возвращаются их владельцам</div>');
         for (var o = 0, s = t.length; o < s; o++) {
-            var n = t[o]._id
-              , a = $('<div id="auction' + t[o]._id + '"></div>');
-            $('<img src="/images/lots/' + t[o].img + '" alt="Изображение лота"/>').appendTo(a),
-            $('<h5 class="money">' + t[o].bet + "</h5>").appendTo(a),
-            $("<p>" + t[o].lot + "</p>").appendTo(a),
-            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(a),
-            $('<br/><label class="money">Ваша ставка <input type="text" value="10" /></label>').appendTo(a),
-            $("<button>Сделать ставку</button>").appendTo(a).click({
-                aucid: n,
+            var a = t[o]._id
+              , n = $('<div id="auction' + t[o]._id + '"></div>');
+            $('<img src="/images/lots/' + t[o].img + '" alt="Изображение лота"/>').appendTo(n),
+            $('<h5 class="money">' + t[o].bet + "</h5>").appendTo(n),
+            $("<p>" + t[o].lot + "</p>").appendTo(n),
+            $("<span>" + date.showDate(t[o].dateto, !0) + "</span>").appendTo(n),
+            $('<br/><label class="money">Ваша ставка <input type="text" value="10" /></label>').appendTo(n),
+            $("<button>Сделать ставку</button>").appendTo(n).click({
+                aucid: a,
                 min: t[o].bet
             }, doAuctionBet),
-            t[o].login && $("<div>Последняя ставка: " + t[o].login + "</div>").appendTo(a),
-            e.append(a)
+            t[o].login && $("<div>Последняя ставка: " + t[o].login + "</div>").appendTo(n),
+            e.append(n)
         }
     } else
         e.html('<div><h5 class="nobefore">Нет доступных лотов</h5></div>')
@@ -6003,24 +6034,24 @@ function doAuctionBet(t) {
     var e = t.data.aucid
       , o = t.data.min + 1 || 1
       , s = $("#auction" + e)
-      , n = parseInt(s.find('input[type="text"]').val());
-    !n || n < o ? showMessage('Минимальная ставка <span class="money">' + o + "</span>") : n > u.money2 ? f.notEnough({
+      , a = parseInt(s.find('input[type="text"]').val());
+    !a || a < o ? showMessage('Минимальная ставка <span class="money">' + o + "</span>") : a > u.money2 ? f.notEnough({
         action: "money2"
-    }) : modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + f.over1000(n) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
+    }) : modalWindow('Уверены, что хотите сделать ставку в размере <span class="money">' + f.over1000(a) + "</span> на этот лот?<br/> Если вашу ставку перебьют другие участники, вся сумма будет возвращена на ваш счет!", function() {
         sendToSocket({
             type: "auction",
             lot: e,
-            bet: n
+            bet: a
         })
     })
 }
 function showQuiz(t) {
     $(".quiz").remove();
     for (var e = $('<div class="quiz">' + t.text + "</div>"), o = $("<p></p>"), s = 0; s < t.wordlen; s++) {
-        var n = "<span";
-        t.open && t.open[s] && " " === t.open[s] && (n += ' class="spaceLetter"'),
-        n += ">" + (t.open && t.open[s] ? t.open[s] : "") + "</span>",
-        $(n).appendTo(o)
+        var a = "<span";
+        t.open && t.open[s] && " " === t.open[s] && (a += ' class="spaceLetter"'),
+        a += ">" + (t.open && t.open[s] ? t.open[s] : "") + "</span>",
+        $(a).appendTo(o)
     }
     o.appendTo(e),
     e.bind("click contextmenu selectstart", function(t) {
@@ -6081,15 +6112,15 @@ var quizRanks = {
 };
 function showQuizList(t) {
     var s = '<table><tr class="quizHeader"><td></td><th>Игроки</th><td>Очки</td><td>Звания</td></tr>'
-      , n = 0;
+      , a = 0;
     t.forEach(function(e) {
         var o = "-";
-        n++,
+        a++,
         Object.keys(quizRanks).every(function(t) {
             return o = quizRanks[t],
             e.quiz >= t
         }),
-        s += "<tr><td>" + n + '</td><th data-id="' + e._id + '">' + e.login + "</th><td>" + e.quiz + "</td><td>" + o + "</td></tr>"
+        s += "<tr><td>" + a + '</td><th data-id="' + e._id + '">' + e.login + "</th><td>" + e.quiz + "</td><td>" + o + "</td></tr>"
     }),
     s += "</table>",
     quizTop.html(s),
@@ -8529,7 +8560,7 @@ function socketEvent(e) {
         s.toy && warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + s.toy + '"></div></div>', !1, !1, "newspaper"),
         s.snowflake && !server2 && (warningWindow('<div class="reward">' + roleText.all.snowflake + '<div class="snowflake"></div></div>'),
         u.items[18] ? u.items[18]++ : u.items[18] = 1),
-        s.collect && warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + s.collect + " collect-element collect-element" + s.element + '"></span></div>', !1, !1, "newspaper"),
+        s.collect && warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;' + collectionsData[s.collect].name + '&quot;: <span class="collect' + s.collect + " collect-element collect-element" + s.element + '"></span></div>', !1, !1, "newspaper"),
         s.item && (warningWindow('<div>В ваш инвентарь добавлена награда: <div class="items items-' + s.item + '" data-count="' + s.count + '"></div></div>'),
         updateInterface(s.update));
         break;
@@ -9403,9 +9434,7 @@ function socketConnect(a) {
 }
 function loadImageFiles() {
     for (var e = 0; e <= 10; e++)
-        (new Image).src = "/images/walls/" + (0 === e ? "0.gif" : e + ".jpg");
-    for (var a = 1; a <= 9; a++)
-        (new Image).src = "/images/walls/maffia/" + a + (a < 8 ? ".png" : ".jpg");
+        (new Image).src = "/images/walls/" + getRoleWallpaper(e);
     ["/images/avatars.png", "/images/avatars-max.png", "/images/avatars-min.png", "/images/gifts1.png", "/images/gifts2.png?210818", "/images/gifts3.png?251217", "/images/gifts4.png?50318", "/images/gifts5.png?240618", "/images/maffia/char-background.jpg", "/images/maffia/roll.png", "/images/roll.svg", "/images/walls/wedding1.jpg", "/images/walls/wedding2.jpg"].forEach(function(e) {
         (new Image).src = e
     })

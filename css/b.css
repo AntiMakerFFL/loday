@@ -4728,7 +4728,7 @@ button.usergameButton {
 }
 
 .lottery>div>span.openLottery {
-    background-image: url(/images/items.png?130918);
+    background-image: url(/images/items.png?021018);
     background-color: #fff!important;
     border-radius: 0;
     -moz-box-sizing: border-box;
@@ -5635,7 +5635,7 @@ button.usergameButton {
     left: 0;
     width: 60px;
     height: 60px;
-    background: url(/images/items.png?130918) 0 -180px no-repeat
+    background: url(/images/items.png?021018) 0 -180px no-repeat
 }
 
 .pay>.mafcoin>label {
@@ -8040,16 +8040,20 @@ button.usergameButton {
     background: url(/images/collects/3.png) no-repeat rgba(8,171,118,.33)
 }
 
-.collect4 {
-    background-image: url(/images/collects/4.jpg)
-}
-
 .collect2017 {
     background: url(/images/collects/2017.png) no-repeat #9c9aff
 }
 
 .collect2018 {
     background: url(/images/collects/2018.jpg) no-repeat
+}
+
+.collect4 {
+    background-image: url(/images/collects/4.jpg)
+}
+
+.collect5 {
+    background: url(/images/collects/5.png) no-repeat rgba(150,8,8,.4)
 }
 
 #radio {
@@ -11374,7 +11378,7 @@ body {
     position: relative;
     width: 60px;
     height: 60px;
-    background-image: url(/images/items.png?130918);
+    background-image: url(/images/items.png?021018);
     margin: 1px;
     box-shadow: inset 0 0 60px rgba(255,0,0,.2);
     border-radius: 25%
@@ -11399,7 +11403,7 @@ body {
     margin: 0 auto 10px;
     width: 60px;
     height: 60px;
-    background-image: url(/images/items.png?130918);
+    background-image: url(/images/items.png?021018);
     border: 3px ridge #d0d0d0
 }
 
@@ -11419,7 +11423,7 @@ body {
     text-align: right
 }
 
-.items-12,.items-13,.items-18,.items-24,.items-25,.items-7 {
+.noactiveItem {
     cursor: auto!important
 }
 
@@ -11552,6 +11556,10 @@ div.items-24,label.items-24 {
 
 .items-25 {
     background-position: 0 -180px
+}
+
+.items-26 {
+    background-position: -60px -180px
 }
 
 .itembox {
