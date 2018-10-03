@@ -839,9 +839,8 @@ function sendToSocket(e) {
 }
 function changeNumberHtml(e, t, a) {
     var n = $("#" + e)
-      , s = n.html()
-      , i = a ? t : parseInt(s) + t;
-    n.html(i.toString())
+      , s = a ? t : parseInt(n.html()) + t;
+    n.html(s.toString())
 }
 function roleReplace(a) {
     if (a) {
@@ -855,6 +854,8 @@ function roleReplace(a) {
     return a
 }
 function matFilter(e) {
+    if (!e)
+        return "";
     var t = " [ой] ";
     return e = (e = e.replace(/(^|\s)(хуй|хуя|бля)/gi, t)).replace(/пизд|нахуй|похуй|уеб|хуй|хуе|хyй|хyе|xуй|xуе|аеб|(^|\s)еба|е6|((^|\s)манда(\s|$))|пидор/gi, t)
 }
@@ -868,13 +869,13 @@ function specials_in(e) {
             var a = e.time ? new Date(e.time) : new Date
               , n = a.getSeconds()
               , s = a.getMinutes()
-              , i = a.getHours()
-              , o = a.getDate()
+              , o = a.getHours()
+              , i = a.getDate()
               , l = a.getMonth() + 1
               , r = a.getFullYear()
               , c = {
-                time: (i < 10 ? "0" + i : i) + (s < 10 ? ":0" + s : ":" + s) + (n < 10 ? ":0" + n : ":" + n),
-                date: (o < 10 ? "0" + o : o) + (l < 10 ? ".0" + l + "." + r : ":" + l + "." + r)
+                time: (o < 10 ? "0" + o : o) + (s < 10 ? ":0" + s : ":" + s) + (n < 10 ? ":0" + n : ":" + n),
+                date: (i < 10 ? "0" + i : i) + (l < 10 ? ".0" + l + "." + r : ":" + l + "." + r)
             };
             t = (t = t.replace(/\*time\*/gim, c.time)).replace(/\[date\]/gim, c.date)
         }
@@ -883,7 +884,7 @@ function specials_in(e) {
     return t
 }
 function specials_out(e) {
-    return e.replace(/\s*\/me\s/, " " + u.login + " ")
+    return e.replace(/(^|\s)\/me($|\s)/, " " + u.login + " ")
 }
 function escapeHtml(e) {
     var t = {
@@ -897,34 +898,40 @@ function escapeHtml(e) {
         return t[e]
     })
 }
-function warningWindow(e, t, a, n, s) {
-    var i = wW.clone();
-    i.appendTo(container),
-    i.find(".modal3").html(e),
-    "Выйти из игры" === a && $("<div/>").addClass("button gameView").html("Посмотреть игру").click(i, function(e) {
-        e.data.remove()
-    }).appendTo(i.find(".modal3")),
-    i.show();
-    var o = i.find("button");
+function warningWindow(e, t, a, n) {
+    var s = wW.clone();
+    s.appendTo(container),
+    s.find(".modal3").html(e),
+    s.show();
+    var o = s.find("button");
     if (a ? o.css({
         padding: "0 10px"
     }).html(a) : o.html("ОК"),
     o.one("click", function() {
-        $(this).parents(".warningWindow").fadeOut(400),
+        s.fadeOut(400),
         t && t(),
-        setTimeout(function(e) {
-            e.remove()
-        }, 1e3, $(this).parents(".warningWindow"))
+        setTimeout(function() {
+            return s.remove()
+        }, 1e3)
     }),
-    void 0 !== n && game.style && 4 === game.style.style && container.hasClass("current")) {
-        var l = n ? 1 === u.sex ? "women" : "men" : 1 === u.sex ? "men" : "women";
-        i.addClass(l + "win")
-    } else
-        n && 430 < $(window).height() && i.addClass("win");
-    s ? (i.addClass(s),
-    setTimeout(function(e) {
-        e.addClass("showWindow")
-    }, 500, i)) : i.addClass("showWindow")
+    n)
+        if (n instanceof Object && n.hasOwnProperty("win")) {
+            if ($("<div></div>").addClass("button gameView").html("Посмотреть игру").on("click", function() {
+                return s.remove()
+            }).appendTo(s.find(".modal3")),
+            game.style && 4 === game.style.style && container.hasClass("current")) {
+                var i = n.win ? 1 === u.sex ? "women" : "men" : 1 === u.sex ? "men" : "women";
+                s.addClass(i + "win")
+            } else
+                n.win && 430 < $(window).height() && s.addClass("win");
+            s.addClass("showWindow")
+        } else
+            s.addClass(n),
+            setTimeout(function() {
+                return s.addClass("showWindow")
+            }, 500);
+    else
+        s.addClass("showWindow")
 }
 function modalWindow(e, t, a) {
     mW.find(".modal").removeAttr("style"),
@@ -943,12 +950,10 @@ function showCash(e) {
     var t = $("#cash")
       , a = t.find(".modal2");
     t.removeClass().addClass("cash" + Math.floor(9 * Math.random())),
-    a.html(e),
-    a.unbind("click"),
-    t.addClass("showCash"),
-    a.on("click", function() {
-        t.removeClass("showCash")
-    })
+    a.html(e).unbind("click").on("click", function() {
+        return t.removeClass("showCash")
+    }),
+    t.addClass("showCash")
 }
 function isset(e) {
     return !(void 0 === e || null === typeof e)
@@ -977,7 +982,8 @@ function updateInterface(e) {
     shop.find("p").find(".money").html(f.over1000(e.money2)));
     for (var t = 1; t < 7; t++)
         if (e.hasOwnProperty("item" + t)) {
-            var a, n = e["item" + t] || 0;
+            var a = void 0
+              , n = e["item" + t] || 0;
             if (t % 3 == 0) {
                 var s = n - Date.now();
                 a = !s || s < 1 ? 0 : Math.ceil(s / 36e5),
@@ -988,14 +994,14 @@ function updateInterface(e) {
             $("#shop" + t).find("div:nth-of-type(2)").html(a)
         }
     if (u.items) {
-        var i = "";
-        slotArray.forEach(function(e) {
-            u.items[e] && (i += '<input type="radio" name="slots" id="slot-bet' + e + '" value="' + e + '"/><label data-count="' + u.items[e] + '" class="items items-' + e + '" for="slot-bet' + e + '"></label>')
-        }),
-        i || (i = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате."),
-        $("#slot-bet").html(i)
+        var o = slotArray.reduce(function(e, t) {
+            return u.items[t] && (e += '<input type="radio" name="slots" id="slot-bet' + t + '" value="' + t + '"/><label data-count="' + u.items[t] + '" class="items items-' + t + '" for="slot-bet' + t + '"></label>'),
+            e
+        }, "");
+        o || (o = "К сожалению, Ваш инвентарь пуст. Вы не сможете сейчас сыграть на автомате."),
+        $("#slot-bet").html(o)
     }
-    win.find(".inventory").is(":visible") && showInventory(),
+    winInfo.find(".inventory").is(":visible") && showInventory(),
     Boolean(u.vip) !== updateInterface.vip && (u.vip && u.vip > Date.now() ? (b.removeClass("noVip"),
     updateInterface.vip = !0) : (b.addClass("noVip"),
     updateInterface.vip = !1)),
@@ -1012,8 +1018,8 @@ function showWall(e, t) {
     var a = void 0 === t ? {} : t
       , n = a.external
       , s = void 0 !== n && n
-      , i = a.nohide
-      , o = void 0 !== i && i
+      , o = a.nohide
+      , i = void 0 !== o && o
       , l = a.transparent
       , r = void 0 !== l && l
       , c = s ? e : "/images/walls/" + e;
@@ -1025,15 +1031,15 @@ function showWall(e, t) {
         "background-image": "url(" + c + ")"
     }),
     wallpaper.show(),
-    o || setTimeout(function() {
-        wallpaper.fadeOut(3e3, wallhide)
+    i || setTimeout(function() {
+        return wallpaper.fadeOut(3e3, wallhide)
     }, 2e3)
 }
 function showWindow(t) {
     switch (win.attr("class", "window"),
     winInfo.children("div").hide(),
     submenu.hide(),
-    -1 < ["tournaments", "aboutgame"].indexOf(t) && win.find(".info ." + t).load("/html/" + t + ("aboutgame" === t && isMaffia ? "-maffia" : "") + ".html"),
+    -1 < ["tournaments", "aboutgame"].indexOf(t) && winInfo.find("." + t).load("/html/" + t + ("aboutgame" === t && isMaffia ? "-maffia" : "") + ".html"),
     winInfo.find("." + t).show(),
     container.addClass("back"),
     win.addClass("openWindow"),
@@ -1046,9 +1052,10 @@ function showWindow(t) {
             u.hasOwnProperty("item" + e) || (u["item" + e] = 0);
             var t = (u["item" + e] || 0) - date.now()
               , a = 3 === e ? 36e5 : 864e5
-              , n = !t || t < 1 ? 0 : Math.ceil(t / a);
-            $("#shop" + e).find("div:nth-of-type(2)").html(n),
-            6 === e && $("#shop6").find("div:nth-of-type(2)").attr("data-title", f.someThing(Math.ceil(t / 36e5), "час", "часа", "часов"))
+              , n = !t || t < 1 ? 0 : Math.ceil(t / a)
+              , s = $("#shop" + e).find("div:nth-of-type(2)");
+            s.html(n),
+            6 === e && s.attr("data-title", f.someThing(Math.ceil(t / 36e5), "час", "часа", "часов"))
         });
         break;
     case "donatoptions":
@@ -1074,17 +1081,17 @@ function showWindow(t) {
     case "areamap":
         if (mapAreas) {
             var s = document.getElementById("citymap")
-              , i = function(e) {
+              , o = function(e) {
                 var t = e.data
                   , a = $("#areaData");
                 if (a.empty(),
                 $("<h2>" + t.title + "</h2>").appendTo(a),
                 t.own && (a.append("Контролируют: " + ("bots" === t.own ? "боты" : "игроки")),
-                "bots" === t.own && $("<button/>", {
+                "bots" === t.own && $("<button></button>", {
                     class: "button",
                     "data-area": t.num
                 }).html("Захватить").on("click", areaAttack).appendTo(a),
-                "players" === t.own && $("<button/>", {
+                "players" === t.own && $("<button></button>", {
                     class: "button",
                     "data-area": t.num
                 }).html("Оборонять").on("click", areaAttack).appendTo(a)),
@@ -1097,7 +1104,7 @@ function showWindow(t) {
                     a.append(n)
                 }
             }
-              , o = function() {
+              , i = function() {
                 if ("contentDocument"in s)
                     for (var e = $(s.contentDocument), t = 1; t <= 8; t++) {
                         var a = $("#area" + t, e)
@@ -1105,11 +1112,11 @@ function showWindow(t) {
                         a.html("<title>" + n.title + "</title>"),
                         n.own && "bots" === n.own && a.attr("class", a.attr("class") + " " + n.own),
                         n.num = t,
-                        a.click(n, i)
+                        a.click(n, o)
                     }
             };
-            o(),
-            s.onload = o
+            i(),
+            s.onload = i
         }
         break;
     case "clan":
@@ -1118,24 +1125,24 @@ function showWindow(t) {
         break;
     case "tree":
         if (u.items && u.items.nytoys) {
-            var l = win.find(".toybox");
+            var l = winInfo.find(".toybox");
             l.empty(),
             $.each(u.items.nytoys, function(e, t) {
-                $('<span class="nytoy' + t + '" data-id="' + e + '"></span>').mousedown(NYtoyAdd).appendTo(l)
-            })
+                $('<span class="nytoy' + t + '" data-id="' + e + '"></span>').appendTo(l)
+            }),
+            l.on("mousedown", "span", NYtoyAdd)
         }
         break;
     case "lottery":
-        var r = "";
         lotteryQuery = !1,
         lotteryWin.empty();
-        for (var c = 1; c <= 100; c++)
+        for (var r = "", c = 1; c <= 100; c++)
             r += "<span>" + c + "</span>",
             c % 10 == 0 && (r += "<br/>");
-        $("<div/>").html(r).appendTo(lotteryWin),
-        lotteryWin.find("div>span").on("click", function() {
-            lotteryQuery || (lotteryDiv.find("button").hide(),
-            lotteryQuery = !0,
+        $("<div></div>").html(r).appendTo(lotteryWin),
+        lotteryWin.on("click", "div>span", function() {
+            lotteryQuery || (lotteryQuery = !0,
+            lotteryDiv.find("button").hide(),
             sendToSocket({
                 type: "lottery",
                 num: $(this).html()
@@ -1164,9 +1171,9 @@ function showTooltip(e, t) {
         var a = t.split("|")
           , n = parseInt(a[0])
           , s = parseInt(a[1])
-          , i = html.width();
-        n < i / 2 ? tp.css("left", n + "px") : (tp.css("left", ""),
-        tp.css("right", i - n + "px")),
+          , o = html.width();
+        n < o / 2 ? tp.css("left", n + "px") : (tp.css("left", ""),
+        tp.css("right", o - n + "px")),
         tp.css("top", s + 10 + "px"),
         tp.html(gamesInfoArray[e]).show()
     } else
@@ -1176,17 +1183,20 @@ function tooltip(e, t, a) {
     var n = $(".tooltip")
       , s = isAppVK || kinderMode || mobile ? b : container;
     if (a) {
-        var i = e.pageX - s.offset().left
-          , o = e.pageY - s.offset().top
+        var o = e.pageX - s.offset().left
+          , i = e.pageY - s.offset().top
           , l = s.outerWidth()
           , r = s.outerHeight();
-        i < l / 2 ? (n.css("left", i + "px"),
+        if (o < l / 2 ? (n.css("left", o + "px"),
         n.css("right", "")) : (n.css("left", ""),
-        n.css("right", l - i + "px")),
-        r < o + 40 ? (n.css("top", ""),
-        n.css("bottom", r - o + "px")) : (n.css("bottom", ""),
-        n.css("top", o + 10 + "px")),
-        0 < t.indexOf("|") && (t = e.target.hasAttribute("data-club") ? t.split("|")[u.club ? 1 : 0] : t.split("|")[isMaffia ? 1 : 0]),
+        n.css("right", l - o + "px")),
+        r < i + 40 ? (n.css("top", ""),
+        n.css("bottom", r - i + "px")) : (n.css("bottom", ""),
+        n.css("top", i + 10 + "px")),
+        0 < t.indexOf("|")) {
+            var c = e.target.hasAttribute("data-club") ? u.club ? 1 : 0 : isMaffia ? 1 : 0;
+            t = t.split("|")[c]
+        }
         n.html(t.replace("<!", "&lt;!")).show()
     } else
         n.hide()
@@ -1487,14 +1497,9 @@ donatFoto.find("button").on("click", function() {
         });
     else if (donatFotoFile.files && donatFotoFile.files[0]) {
         var n = donatFotoFile.files[0];
-        if (307200 < n.size)
-            showMessage("Размер файла превышает 300 КБ");
-        else {
-            var o = 'style="width:200px;height:260px;box-shadow:inset 1px 1px 1px #aaa, inset -1px 1px 1px #aaa, inset 1px -1px 1px #aaa, inset -1px -1px 1px #aaa"';
-            modalWindow('Уверены, что хотите установить эту аватарку?<br/><div style="background:#000;float:left"><img class="preloadFileImage" src="' + donatFotoFileImage + '" ' + o + '/><br/> в режиме Мафии</div><div style="background:#fff;float:left;color:#000"><img class="preloadFileImage" src="' + donatFotoFileImage + '" ' + o + '/><br/> в режиме День Любви</div><br class="clearfix"/>', function() {
-                return createFotoLoading(n, "/upload", "Не удалось установить аватар")
-            })
-        }
+        307200 < n.size ? showMessage("Размер файла превышает 300 КБ") : modalWindow('Уверены, что хотите установить эту аватарку?<br/><div class="preloadAvatar"><img class="preloadFileImage" src="' + donatFotoFileImage + '" /></div><div class="preloadAvatar"><img class="preloadFileImage" src="' + donatFotoFileImage + '" /></div>', function() {
+            return createFotoLoading(n, "/upload", "Не удалось установить аватар")
+        })
     } else
         showMessage("Не выбран файл для загрузки")
 });
@@ -1909,8 +1914,8 @@ var min10, gameMode = function() {
         },
         startText: "Борьба за праздник началась.",
         intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Похитители голосуют против дежурного, его помощника и лунатика, а студенты - против похитителей.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для студентов: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для похитителей: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место дежурного занимает его помощник. Новый дежурный уж точно не оставит похитителям никаких шансов!",
-        bossChild: "Место главы похитителей занимает его незаконно рожденный ребенок!",
+        newDuty: '<span class="important">Место дежурного занимает его помощник. Новый дежурный уж точно не оставит похитителям никаких шансов!</span>',
+        bossChild: '<span class="important">Место главы похитителей занимает его незаконно рожденный ребенок!</span>',
         "bossChild-father": ", ваш отец возглавлял группу похитителей подарков. Теперь вы должны отомстить за него и сорвать праздник любви!",
         "bossChild-mother": ", ваша мать возглавляла группу похитителей подарков. Теперь вы должны отомстить за нее и сорвать праздник любви!",
         stealGift: "К сожалению, вы остались без подарка.",
@@ -2045,8 +2050,8 @@ var min10, gameMode = function() {
         },
         startText: "Борьба за город началась.",
         intuitionStart: 'В этой игре задача каждого участника - определить игрока с ролью противоположной стороны и проголосовать против него днем! Мафиози голосуют против граждан, а мирные жители - против мафии.<br/> За каждую правильно угаданную роль игроки будут получать баллы: <blockquote>для мирных: <span class="hrobb"></span> - 3, <span class="robb"></span> - 2, <span class="law"></span> - 1, <span class="jeal"></span> - 1<br/> для мафии: <span class="duty"></span> - 3, <span class="assis"></span> - 2, <span class="sleep"></span> - 2, <span class="jeal"></span> - 1 </blockquote>',
-        newDuty: "Место комиссара занял сержант. Мы верим в нашего нового комиссара!",
-        bossChild: "Место босса мафии занимает его внебрачный ребенок!",
+        newDuty: '<span class="important">Место комиссара занял сержант. Мы верим в нашего нового комиссара!</span>',
+        bossChild: '<span class="important">Место босса мафии занимает его внебрачный ребенок!</span>',
         "bossChild-father": ", ваш отец был боссом мафии и был убит. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
         "bossChild-mother": ", ваша мать была боссом мафии и была убита. Теперь по мафиозному кодексу мафию города должны возглавить Вы.",
         stealGift: "К сожалению, Вас убили.",
@@ -6466,7 +6471,7 @@ function editPlayerList(e, a, s) {
             playersInfoArray[e._id] = e;
             var i = $("<div/>", {
                 id: e._id
-            }).html("<b></b>" + e.login);
+            }).html("<b></b>" + matFilter(e.login));
             i.attr("data-nick", e.login),
             i.mouseenter(function() {
                 return showPlayerInfo(!0, $(this).attr("id")),
@@ -6612,9 +6617,12 @@ function markAll() {
 }
 function suggestedPlayer(e) {
     var a, s = e._id, t = $("#" + s);
-    t && (e.kick ? (a = "Игрок " + t.html() + " исключен создателем.",
+    t && (playersInfoArray[s] || (playersInfoArray[s] = {
+        login: "Котик"
+    }),
+    e.kick ? (a = "Игрок " + playersInfoArray[s].login + " исключен создателем.",
     t.removeClass("marked"),
-    playersInfoArray[s].marked = 0) : (a = "Игрок " + t.html() + " одобрен создателем.",
+    playersInfoArray[s].marked = 0) : (a = "Игрок " + playersInfoArray[s].login + " одобрен создателем.",
     t.addClass("marked"),
     playersInfoArray[s].marked = 1),
     game.writeText(a),
@@ -6651,8 +6659,8 @@ function showPlayerInfo(e, a) {
         s.find(".robb").html(i(t, "poh")),
         s.find(".stud").html(i(t, "stud")),
         s.find(".gamecount").html(r),
-        ptp.find("#player-status").removeClass().addClass("status" + t.icon).html(t.status || ""),
-        $("#playerInfo-about", ptp).html(t.about || "");
+        ptp.find("#player-status").removeClass().addClass("status" + t.icon).html(matFilter(t.status)),
+        $("#playerInfo-about", ptp).html(matFilter(t.about));
         var l = "";
         if (Object.forEach(t.cups, function(e, a) {
             l += '<span data-title="' + e + '" style="background-image:url(/images/cups/' + a.replace("-", ".") + ')"></span>'
@@ -6705,8 +6713,8 @@ function showPlayerInfoBlock(e) {
         $('<span class="roles-stat" data-text="' + roles(e).name + '">' + (a[1] || "0") + " / " + (a[0] || "0") + "</span>").insertAfter(l)
     }),
     s.find(".gamecount").html(e.gamescount),
-    a.find(".player-status").removeClass().addClass("player-status status" + e.icon).html(e.status || ""),
-    a.find(".playerInfo-about").html(e.about || "");
+    a.find(".player-status").removeClass().addClass("player-status status" + e.icon).html(matFilter(e.status)),
+    a.find(".playerInfo-about").html(matFilter(e.about));
     var d = "";
     Object.forEach(e.cups, function(e, a) {
         d += '<span data-title="' + e + '" style="background-image:url(/images/cups/' + a.replace("-", ".") + ')"></span>'
@@ -6834,14 +6842,23 @@ var newGame = {
         2: [15, 25],
         3: [20, 30],
         4: [8, 20]
+    },
+    checkLaw: function(e) {
+        var t = {
+            3: 21,
+            4: 9
+        };
+        t[newGame.type] && (e >= t[newGame.type] ? gamePanel.find(".law").removeClass("hiddenclass") : gamePanel.find(".law").addClass("hiddenclass"))
     }
 }
+  , gamePanel = $("#gamePanel")
   , plC = $("#plCount")
   , st = $("#stavka");
 function setCount(e) {
     var t = parseInt(plC.html()) + e;
     t >= newGame.countForType[newGame.type][0] && t <= newGame.countForType[newGame.type][1] && (newGame.plCount = t,
-    plC.html(t))
+    plC.html(t)),
+    newGame.checkLaw(t)
 }
 function setStavka(e) {
     var t = Math.floor(u.money / 1e3)
@@ -6896,7 +6913,7 @@ function checkOptions() {
     newGame.style += 1e5),
     t || (newGame.minStavka = 1,
     newGame.maxStavka = 2),
-    1 == t && (newGame.minStavka = 1,
+    1 === t && (newGame.minStavka = 1,
     newGame.maxStavka = 4),
     10 < t && (newGame.minStavka = 2,
     newGame.maxStavka = 16),
@@ -6919,14 +6936,15 @@ function checkOptions() {
     st.html(newGame.stavka)
 }
 function setGame(e) {
-    newGame.type = e ? parseInt(e) : parseInt($("#gamePanel").find("input:checked + label").attr("data-gametype")),
+    newGame.type = e ? parseInt(e) : parseInt(gamePanel.find("input:checked + label").attr("data-gametype")),
     1 === newGame.type || 4 === newGame.type ? $("#gametype1_4").addClass("checkedGameType") : $("#gametype1_4").removeClass("checkedGameType");
     var t = newGame.countForType[newGame.type][0];
     newGame.plCount = t,
-    plC.html(t)
+    plC.html(t),
+    newGame.checkLaw(t)
 }
 function checkGame() {
-    newGame.type = $("#gamePanel").find("input:checked + label").attr("data-gametype"),
+    newGame.type = gamePanel.find("input:checked + label").attr("data-gametype"),
     plC.html() < newGame.countForType[newGame.type][0] && (newGame.plCount = newGame.countForType[newGame.type][0],
     plC.html(newGame.plCount)),
     plC.html() > newGame.countForType[newGame.type][1] && (newGame.plCount = newGame.countForType[newGame.type][1],
@@ -6958,7 +6976,7 @@ function createGame() {
     }
 }
 function setStenka() {
-    $("#gamePanel").find("label").eq(1).click(),
+    gamePanel.find("label").eq(1).click(),
     ch1.prop("checked", !0),
     ch2.prop("checked", !0),
     ch3.prop("checked", !1),
@@ -6971,7 +6989,7 @@ function setStenka() {
     showWindow("newgame")
 }
 function setCHP() {
-    $("#gamePanel").find("label").eq(0).click(),
+    gamePanel.find("label").eq(0).click(),
     ch1.prop("checked", !0),
     ch2.prop("checked", !0),
     ch3.prop("checked", !1),
@@ -6986,11 +7004,11 @@ function setCHP() {
 function getRandomInt(e, t) {
     return Math.floor(Math.random() * (t - e + 1)) + e
 }
-$("#gamePanel").find("label").click(function() {
+gamePanel.on("click", "label", function() {
     setGame($(this).attr("data-gametype"))
 }),
 $('.gameoptions input[type="checkbox"]').change(function(e) {
-    return u.club || -1 == ["check2", "check3", "check4", "check5", "check6"].indexOf(e.target.id) ? (checkOptions(),
+    return u.club || -1 === ["check2", "check3", "check4", "check5", "check6"].indexOf(e.target.id) ? (checkOptions(),
     !0) : (showMessage('Создавать закрытые игры могут только члены клуба <span class="clubname"></span>!'),
     e.stopPropagation(),
     e.preventDefault(),
@@ -7201,6 +7219,7 @@ function UGinc(e, t) {
         case "UGrobb":
             var n = Math.floor(parseInt(UG.find("#UGplCount").html()) / 2) - 1;
             UG.find("#UGhrobb").prop("checked") && (n -= 1),
+            UG.find("#UGadv").prop("checked") && (n -= 1),
             n < c && (c = n),
             c < 1 && (c = 1);
             break;
@@ -7286,7 +7305,7 @@ UG.find("#UGcheck4").change(function() {
     return $(this).prop("checked") ? e.addClass("noactive") : e.removeClass("noactive"),
     !0
 }),
-$("#UGcreateGame").click(createUserGame),
+$("#UGcreateGame").on("click", createUserGame),
 newGame.loadSaves = function() {
     var a = "";
     $.each(newGame.saves, function(e, t) {
@@ -8206,7 +8225,9 @@ function socketEvent(e) {
                 game.finished();
                 var a = s.win
                   , t = s.message || finalMsg(s, !0);
-                warningWindow(t, goToRoom, "Выйти из игры", a)
+                warningWindow(t, goToRoom, "Выйти из игры", {
+                    win: a
+                })
             }
             s.banks && game.recalculateBanks(s.banks)
         }
@@ -8228,7 +8249,7 @@ function socketEvent(e) {
     case "reconnect":
         s.error ? ($("#errorBlock").hide(),
         warningWindow("Не удалось восстановить соединение", function() {
-            window.location.reload()
+            return window.location.reload()
         }, "Обновить страницу")) : (mW.hide(),
         showNewMessage({
             message: "Соединенис с сервером было восстановлено!",
@@ -8470,7 +8491,7 @@ function socketEvent(e) {
                 s.data.text && (g += " с пожеланиями:<br/> <em>" + escapeHtml(matFilter(s.data.text)) + "</em>"),
                 g += '<div class="giftdiv ' + getGiftClass(s.data.num) + '"></div>',
                 showConvert(function() {
-                    warningWindow(g, !1, !1, !1, "opencard")
+                    warningWindow(g, !1, !1, "opencard")
                 })
             }
         break;
@@ -8504,11 +8525,11 @@ function socketEvent(e) {
         }
         break;
     case "reward":
-        s.num && warningWindow('<div class="reward">' + roleText[gameMode()].reward[s.num] + "</div>", !1, !1, !1, "newspaper"),
-        s.toy && warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + s.toy + '"></div></div>', !1, !1, !1, "newspaper"),
-        s.snowflake && !server2 && (warningWindow('<div class="reward">' + roleText.all.snowflake + '<div class="snowflake"></div></div>', !1, !1, !1),
+        s.num && warningWindow('<div class="reward">' + roleText[gameMode()].reward[s.num] + "</div>", !1, !1, "newspaper"),
+        s.toy && warningWindow('<div class="reward">' + roleText.all.rewardToy + '<div class="nytoy' + s.toy + '"></div></div>', !1, !1, "newspaper"),
+        s.snowflake && !server2 && (warningWindow('<div class="reward">' + roleText.all.snowflake + '<div class="snowflake"></div></div>'),
         u.items[18] ? u.items[18]++ : u.items[18] = 1),
-        s.collect && warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + s.collect + " collect-element collect-element" + s.element + '"></span></div>', !1, !1, !1, "newspaper"),
+        s.collect && warningWindow('<div class="reward">Вы нашли элемент коллекции &quot;Суперскорость&quot;: <span class="collect' + s.collect + " collect-element collect-element" + s.element + '"></span></div>', !1, !1, "newspaper"),
         s.item && (warningWindow('<div>В ваш инвентарь добавлена награда: <div class="items items-' + s.item + '" data-count="' + s.count + '"></div></div>'),
         updateInterface(s.update));
         break;
@@ -8815,7 +8836,7 @@ curator.answer = function(e) {
 ;
 var alarmWin = $('<div id="alarm"></div>').appendTo(container);
 function showAlarms() {
-    warningWindow('<div class="alarmlist">' + alarmWin.html() + "</div>");
+    showMessage('<div class="alarmlist">' + alarmWin.html() + "</div>");
     var e = $(".alarmlist").parents(".modal");
     e.scrollTop(e[0].scrollHeight)
 }
@@ -9285,7 +9306,7 @@ function authFalse(e) {
     warningWindow("Ошибка авторизации", function() {
         $(window).off("beforeunload", Unloader.unload),
         window.location.href = "/"
-    }, "Авторизоваться", !1, "showOnTop"),
+    }, "Авторизоваться", "showOnTop"),
     console.log(e.text))
 }
 function socketConnect(a) {

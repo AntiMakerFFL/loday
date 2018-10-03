@@ -602,12 +602,16 @@ button {
 }
 
 #preloader:after {
-    content: url(/images/loading.gif);
+    content: '';
     display: block
 }
 
 .unauthorized #char+#preloader {
     display: block
+}
+
+.unauthorized #preloader:after {
+    content: url(/images/loading.gif)
 }
 
 header {
@@ -1554,7 +1558,10 @@ article {
     bottom: 30px;
     height: 20px;
     color: #ee9;
-    font-weight: 700
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
 }
 
 .messages b[data-id],.messages strong[data-id] {
@@ -2794,7 +2801,11 @@ footer {
     display: block;
     height: 25px;
     position: relative;
-    margin-right: 230px
+    margin-right: 230px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
 }
 
 .panel-top {
@@ -2963,6 +2974,10 @@ label {
     margin-right: 0;
     margin-bottom: 2px;
     vertical-align: bottom
+}
+
+#privat+label:after {
+    content: 'Приватно'
 }
 
 .panel-top:before {
@@ -3245,6 +3260,10 @@ label {
     content: 'Ревнивый студент'
 }
 
+.jeal.manone:after {
+    content: 'Ревнивый студент-одиночка'
+}
+
 .robb:before,.role2 {
     background: url(/images/roles/2.png) no-repeat
 }
@@ -3321,13 +3340,13 @@ label {
     content: 'Адвокат'
 }
 
-.roleblock10:before,.roleblock10target:before {
-    background: url(/images/question.png) center no-repeat;
-    background-size: contain
+.role10,.roleblock10:before {
+    background: url(/images/maffia/roles/10.png) no-repeat
 }
 
-.maffia .roleblock10:before,.maffia .roleblock10target:before {
-    background-image: url(/images/maffia/gamelogo.png)
+.roleblock10target:before {
+    background: url(/images/maffia/gamelogo.png) center no-repeat;
+    background-size: contain
 }
 
 .roleblock10:after {
@@ -3645,7 +3664,7 @@ label {
 }
 
 #wallpaper {
-    display: block;
+    display: none;
     position: absolute;
     z-index: 1000;
     left: 0;
@@ -8100,6 +8119,52 @@ button.usergameButton {
     border: 3px double #fc34ee
 }
 
+.preloadAvatar {
+    position: relative;
+    display: inline-block;
+    width: 200px;
+    height: 260px;
+    margin-bottom: 2em
+}
+
+.preloadAvatar:after {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    white-space: nowrap;
+    font-size: 16px
+}
+
+.preloadAvatar:nth-of-type(1) {
+    background: #000
+}
+
+.preloadAvatar:nth-of-type(2) {
+    background: #fff
+}
+
+.preloadAvatar:nth-of-type(1):after {
+    content: 'в режиме Мафии'
+}
+
+.preloadAvatar:nth-of-type(2):after {
+    content: 'в режиме День Любви'
+}
+
+.preloadAvatar>img {
+    max-width: 200px;
+    max-height: 260px;
+    width: auto;
+    height: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    box-shadow: inset 1px 1px 1px #aaa,inset -1px 1px 1px #aaa,inset 1px -1px 1px #aaa,inset -1px -1px 1px #aaa
+}
+
 .vipProfile {
     background: url(/images/vip.gif) repeat #f7e5e5!important;
     text-shadow: 2px 2px 2px red,-2px -2px 2px red,0 0 1px #000,2px 2px 1px #999,-2px 2px 1px #999
@@ -10462,7 +10527,7 @@ body {
 }
 
 .ticket10 {
-    background: url(/images/question.png) center/contain no-repeat #ccf
+    background: url(/images/maffia/tickets/10.png) center/contain no-repeat rgba(0,0,0,.8)
 }
 
 .maffia .ticket1 {
@@ -11193,7 +11258,8 @@ body {
 .alarm {
     text-align: right;
     padding-right: 10px;
-    color: #006400
+    color: #006400;
+    overflow: hidden
 }
 
 .alarm:before {
@@ -12472,6 +12538,10 @@ section.bonus-ring:before {
 
 .maffia .jeal:after {
     content: 'Маньяк'
+}
+
+.maffia .jeal.manone:after {
+    content: 'Маньяк-одиночка'
 }
 
 .maffia .robb:after {
